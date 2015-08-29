@@ -17,6 +17,7 @@ binaries: test
 	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 godep go build -ldflags $(LD_FLAGS) -o $(NAME)-linux-$(ARCH)
 
 container: binaries
-	sh build-container.sh
+	docker  build -t ae6rt/aftomato:latest .
+
 clean: 
 	godep go clean
