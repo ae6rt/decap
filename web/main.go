@@ -196,7 +196,7 @@ func lockBuild(buildID, key string) (bool, error) {
 
 	escapedKey := url.QueryEscape(key)
 	Log.Printf("Attempting to acquire a lock on build: %s\n", escapedKey)
-	req, err := http.NewRequest("PUT", fmt.Sprintf("http://lockservice:2379/v2/keys/%s?prevExist=false", escapedKey), strings.NewReader(data.Encode()))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("http://lockservice:2379/v2/keys/aftomato/%s?prevExist=false", escapedKey), strings.NewReader(data.Encode()))
 	if err != nil {
 		return false, err
 	}
@@ -230,7 +230,7 @@ func unlockBuild(buildID, key string) error {
 
 	escapedKey := url.QueryEscape(key)
 	Log.Println("BuildID %s wants to unlock build on key %s\n", buildID, escapedKey)
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://lockservice:2379/v2/keys/%s?prevValue=%s", escapedKey, buildID), nil)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://lockservice:2379/v2/keys/aftomato/%s?prevValue=%s", escapedKey, buildID), nil)
 	if err != nil {
 		return err
 	}
