@@ -1,0 +1,67 @@
+---
+  kind: "Service"
+  spec: 
+    ports: 
+      - 
+        protocol: "TCP"
+        targetPort: 2379
+        port: 2379
+    selector: 
+      name: "conductor"
+  apiVersion: "v1"
+  metadata: 
+    name: "lockservice"
+---
+  kind: "Service"
+  spec: 
+    ports: 
+      - 
+        protocol: "TCP"
+        targetPort: 9090
+        port: 9090
+    selector: 
+      name: "conductor"
+  apiVersion: "v1"
+  metadata: 
+    name: "conductor"
+---
+  apiVersion: "v1"
+  kind: "ReplicationController"
+  metadata: 
+    labels: 
+      name: "conductor"
+    name: "conductor"
+    namespace: "default"
+  spec: 
+    replicas: 1
+    selector: 
+      name: "conductor"
+    template: 
+      metadata: 
+        labels: 
+          name: "conductor"
+      spec: 
+        containers: 
+          - 
+            image: "quay.io/coreos/etcd:v2.1.1"
+            args: 
+              - "-listen-client-urls"
+              - "http://0.0.0.0:2379"
+              - "--advertise-client-urls"
+              - "http://127.0.0.1:2379"
+            name: "etcd"
+            resources: 
+              limits: 
+                cpu: "100m"
+                memory: "50Mi"
+          - 
+            image: "ae6rt/aftomato:latest"
+            name: "conductor"
+            resources: 
+              limits: 
+                cpu: "100m"
+                memory: "50Mi"
+            ports: 
+                - 
+                  containerPort: 9090
+                  protocol: TCP

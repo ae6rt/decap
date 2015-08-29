@@ -1,0 +1,38 @@
+{
+    "apiVersion": "v1", 
+    "kind": "ReplicationController", 
+    "metadata": {
+        "labels": {
+            "name": "aftomato"
+        }, 
+        "name": "aftomato", 
+        "namespace": "default"
+    }, 
+    "spec": {
+        "replicas": 1, 
+        "selector": {
+            "name": "aftomato"
+        }, 
+        "template": {
+            "metadata": {
+                "labels": {
+                    "name": "aftomato"
+                }
+            }, 
+            "spec": {
+                "containers": [
+                    {
+                        "image": "ae6rt/aftomato:latest", 
+                        "name": "aftomato", 
+                        "resources": {
+                            "limits": {
+                                "cpu": "100m", 
+                                "memory": "50Mi"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
