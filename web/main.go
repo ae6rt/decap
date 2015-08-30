@@ -43,8 +43,8 @@ type K8sBase struct {
 
 var (
 	apiServerBaseURL           = flag.String("api-server-base-url", "http://localhost:8080", "Kubernetes API server base URL")
-	apiServerUser              = flag.String("api-server-username", "admin", "Kubernetes API server username to use if no service acccount API token is presentL")
-	apiServerPassword          = flag.String("api-server-password", "admin123", "Kubernetes API server password to use if no service acccount API token is presentL")
+	apiServerUser              = flag.String("api-server-username", "admin", "Kubernetes API server username to use if no service acccount API token is present.")
+	apiServerPassword          = flag.String("api-server-password", "admin123", "Kubernetes API server password to use if no service acccount API token is present.")
 	buildScriptsRepo           = flag.String("build-scripts-repo", "", "Git repo where userland build scripts are held.")
 	buildArtifactBucketName    = flag.String("build-artifact-bucket-name", "aftomato-build-artifacts", "S3 bucket name where build artifacts are stored.")
 	buildConsoleLogsBucketName = flag.String("build-console-logs-bucket-name", "aftomato-console-logs", "S3 bucket name where build console logs are stored.")
@@ -179,9 +179,13 @@ func main() {
 
 	apiToken := string(data)
 	k8s := NewK8s(*apiServerBaseURL, apiToken, *apiServerUser, *apiServerPassword, locker)
+
 	stashHandler := StashHandler{K8sBase: k8s}
+	githubHandler := GitHubHandler{K8sBase: k8s}
 
 	http.HandleFunc("/hooks/stash", stashHandler.handle)
-	Log.Printf("Listening for Stash post-receive messages on port 9090.")
+	http.HandleFunc("/hooks/github", githubHandler.handle)
+
+	Log.Println("Listening for post-receive messages on port 9090...")
 	http.ListenAndServe(":9090", nil)
 }
