@@ -245,3 +245,6 @@ adjusting the AWS region as appropriate to where you created the DynamoDb table.
 
 In the Users section of the AWS Console, attach this _aftomato-db_ policy to the _aftomato_ user.
 
+## Kubernetes Cluster Setup
+
+TBD
