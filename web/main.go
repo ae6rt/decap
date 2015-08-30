@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 
 	"text/template"
 
@@ -21,6 +20,11 @@ import (
 	"time"
 )
 
+type PushEvent interface {
+	ProjectKey() string
+	Branches() []string
+}
+
 type BuildPod struct {
 	BuildID                 string
 	BuildScriptsGitRepo     string
@@ -29,24 +33,6 @@ type BuildPod struct {
 	BranchToBuild           string
 	BuildArtifactBucketName string
 	ConsoleLogsBucketName   string
-}
-
-type bag struct {
-	Repository repository  `json:"repository"`
-	RefChanges []refChange `json:"refChanges"`
-}
-
-type repository struct {
-	Slug    string  `json:"slug"`
-	Project project `json:"project"`
-}
-
-type project struct {
-	Key string `json:"key"`
-}
-
-type refChange struct {
-	RefID string `json:"refId"`
 }
 
 var (
@@ -74,16 +60,15 @@ func init() {
 		os.Exit(0)
 	}
 
-	data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
-	if err != nil {
+	if data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token"); err != nil {
 		Log.Printf("Cannot read service account token: %v\n", err)
+	} else {
+		apiToken = string(data)
 	}
-	apiToken = string(data)
 
-	tr := &http.Transport{
+	httpClient = &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	httpClient = &http.Client{Transport: tr}
+	}}
 
 	etcdConfig = etcd.Config{
 		Endpoints: []string{"http://lockservice:2379"},
@@ -94,7 +79,7 @@ func init() {
 
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func stashCommitHandler(w http.ResponseWriter, r *http.Request) {
 	Log.Printf("post-receive hook received")
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -104,19 +89,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 	Log.Printf("%s\n", string(data))
 
-	var t bag
-	err = json.Unmarshal(data, &t)
+	var stashContainer StashContainer
+	err = json.Unmarshal(data, &stashContainer)
 	if err != nil {
 		w.WriteHeader(200)
 		return
 	}
 	w.WriteHeader(200)
-	go build(t)
+	go build(stashContainer)
 }
 
-func build(theBag bag) {
+func build(stash PushEvent) {
 	// todo anything that arises here from "type bag" is obviously Stash specific.  Generalize this to accomodate Github hooks.
-	projectKey := strings.ToLower(fmt.Sprintf("%s/%s", theBag.Repository.Project.Key, theBag.Repository.Slug))
+	projectKey := stash.ProjectKey()
 
 	buildPod := BuildPod{
 		BuildImage:              *image,
@@ -126,8 +111,7 @@ func build(theBag bag) {
 		ConsoleLogsBucketName:   *buildConsoleLogsBucketName,
 	}
 
-	for _, refID := range theBag.RefChanges {
-		branch := strings.ToLower(strings.Replace(refID.RefID, "refs/heads/", "", -1))
+	for _, branch := range stash.Branches() {
 		buildPod.BranchToBuild = branch
 		buildID := uuid.NewRandom().String()
 		buildPod.BuildID = buildID
@@ -145,109 +129,61 @@ func build(theBag bag) {
 			continue
 		}
 
-		lockit(hydratedTemplate.Bytes(), projectKey, branch, buildID)
-	}
-}
+		lockKey := lockKey(projectKey, branch)
 
-func lockit(podTemplate []byte, projectKey, branch, buildID string) {
-	c, err := etcd.New(etcdConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
-	kapi := etcd.NewKeysAPI(c)
-	if resp, err := kapi.Set(context.Background(), url.QueryEscape(fmt.Sprintf("%s/%s", projectKey, branch)), buildID, &etcd.SetOptions{
-		PrevExist: etcd.PrevNoExist,
-	}); err != nil {
-		Log.Println(err)
-		return
-	} else {
+		resp, err := lockIt(lockKey, buildID)
+		if err != nil {
+			Log.Println(err)
+			continue
+		}
 
 		if resp.Node.Value == buildID {
-			Log.Println("Acquired lock on build\n")
-			createPod(podTemplate)
+			Log.Printf("Acquired lock on build %s with key %s\n", buildID, lockKey)
+			if podError := createPod(hydratedTemplate.Bytes()); podError != nil {
+				Log.Println(podError)
+				if _, err := unlockIt(lockKey, buildID); err != nil {
+					Log.Println(err)
+				} else {
+					Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, lockKey, podError)
+				}
+			}
 			Log.Printf("Created pod=%s\n", buildID)
 		}
 	}
 }
 
-func createPod(pod []byte) {
+func lockKey(projectKey, branch string) string {
+	return url.QueryEscape(fmt.Sprintf("%s/%s", projectKey, branch))
+}
+
+func lockIt(lockKey, buildID string) (*etcd.Response, error) {
+	c, err := etcd.New(etcdConfig)
+	if err != nil {
+		return nil, err
+	}
+	client := etcd.NewKeysAPI(c)
+	return client.Set(context.Background(), lockKey, buildID, &etcd.SetOptions{PrevExist: etcd.PrevNoExist})
+}
+
+func unlockIt(lockKey, buildID string) (*etcd.Response, error) {
+	c, err := etcd.New(etcdConfig)
+	if err != nil {
+		return nil, err
+	}
+	client := etcd.NewKeysAPI(c)
+	return client.Delete(context.Background(), lockKey, &etcd.DeleteOptions{PrevValue: buildID})
+}
+
+func createPod(pod []byte) error {
 	req, err := http.NewRequest("POST", "https://kubernetes/api/v1/namespaces/default/pods", bytes.NewReader(pod))
 	if err != nil {
 		Log.Println(err)
-		return
+		return err
 	}
 	req.Header.Set("Authorization", "Bearer "+apiToken)
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return
-	}
-	defer func() {
-		resp.Body.Close()
-	}()
-
-	if resp.StatusCode != 201 {
-		if data, err := ioutil.ReadAll(resp.Body); err != nil {
-			Log.Printf("Error reading non-201 response body: %v\n", err)
-		} else {
-			Log.Printf("%s\n", string(data))
-		}
-		return
-	}
-}
-
-func lockBuild(buildID, key string) (bool, error) {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-
-	data := url.Values{}
-	data.Set("value", buildID)
-
-	escapedKey := url.QueryEscape(key)
-	Log.Printf("Attempting to acquire a lock on build: %s\n", escapedKey)
-	req, err := http.NewRequest("PUT", fmt.Sprintf("http://lockservice:2379/v2/keys/aftomato/%s?prevExist=false", escapedKey), strings.NewReader(data.Encode()))
-	if err != nil {
-		return false, err
-	}
-	req.Header.Set("Content-type", "application/x-www-form-urlencoded")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return false, err
-	}
-	defer func() {
-		resp.Body.Close()
-	}()
-
-	if resp.StatusCode != 201 {
-		if data, err := ioutil.ReadAll(resp.Body); err != nil {
-			Log.Printf("Error reading non-201 response body: %v\n", err)
-		} else {
-			Log.Printf("%s\n", string(data))
-		}
-		return false, nil
-	}
-	return true, nil
-}
-
-func unlockBuild(buildID, key string) error {
-
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{Transport: tr}
-
-	escapedKey := url.QueryEscape(key)
-	Log.Println("BuildID %s wants to unlock build on key %s\n", buildID, escapedKey)
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("http://lockservice:2379/v2/keys/aftomato/%s?prevValue=%s", escapedKey, buildID), nil)
-	if err != nil {
-		return err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
 		return err
 	}
 	defer func() {
@@ -257,17 +193,17 @@ func unlockBuild(buildID, key string) error {
 	if resp.StatusCode != 201 {
 		if data, err := ioutil.ReadAll(resp.Body); err != nil {
 			Log.Printf("Error reading non-201 response body: %v\n", err)
+			return err
 		} else {
 			Log.Printf("%s\n", string(data))
+			return nil
 		}
-		return nil
 	}
-
 	return nil
 }
 
 func main() {
-	http.HandleFunc("/stashhooks", handler)
-	Log.Printf("Listening for post-receive messages on port 9090.")
+	http.HandleFunc("/hooks/stash", stashCommitHandler)
+	Log.Printf("Listening for Stash post-receive messages on port 9090.")
 	http.ListenAndServe(":9090", nil)
 }

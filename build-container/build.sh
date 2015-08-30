@@ -67,7 +67,7 @@ XXX
 	CERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 	TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 	LOCK_KEY=$(echo -n "${PROJECT_KEY}/${BRANCH_TO_BUILD}" | php -r "echo rawurlencode(fgets(STDIN));" 
-	curl --cacert $CER  -H"Authorization: Bearer $TOKEN" -i https://kubernetes/api/v1/proxy/namespaces/default/services/lockservice/v2/keys/aftomato/${LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
+	curl --cacert $CERT  -H"Authorization: Bearer $TOKEN" -i https://kubernetes/api/v1/proxy/namespaces/default/services/lockservice/v2/keys/${LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
 else
 	exec "$@"
 fi
