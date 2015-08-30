@@ -7,7 +7,7 @@
         targetPort: 2379
         port: 2379
     selector: 
-      name: "conductor"
+      name: "aftomato"
   apiVersion: "v1"
   metadata: 
     name: "lockservice"
@@ -20,26 +20,26 @@
         targetPort: 9090
         port: 9090
     selector: 
-      name: "conductor"
+      name: "aftomato"
   apiVersion: "v1"
   metadata: 
-    name: "conductor"
+    name: "aftomato"
 ---
   apiVersion: "v1"
   kind: "ReplicationController"
   metadata: 
     labels: 
-      name: "conductor"
-    name: "conductor"
+      name: "aftomato"
+    name: "aftomato"
     namespace: "default"
   spec: 
     replicas: 1
     selector: 
-      name: "conductor"
+      name: "aftomato"
     template: 
       metadata: 
         labels: 
-          name: "conductor"
+          name: "aftomato"
       spec: 
         containers: 
           - 
@@ -56,7 +56,7 @@
                 memory: "50Mi"
           - 
             image: "ae6rt/aftomato:latest"
-            name: "conductor"
+            name: "aftomato"
             resources: 
               limits: 
                 cpu: "100m"
