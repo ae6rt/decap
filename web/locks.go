@@ -36,7 +36,7 @@ func (d DefaultLock) UnLock(lockKey, buildID string) (*etcd.Response, error) {
 
 func NewDefaultLock(machines []string) DefaultLock {
 	return DefaultLock{Config: etcd.Config{
-		Endpoints: []string{"http://lockservice:2379"},
+		Endpoints: machines,
 		Transport: etcd.DefaultTransport,
 		// set timeout per request to fail fast when the target endpoint is unavailable
 		HeaderTimeoutPerRequest: time.Second,
