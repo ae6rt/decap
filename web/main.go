@@ -80,22 +80,20 @@ func init() {
 }
 
 func stashCommitHandler(w http.ResponseWriter, r *http.Request) {
-	Log.Printf("post-receive hook received")
+	w.WriteHeader(200)
+
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		Log.Printf("%v\n", err)
-		w.WriteHeader(200)
+		Log.Println(err)
 		return
 	}
-	Log.Printf("%s\n", string(data))
+	Log.Printf("post-receive hook received: %s\n", data)
 
 	var stashContainer StashContainer
-	err = json.Unmarshal(data, &stashContainer)
-	if err != nil {
-		w.WriteHeader(200)
+	if err := json.Unmarshal(data, &stashContainer); err != nil {
+		Log.Println(err)
 		return
 	}
-	w.WriteHeader(200)
 	go build(stashContainer)
 }
 
