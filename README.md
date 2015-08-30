@@ -271,7 +271,7 @@ type: Opaque
 
 ```
 
-_thekey_ and _thesecret_ are the _aftomato_ IAM User's Access Key
+_thekey_ and _thesecret_ are the _aftomato_ AWS IAM User's Access Key
 and Secret, respectively.  Replace the _thekey_ and _thesecret_
 with their respective Base64 encoded representations
 
