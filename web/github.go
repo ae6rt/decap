@@ -33,6 +33,6 @@ func (han GitHubHandler) handle(w http.ResponseWriter, r *http.Request) {
 		Log.Println(err)
 		return
 	}
-	Log.Printf("GitHub post-receive hook received: %s\n", data)
+	Log.Printf("GitHub hook received: %s\n", data)
 	go han.K8sBase.launchBuild(GithubEvent{})
 }

@@ -54,7 +54,7 @@ func (han StashHandler) handle(w http.ResponseWriter, r *http.Request) {
 		Log.Println(err)
 		return
 	}
-	Log.Printf("post-receive hook received: %s\n", data)
+	Log.Printf("Stash hook received: %s\n", data)
 
 	var stashEvent StashEvent
 	if err := json.Unmarshal(data, &stashEvent); err != nil {
