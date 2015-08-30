@@ -5,13 +5,14 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"github.com/pborman/uuid"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"text/template"
+
+	"github.com/pborman/uuid"
 )
 
 type PushEvent interface {
@@ -84,7 +85,7 @@ func NewK8s(apiServerURL, apiToken, username, password string, locker Locker) K8
 	}
 }
 
-func (k8s K8sBase) launchBuild(pushEvent PushEvent) {
+func (k8s K8sBase) launchBuild(pushEvent PushEvent) error {
 	projectKey := pushEvent.ProjectKey()
 
 	buildPod := BuildPod{
@@ -95,16 +96,15 @@ func (k8s K8sBase) launchBuild(pushEvent PushEvent) {
 		ConsoleLogsBucketName:   *buildConsoleLogsBucketName,
 	}
 
+	tmpl, err := template.New("pod").Parse(podTemplate)
+	if err != nil {
+		Log.Println(err)
+		return err
+	}
+
 	for _, branch := range pushEvent.Branches() {
 		buildPod.BranchToBuild = branch
-		buildID := uuid.NewRandom().String()
-		buildPod.BuildID = buildID
-
-		tmpl, err := template.New("pod").Parse(podTemplate)
-		if err != nil {
-			Log.Println(err)
-			continue
-		}
+		buildPod.BuildID = uuid.NewRandom().String()
 
 		hydratedTemplate := bytes.NewBufferString("")
 		err = tmpl.Execute(hydratedTemplate, buildPod)
@@ -113,27 +113,30 @@ func (k8s K8sBase) launchBuild(pushEvent PushEvent) {
 			continue
 		}
 
-		lockKey := lockKey(projectKey, branch)
+		key := lockKey(projectKey, branch)
 
-		resp, err := k8s.Locker.Lock(lockKey, buildID)
+		resp, err := k8s.Locker.Lock(key, buildPod.BuildID)
 		if err != nil {
-			Log.Println(err)
+			Log.Printf("Failed to acquire lock %s on build %s: %v\n", key, buildPod.BuildID, err)
 			continue
 		}
 
-		if resp.Node.Value == buildID {
-			Log.Printf("Acquired lock on build %s with key %s\n", buildID, lockKey)
+		if resp.Node.Value == buildPod.BuildID {
+			Log.Printf("Acquired lock on build %s with key %s\n", buildPod.BuildID, key)
 			if podError := k8s.createPod(hydratedTemplate.Bytes()); podError != nil {
 				Log.Println(podError)
-				if _, err := k8s.Locker.Unlock(lockKey, buildID); err != nil {
+				if _, err := k8s.Locker.Unlock(key, buildPod.BuildID); err != nil {
 					Log.Println(err)
 				} else {
-					Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, lockKey, podError)
+					Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildPod.BuildID, key, podError)
 				}
 			}
-			Log.Printf("Created pod=%s\n", buildID)
+			Log.Printf("Created pod=%s\n", buildPod.BuildID)
+		} else {
+			Log.Printf("Failed to acquire lock %s on build %s\n", key, buildPod.BuildID)
 		}
 	}
+	return nil
 }
 
 func (base K8sBase) createPod(pod []byte) error {
@@ -170,7 +173,7 @@ func (base K8sBase) createPod(pod []byte) error {
 }
 
 func main() {
-	locker := NewDefaultLock([]string{"http://lockservice:2379"})
+	locker := NewDefaultLock([]string{"http://localhost:2379"})
 
 	data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 	if err != nil {
