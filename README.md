@@ -247,4 +247,75 @@ In the Users section of the AWS Console, attach this _aftomato-db_ policy to the
 
 ## Kubernetes Cluster Setup
 
-TBD
+Bring up a Kubernetes cluster as appropriate:
+https://github.com/kubernetes/kubernetes/tree/master/docs/getting-started-guides
+
+### Aftomato Kubernetes Secret for AWS credentials
+
+The AWS access key and secret will be mounted in the build container
+using a [Kubernetes Secret Volume
+Mount](https://github.com/kubernetes/kubernetes/blob/master/docs/design/secrets.md).
+
+As shipped, the Kubernetes Secret looks like this
+
+```
+$ cat k8s-resources/aws-secret.yaml 
+apiVersion: v1
+data:
+  aws-key: thekey
+  aws-secret: thesecret
+kind: Secret
+metadata:
+     name: aftomato-aws-credentials
+type: Opaque
+
+```
+
+_thekey_ and _thesecret_ are the _aftomato_ IAM User's Access Key
+and Secret, respectively.  Replace the _thekey_ and _thesecret_
+with their respective Base64 encoded representations
+
+```
+$ echo -n "mykey" | openssl base64 
+bXlrZXk=
+
+```
+
+```
+$ echo -n "mysekrit" | openssl base64 
+bXlzZWtyaXQ=
+```
+
+to produce the production ready Kubernetes Secret
+
+```
+$ cat k8s-resources/aws-secret.yaml 
+apiVersion: v1
+data:
+  aws-key: bXlrZXk=
+  aws-secret: bXlzZWtyaXQ=
+kind: Secret
+metadata:
+     name: aftomato-aws-credentials
+type: Opaque
+
+```
+
+Create this Kubernetes Secret in the Kubernetes cluster with kubectl
+
+```
+$ kubectl create -f k8s-resources/aws-secret.yaml
+```
+
+The base build container will automatically have this Kubernetes
+Secret mounted in its container, where the container ENTRYPOINT can
+use them for publishing build results.
+
+
+### Aftomato Kubernetes Pod creation
+
+Create the pod that runs Aftomato in the cluster:
+
+```
+$ kubectl create -f k8s-resources/aftomato.yaml
+```

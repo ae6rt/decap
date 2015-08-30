@@ -24,7 +24,7 @@ var podTemplate = `
             {
                 "name": "aws-credentials",
                 "secret": {
-                    "secretName": "build-server-aws-credentials"
+                    "secretName": "aftomato-aws-credentials"
                 }
             }
         ],
