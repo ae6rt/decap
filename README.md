@@ -13,7 +13,7 @@ Aftomato uses S3 buckets to store build artifacts and console logs, and DynamoDb
 ### IAM user
 
 Aftomato stores build information in S3 buckets and a DynamoDb table.  These buckets and table are secured using
-AWS access policies that are associated with a dedicated IAM user name _aftomato_.
+AWS access policies that are associated with a dedicated IAM user named _aftomato_.
 
 Create the IAM user named _aftomato_ in your AWS Console.  This
 user needs no SSH private key, but it will need the usual AWS Access
@@ -52,14 +52,15 @@ Create two S3 buckets, one for build artifacts (even if you don't think you'll h
 #### Bucket policy
 
 The _aftomato_ user created earlier must be given read/write/list
-permissions on each S3 bucket.  Here are example policies that show
-correct form, but will not actually work because we have changed
-the Id and Statement Ids for security purposes.  Use the [AWS Policy
+permissions on each S3 bucket in the table above.  Here are example
+policies that show correct form, but will not actually work because
+we have changed the Id and Statement Ids for security purposes.
+Use the [AWS Policy
 Generator](http://awspolicygen.s3.amazonaws.com/policygen.html) to
 craft your unique policies with unique Ids.
 
 
-The build artifact bucket policy:
+A sample build artifact bucket policy:
 
 ```
 {
@@ -92,7 +93,7 @@ The build artifact bucket policy:
 }
 ```
 
-The console log bucket policy:
+A sample console log bucket policy:
 
 ```
 {
@@ -125,19 +126,20 @@ The console log bucket policy:
 }
 ```
 
-In the AWS S3 Console area, attach these policies to their respective buckets.
+Select the bucket of interest in the AWS S3 Console area, and attach these policies to their respective buckets.
 
 ### DynamoDb
 
 In your AWS Console create a DynamoDb table named _aftomato-build-metadata_
 in your preferred region that has these properties.  The table
 should have a main hashkey name _buildID_ with no range key, and a
-global secondary index with hashkey _projectKey_ and range _buildtime_.
-This an example, but it shows the highlights.
+global secondary index with hashkey _projectKey_ and range _buildTime_.
 
 N.B. You are responsible for getting the _ProvisionedThroughput_
 right based on your anticipated usage, which is related to how much
 Amazon will bill you for that usage.
+
+This an example, but it shows the highlights:
 
 ```
 $ aws --profile <your AWS credentials profile> dynamodb describe-table --region us-west-1 --table-name aftomato-build-metadata
@@ -241,5 +243,5 @@ In the IAM Policy section of your AWS Console create a policy named _aftomato-db
 
 adjusting the AWS region as appropriate to where you created the DynamoDb table.
 
-In the Users section of the AWS Console, attach this policy to the _aftomato_ user.
+In the Users section of the AWS Console, attach this _aftomato-db_ policy to the _aftomato_ user.
 
