@@ -37,17 +37,19 @@ type K8sBase struct {
 	MasterURL string
 	Locker    Locker
 	ApiToken  string
+	UserName  string
+	Password  string
 }
 
 var (
 	apiServerBaseURL           = flag.String("api-server-base-url", "http://localhost:8080", "Kubernetes API server base URL")
+	apiServerUser              = flag.String("api-server-username", "admin", "Kubernetes API server username to use if no service acccount API token is presentL")
+	apiServerPassword          = flag.String("api-server-password", "admin123", "Kubernetes API server password to use if no service acccount API token is presentL")
 	buildScriptsRepo           = flag.String("build-scripts-repo", "", "Git repo where userland build scripts are held.")
 	buildArtifactBucketName    = flag.String("build-artifact-bucket-name", "aftomato-build-artifacts", "S3 bucket name where build artifacts are stored.")
 	buildConsoleLogsBucketName = flag.String("build-console-logs-bucket-name", "aftomato-console-logs", "S3 bucket name where build console logs are stored.")
 	image                      = flag.String("image", "", "Build container image.")
 	versionFlag                = flag.Bool("version", false, "Print version info and exit.")
-
-	apiToken string
 
 	httpClient *http.Client
 
@@ -72,16 +74,17 @@ func lockKey(projectKey, branch string) string {
 	return url.QueryEscape(fmt.Sprintf("%s/%s", projectKey, branch))
 }
 
-func NewK8s(apiServerURL string, locker Locker) K8sBase {
-	if data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token"); err != nil {
-		Log.Printf("Cannot read service account token: %v\n", err)
-	} else {
-		apiToken = string(data)
+func NewK8s(apiServerURL, apiToken, username, password string, locker Locker) K8sBase {
+	return K8sBase{
+		MasterURL: apiServerURL,
+		ApiToken:  apiToken,
+		UserName:  username,
+		Password:  password,
+		Locker:    locker,
 	}
-	return K8sBase{MasterURL: apiServerURL, Locker: locker}
 }
 
-func (k8s K8sBase) build(pushEvent PushEvent) {
+func (k8s K8sBase) launchBuild(pushEvent PushEvent) {
 	projectKey := pushEvent.ProjectKey()
 
 	buildPod := BuildPod{
@@ -139,7 +142,12 @@ func (base K8sBase) createPod(pod []byte) error {
 		Log.Println(err)
 		return err
 	}
-	req.Header.Set("Authorization", "Bearer "+apiToken)
+	req.Header.Set("Content-Type", "application/json")
+	if base.ApiToken != "" {
+		req.Header.Set("Authorization", "Bearer "+base.ApiToken)
+	} else {
+		req.SetBasicAuth(base.UserName, base.Password)
+	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -163,7 +171,14 @@ func (base K8sBase) createPod(pod []byte) error {
 
 func main() {
 	locker := NewDefaultLock([]string{"http://lockservice:2379"})
-	k8s := NewK8s(*apiServerBaseURL, locker)
+
+	data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+	if err != nil {
+		Log.Printf("No service account token: %v.  Falling back to api server username/password for master authentication.\n", err)
+	}
+
+	apiToken := string(data)
+	k8s := NewK8s(*apiServerBaseURL, apiToken, *apiServerUser, *apiServerPassword, locker)
 	stashHandler := StashHandler{K8sBase: k8s}
 
 	http.HandleFunc("/hooks/stash", stashHandler.handle)

@@ -60,5 +60,5 @@ func (han StashHandler) handle(w http.ResponseWriter, r *http.Request) {
 		Log.Println(err)
 		return
 	}
-	go han.K8sBase.build(stashContainer)
+	go han.K8sBase.launchBuild(stashContainer)
 }
