@@ -8,7 +8,8 @@ import (
 	"strings"
 )
 
-type StashContainer struct {
+// See https://confluence.atlassian.com/stash/post-service-webhook-for-stash-393284006.html for payload information.
+type StashEvent struct {
 	Repository StashRepository  `json:"repository"`
 	RefChanges []StashRefChange `json:"refChanges"`
 
@@ -28,11 +29,11 @@ type StashRefChange struct {
 	RefID string `json:"refId"`
 }
 
-func (stash StashContainer) ProjectKey() string {
+func (stash StashEvent) ProjectKey() string {
 	return fmt.Sprintf("%s/%s", stash.Repository.Project, stash.Repository.Slug)
 }
 
-func (stash StashContainer) Branches() []string {
+func (stash StashEvent) Branches() []string {
 	branches := make([]string, 0)
 	for _, v := range stash.RefChanges {
 		branches = append(branches, strings.ToLower(strings.Replace(v.RefID, "refs/heads/", "", -1)))
@@ -55,7 +56,7 @@ func (han StashHandler) handle(w http.ResponseWriter, r *http.Request) {
 	}
 	Log.Printf("post-receive hook received: %s\n", data)
 
-	var stashContainer StashContainer
+	var stashContainer StashEvent
 	if err := json.Unmarshal(data, &stashContainer); err != nil {
 		Log.Println(err)
 		return
