@@ -99,9 +99,8 @@ func stashCommitHandler(w http.ResponseWriter, r *http.Request) {
 	go build(stashContainer)
 }
 
-func build(stash PushEvent) {
-	// todo anything that arises here from "type bag" is obviously Stash specific.  Generalize this to accomodate Github hooks.
-	projectKey := stash.ProjectKey()
+func build(pushEvent PushEvent) {
+	projectKey := pushEvent.ProjectKey()
 
 	buildPod := BuildPod{
 		BuildImage:              *image,
@@ -111,7 +110,7 @@ func build(stash PushEvent) {
 		ConsoleLogsBucketName:   *buildConsoleLogsBucketName,
 	}
 
-	for _, branch := range stash.Branches() {
+	for _, branch := range pushEvent.Branches() {
 		buildPod.BranchToBuild = branch
 		buildID := uuid.NewRandom().String()
 		buildPod.BuildID = buildID
