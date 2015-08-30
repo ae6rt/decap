@@ -9,15 +9,17 @@ LD_FLAGS := '-X "main.buildInfo=Version: $(VERSION), commitID: $(COMMIT_ID), bui
 all: clean binaries 
 
 test:
-	godep go test
+	godep go test -v
 
 binaries: test 
-	godep save
 	CGO_ENABLED=0 godep go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH)
 	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 godep go build -ldflags $(LD_FLAGS) -o $(NAME)-linux-$(ARCH)
 
 container: binaries
-	docker  build -t ae6rt/aftomato:latest .
+	docker build -t ae6rt/aftomato:latest .
+
+push: container
+	docker push  ae6rt/aftomato:latest 
 
 clean: 
 	godep go clean

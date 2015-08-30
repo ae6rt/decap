@@ -155,7 +155,7 @@ func lockit(podTemplate []byte, projectKey, branch, buildID string) {
 		log.Fatal(err)
 	}
 	kapi := etcd.NewKeysAPI(c)
-	if resp, err := kapi.Set(context.Background(), url.QueryEscape(fmt.Sprintf("%s/%s", projectKey, branch)), buildID, etcd.SetOptions{
+	if resp, err := kapi.Set(context.Background(), url.QueryEscape(fmt.Sprintf("%s/%s", projectKey, branch)), buildID, &etcd.SetOptions{
 		PrevExist: etcd.PrevNoExist,
 	}); err != nil {
 		Log.Println(err)
