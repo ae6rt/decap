@@ -264,6 +264,7 @@ apiVersion: v1
 data:
   aws-key: thekey
   aws-secret: thesecret
+  region: theregion
 kind: Secret
 metadata:
      name: aftomato-aws-credentials
@@ -271,9 +272,9 @@ type: Opaque
 
 ```
 
-_thekey_ and _thesecret_ are the _aftomato_ AWS IAM User's Access Key
-and Secret, respectively.  Replace the _thekey_ and _thesecret_
-with their respective Base64 encoded representations
+_thekey_, _thesecret_, and _theregion_ are the _aftomato_ AWS IAM
+User's Access Key, Secret, and default region, respectively.  Replace
+these values with their respective Base64 encoded representations
 
 ```
 $ echo -n "mykey" | openssl base64 
@@ -286,6 +287,11 @@ $ echo -n "mysekrit" | openssl base64
 bXlzZWtyaXQ=
 ```
 
+```
+$ echo -n "us-west-1" | openssl base64
+dXMtd2VzdC0x
+```
+
 to produce the production ready Kubernetes Secret
 
 ```
@@ -294,6 +300,7 @@ apiVersion: v1
 data:
   aws-key: bXlrZXk=
   aws-secret: bXlzZWtyaXQ=
+  region: dXMtd2VzdC0x
 kind: Secret
 metadata:
      name: aftomato-aws-credentials

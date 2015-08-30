@@ -1,15 +1,12 @@
 FROM centos:7
 
-RUN mkdir -p /home/aftomato/workspace
-RUN mkdir -p /home/aftomato/buildscripts
-
-COPY build.sh /opt/aftomato/bin/
-
 RUN curl -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py 
 RUN python /tmp/get-pip.py 
 RUN pip install awscli
 
-USER root
+RUN mkdir -p /home/aftomato/workspace
+RUN mkdir -p /home/aftomato/buildscripts
+COPY build.sh /opt/aftomato/bin/
 
 ENTRYPOINT ["/opt/aftomato/bin/build.sh"]
 

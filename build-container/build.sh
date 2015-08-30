@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -uvx
+set -ux
 
 if [ $# -eq 0 ]; then
 
@@ -8,6 +8,7 @@ if [ $# -eq 0 ]; then
 [default]
 aws_access_key_id = $(cat /etc/secrets/aws-key)
 aws_secret_access_key = $(cat /etc/secrets/aws-secret)
+region = $(cat /etc/secrets/region)
 EOF
 
 	TAR=archive.tar
@@ -17,21 +18,22 @@ EOF
 let START=$(date +%s)
 
 	pushd $WORKSPACE
+
 	/home/aftomato/buildscripts/build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
 	BUILD_EXITCODE=${PIPESTATUS[0]}
+
+	# todo what gets archived needs to be configurable
+	tar czf ${TAR}.gz .   
+
 	popd
+
+	gzip $CONSOLE
 
 	let STOP=$(date +%s)
 	DURATION=`expr $STOP - $START`
 
-	# we need a way to configure the argument to -name.  'target' works for Javan/maven but is not sufficiently general for other types of builds.
-	# In fact, for some builds (e.g., for interpreted language apps), there may be no build artifacts at all.
-	TARGET=$(find $WORKSPACE -maxdepth 2 -name target -type d)
-	tar cf $TAR $TARGET
-	gzip $TAR 
-
-	aws s3 cp ${TAR}.gz s3://beta-build-server-archive/$BUILD_ID
-	aws s3 cp $CONSOLE s3://beta-build-server-console/$BUILD_ID
+	aws s3 cp ${TAR}.gz s3://aftomato-build-artifacts/$BUILD_ID
+	aws s3 cp ${CONSOLE}.gz s3://aftomato-console-logs/$BUILD_ID
 
 	if [ $BUILD_EXITCODE -eq 0 ]; then
 	     BUILD_STATUS="true"
