@@ -15,7 +15,10 @@ import (
 
 	"text/template"
 
+	etcd "github.com/coreos/etcd/client"
 	"github.com/pborman/uuid"
+	"golang.org/x/net/context"
+	"time"
 )
 
 type BuildPod struct {
@@ -59,6 +62,8 @@ var (
 
 	Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
+	etcdConfig etcd.Config
+
 	buildInfo string
 )
 
@@ -79,6 +84,14 @@ func init() {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	httpClient = &http.Client{Transport: tr}
+
+	etcdConfig = etcd.Config{
+		Endpoints: []string{"http://lockservice:2379"},
+		Transport: etcd.DefaultTransport,
+		// set timeout per request to fail fast when the target endpoint is unavailable
+		HeaderTimeoutPerRequest: time.Second,
+	}
+
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -124,6 +137,7 @@ func build(theBag bag) {
 			Log.Println(err)
 			continue
 		}
+
 		hydratedTemplate := bytes.NewBufferString("")
 		err = tmpl.Execute(hydratedTemplate, buildPod)
 		if err != nil {
@@ -131,20 +145,28 @@ func build(theBag bag) {
 			continue
 		}
 
-		lockKey := fmt.Sprintf("%s/%s", projectKey, branch)
+		lockit(hydratedTemplate.Bytes(), projectKey, branch, buildID)
+	}
+}
 
-		locked, err := lockBuild(buildID, lockKey)
-		if err != nil {
-			Log.Printf("Error acquiring lock on build: %v\n", err)
-			return
+func lockit(podTemplate []byte, projectKey, branch, buildID string) {
+	c, err := etcd.New(etcdConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	kapi := etcd.NewKeysAPI(c)
+	if resp, err := kapi.Set(context.Background(), url.QueryEscape(fmt.Sprintf("%s/%s", projectKey, branch)), buildID, etcd.SetOptions{
+		PrevExist: etcd.PrevNoExist,
+	}); err != nil {
+		Log.Println(err)
+		return
+	} else {
+
+		if resp.Node.Value == buildID {
+			Log.Println("Acquired lock on build\n")
+			createPod(podTemplate)
+			Log.Printf("Created pod=%s\n", buildID)
 		}
-		if !locked {
-			Log.Printf("Cannot acquire lock on build\n")
-			return
-		}
-		Log.Println("Acquired lock on build\n")
-		createPod(hydratedTemplate.Bytes())
-		Log.Printf("Created pod=%s\n", buildID)
 	}
 }
 
