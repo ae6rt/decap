@@ -1,5 +1,10 @@
 {
 	"ImportPath": "github.com/ae6rt/aftomato/web",
 	"GoVersion": "go1.5",
-	"Deps": []
+	"Deps": [
+		{
+			"ImportPath": "github.com/pborman/uuid",
+			"Rev": "ca53cad383cad2479bbba7f7a1a05797ec1386e4"
+		}
+	]
 }

@@ -14,6 +14,8 @@ import (
 	"strings"
 
 	"text/template"
+
+	"github.com/pborman/uuid"
 )
 
 type BuildPod struct {
@@ -45,11 +47,11 @@ type refChange struct {
 }
 
 var (
-	buildScriptsRepo = flag.String("build-scripts-repo", "", "Git repo where userland build scripts are held.")
-	image            = flag.String("image", "", "Build container image.")
-	versionFlag      = flag.Bool("version", false, "Print version info and exit.")
-
-	Random *os.File
+	buildScriptsRepo           = flag.String("build-scripts-repo", "", "Git repo where userland build scripts are held.")
+	buildArtifactBucketName    = flag.String("build-artifact-bucket-name", "aftomato-build-artifacts", "S3 bucket name where build artifacts are stored.")
+	buildConsoleLogsBucketName = flag.String("build-console-logs-bucket-name", "aftomato-console-logs", "S3 bucket name where build console logs are stored.")
+	image                      = flag.String("image", "", "Build container image.")
+	versionFlag                = flag.Bool("version", false, "Print version info and exit.")
 
 	apiToken string
 
@@ -66,11 +68,6 @@ func init() {
 		Log.Printf("%s\n", buildInfo)
 		os.Exit(0)
 	}
-	f, err := os.Open("/dev/urandom")
-	if err != nil {
-		Log.Fatal(err)
-	}
-	Random = f
 
 	data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 	if err != nil {
@@ -82,14 +79,6 @@ func init() {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	httpClient = &http.Client{Transport: tr}
-}
-
-func uuid() string {
-	b := make([]byte, 16)
-	Random.Read(b)
-	b[6] = (b[6] & 0x0f) | 0x40
-	b[8] = (b[8] & 0x3f) | 0x80
-	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -120,14 +109,14 @@ func build(theBag bag) {
 		BuildImage:              *image,
 		BuildScriptsGitRepo:     *buildScriptsRepo,
 		ProjectKey:              projectKey,
-		BuildArtifactBucketName: "aftomato-artifacts",
-		ConsoleLogsBucketName:   "aftomato-console-logs",
+		BuildArtifactBucketName: *buildArtifactBucketName,
+		ConsoleLogsBucketName:   *buildConsoleLogsBucketName,
 	}
 
 	for _, refID := range theBag.RefChanges {
 		branch := strings.ToLower(strings.Replace(refID.RefID, "refs/heads/", "", -1))
 		buildPod.BranchToBuild = branch
-		buildID := uuid()
+		buildID := uuid.NewRandom().String()
 		buildPod.BuildID = buildID
 
 		tmpl, err := template.New("pod").Parse(podTemplate)
