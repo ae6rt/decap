@@ -3,6 +3,7 @@
 set -ux
 
 if [ $# -eq 0 ]; then
+
     mkdir -p $HOME/.aws
 	cat <<EOF > $HOME/.aws/credentials
 [default]
@@ -15,7 +16,29 @@ EOF
 	WORKSPACE=/home/aftomato/workspace
 	CONSOLE=/tmp/console.log
 
-let START=$(date +%s)
+    let START=$(date +%s)
+
+    	cat <<YYY > buildstart.json
+    {
+        "buildID": {
+            "S": "$BUILD_ID"
+        },
+        "buildTime": {
+            "N": "$START"
+        },
+        "projectKey": {
+            "S": "$PROJECT_KEY"
+        },
+        "branch": {
+            "S": "$BRANCH_TO_BUILD"
+        },
+        "isBuilding": {
+            "N": 1
+        }
+    }
+YYY
+
+    aws dynamodb put-item --table-name aftomato-build-metadata --item file://buildstart.json
 
 	pushd $WORKSPACE
 
@@ -32,16 +55,10 @@ let START=$(date +%s)
 	let STOP=$(date +%s)
 	DURATION=`expr $STOP - $START`
 
-	aws s3 cp /tmp/${TAR}.gz s3://aftomato-build-artifacts/$BUILD_ID
-	aws s3 cp ${CONSOLE}.gz s3://aftomato-console-logs/$BUILD_ID
+	aws s3 cp --content-type application/x-gzip /tmp/${TAR}.gz s3://aftomato-build-artifacts/$BUILD_ID
+	aws s3 cp --content-type application/x-gzip ${CONSOLE}.gz s3://aftomato-console-logs/$BUILD_ID
 
-	if [ $BUILD_EXITCODE -eq 0 ]; then
-	     BUILD_STATUS="true"
-	else
-	     BUILD_STATUS="false"
-	fi
-
-	cat <<XXX > dynamodb.json
+	cat <<XXX > buildstop.json
 {
     "buildID": {
         "S": "$BUILD_ID"
@@ -55,16 +72,19 @@ let START=$(date +%s)
     "buildElapsedTime": {
         "N": "$DURATION"
     },
-    "buildStatus": {
-        "BOOL": $BUILD_STATUS
+    "buildResult": {
+        "N": $BUILD_EXITCODE
     },
     "branch": {
         "S": "$BRANCH_TO_BUILD"
+    },
+    "isBuilding": {
+        "N": 0
     }
 }
 XXX
 
-	aws dynamodb put-item --table-name aftomato-build-metadata --item file://dynamodb.json
+	aws dynamodb put-item --table-name aftomato-build-metadata --item file://buildstop.json
 	
 	LOCK_KEY=$(echo -n "${PROJECT_KEY}/${BRANCH_TO_BUILD}" | python -c "import urllib, sys; sys.stdout.write(str(urllib.quote_plus(sys.stdin.readline())))")
 	curl -i http://lockservice:2379/v2/keys/${LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
