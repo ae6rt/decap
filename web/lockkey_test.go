@@ -1,13 +1,13 @@
 package main
 
 import (
-	"net/url"
 	"testing"
+	"encoding/hex"
 )
 
 func TestLockKey(t *testing.T) {
 	key := lockKey("foo", "bar")
-	if key != url.QueryEscape("foo/bar") {
-		t.Fatalf("Want foo%2Fbar but got %s\n", key)
+	if key != hex.EncodeToString([]byte("foo/bar")) {
+		t.Fatalf("Want 666f6f2f626172 but got %s\n", key)
 	}
 }

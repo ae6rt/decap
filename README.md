@@ -139,7 +139,7 @@ N.B. You are responsible for getting the _ProvisionedThroughput_
 right based on your anticipated usage, which is related to how much
 Amazon will bill you for that usage.
 
-This an example, but it shows the highlights:
+This example shows the highlights:
 
 ```
 $ aws --profile <your AWS credentials profile> dynamodb describe-table --region us-west-1 --table-name aftomato-build-metadata

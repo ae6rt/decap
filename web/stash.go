@@ -30,7 +30,7 @@ type StashRefChange struct {
 }
 
 func (stash StashEvent) ProjectKey() string {
-	return fmt.Sprintf("%s/%s", stash.Repository.Project, stash.Repository.Slug)
+	return fmt.Sprintf("%s/%s", stash.Repository.Project.Key, stash.Repository.Slug)
 }
 
 func (stash StashEvent) Branches() []string {
