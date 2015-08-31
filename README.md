@@ -245,6 +245,40 @@ adjusting the AWS region as appropriate to where you created the DynamoDb table.
 
 In the Users section of the AWS Console, attach this _aftomato-db_ policy to the _aftomato_ user.
 
+### Smoke testing AWS buckets and DynamoDb
+
+If you have configured the AWS policies correctly around the aftomato buckets and DynamoDb table, you should be able to do things like this
+
+```
+$ aws --profile aftomato s3 cp /etc/hosts s3://aftomato-build-artifacts/hosts.txt
+upload: ../../../../../../../../../etc/hosts to s3://aftomato-build-artifacts/hosts.txt
+
+$ aws --profile aftomato s3 cp /etc/hosts s3://aftomato-console-logs/hosts.txt
+upload: ../../../../../../../../../etc/hosts to s3://console-logs/hosts.txt
+
+$ aws --profile aftomato  dynamodb describe-table --table-name aftomato-build-metadata 
+{
+    "Table": {
+        "GlobalSecondaryIndexes": [
+            {
+                "IndexSizeBytes": 0, 
+                "IndexName": "projectKey-buildTime-index", 
+                "Projection": {
+                    "ProjectionType": "ALL"
+                },
+...
+```
+
+where the aftomato AWS credentials are configured in $HOME/.aws/credentials thusly
+
+```
+[aftomato]
+aws_access_key_id = <your access key>
+aws_secret_access_key = <your secret>
+region=us-west-1
+```
+
+
 ## Kubernetes Cluster Setup
 
 Bring up a Kubernetes cluster as appropriate:
