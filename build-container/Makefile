@@ -1,7 +1,7 @@
 IMAGE=ae6rt/aftomato-build-base:latest
 
 container:
-	docker build -t $(IMAGE) .  
+	docker --tlsverify=false build -t $(IMAGE) .  
 
 push: container
-	docker push $(IMAGE)
+	docker --tlsverify=false push $(IMAGE)

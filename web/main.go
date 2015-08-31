@@ -47,8 +47,6 @@ var (
 	apiServerUser              = flag.String("api-server-username", "admin", "Kubernetes API server username to use if no service acccount API token is present.")
 	apiServerPassword          = flag.String("api-server-password", "admin123", "Kubernetes API server password to use if no service acccount API token is present.")
 	buildScriptsRepo           = flag.String("build-scripts-repo", "https://github.com/ae6rt/aftomato-build-scripts.git", "Git repo where userland build scripts are held.")
-	buildArtifactBucketName    = flag.String("build-artifact-bucket-name", "aftomato-build-artifacts", "S3 bucket name where build artifacts are stored.")
-	buildConsoleLogsBucketName = flag.String("build-console-logs-bucket-name", "aftomato-console-logs", "S3 bucket name where build console logs are stored.")
 	image                      = flag.String("image", "ae6rt/aftomato-build-base:latest", "Build container image.")
 	versionFlag                = flag.Bool("version", false, "Print version info and exit.")
 
@@ -92,8 +90,6 @@ func (k8s K8sBase) launchBuild(pushEvent PushEvent) error {
 		BuildImage:              *image,
 		BuildScriptsGitRepo:     *buildScriptsRepo,
 		ProjectKey:              projectKey,
-		BuildArtifactBucketName: *buildArtifactBucketName,
-		ConsoleLogsBucketName:   *buildConsoleLogsBucketName,
 	}
 
 	tmpl, err := template.New("pod").Parse(podTemplate)
