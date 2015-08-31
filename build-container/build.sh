@@ -86,8 +86,7 @@ XXX
 
 	aws dynamodb put-item --table-name aftomato-build-metadata --item file://buildstop.json
 	
-	LOCK_KEY=$(echo -n "${PROJECT_KEY}/${BRANCH_TO_BUILD}" | python -c "import urllib, sys; sys.stdout.write(str(urllib.quote_plus(sys.stdin.readline())))")
-	curl -i http://lockservice:2379/v2/keys/${LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
+	curl -i http://lockservice:2379/v2/keys/${BUILD_LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
 else
 	exec "$@"
 fi

@@ -46,12 +46,8 @@ var podTemplate = `
                         "value": "{{.BranchToBuild}}"
                     },
                     {
-                        "name": "ARTIFACTS_BUCKET",
-                        "value": "{{.BuildArtifactBucketName}}"
-                    },
-                    {
-                        "name": "CONSOLE_LOGS_BUCKET",
-                        "value": "{{.ConsoleLogsBucketName}}"
+                        "name": "BUILD_LOCK_KEY",
+                        "value": "{{.BuildLockKey}}"
                     }
                 ],
                 "resources": {},
