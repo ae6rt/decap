@@ -19,7 +19,7 @@ let START=$(date +%s)
 
 	pushd $WORKSPACE
 
-	/home/aftomato/buildscripts/aftomato-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
+	sh /home/aftomato/buildscripts/aftomato-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
 	BUILD_EXITCODE=${PIPESTATUS[0]}
 
 	# todo what gets archived needs to be configurable
