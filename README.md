@@ -2,6 +2,8 @@
 
 A CI build server based on a Kubernetes backend that executes builds in a specially prepared container.
 
+This project is under active development, and has no releases yet.
+
 ## AWS Setup
 
 ### Install the AWS CLI app
