@@ -3,7 +3,7 @@
 set -ux
 
 if [ $# -eq 0 ]; then
-
+    mkdir -p $HOME/.aws
 	cat <<EOF > $HOME/.aws/credentials
 [default]
 aws_access_key_id = $(cat /etc/secrets/aws-key)
@@ -23,7 +23,7 @@ let START=$(date +%s)
 	BUILD_EXITCODE=${PIPESTATUS[0]}
 
 	# todo what gets archived needs to be configurable
-	tar czf ${TAR}.gz .   
+	tar czf /tmp/${TAR}.gz .
 
 	popd
 
@@ -32,7 +32,7 @@ let START=$(date +%s)
 	let STOP=$(date +%s)
 	DURATION=`expr $STOP - $START`
 
-	aws s3 cp ${TAR}.gz s3://aftomato-build-artifacts/$BUILD_ID
+	aws s3 cp /tmp/${TAR}.gz s3://aftomato-build-artifacts/$BUILD_ID
 	aws s3 cp ${CONSOLE}.gz s3://aftomato-console-logs/$BUILD_ID
 
 	if [ $BUILD_EXITCODE -eq 0 ]; then
