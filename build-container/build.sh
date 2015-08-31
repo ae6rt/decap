@@ -56,7 +56,7 @@ let START=$(date +%s)
         "N": "$DURATION"
     },
     "buildStatus": {
-        "BOOL": "$BUILD_STATUS"
+        "BOOL": $BUILD_STATUS
     },
     "branch": {
         "S": "$BRANCH_TO_BUILD"
@@ -66,10 +66,8 @@ XXX
 
 	aws dynamodb put-item --table-name aftomato-build-metadata --item file://dynamodb.json
 	
-	CERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-	TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-	LOCK_KEY=$(echo -n "${PROJECT_KEY}/${BRANCH_TO_BUILD}" | php -r "echo rawurlencode(fgets(STDIN));")
-	curl --cacert $CERT  -H"Authorization: Bearer $TOKEN" -i https://kubernetes/api/v1/proxy/namespaces/default/services/lockservice/v2/keys/${LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
+	LOCK_KEY=$(echo -n "${PROJECT_KEY}/${BRANCH_TO_BUILD}" | python -c "import urllib, sys; sys.stdout.write(str(urllib.quote_plus(sys.stdin.readline())))")
+	curl -i http://lockservice:2379/v2/keys/${LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
 else
 	exec "$@"
 fi

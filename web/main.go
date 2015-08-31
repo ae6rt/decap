@@ -11,8 +11,8 @@ import (
 	"os"
 	"text/template"
 
-	"encoding/hex"
 	"github.com/pborman/uuid"
+	"net/url"
 )
 
 type PushEvent interface {
@@ -72,7 +72,7 @@ func init() {
 }
 
 func lockKey(projectKey, branch string) string {
-	return hex.EncodeToString([]byte(fmt.Sprintf("%s/%s", projectKey, branch)))
+	return url.QueryEscape(fmt.Sprintf("%s/%s", projectKey, branch))
 }
 
 func NewK8s(apiServerURL, apiToken, username, password string, locker Locker) K8sBase {
