@@ -43,7 +43,7 @@ type K8sBase struct {
 }
 
 var (
-	apiServerBaseURL           = flag.String("api-server-base-url", "http://localhost:8080", "Kubernetes API server base URL")
+	apiServerBaseURL           = flag.String("api-server-base-url", "https://kubernetes", "Kubernetes API server base URL")
 	apiServerUser              = flag.String("api-server-username", "admin", "Kubernetes API server username to use if no service acccount API token is present.")
 	apiServerPassword          = flag.String("api-server-password", "admin123", "Kubernetes API server password to use if no service acccount API token is present.")
 	buildScriptsRepo           = flag.String("build-scripts-repo", "", "Git repo where userland build scripts are held.")
