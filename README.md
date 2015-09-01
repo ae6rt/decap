@@ -6,24 +6,29 @@ This project is under active development, and has no releases yet.
 
 ## AWS Setup
 
+Aftomato uses S3 buckets to store build artifacts and console logs,
+and DynamoDb to store overall build results and metadata.
+
 ### Install the AWS CLI app
 
 See http://aws.amazon.com/documentation/cli/
 
-Aftomato uses S3 buckets to store build artifacts and console logs, and DynamoDb to store overall build results.
-
 ### IAM user
 
-Aftomato stores build information in S3 buckets and a DynamoDb table.  These buckets and table are secured using
-AWS access policies that are associated with a dedicated IAM user named _aftomato_.
+Aftomato stores build information in S3 buckets and a DynamoDb
+table.  These buckets and table are secured using AWS access policies
+that are associated with a dedicated IAM user named _aftomato_.
 
 Create the IAM user named _aftomato_ in your AWS Console.  This
 user needs no SSH private key, but it will need the usual AWS Access
-Key and associated Secret.  When you create the user, AWS Console will display the access key and secret.  Save these
-to a file --- the Aftomato build container will need them to publish build results, and the web frontend to Aftomato will
-need them to perform build queries and administration.
+Key and associated Secret.  When you create the user, AWS Console
+will display the access key and secret.  Save these to a file ---
+the Aftomato build container will need them to publish build results,
+and the web frontend to Aftomato will need them to perform build
+queries and administration.
 
-View the new user in your AWS Console and note its Amazon Resource Name (ARN).  It will look like this
+View the new user in your AWS Console and note its Amazon Resource
+Name (ARN).  It will look like this
 
 ```
 User ARN: arn:aws:iam::<your account ID>:user/aftomato
@@ -34,7 +39,8 @@ where _your account ID_ is your Amazon account ID.
 
 ### Buckets
 
-Create two S3 buckets, one for build artifacts (even if you don't think you'll have any) and build console logs.
+Create two S3 buckets, one for build artifacts (even if you don't
+think you'll have any) and build console logs.
 
 <table>
     <tr>
@@ -128,7 +134,8 @@ A sample console log bucket policy:
 }
 ```
 
-Select the bucket of interest in the AWS S3 Console area, and attach these policies to their respective buckets.
+Select the bucket of interest in the AWS S3 Console area, and attach
+these policies to their respective buckets.
 
 ### DynamoDb
 
@@ -281,7 +288,9 @@ In the Users section of the AWS Console, attach these policies to the _aftomato_
 
 ### Smoke testing AWS buckets and DynamoDb
 
-If you have configured the AWS policies correctly around the aftomato buckets and DynamoDb table, you should be able to do things like this
+If you have configured the AWS policies correctly for the aftomato
+buckets and DynamoDb table, you should be able to do things like
+this
 
 ```
 $ aws --profile aftomato s3 cp /etc/hosts s3://aftomato-build-artifacts/hosts.txt
@@ -312,7 +321,6 @@ aws_secret_access_key = <your secret>
 region=us-west-1
 ```
 
-
 ## Kubernetes Cluster Setup
 
 Bring up a Kubernetes cluster as appropriate:
@@ -324,7 +332,7 @@ The AWS access key and secret will be mounted in the build container
 using a [Kubernetes Secret Volume
 Mount](https://github.com/kubernetes/kubernetes/blob/master/docs/design/secrets.md).
 
-As shipped, the Kubernetes Secret looks like this
+As shipped with aftomato, the Kubernetes Secret looks like this
 
 ```
 $ cat k8s-resources/aws-secret.yaml 
@@ -394,3 +402,29 @@ Create the pod that runs Aftomato in the cluster:
 ```
 $ kubectl create -f k8s-resources/aftomato.yaml
 ```
+
+## Setting up a build scripts repository
+
+Aftomato leverages Kubernetes ability to mount a Git repository
+readonly inside a container.  When you launch a build in the build
+container, Kubernetes will mount the build scripts repo that contains
+the build scripts for your projects.  Here is a sample build script
+repository
+
+```
+https://github.com/ae6rt/aftomato-build-scripts
+```
+
+The build container refers to this repository as a mounted volume
+https://github.com/ae6rt/aftomato/blob/master/web/pod.go#L56.  Build
+scripts are indexed by _project key_ by the build container entrypoint
+https://github.com/ae6rt/aftomato/blob/master/build-container/build.sh#L44
+
+```
+sh /home/aftomato/buildscripts/aftomato-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
+```
+
+The build container will call your project's build script, capture
+the console logs, and ship the build artifacts, console logs and
+build metadata to S3 and DynamoDb.
+
