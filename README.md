@@ -19,7 +19,7 @@ in turn induce calls into the Kubernetes API master to launch a
 build container to build your code.  Builds can also be launched
 via web UI.
 
-The build container locates your build scripts based on 
+The base build container locates your build scripts based on 
 
 * the git repository the build scripts are located in
 * the subdirectory of that repository where your project resides
@@ -475,6 +475,8 @@ the console logs, and ship the build artifacts, console logs and
 build metadata to S3 and DynamoDb.
 
 ## Build environment
+
+Here is the base build container reference:  https://github.com/ae6rt/aftomato/tree/master/build-container
 
 The following environment variables are available in your build scripts:
 
