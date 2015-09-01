@@ -33,7 +33,7 @@ EOF
             "S": "$BRANCH_TO_BUILD"
         },
         "isBuilding": {
-            "N": 1
+            "N": "1"
         }
     }
 YYY
@@ -79,7 +79,7 @@ YYY
         "S": "$BRANCH_TO_BUILD"
     },
     "isBuilding": {
-        "N": 0
+        "N": "0"
     }
 }
 XXX
