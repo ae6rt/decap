@@ -73,7 +73,7 @@ YYY
         "N": "$DURATION"
     },
     "buildResult": {
-        "N": $BUILD_EXITCODE
+        "N": "$BUILD_EXITCODE"
     },
     "branch": {
         "S": "$BRANCH_TO_BUILD"
