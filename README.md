@@ -15,9 +15,9 @@ that can locate those build scripts and run them for you.
 
 Post commit hooks on your projects of interest drive events into a
 web container in the core Aftomato containerized application which
-in turn induce calls into the Kubernetes API master to launch a
-build container to build your code.  Builds can also be launched
-via web UI.
+in turn makes calls into the Kubernetes API master to launch a build
+container to build your code.  Builds can also be launched via web
+UI.
 
 The base build container locates your build scripts based on 
 
