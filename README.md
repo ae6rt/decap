@@ -498,7 +498,7 @@ The build container will call your project's build script, capture
 the console logs, and ship the build artifacts, console logs and
 build metadata to S3 and DynamoDb.
 
-## Build environment
+## Base Build Container Environment
 
 Here is the base build container reference:  https://github.com/ae6rt/aftomato/tree/master/build-container
 
@@ -511,3 +511,25 @@ The following environment variables are available in your build scripts:
 Concurrent builds of a given project + branch are currently forbidden,
 and enforced with a lock in etcd, which also runs in the Aftomoto
 cluster.
+
+## Developing Aftomato
+
+The Aftomato source is divided into three parts:
+
+* Base Build Container in build-container/
+* Webapp in web/
+* Kubernetes resource configs in k8s-resources/
+
+### Base Build Container
+
+This is the place to modify the base build container ENTRYPOINT script and Dockerfile
+
+### Webapp
+
+This is a Go webapp that receives commit hooks from various repository managers.
+
+### Kubernetes resource configs
+
+This contains yaml files that describe Kubernetes resources Aftomato needs to function.
+
+
