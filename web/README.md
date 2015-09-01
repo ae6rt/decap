@@ -8,6 +8,8 @@ A given branch on a project is locked in etcd to ensure that only
 one container is building this project branch at any one time.  This
 may be more important for some projects types than others.
 
+### Post commit hook endpoints
+
 HTTP endpoints for various source code management systems
 
 <table>
@@ -27,3 +29,7 @@ HTTP endpoints for various source code management systems
         <td>Bitbucket</td>
         <td>/hooks/bitbucket</td>
 </table>
+
+### Manually Launching Builds
+
+TBD
