@@ -10,13 +10,19 @@ _Aftomato_ is loosely based on the Greek word for _automation_.
 ## Theory of Operation
 
 You have projects you want to build.  Builds are articulated in
-terms of shell scripts.  Aftomota ships with a base build container
-that can locate those build scripts and run them for you.
+terms of shell scripts.  Aftomato ships with a _base build container_
+that can locate those build scripts and run them for you.  
+
+Post commit hooks on your projects of interest drive events into a
+web container in the core Aftomato containerized application which
+in turn induce calls into the Kubernetes API master to launch a
+build container to build your code.  Builds can also be launched
+via web UI.
 
 The build container locates your build scripts based on 
 
 * the git repository the build scripts are located in
-* the subdirectory of that repository
+* the subdirectory of that repository where your project resides
 * and the branch your scripts should build in your project repository
 
 Your build scripts are completely free form.  Here are two examples:
@@ -35,13 +41,14 @@ mvn clean install
 mvn deploy
 ```
 
-### Sidecar build containers
+### Sidecar containers
 
 If your build needs additional services, such as MySQL, RabbitMQ,
 etc., we plan to provide a way to ingest a Kubernetes Pod descriptor
-into the build instruction that will allow you to run these sidecar
-services in the build pod along with the main build container. This
-means those services will be available to your build at localhost:port.
+into the build instruction that will allow you to run these supporting
+sidecar services in the build pod along with the main build container.
+This means those services will be available to your build at
+localhost:port.
 
 ## AWS Setup
 
