@@ -327,7 +327,7 @@ In the Users section of the AWS Console, attach these policies to the _aftomato_
 
 ### Smoke testing AWS buckets and DynamoDb
 
-If you have configured the AWS policies correctly for the aftomato
+If you have configured the AWS policies correctly for the Aftomato
 buckets and DynamoDb table, you should be able to do things like
 this
 
@@ -371,7 +371,7 @@ The AWS access key and secret will be mounted in the build container
 using a [Kubernetes Secret Volume
 Mount](https://github.com/kubernetes/kubernetes/blob/master/docs/design/secrets.md).
 
-As shipped with aftomato, the Kubernetes Secret looks like this
+As shipped with Aftomato, the Kubernetes Secret looks like this
 
 ```
 $ cat k8s-resources/aws-secret.yaml
@@ -466,3 +466,15 @@ sh /home/aftomato/buildscripts/aftomato-build-scripts/${PROJECT_KEY}/build.sh 2>
 The build container will call your project's build script, capture
 the console logs, and ship the build artifacts, console logs and
 build metadata to S3 and DynamoDb.
+
+## Build environment
+
+The following environment variables are available in your build scripts:
+
+* BUILD_ID:  UUID that uniquely identifies this build
+* PROJECT_KEY: a composite key consisting of your project + repository
+* BRANCH_TO_BUILD: an optional git branch to build within your application project. This is typically used with Github or Stash post commit hook events.
+
+Concurrent builds of a given project + branch are currently forbidden,
+and enforced with a lock in etcd, which also runs in the aftomoto
+cluster.
