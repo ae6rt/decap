@@ -476,5 +476,5 @@ The following environment variables are available in your build scripts:
 * BRANCH_TO_BUILD: an optional git branch to build within your application project. This is typically used with Github or Stash post commit hook events.
 
 Concurrent builds of a given project + branch are currently forbidden,
-and enforced with a lock in etcd, which also runs in the aftomoto
+and enforced with a lock in etcd, which also runs in the Aftomoto
 cluster.
