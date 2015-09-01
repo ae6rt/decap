@@ -4,6 +4,7 @@ RUN curl -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py
 RUN python /tmp/get-pip.py 
 RUN pip install awscli
 
+RUN mkdir -p /root/.aws
 RUN mkdir -p /home/aftomato/workspace
 RUN mkdir -p /home/aftomato/buildscripts
 COPY build.sh /opt/aftomato/bin/

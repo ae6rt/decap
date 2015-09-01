@@ -4,7 +4,6 @@ set -ux
 
 if [ $# -eq 0 ]; then
 
-    mkdir -p $HOME/.aws
 	cat <<EOF > $HOME/.aws/credentials
 [default]
 aws_access_key_id = $(cat /etc/secrets/aws-key)
