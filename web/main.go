@@ -174,13 +174,9 @@ func main() {
 	apiToken := string(data)
 	k8s := NewK8s(*apiServerBaseURL, apiToken, *apiServerUser, *apiServerPassword, locker)
 
-	githubHandler := GitHubHandler{K8sBase: k8s}
-	stashHandler := StashHandler{K8sBase: k8s}
-	bitbucketHandler := BitBucketHandler{K8sBase: k8s}
-
-	http.HandleFunc("/hooks/github", githubHandler.handle)
-	http.HandleFunc("/hooks/stash", stashHandler.handle)
-	http.HandleFunc("/hooks/bitbucket", bitbucketHandler.handle)
+	http.HandleFunc("/hooks/github", GitHubHandler{K8sBase: k8s}.handle)
+	http.HandleFunc("/hooks/stash", StashHandler{K8sBase: k8s}.handle)
+	http.HandleFunc("/hooks/bitbucket", BitBucketHandler{K8sBase: k8s}.handle)
 
 	Log.Println("Listening for post-receive messages on port 9090...")
 	http.ListenAndServe(":9090", nil)
