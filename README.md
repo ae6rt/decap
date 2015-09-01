@@ -212,9 +212,11 @@ $ aws --profile <your AWS credentials profile> dynamodb describe-table --region 
 Crafting the IAM policy for DynamoDb is a bit different from that
 of crafting bucket policies.  We first craft a IAM Policy for the
 DynamoDb table access, then attach that to the _aftomato_ IAM user.
+We choose to split the policies up into three parts, one for the
+database r/w operations, and two others for r/w on global secondary
+indexes of interest.
 
-In the IAM Policy section of your AWS Console create a policy named _aftomato-db_ that looks like
-
+The main database policy:
 ```
 {
     "Version": "2012-10-17",
@@ -228,9 +230,19 @@ In the IAM Policy section of your AWS Console create a policy named _aftomato-db
             "Resource": [
                 "arn:aws:dynamodb:us-west-1:<your account ID>:table/aftomato-build-metadata"
             ]
-        },
+        }
+    ]
+}
+```
+
+The index on projectKey-buildTime:
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
         {
-            "Sid": "<other statement ID>",
+            "Sid": "<some other statement ID>",
             "Effect": "Allow",
             "Action": [
                 "dynamodb:*"
@@ -243,9 +255,29 @@ In the IAM Policy section of your AWS Console create a policy named _aftomato-db
 }
 ```
 
+The index on isBuilding:
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "<yet another statement ID>",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:*"
+            ],
+            "Resource": [
+                "arn:aws:dynamodb:us-west-1:<your account ID>:table/aftomato-build-metadata/index/isBuilding-index"
+            ]
+        }
+    ]
+}
+```
+
 adjusting the AWS region as appropriate to where you created the DynamoDb table.
 
-In the Users section of the AWS Console, attach this _aftomato-db_ policy to the _aftomato_ user.
+In the Users section of the AWS Console, attach these policies to the _aftomato_ user.
 
 ### Smoke testing AWS buckets and DynamoDb
 
