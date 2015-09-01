@@ -2,12 +2,11 @@ package main
 
 import (
 	"testing"
-	"net/url"
 )
 
 func TestLockKey(t *testing.T) {
-	key := buildLockKey("foo", "bar")
-	if key != url.QueryEscape("foo/bar") {
-		t.Fatalf("Want foo%2Fbar but got %s\n", key)
+	key := DefaultLock{}.Key("foo", "bar")
+	if key != ("666f6f2f626172") {
+		t.Fatalf("Want 666f6f2f626172 but got %s\n", key)
 	}
 }

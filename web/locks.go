@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/hex"
+	"fmt"
 	etcd "github.com/coreos/etcd/client"
 	"golang.org/x/net/context"
 	"time"
@@ -14,6 +16,7 @@ type DefaultLock struct {
 type Locker interface {
 	Lock(key, value string) (*etcd.Response, error)
 	Unlock(key, value string) (*etcd.Response, error)
+	Key(projectKey, branch string) string
 }
 
 func (d DefaultLock) Lock(key, value string) (*etcd.Response, error) {
@@ -32,6 +35,10 @@ func (d DefaultLock) UnLock(key, value string) (*etcd.Response, error) {
 	}
 	client := etcd.NewKeysAPI(c)
 	return client.Delete(context.Background(), key, &etcd.DeleteOptions{PrevValue: value})
+}
+
+func (d DefaultLock) Key(projectKey, branch string) string {
+	return hex.EncodeToString([]byte(fmt.Sprintf("%s/%s", projectKey, branch)))
 }
 
 func NewDefaultLock(machines []string) DefaultLock {

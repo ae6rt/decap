@@ -12,7 +12,6 @@ import (
 	"text/template"
 
 	"github.com/pborman/uuid"
-	"net/url"
 )
 
 type PushEvent interface {
@@ -68,10 +67,6 @@ func init() {
 	}}
 }
 
-func buildLockKey(projectKey, branch string) string {
-	return url.QueryEscape(fmt.Sprintf("%s/%s", projectKey, branch))
-}
-
 func NewK8s(apiServerURL, apiToken, username, password string, locker Locker) K8sBase {
 	return K8sBase{
 		MasterURL: apiServerURL,
@@ -98,7 +93,7 @@ func (k8s K8sBase) launchBuild(pushEvent PushEvent) error {
 	}
 
 	for _, branch := range pushEvent.Branches() {
-		key := buildLockKey(projectKey, branch)
+		key := k8s.Locker.Key(projectKey, branch)
 
 		buildPod.BranchToBuild = branch
 		buildPod.BuildID = uuid.NewRandom().String()
