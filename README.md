@@ -1,8 +1,11 @@
 ## Overview
 
-A CI build server based on a Kubernetes backend that executes builds in a specially prepared container.
+A CI build server based on a Kubernetes backend that executes builds
+in a build container.
 
 This project is under active development, and has no releases yet.
+
+_Aftomato_ is loosely based on the Greek word for _automation_.
 
 ## AWS Setup
 
