@@ -7,6 +7,42 @@ This project is under active development, and has no releases yet.
 
 _Aftomato_ is loosely based on the Greek word for _automation_.
 
+## Theory of Operation
+
+You have projects you want to build.  Builds are articulated in
+terms of shell scripts.  Aftomota ships with a base build container
+that can locate those build scripts and run them for you.
+
+The build container locates your build scripts based on 
+
+* the git repository the build scripts are located in
+* the subdirectory of that repository
+* and the branch your scripts should build in your project repository
+
+Your build scripts are completely free form.  Here are two examples:
+
+```
+#!/bin/bash
+
+echo hello world
+```
+
+```
+#!/bin/bash
+
+git clone https://git.example.com/repo --branch ${BRANCH_TO_BUILD}
+mvn clean install
+mvn deploy
+```
+
+### Sidecar build containers
+
+If your build needs additional services, such as MySQL, RabbitMQ,
+etc., we plan to provide a way to ingest a Kubernetes Pod descriptor
+into the build instruction that will allow you to run these sidecar
+services in the build pod along with the main build container. This
+means those services will be available to your build at localhost:port.
+
 ## AWS Setup
 
 Aftomato uses S3 buckets to store build artifacts and console logs,
@@ -302,13 +338,13 @@ upload: ../../../../../../../../../etc/hosts to s3://aftomato-build-artifacts/ho
 $ aws --profile aftomato s3 cp /etc/hosts s3://aftomato-console-logs/hosts.txt
 upload: ../../../../../../../../../etc/hosts to s3://console-logs/hosts.txt
 
-$ aws --profile aftomato  dynamodb describe-table --table-name aftomato-build-metadata 
+$ aws --profile aftomato  dynamodb describe-table --table-name aftomato-build-metadata
 {
     "Table": {
         "GlobalSecondaryIndexes": [
             {
-                "IndexSizeBytes": 0, 
-                "IndexName": "projectKey-buildTime-index", 
+                "IndexSizeBytes": 0,
+                "IndexName": "projectKey-buildTime-index",
                 "Projection": {
                     "ProjectionType": "ALL"
                 },
@@ -338,7 +374,7 @@ Mount](https://github.com/kubernetes/kubernetes/blob/master/docs/design/secrets.
 As shipped with aftomato, the Kubernetes Secret looks like this
 
 ```
-$ cat k8s-resources/aws-secret.yaml 
+$ cat k8s-resources/aws-secret.yaml
 apiVersion: v1
 data:
   aws-key: thekey
@@ -356,13 +392,13 @@ User's Access Key, Secret, and default region, respectively.  Replace
 these values with their respective Base64 encoded representations
 
 ```
-$ echo -n "mykey" | openssl base64 
+$ echo -n "mykey" | openssl base64
 bXlrZXk=
 
 ```
 
 ```
-$ echo -n "mysekrit" | openssl base64 
+$ echo -n "mysekrit" | openssl base64
 bXlzZWtyaXQ=
 ```
 
@@ -374,7 +410,7 @@ dXMtd2VzdC0x
 to produce the production ready Kubernetes Secret
 
 ```
-$ cat k8s-resources/aws-secret.yaml 
+$ cat k8s-resources/aws-secret.yaml
 apiVersion: v1
 data:
   aws-key: bXlrZXk=
@@ -430,4 +466,3 @@ sh /home/aftomato/buildscripts/aftomato-build-scripts/${PROJECT_KEY}/build.sh 2>
 The build container will call your project's build script, capture
 the console logs, and ship the build artifacts, console logs and
 build metadata to S3 and DynamoDb.
-
