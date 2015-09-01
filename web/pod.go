@@ -18,7 +18,7 @@ var podTemplate = `
                 "name": "build-scripts",
                 "gitRepo": {
                     "repository": "{{.BuildScriptsGitRepo}}",
-                    "revision": ""
+                    "revision": "{{.BuildScriptsGitRepoBranch}}"
                 }
             },
             {

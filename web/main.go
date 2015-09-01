@@ -20,12 +20,13 @@ type PushEvent interface {
 }
 
 type BuildPod struct {
-	BuildID             string
-	BuildScriptsGitRepo string
-	BuildImage          string
-	ProjectKey          string
-	BranchToBuild       string
-	BuildLockKey        string
+	BuildID                   string
+	BuildScriptsGitRepo       string
+	BuildScriptsGitRepoBranch string
+	BuildImage                string
+	ProjectKey                string
+	BranchToBuild             string
+	BuildLockKey              string
 }
 
 type Handler interface {
@@ -41,12 +42,13 @@ type K8sBase struct {
 }
 
 var (
-	apiServerBaseURL  = flag.String("api-server-base-url", "https://kubernetes", "Kubernetes API server base URL")
-	apiServerUser     = flag.String("api-server-username", "admin", "Kubernetes API server username to use if no service acccount API token is present.")
-	apiServerPassword = flag.String("api-server-password", "admin123", "Kubernetes API server password to use if no service acccount API token is present.")
-	buildScriptsRepo  = flag.String("build-scripts-repo", "https://github.com/ae6rt/aftomato-build-scripts.git", "Git repo where userland build scripts are held.")
-	image             = flag.String("image", "ae6rt/aftomato-build-base:latest", "Build container image.")
-	versionFlag       = flag.Bool("version", false, "Print version info and exit.")
+	apiServerBaseURL       = flag.String("api-server-base-url", "https://kubernetes", "Kubernetes API server base URL")
+	apiServerUser          = flag.String("api-server-username", "admin", "Kubernetes API server username to use if no service acccount API token is present.")
+	apiServerPassword      = flag.String("api-server-password", "admin123", "Kubernetes API server password to use if no service acccount API token is present.")
+	buildScriptsRepo       = flag.String("build-scripts-repo", "https://github.com/ae6rt/aftomato-build-scripts.git", "Git repo where userland build scripts are held.")
+	buildScriptsRepoBranch = flag.String("build-scripts-repo-branch", "master", "Branch or revision to use on git repo where userland build scripts are held.")
+	image                  = flag.String("image", "ae6rt/aftomato-build-base:latest", "Build container image.")
+	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
 
 	httpClient *http.Client
 
@@ -81,9 +83,10 @@ func (k8s K8sBase) launchBuild(pushEvent PushEvent) error {
 	projectKey := pushEvent.ProjectKey()
 
 	buildPod := BuildPod{
-		BuildImage:          *image,
-		BuildScriptsGitRepo: *buildScriptsRepo,
-		ProjectKey:          projectKey,
+		BuildImage:                *image,
+		BuildScriptsGitRepo:       *buildScriptsRepo,
+		BuildScriptsGitRepoBranch: *buildScriptsRepoBranch,
+		ProjectKey:                projectKey,
 	}
 
 	tmpl, err := template.New("pod").Parse(podTemplate)
