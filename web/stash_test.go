@@ -1,34 +1,42 @@
 package main
 
 import (
+	"encoding/json"
 	"testing"
 )
 
 func TestStashEvent(t *testing.T) {
-	stashEvent := StashEvent{
-		Repository: StashRepository{
-			Slug: "slug",
-			Project: StashProject{
-				Key: "proj",
-			},
-		},
-		RefChanges: []StashRefChange{
-			StashRefChange{RefID: "refs/heads/master"},
-			StashRefChange{RefID: "refs/heads/feature/foo"},
-		},
+	var event StashEvent
+	if err := json.Unmarshal([]byte(`{
+   "repository":{
+      "slug":"somelib",
+      "project":{
+         "key":"project"
+      }
+   },
+   "refChanges":[
+      {
+         "refId":"refs/heads/master",
+         "fromHash":"2c847c4e9c2421d038fff26ba82bc859ae6ebe20",
+         "toHash":"f259e9032cdeb1e28d073e8a79a1fd6f9587f233",
+         "type":"UPDATE"
+      }
+   ]
+}`), &event); err != nil {
+		Log.Println(err)
+		return
 	}
-	pushEvent := PushEvent(stashEvent)
-	if pushEvent.ProjectKey() != "proj/slug" {
-		t.Fatalf("Want proj/slug but got %s\n", pushEvent.ProjectKey())
+
+	pushEvent := PushEvent(event)
+	if pushEvent.ProjectKey() != "project/somelib" {
+		t.Fatalf("Want project/somelib but got %s\n", pushEvent.ProjectKey())
 	}
 
 	branches := pushEvent.Branches()
-	if len(branches) != 2 {
-		t.Fatalf("Want 2 but got %d\n", len(branches))
+	if len(branches) != 1 {
+		t.Fatalf("Want 1 but got %d\n", len(branches))
 	}
-	for _, branch := range branches {
-		if !(branch == "master" || branch == "feature/foo") {
-			t.Fatalf("Want master or feature/foo but got %s\n", branch)
-		}
+	if branches[0] != "master" {
+		t.Fatalf("Want master but got %s\n", branches[0])
 	}
 }

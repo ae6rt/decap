@@ -56,10 +56,10 @@ func (han StashHandler) handle(w http.ResponseWriter, r *http.Request) {
 	}
 	Log.Printf("Stash hook received: %s\n", data)
 
-	var stashEvent StashEvent
-	if err := json.Unmarshal(data, &stashEvent); err != nil {
+	var event StashEvent
+	if err := json.Unmarshal(data, &event); err != nil {
 		Log.Println(err)
 		return
 	}
-	go han.K8sBase.launchBuild(stashEvent)
+	go han.K8sBase.launchBuild(event)
 }

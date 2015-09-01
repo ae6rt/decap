@@ -1,23 +1,28 @@
 package main
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type GithubEvent struct {
+	Ref        string           `json:"ref"`
+	Repository GitHubRepository `json:"repository"`
 	PushEvent
 }
 
-func (stash GithubEvent) ProjectKey() string {
-	// todo do something
-	return ""
+type GitHubRepository struct {
+	FullName string `json:"full_name"`
 }
 
-func (stash GithubEvent) Branches() []string {
-	// todo do something
-	branches := make([]string, 0)
-	return branches
+func (event GithubEvent) ProjectKey() string {
+	return event.Repository.FullName
+}
+
+func (event GithubEvent) Branches() []string {
+	return []string{strings.ToLower(strings.Replace(event.Ref, "refs/heads/", "", -1))}
 }
 
 type GitHubHandler struct {
@@ -33,6 +38,12 @@ func (han GitHubHandler) handle(w http.ResponseWriter, r *http.Request) {
 		Log.Println(err)
 		return
 	}
+
+	var event GithubEvent
+	if err := json.Unmarshal(data, &event); err != nil {
+		Log.Println(err)
+		return
+	}
 	Log.Printf("GitHub hook received: %s\n", data)
-	go han.K8sBase.launchBuild(GithubEvent{})
+	go han.K8sBase.launchBuild(event)
 }
