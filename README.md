@@ -85,8 +85,7 @@ where _your account ID_ is your Amazon account ID.
 
 ### Buckets
 
-Create two S3 buckets, one for build artifacts (even if you don't
-think you'll have any) and build console logs.
+Create two S3 buckets, one for build artifacts and build console logs.
 
 <table>
     <tr>
@@ -187,8 +186,9 @@ these policies to their respective buckets.
 
 In your AWS Console create a DynamoDb table named _aftomato-build-metadata_
 in your preferred region that has these properties.  The table
-should have a main hashkey name _buildID_ with no range key, and a
-global secondary index with hashkey _projectKey_ and range _buildTime_.
+should have a main hashkey name _buildID_ with no range key, and
+two global secondary indexes, one with hashkey _projectKey_ and
+range _buildTime_, the other with hashKey _isBuilding_ and no range.
 
 N.B. You are responsible for getting the _ProvisionedThroughput_
 right based on your anticipated usage, which is related to how much
@@ -197,64 +197,88 @@ Amazon will bill you for that usage.
 This example shows the highlights:
 
 ```
-$ aws --profile <your AWS credentials profile> dynamodb describe-table --region us-west-1 --table-name aftomato-build-metadata
+$ aws --profile <your aftomato profile name> dynamodb describe-table --region us-west-1 --table-name aftomato-build-metadata
 {
     "Table": {
         "GlobalSecondaryIndexes": [
             {
-                "IndexSizeBytes": 0,
-                "IndexName": "projectKey-buildTime-index",
+                "IndexSizeBytes": 690, 
+                "IndexName": "projectKey-buildTime-index", 
                 "Projection": {
                     "ProjectionType": "ALL"
-                },
+                }, 
                 "ProvisionedThroughput": {
-                    "NumberOfDecreasesToday": 0,
-                    "WriteCapacityUnits": 1,
+                    "NumberOfDecreasesToday": 0, 
+                    "WriteCapacityUnits": 1, 
                     "ReadCapacityUnits": 1
-                },
-                "IndexStatus": "ACTIVE",
+                }, 
+                "IndexStatus": "ACTIVE", 
                 "KeySchema": [
                     {
-                        "KeyType": "HASH",
+                        "KeyType": "HASH", 
                         "AttributeName": "projectKey"
-                    },
+                    }, 
                     {
-                        "KeyType": "RANGE",
+                        "KeyType": "RANGE", 
                         "AttributeName": "buildTime"
                     }
-                ],
-                "ItemCount": 0
+                ], 
+                "ItemCount": 5
+            }, 
+            {
+                "IndexSizeBytes": 690, 
+                "IndexName": "isBuilding-index", 
+                "Projection": {
+                    "ProjectionType": "ALL"
+                }, 
+                "ProvisionedThroughput": {
+                    "NumberOfDecreasesToday": 0, 
+                    "WriteCapacityUnits": 2, 
+                    "ReadCapacityUnits": 1
+                }, 
+                "IndexStatus": "ACTIVE", 
+                "KeySchema": [
+                    {
+                        "KeyType": "HASH", 
+                        "AttributeName": "isBuilding"
+                    }
+                ], 
+                "ItemCount": 5
             }
-        ],
+        ], 
         "AttributeDefinitions": [
             {
-                "AttributeName": "buildID",
+                "AttributeName": "buildID", 
                 "AttributeType": "S"
-            },
+            }, 
             {
-                "AttributeName": "buildTime",
+                "AttributeName": "buildTime", 
                 "AttributeType": "N"
-            },
+            }, 
             {
-                "AttributeName": "projectKey",
+                "AttributeName": "isBuilding", 
+                "AttributeType": "N"
+            }, 
+            {
+                "AttributeName": "projectKey", 
                 "AttributeType": "S"
             }
-        ],
+        ], 
         "ProvisionedThroughput": {
-            "NumberOfDecreasesToday": 0,
-            "WriteCapacityUnits": 1,
+            "NumberOfDecreasesToday": 0, 
+            "WriteCapacityUnits": 1, 
             "ReadCapacityUnits": 1
-        },
-        "TableSizeBytes": 0,
-        "TableName": "aftomato-build-metadata",
-        "TableStatus": "ACTIVE",
+        }, 
+        "TableSizeBytes": 690, 
+        "TableName": "aftomato-build-metadata", 
+        "TableStatus": "ACTIVE", 
         "KeySchema": [
             {
-                "KeyType": "HASH",
+                "KeyType": "HASH", 
                 "AttributeName": "buildID"
             }
-        ],
-        "ItemCount": 0,
+        ], 
+        "ItemCount": 5, 
         "CreationDateTime": 1440946400.106
     }
 }
