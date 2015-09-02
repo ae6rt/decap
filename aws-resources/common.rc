@@ -1,12 +1,20 @@
 
 APPLICATION_NAME="fosse"
+AWS_REGION=${AWS_REGION:-us-west-1}
 AWS_PROFILE=${AWS_PROFILE:-fosseadmin}
 
-function checkprofile() {
+function check() {
    local result
 
-   result=$(aws --profile $AWS_PROFILE iam list-users 2>&1 > /dev/null)
+   type jq 2>&1 > /dev/null
+   if [ $? -ne 0 ]; then
+	echo "jq must be installed to proceed.  See https://github.com/stedolan/jq/wiki/Installation."
+        exit -1
+   fi
+
+   result=$(aws --profile $AWS_PROFILE iam get-user 2>&1 > /dev/null)
    if [ $? -ne 0 ]; then
 	echo "The profile $AWS_PROFILE either does not exist or cannot perform basic functions: $result"
+        exit -1
    fi
 }
