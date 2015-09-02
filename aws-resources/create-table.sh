@@ -1,6 +1,12 @@
 #!/bin/bash
 
-set -ux
+set -u
+
+. common.rc
+
+checkprofile
+
+TABLE_NAME="fosse-build-metadata"
 
 KEY_SCHEMA=$(cat <<KS
 [
@@ -76,9 +82,11 @@ GLOBAL_SECONDARY_INDEXES=$(cat <<GSI
 GSI
 )
 
-aws --profile petrovic --region us-west-1 dynamodb create-table \
-     --table-name fosse-build-metadata \
-     --attribute-definitions "$(cat table-attrs.json)" \
-     --key-schema "$(cat key-schema.json)" \
-     --global-secondary-indexes "$(cat gsi.json)" \
-     --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 
+echo "===Creating DynamoDb Table" >> aws.log
+
+aws --profile $AWS_PROFILE dynamodb create-table \
+     --table-name $TABLE_NAME \
+     --attribute-definitions "$ATTRIBUTE_DEFINITIONS" \
+     --key-schema "$KEY_SCHEMA" \
+     --global-secondary-indexes "$GLOBAL_SECONDARY_INDEXES" \
+     --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 > aws.log

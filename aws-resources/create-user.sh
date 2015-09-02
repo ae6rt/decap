@@ -1,5 +1,13 @@
 #!/bin/bash
 
-set -ux
+set -u
 
-aws --profile petrovic iam create-user --user-name fosse
+. common.rc
+
+checkprofile
+
+USER_NAME="fosse"
+
+echo "===Creating user $USER_NAME"
+
+aws --profile $AWS_PROFILE iam create-user --user-name $USER_NAME >> aws.log

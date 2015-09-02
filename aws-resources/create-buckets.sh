@@ -1,8 +1,16 @@
 #!/bin/bash
 
-set -ux
+set -u
+
+. common.rc
+
+checkprofile
+
+BUCKET_NAME_PREFIX="fosse"
+REGION="us-west-1"
+
+echo "===Creating buckets" >> aws.log
 
 for i in console-logs build-artifacts; do 
-	aws --profile petrovic s3api create-bucket --bucket fosse-$i --create-bucket-configuration LocationConstraint=us-west-1
+	aws --profile $AWS_PROFILE s3api create-bucket --bucket ${BUCKET_NAME_PREFIX}-$i --create-bucket-configuration LocationConstraint=$REGION
 done
-
