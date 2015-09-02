@@ -4,7 +4,7 @@ set -u
 
 . common.rc
 
-checkprofile
+check
 
 BUCKET_NAME_PREFIX=$APPLICATION_NAME
 REGION="us-west-1"

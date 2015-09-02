@@ -4,7 +4,7 @@ set -u
 
 . common.rc
 
-checkprofile
+check
 
 TABLE_NAME="${APPLICATION_NAME}-build-metadata"
 

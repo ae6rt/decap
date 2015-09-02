@@ -4,7 +4,7 @@ set -u
 
 . common.rc
 
-checkprofile
+check
 
 USER_NAME="$APPLICATION_NAME"
 
