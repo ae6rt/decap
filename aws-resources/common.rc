@@ -1,3 +1,5 @@
+set -e
+set -u
 
 APPLICATION_NAME="fosse"
 AWS_REGION=${AWS_REGION:-us-west-1}

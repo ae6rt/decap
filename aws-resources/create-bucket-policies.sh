@@ -57,6 +57,8 @@ ARTIFACTS
 )
 
 
+echo "===Creating bucket policies"
+
 CONSOLE_LOGS=$(aws --profile $AWS_PROFILE iam create-policy --policy-name ${APPLICATION_NAME}-s3-console-logs --policy-document "$CONSOLE_LOGS_BUCKET_POLICY" --description "Give r/w to $USER user on S3 console logs bucket")
 
 BUILD_ARTIFACTS=$(aws --profile $AWS_PROFILE iam create-policy --policy-name ${APPLICATION_NAME}-s3-build-artifacts --policy-document "$BUILD_ARTIFACTS_BUCKET_POLICY" --description "Give r/w to $USER user on S3 build artifacts bucket")
