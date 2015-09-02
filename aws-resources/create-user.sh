@@ -6,7 +6,7 @@ set -u
 
 checkprofile
 
-USER_NAME="fosse"
+USER_NAME="$APPLICATION_NAME"
 
 echo "===Creating user $USER_NAME"
 

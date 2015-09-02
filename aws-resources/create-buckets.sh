@@ -6,7 +6,7 @@ set -u
 
 checkprofile
 
-BUCKET_NAME_PREFIX="fosse"
+BUCKET_NAME_PREFIX=$APPLICATION_NAME
 REGION="us-west-1"
 
 echo "===Creating buckets" >> aws.log

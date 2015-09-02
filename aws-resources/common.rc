@@ -1,4 +1,5 @@
 
+APPLICATION_NAME="fosse"
 AWS_PROFILE=${AWS_PROFILE:-fosseadmin}
 
 function checkprofile() {

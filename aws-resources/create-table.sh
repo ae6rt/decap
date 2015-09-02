@@ -6,7 +6,7 @@ set -u
 
 checkprofile
 
-TABLE_NAME="fosse-build-metadata"
+TABLE_NAME="${APPLICATION_NAME}-build-metadata"
 
 KEY_SCHEMA=$(cat <<KS
 [
