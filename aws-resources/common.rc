@@ -6,6 +6,6 @@ function checkprofile() {
 
    result=$(aws --profile $AWS_PROFILE iam list-users 2>&1 > /dev/null)
    if [ $? -ne 0 ]; then
-	echo "The profile $AWS_PROFILE either does not exist or cannot perform basic functions"
+	echo "The profile $AWS_PROFILE either does not exist or cannot perform basic functions: $result"
    fi
 }
