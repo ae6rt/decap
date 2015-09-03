@@ -6,8 +6,6 @@ set -u
 
 check
 
-echo "===Creating user policies for table and buckets"
-
 USER=$APPLICATION_NAME
 
 ACCOUNT_ID=$(aws --profile $AWS_PROFILE iam get-user | jq -r ".User.UserId")
@@ -65,6 +63,8 @@ IS_BUILDING__INDEX_POLICY=$(cat <<ISBUILDING
 }
 ISBUILDING
 )
+
+echo "===Creating policies for Dynamodb table"
 
 BASE_POLICY=$(aws --profile $AWS_PROFILE iam create-policy --policy-name ${APPLICATION_NAME}-db-base --policy-document "$DB_POLICY" --description "Give r/w to $USER user on metadata table")
 

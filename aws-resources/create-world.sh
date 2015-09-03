@@ -4,6 +4,8 @@
 
 check
 
+echo "===Creating AWS resource for $APPLICATION_NAME"
+
 sh create-user.sh
 sh create-buckets.sh
 sh create-bucket-policies.sh

@@ -82,7 +82,7 @@ GLOBAL_SECONDARY_INDEXES=$(cat <<GSI
 GSI
 )
 
-echo "===Creating DynamoDb Table" >> aws.log
+echo "===Creating DynamoDb Table"
 
 aws --profile $AWS_PROFILE dynamodb create-table \
      --table-name $TABLE_NAME \
