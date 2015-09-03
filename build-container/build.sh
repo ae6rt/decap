@@ -12,7 +12,7 @@ region = $(cat /etc/secrets/region)
 EOF
 
 	TAR=archive.tar
-	WORKSPACE=/home/aftomato/workspace
+	WORKSPACE=/home/decap/workspace
 	CONSOLE=/tmp/console.log
 
     let START=$(date +%s)
@@ -37,11 +37,11 @@ EOF
     }
 YYY
 
-    aws dynamodb put-item --table-name aftomato-build-metadata --item file://buildstart.json
+    aws dynamodb put-item --table-name decap-build-metadata --item file://buildstart.json
 
 	pushd $WORKSPACE
 
-	sh /home/aftomato/buildscripts/aftomato-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
+	sh /home/decap/buildscripts/decap-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
 	BUILD_EXITCODE=${PIPESTATUS[0]}
 
 	# todo what gets archived needs to be configurable
@@ -54,8 +54,8 @@ YYY
 	let STOP=$(date +%s)
 	DURATION=`expr $STOP - $START`
 
-	aws s3 cp --content-type application/x-gzip /tmp/${TAR}.gz s3://aftomato-build-artifacts/$BUILD_ID
-	aws s3 cp --content-type application/x-gzip ${CONSOLE}.gz s3://aftomato-console-logs/$BUILD_ID
+	aws s3 cp --content-type application/x-gzip /tmp/${TAR}.gz s3://decap-build-artifacts/$BUILD_ID
+	aws s3 cp --content-type application/x-gzip ${CONSOLE}.gz s3://decap-console-logs/$BUILD_ID
 
 	cat <<XXX > buildstop.json
 {
@@ -83,7 +83,7 @@ YYY
 }
 XXX
 
-	aws dynamodb put-item --table-name aftomato-build-metadata --item file://buildstop.json
+	aws dynamodb put-item --table-name decap-build-metadata --item file://buildstop.json
 	
 	curl -i http://lockservice:2379/v2/keys/${BUILD_LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
 else

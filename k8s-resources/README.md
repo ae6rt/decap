@@ -1,14 +1,14 @@
 k8s resources
 ------------
 
-These are Kubernetes resources to define the aftomato service.
+These are Kubernetes resources to define the decap service.
 
 Installation into the cluster
 -----------------------------
 
 kubectl create -f aws-secret.yaml
 
-kubectl create -f aftomato.yaml
+kubectl create -f decap.yaml
 
 Launching a build
 ---------

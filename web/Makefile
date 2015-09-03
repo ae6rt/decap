@@ -1,4 +1,4 @@
-NAME := aftomato
+NAME := decap
 ARCH := amd64
 VERSION := 1.0
 DATE := $(shell date)
@@ -16,10 +16,10 @@ binaries: test
 	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 godep go build -ldflags $(LD_FLAGS) -o $(NAME)-linux-$(ARCH)
 
 container: binaries
-	docker --tlsverify=false build -t ae6rt/aftomato:latest .
+	docker --tlsverify=false build -t ae6rt/decap:latest .
 
 push: container
-	docker --tlsverify=false push  ae6rt/aftomato:latest 
+	docker --tlsverify=false push  ae6rt/decap:latest 
 
 clean: 
 	godep go clean

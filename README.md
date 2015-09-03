@@ -1,20 +1,20 @@
 ## Overview
 
-A CI build server based on a Kubernetes backend that executes builds
-in a build container.
+A headless CI build server based on a Kubernetes backend that
+executes builds in your build container.
 
 This project is under active development, and has no releases yet.
 
-_Aftomato_ is loosely based on the Greek word for _automation_.
+_Decap is loosely based on the Greek word for _automation_.
 
 ## Theory of Operation
 
 You have projects you want to build.  Builds are articulated in
-terms of shell scripts.  Aftomato ships with a _base build container_
+terms of shell scripts.  Decap ships with a _base build container_
 that can locate those build scripts and run them for you.  
 
 Post commit hooks on your projects of interest drive events into a
-web container in the core Aftomato containerized application which
+web container in the core Decap containerized application which
 in turn makes calls into the Kubernetes API master to launch a build
 container to build your code.  Builds can also be launched via web
 UI.
@@ -52,7 +52,7 @@ localhost:port.
 
 ## AWS Setup
 
-Aftomato uses S3 buckets to store build artifacts and console logs,
+Decap uses S3 buckets to store build artifacts and console logs,
 and DynamoDb to store overall build results and metadata.
 
 ### Install the AWS CLI app
@@ -61,23 +61,23 @@ See http://aws.amazon.com/documentation/cli/
 
 ### IAM user
 
-Aftomato stores build information in S3 buckets and a DynamoDb
+Decap stores build information in S3 buckets and a DynamoDb
 table.  These buckets and table are secured using AWS access policies
-that are associated with a dedicated IAM user named _aftomato_.
+that are associated with a dedicated IAM user named _decap_.
 
-Create the IAM user named _aftomato_ in your AWS Console.  This
+Create the IAM user named _decap_ in your AWS Console.  This
 user needs no SSH private key, but it will need the usual AWS Access
 Key and associated Secret.  When you create the user, AWS Console
 will display the access key and secret.  Save these to a file ---
-the Aftomato build container will need them to publish build results,
-and the web frontend to Aftomato will need them to perform build
+the Decap build container will need them to publish build results,
+and the web frontend to Decap will need them to perform build
 queries and administration.
 
 View the new user in your AWS Console and note its Amazon Resource
 Name (ARN).  It will look like this
 
 ```
-User ARN: arn:aws:iam::<your account ID>:user/aftomato
+User ARN: arn:aws:iam::<your account ID>:user/decap
 
 ```
 
@@ -93,18 +93,18 @@ Create two S3 buckets, one for build artifacts and build console logs.
         <th>Purpose</th>
     </tr>
     <tr>
-        <td>aftomato-build-artifacts</td>
+        <td>decap-build-artifacts</td>
         <td>store build artifacts</td>
     </tr>
     <tr>
-        <td>aftomato-console-logs</td>
+        <td>decap-console-logs</td>
         <td>store build console logs</td>
     </tr>
 </table>
 
 #### Bucket policy
 
-The _aftomato_ user created earlier must be given read/write/list
+The _decap_ user created earlier must be given read/write/list
 permissions on each S3 bucket in the table above.  Here are example
 policies that show correct form, but will not actually work because
 we have changed the Id and Statement Ids for security purposes.
@@ -124,23 +124,23 @@ A sample build artifact bucket policy:
 			"Sid": "<some statement ID>",
 			"Effect": "Allow",
 			"Principal": {
-				"AWS": "arn:aws:iam::<your account ID>:user/aftomato"
+				"AWS": "arn:aws:iam::<your account ID>:user/decap"
 			},
 			"Action": [
 				"s3:DeleteObject",
 				"s3:GetObject",
 				"s3:PutObject"
 			],
-			"Resource": "arn:aws:s3:::aftomato-build-artifacts/*"
+			"Resource": "arn:aws:s3:::decap-build-artifacts/*"
 		},
 		{
 			"Sid": "<some other statement ID>",
 			"Effect": "Allow",
 			"Principal": {
-				"AWS": "arn:aws:iam::<your account ID>:user/aftomato"
+				"AWS": "arn:aws:iam::<your account ID>:user/decap"
 			},
 			"Action": "s3:ListBucket",
-			"Resource": "arn:aws:s3:::aftomato-build-artifacts"
+			"Resource": "arn:aws:s3:::decap-build-artifacts"
 		}
 	]
 }
@@ -157,23 +157,23 @@ A sample console log bucket policy:
 			"Sid": "<some statement ID>",
 			"Effect": "Allow",
 			"Principal": {
-				"AWS": "arn:aws:iam::<your account ID>:user/aftomato"
+				"AWS": "arn:aws:iam::<your account ID>:user/decap"
 			},
 			"Action": [
 				"s3:DeleteObject",
 				"s3:GetObject",
 				"s3:PutObject"
 			],
-			"Resource": "arn:aws:s3:::aftomato-console-logs/*"
+			"Resource": "arn:aws:s3:::decap-console-logs/*"
 		},
 		{
 			"Sid": "<some other statement ID>",
 			"Effect": "Allow",
 			"Principal": {
-				"AWS": "arn:aws:iam::<your account ID>:user/aftomato"
+				"AWS": "arn:aws:iam::<your account ID>:user/decap"
 			},
 			"Action": "s3:ListBucket",
-			"Resource": "arn:aws:s3:::aftomato-console-logs"
+			"Resource": "arn:aws:s3:::decap-console-logs"
 		}
 	]
 }
@@ -184,7 +184,7 @@ these policies to their respective buckets.
 
 ### DynamoDb
 
-In your AWS Console create a DynamoDb table named _aftomato-build-metadata_
+In your AWS Console create a DynamoDb table named _decap-build-metadata_
 in your preferred region that has these properties.  The table
 should have a main hashkey name _buildID_ with no range key, and
 two global secondary indexes, one with hashkey _projectKey_ and
@@ -197,7 +197,7 @@ Amazon will bill you for that usage.
 This example shows the highlights:
 
 ```
-$ aws --profile <your aftomato profile name> dynamodb describe-table --region us-west-1 --table-name aftomato-build-metadata
+$ aws --profile <your decap profile name> dynamodb describe-table --region us-west-1 --table-name decap-build-metadata
 {
     "Table": {
         "GlobalSecondaryIndexes": [
@@ -270,7 +270,7 @@ $ aws --profile <your aftomato profile name> dynamodb describe-table --region us
             "ReadCapacityUnits": 1
         }, 
         "TableSizeBytes": 690, 
-        "TableName": "aftomato-build-metadata", 
+        "TableName": "decap-build-metadata", 
         "TableStatus": "ACTIVE", 
         "KeySchema": [
             {
@@ -288,7 +288,7 @@ $ aws --profile <your aftomato profile name> dynamodb describe-table --region us
 
 Crafting the IAM policy for DynamoDb is a bit different from that
 of crafting bucket policies.  We first craft a IAM Policy for the
-DynamoDb table access, then attach that to the _aftomato_ IAM user.
+DynamoDb table access, then attach that to the _decap_ IAM user.
 We choose to split the policies up into three parts, one for the
 database r/w operations, and two others for r/w on global secondary
 indexes of interest.
@@ -305,7 +305,7 @@ The main database policy:
                 "dynamodb:*"
             ],
             "Resource": [
-                "arn:aws:dynamodb:us-west-1:<your account ID>:table/aftomato-build-metadata"
+                "arn:aws:dynamodb:us-west-1:<your account ID>:table/decap-build-metadata"
             ]
         }
     ]
@@ -325,7 +325,7 @@ The index on projectKey-buildTime:
                 "dynamodb:*"
             ],
             "Resource": [
-                "arn:aws:dynamodb:us-west-1:<your account ID>:table/aftomato-build-metadata/index/projectKey-buildTime-index"
+                "arn:aws:dynamodb:us-west-1:<your account ID>:table/decap-build-metadata/index/projectKey-buildTime-index"
             ]
         }
     ]
@@ -345,7 +345,7 @@ The index on isBuilding:
                 "dynamodb:*"
             ],
             "Resource": [
-                "arn:aws:dynamodb:us-west-1:<your account ID>:table/aftomato-build-metadata/index/isBuilding-index"
+                "arn:aws:dynamodb:us-west-1:<your account ID>:table/decap-build-metadata/index/isBuilding-index"
             ]
         }
     ]
@@ -354,22 +354,22 @@ The index on isBuilding:
 
 adjusting the AWS region as appropriate to where you created the DynamoDb table.
 
-In the Users section of the AWS Console, attach these policies to the _aftomato_ user.
+In the Users section of the AWS Console, attach these policies to the _decap_ user.
 
 ### Smoke testing AWS buckets and DynamoDb
 
-If you have configured the AWS policies correctly for the Aftomato
+If you have configured the AWS policies correctly for the Decap
 buckets and DynamoDb table, you should be able to do things like
 this
 
 ```
-$ aws --profile aftomato s3 cp /etc/hosts s3://aftomato-build-artifacts/hosts.txt
-upload: ../../../../../../../../../etc/hosts to s3://aftomato-build-artifacts/hosts.txt
+$ aws --profile decap s3 cp /etc/hosts s3://decap-build-artifacts/hosts.txt
+upload: ../../../../../../../../../etc/hosts to s3://decap-build-artifacts/hosts.txt
 
-$ aws --profile aftomato s3 cp /etc/hosts s3://aftomato-console-logs/hosts.txt
+$ aws --profile decap s3 cp /etc/hosts s3://decap-console-logs/hosts.txt
 upload: ../../../../../../../../../etc/hosts to s3://console-logs/hosts.txt
 
-$ aws --profile aftomato  dynamodb describe-table --table-name aftomato-build-metadata
+$ aws --profile decap  dynamodb describe-table --table-name decap-build-metadata
 {
     "Table": {
         "GlobalSecondaryIndexes": [
@@ -382,10 +382,10 @@ $ aws --profile aftomato  dynamodb describe-table --table-name aftomato-build-me
 ...
 ```
 
-where the aftomato AWS credentials are configured in $HOME/.aws/credentials thusly
+where the decap AWS credentials are configured in $HOME/.aws/credentials thusly
 
 ```
-[aftomato]
+[decap]
 aws_access_key_id = <your access key>
 aws_secret_access_key = <your secret>
 region=us-west-1
@@ -396,13 +396,13 @@ region=us-west-1
 Bring up a Kubernetes cluster as appropriate:
 https://github.com/kubernetes/kubernetes/tree/master/docs/getting-started-guides
 
-### Aftomato Kubernetes Secret for AWS credentials
+### Decap Kubernetes Secret for AWS credentials
 
 The AWS access key and secret will be mounted in the build container
 using a [Kubernetes Secret Volume
 Mount](https://github.com/kubernetes/kubernetes/blob/master/docs/design/secrets.md).
 
-As shipped with Aftomato, the Kubernetes Secret looks like this
+As shipped with Decap, the Kubernetes Secret looks like this
 
 ```
 $ cat k8s-resources/aws-secret.yaml
@@ -413,12 +413,12 @@ data:
   region: theregion
 kind: Secret
 metadata:
-     name: aftomato-aws-credentials
+     name: decap-aws-credentials
 type: Opaque
 
 ```
 
-_thekey_, _thesecret_, and _theregion_ are the _aftomato_ AWS IAM
+_thekey_, _thesecret_, and _theregion_ are the _decap_ AWS IAM
 User's Access Key, Secret, and default region, respectively.  Replace
 these values with their respective Base64 encoded representations
 
@@ -449,7 +449,7 @@ data:
   region: dXMtd2VzdC0x
 kind: Secret
 metadata:
-     name: aftomato-aws-credentials
+     name: decap-aws-credentials
 type: Opaque
 
 ```
@@ -465,33 +465,33 @@ Secret mounted in its container, where the container ENTRYPOINT can
 use them for publishing build results.
 
 
-### Aftomato Kubernetes Pod creation
+### Decap Kubernetes Pod creation
 
-Create the pod that runs Aftomato in the cluster:
+Create the pod that runs Decap in the cluster:
 
 ```
-$ kubectl create -f k8s-resources/aftomato.yaml
+$ kubectl create -f k8s-resources/decap.yaml
 ```
 
 ## Setting up a build scripts repository
 
-Aftomato leverages Kubernetes ability to mount a Git repository
+Decap leverages Kubernetes ability to mount a Git repository
 readonly inside a container.  When you launch a build in the build
 container, Kubernetes will mount the build scripts repo that contains
 the build scripts for your projects.  Here is a sample build script
 repository
 
 ```
-https://github.com/ae6rt/aftomato-build-scripts
+https://github.com/ae6rt/decap-build-scripts
 ```
 
 The build container refers to this repository as a mounted volume
-https://github.com/ae6rt/aftomato/blob/master/web/pod.go#L56.  Build
+https://github.com/ae6rt/decap/blob/master/web/pod.go#L56.  Build
 scripts are indexed by _project key_ by the build container entrypoint
-https://github.com/ae6rt/aftomato/blob/master/build-container/build.sh#L44
+https://github.com/ae6rt/decap/blob/master/build-container/build.sh#L44
 
 ```
-sh /home/aftomato/buildscripts/aftomato-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
+sh /home/decap/buildscripts/decap-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
 ```
 
 The build container will call your project's build script, capture
@@ -500,7 +500,7 @@ build metadata to S3 and DynamoDb.
 
 ## Base Build Container Environment
 
-Here is the base build container reference:  https://github.com/ae6rt/aftomato/tree/master/build-container
+Here is the base build container reference:  https://github.com/ae6rt/decap/tree/master/build-container
 
 The following environment variables are available in your build scripts:
 
@@ -512,9 +512,9 @@ Concurrent builds of a given project + branch are currently forbidden,
 and enforced with a lock in etcd, which also runs in the Aftomoto
 cluster.
 
-## Developing Aftomato
+## Developing Decap
 
-The Aftomato source is divided into three parts:
+The Decap source is divided into three parts:
 
 * Base Build Container in build-container/
 * Webapp in web/
@@ -530,6 +530,6 @@ This is a Go webapp that receives commit hooks from various repository managers.
 
 ### Kubernetes resource configs
 
-This contains yaml files that describe Kubernetes resources Aftomato needs to function.
+This contains yaml files that describe Kubernetes resources Decap needs to function.
 
 

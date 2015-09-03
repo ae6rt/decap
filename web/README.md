@@ -1,6 +1,6 @@
-## Aftomato Web Service
+## Decap Web Service
 
-This is the core web service for Aftomato.  It receives post commit
+This is the core web service for Decap.  It receives post commit
 hooks from Stash, Github, and Bitbucket, parses those events and
 launches a new build in the build container accordingly.
 

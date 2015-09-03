@@ -1,4 +1,4 @@
-IMAGE=ae6rt/aftomato-build-base:latest
+IMAGE=ae6rt/decap-build-base:latest
 
 container:
 	docker --tlsverify=false build -t $(IMAGE) .  

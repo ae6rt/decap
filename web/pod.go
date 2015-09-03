@@ -9,7 +9,7 @@ var podTemplate = `
         "namespace": "default",
         "creationTimestamp": null,
         "labels": {
-            "type": "aftomato-build"
+            "type": "decap-build"
         }
     },
     "spec": {
@@ -24,7 +24,7 @@ var podTemplate = `
             {
                 "name": "aws-credentials",
                 "secret": {
-                    "secretName": "aftomato-aws-credentials"
+                    "secretName": "decap-aws-credentials"
                 }
             }
         ],
@@ -54,7 +54,7 @@ var podTemplate = `
                 "volumeMounts": [
                     {
                         "name": "build-scripts",
-                        "mountPath": "/home/aftomato/buildscripts"
+                        "mountPath": "/home/decap/buildscripts"
                     },
                     {
                         "name": "aws-credentials",

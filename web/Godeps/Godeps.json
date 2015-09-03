@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/ae6rt/aftomato/web",
+	"ImportPath": "github.com/ae6rt/decap/web",
 	"GoVersion": "go1.5",
 	"Deps": [
 		{

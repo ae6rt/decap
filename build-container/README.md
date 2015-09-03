@@ -1,6 +1,6 @@
 ## Base Build Container
 
-This is the base build container for Aftomato.
+This is the base build container for Decap.
 
 We believe users will build their own containers using this as a
 base, either retaining the entrypoint of the base or writing a new
