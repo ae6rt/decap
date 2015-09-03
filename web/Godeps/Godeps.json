@@ -3,8 +3,27 @@
 	"GoVersion": "go1.5",
 	"Deps": [
 		{
+			"ImportPath": "github.com/coreos/etcd/client",
+			"Comment": "v2.2.0-rc.0-5-gfca98c9",
+			"Rev": "fca98c9071f2d7fc2ece35b68d2322b2c0ed440e"
+		},
+		{
+			"ImportPath": "github.com/coreos/etcd/pkg/pathutil",
+			"Comment": "v2.2.0-rc.0-5-gfca98c9",
+			"Rev": "fca98c9071f2d7fc2ece35b68d2322b2c0ed440e"
+		},
+		{
+			"ImportPath": "github.com/coreos/etcd/pkg/types",
+			"Comment": "v2.2.0-rc.0-5-gfca98c9",
+			"Rev": "fca98c9071f2d7fc2ece35b68d2322b2c0ed440e"
+		},
+		{
 			"ImportPath": "github.com/pborman/uuid",
 			"Rev": "ca53cad383cad2479bbba7f7a1a05797ec1386e4"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "e0403b4e005737430c05a57aac078479844f919c"
 		}
 	]
 }
