@@ -1,9 +1,9 @@
 set -e
 set -u
 
-APPLICATION_NAME="fosse"
+APPLICATION_NAME="decap"
 AWS_REGION=${AWS_REGION:-us-west-1}
-AWS_PROFILE=${AWS_PROFILE:-fosseadmin}
+AWS_PROFILE=${AWS_PROFILE:-decapadmin}
 
 function check() {
    local result
