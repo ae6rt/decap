@@ -1,11 +1,9 @@
 ## Overview
 
 A headless CI build server based on a Kubernetes backend that
-executes builds in your build container.
+executes shell script based builds in your build container.
 
 This project is under active development, and has no releases yet.
-
-_Decap is loosely based on the Greek word for _automation_.
 
 ## Theory of Operation
 
@@ -65,331 +63,59 @@ Decap stores build information in S3 buckets and a DynamoDb
 table.  These buckets and table are secured using AWS access policies
 that are associated with a dedicated IAM user named _decap_.
 
-Create the IAM user named _decap_ in your AWS Console.  This
-user needs no SSH private key, but it will need the usual AWS Access
-Key and associated Secret.  When you create the user, AWS Console
-will display the access key and secret.  Save these to a file ---
-the Decap build container will need them to publish build results,
-and the web frontend to Decap will need them to perform build
-queries and administration.
+In ./aws-resources we provide Decap scripts for creating all the
+AWS resources Decap needs.  To run these scripts effectively, you
+will need an AWS account with what we're calling _root like_ powers.
+That is, an account that can create AWS IAM users, buckets, DynamoDb
+tables, and policies.  Your main AWS Dashboard account should have
+these powers.
 
-View the new user in your AWS Console and note its Amazon Resource
-Name (ARN).  It will look like this
+Put your AWS Dashboard account Access Key ID and Secret Access Key
+in your $HOME/.aws/credentials file (see [AWS Command Line Client Configuration](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files)
 
-```
-User ARN: arn:aws:iam::<your account ID>:user/decap
+Configure your installation credentials
 
 ```
-
-where _your account ID_ is your Amazon account ID.
-
-### Buckets
-
-Create two S3 buckets, one for build artifacts and build console logs.
-
-<table>
-    <tr>
-        <th>Bucket Name</th>
-        <th>Purpose</th>
-    </tr>
-    <tr>
-        <td>decap-build-artifacts</td>
-        <td>store build artifacts</td>
-    </tr>
-    <tr>
-        <td>decap-console-logs</td>
-        <td>store build console logs</td>
-    </tr>
-</table>
-
-#### Bucket policy
-
-The _decap_ user created earlier must be given read/write/list
-permissions on each S3 bucket in the table above.  Here are example
-policies that show correct form, but will not actually work because
-we have changed the Id and Statement Ids for security purposes.
-Use the [AWS Policy
-Generator](http://awspolicygen.s3.amazonaws.com/policygen.html) to
-craft your unique policies with unique Ids.
-
-
-A sample build artifact bucket policy:
-
-```
-{
-	"Version": "2012-10-17",
-	"Id": "<some policy ID"",
-	"Statement": [
-		{
-			"Sid": "<some statement ID>",
-			"Effect": "Allow",
-			"Principal": {
-				"AWS": "arn:aws:iam::<your account ID>:user/decap"
-			},
-			"Action": [
-				"s3:DeleteObject",
-				"s3:GetObject",
-				"s3:PutObject"
-			],
-			"Resource": "arn:aws:s3:::decap-build-artifacts/*"
-		},
-		{
-			"Sid": "<some other statement ID>",
-			"Effect": "Allow",
-			"Principal": {
-				"AWS": "arn:aws:iam::<your account ID>:user/decap"
-			},
-			"Action": "s3:ListBucket",
-			"Resource": "arn:aws:s3:::decap-build-artifacts"
-		}
-	]
-}
+$ cat $HOME/.aws/credentials
+[decapadmin]
+aws_access_key_id = thekey
+aws_secret_access_key = thesecret
 ```
 
-A sample console log bucket policy:
+Configure the default AWS region
 
 ```
-{
-	"Version": "2012-10-17",
-	"Id": "<some policy ID"",
-	"Statement": [
-		{
-			"Sid": "<some statement ID>",
-			"Effect": "Allow",
-			"Principal": {
-				"AWS": "arn:aws:iam::<your account ID>:user/decap"
-			},
-			"Action": [
-				"s3:DeleteObject",
-				"s3:GetObject",
-				"s3:PutObject"
-			],
-			"Resource": "arn:aws:s3:::decap-console-logs/*"
-		},
-		{
-			"Sid": "<some other statement ID>",
-			"Effect": "Allow",
-			"Principal": {
-				"AWS": "arn:aws:iam::<your account ID>:user/decap"
-			},
-			"Action": "s3:ListBucket",
-			"Resource": "arn:aws:s3:::decap-console-logs"
-		}
-	]
-}
-```
-
-Select the bucket of interest in the AWS S3 Console area, and attach
-these policies to their respective buckets.
-
-### DynamoDb
-
-In your AWS Console create a DynamoDb table named _decap-build-metadata_
-in your preferred region that has these properties.  The table
-should have a main hashkey name _buildID_ with no range key, and
-two global secondary indexes, one with hashkey _projectKey_ and
-range _buildTime_, the other with hashKey _isBuilding_ and no range.
-
-N.B. You are responsible for getting the _ProvisionedThroughput_
-right based on your anticipated usage, which is related to how much
-Amazon will bill you for that usage.
-
-This example shows the highlights:
-
-```
-$ aws --profile <your decap profile name> dynamodb describe-table --region us-west-1 --table-name decap-build-metadata
-{
-    "Table": {
-        "GlobalSecondaryIndexes": [
-            {
-                "IndexSizeBytes": 690, 
-                "IndexName": "projectKey-buildTime-index", 
-                "Projection": {
-                    "ProjectionType": "ALL"
-                }, 
-                "ProvisionedThroughput": {
-                    "NumberOfDecreasesToday": 0, 
-                    "WriteCapacityUnits": 1, 
-                    "ReadCapacityUnits": 1
-                }, 
-                "IndexStatus": "ACTIVE", 
-                "KeySchema": [
-                    {
-                        "KeyType": "HASH", 
-                        "AttributeName": "projectKey"
-                    }, 
-                    {
-                        "KeyType": "RANGE", 
-                        "AttributeName": "buildTime"
-                    }
-                ], 
-                "ItemCount": 5
-            }, 
-            {
-                "IndexSizeBytes": 690, 
-                "IndexName": "isBuilding-index", 
-                "Projection": {
-                    "ProjectionType": "ALL"
-                }, 
-                "ProvisionedThroughput": {
-                    "NumberOfDecreasesToday": 0, 
-                    "WriteCapacityUnits": 2, 
-                    "ReadCapacityUnits": 1
-                }, 
-                "IndexStatus": "ACTIVE", 
-                "KeySchema": [
-                    {
-                        "KeyType": "HASH", 
-                        "AttributeName": "isBuilding"
-                    }
-                ], 
-                "ItemCount": 5
-            }
-        ], 
-        "AttributeDefinitions": [
-            {
-                "AttributeName": "buildID", 
-                "AttributeType": "S"
-            }, 
-            {
-                "AttributeName": "buildTime", 
-                "AttributeType": "N"
-            }, 
-            {
-                "AttributeName": "isBuilding", 
-                "AttributeType": "N"
-            }, 
-            {
-                "AttributeName": "projectKey", 
-                "AttributeType": "S"
-            }
-        ], 
-        "ProvisionedThroughput": {
-            "NumberOfDecreasesToday": 0, 
-            "WriteCapacityUnits": 1, 
-            "ReadCapacityUnits": 1
-        }, 
-        "TableSizeBytes": 690, 
-        "TableName": "decap-build-metadata", 
-        "TableStatus": "ACTIVE", 
-        "KeySchema": [
-            {
-                "KeyType": "HASH", 
-                "AttributeName": "buildID"
-            }
-        ], 
-        "ItemCount": 5, 
-        "CreationDateTime": 1440946400.106
-    }
-}
-```
-
-#### DynamoDb access policy
-
-Crafting the IAM policy for DynamoDb is a bit different from that
-of crafting bucket policies.  We first craft a IAM Policy for the
-DynamoDb table access, then attach that to the _decap_ IAM user.
-We choose to split the policies up into three parts, one for the
-database r/w operations, and two others for r/w on global secondary
-indexes of interest.
-
-The main database policy:
-```
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "<some statement ID>",
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:*"
-            ],
-            "Resource": [
-                "arn:aws:dynamodb:us-west-1:<your account ID>:table/decap-build-metadata"
-            ]
-        }
-    ]
-}
-```
-
-The index on projectKey-buildTime:
-
-```
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "<some other statement ID>",
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:*"
-            ],
-            "Resource": [
-                "arn:aws:dynamodb:us-west-1:<your account ID>:table/decap-build-metadata/index/projectKey-buildTime-index"
-            ]
-        }
-    ]
-}
-```
-
-The index on isBuilding:
-
-```
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "<yet another statement ID>",
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:*"
-            ],
-            "Resource": [
-                "arn:aws:dynamodb:us-west-1:<your account ID>:table/decap-build-metadata/index/isBuilding-index"
-            ]
-        }
-    ]
-}
-```
-
-adjusting the AWS region as appropriate to where you created the DynamoDb table.
-
-In the Users section of the AWS Console, attach these policies to the _decap_ user.
-
-### Smoke testing AWS buckets and DynamoDb
-
-If you have configured the AWS policies correctly for the Decap
-buckets and DynamoDb table, you should be able to do things like
-this
-
-```
-$ aws --profile decap s3 cp /etc/hosts s3://decap-build-artifacts/hosts.txt
-upload: ../../../../../../../../../etc/hosts to s3://decap-build-artifacts/hosts.txt
-
-$ aws --profile decap s3 cp /etc/hosts s3://decap-console-logs/hosts.txt
-upload: ../../../../../../../../../etc/hosts to s3://console-logs/hosts.txt
-
-$ aws --profile decap  dynamodb describe-table --table-name decap-build-metadata
-{
-    "Table": {
-        "GlobalSecondaryIndexes": [
-            {
-                "IndexSizeBytes": 0,
-                "IndexName": "projectKey-buildTime-index",
-                "Projection": {
-                    "ProjectionType": "ALL"
-                },
-...
-```
-
-where the decap AWS credentials are configured in $HOME/.aws/credentials thusly
-
-```
-[decap]
-aws_access_key_id = <your access key>
-aws_secret_access_key = <your secret>
+$ cat $HOME/.aws/config
+[decapadmin]
 region=us-west-1
 ```
+
+Create the AWS resources
+
+```
+$ sh create-world.sh
+```
+			
+You should now be able to view the following resources in your AWS
+Dashboard UI:
+
+* an IAM user named decap
+* two S3 buckets, one named decap-console-logs and another named decap-build-artifacts
+* one DynamoDb table named decap-build-metadata
+* five policies attached to the user decap
+
+The five policies are named:
+
+* decap-db-base
+* decap-db-isBuilding
+* decap-db-projectKey
+* decap-s3-build-artifacts
+* decap-s3-console-logs
+
+The create-world.sh script also creates an AWS access key for the
+user decap.  The key and secret are written to the file aws.credentials.
+Using this access key and secret, the script also creates a Kubernetes Secret
+for use in the "Decap Kubernetes Secret for AWS credentials" section below.
 
 ## Kubernetes Cluster Setup
 
@@ -398,72 +124,24 @@ https://github.com/kubernetes/kubernetes/tree/master/docs/getting-started-guides
 
 ### Decap Kubernetes Secret for AWS credentials
 
+The Access Key and Secret for user decap created above allow the
+Decap webapp to upload build artifacts and console logs to S3 and
+make and query entries in the DynmamoDb table.
+
 The AWS access key and secret will be mounted in the build container
 using a [Kubernetes Secret Volume
 Mount](https://github.com/kubernetes/kubernetes/blob/master/docs/design/secrets.md).
 
-As shipped with Decap, the Kubernetes Secret looks like this
+Using the Kubernetes _k8s-decap-secret.yaml_ created above, inject
+it into the Kubernetes cluster:
 
 ```
-$ cat k8s-resources/aws-secret.yaml
-apiVersion: v1
-data:
-  aws-key: thekey
-  aws-secret: thesecret
-  region: theregion
-kind: Secret
-metadata:
-     name: decap-aws-credentials
-type: Opaque
-
-```
-
-_thekey_, _thesecret_, and _theregion_ are the _decap_ AWS IAM
-User's Access Key, Secret, and default region, respectively.  Replace
-these values with their respective Base64 encoded representations
-
-```
-$ echo -n "mykey" | openssl base64
-bXlrZXk=
-
-```
-
-```
-$ echo -n "mysekrit" | openssl base64
-bXlzZWtyaXQ=
-```
-
-```
-$ echo -n "us-west-1" | openssl base64
-dXMtd2VzdC0x
-```
-
-to produce the production ready Kubernetes Secret
-
-```
-$ cat k8s-resources/aws-secret.yaml
-apiVersion: v1
-data:
-  aws-key: bXlrZXk=
-  aws-secret: bXlzZWtyaXQ=
-  region: dXMtd2VzdC0x
-kind: Secret
-metadata:
-     name: decap-aws-credentials
-type: Opaque
-
-```
-
-Create this Kubernetes Secret in the Kubernetes cluster with kubectl
-
-```
-$ kubectl create -f k8s-resources/aws-secret.yaml
+$ kubectl create -f k8s-decap-secret.yaml
 ```
 
 The base build container will automatically have this Kubernetes
 Secret mounted in its container, where the container ENTRYPOINT can
 use them for publishing build results.
-
 
 ### Decap Kubernetes Pod creation
 
