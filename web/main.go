@@ -179,10 +179,7 @@ func main() {
 	k8s := NewK8s(*apiServerBaseURL, apiToken, *apiServerUser, *apiServerPassword, locker)
 
 	r := mux.NewRouter()
-	apiHandler := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "hello api")
-	}
-	r.HandleFunc("/api/v1/projects", apiHandler)
+	r.HandleFunc("/api/v1/projects", projectsAPIHandler)
 
 	http.HandleFunc("/hooks/github", GitHubHandler{K8sBase: k8s}.handle)
 	http.HandleFunc("/hooks/stash", StashHandler{K8sBase: k8s}.handle)
