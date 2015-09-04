@@ -40,7 +40,12 @@
       metadata: 
         labels: 
           name: "decap"
-      spec: 
+      spec:
+        volumes:
+          -
+            name: "aws-credentials"
+            secret:
+              secretName: "decap-aws-credentials"
         containers: 
           - 
             image: "quay.io/coreos/etcd:v2.1.1"
@@ -57,6 +62,10 @@
           - 
             image: "ae6rt/decap:latest"
             name: "decap"
+            volumeMounts:
+              -
+                name: "aws-credentials"
+                mountPath: "/etc/secrets"
             resources: 
               limits: 
                 cpu: "100m"
