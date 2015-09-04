@@ -13,9 +13,9 @@ Decap stores build information in S3 buckets and a DynamoDb
 table.  These buckets and table are secured using AWS access policies
 that are associated with a dedicated IAM user named _decap_.
 
-In ./aws-resources we provide Decap scripts for creating all the
-AWS resources Decap needs.  To run these scripts effectively, you
-will need an AWS account with what we're calling _root like_ powers.
+In this directory we provide Decap scripts for creating all the AWS
+resources Decap needs.  To run these scripts effectively, you will
+need an AWS account with what we're calling _root like_ powers.
 That is, an account that can create AWS IAM users, buckets, DynamoDb
 tables, and policies.  Your main AWS Dashboard account should have
 these powers.
