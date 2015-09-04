@@ -11,6 +11,7 @@ import (
 	"os"
 	"text/template"
 
+	"github.com/gorilla/mux"
 	"github.com/pborman/uuid"
 )
 
@@ -177,10 +178,17 @@ func main() {
 	apiToken := string(data)
 	k8s := NewK8s(*apiServerBaseURL, apiToken, *apiServerUser, *apiServerPassword, locker)
 
+	r := mux.NewRouter()
+	apiHandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "hello api")
+	}
+	r.HandleFunc("/api/v1/projects", apiHandler)
+
 	http.HandleFunc("/hooks/github", GitHubHandler{K8sBase: k8s}.handle)
 	http.HandleFunc("/hooks/stash", StashHandler{K8sBase: k8s}.handle)
 	http.HandleFunc("/hooks/bitbucket", BitBucketHandler{K8sBase: k8s}.handle)
+	http.Handle("/", r)
 
-	Log.Println("Listening for post-receive messages on port 9090...")
+	Log.Println("decap ready on port 9090...")
 	http.ListenAndServe(":9090", nil)
 }
