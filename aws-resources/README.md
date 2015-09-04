@@ -65,5 +65,5 @@ The five policies are named:
 The create-world.sh script also creates an AWS access key for the
 user decap.  The key and secret are written to the file aws.credentials.
 Using this access key and secret, the script also creates a Kubernetes Secret
-for use in the "Decap Kubernetes Secret for AWS credentials" section below.
+for use in the "Decap Kubernetes Secret for AWS credentials".
 
