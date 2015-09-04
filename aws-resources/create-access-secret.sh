@@ -14,8 +14,9 @@ KEY=$(echo "$result"  | jq -j -r ".AccessKey.AccessKeyId")
 SECRET=$(echo "$result" | jq -j -r ".AccessKey.SecretAccessKey")
 
 cat <<EOF > aws.credentials
-Access Key ID: $KEY
-Secret Access Key: $SECRET
+[decap]
+aws_access_key_id = $KEY
+aws_secret_access_key = $SECRET
 EOF
 
 KEY_BASE64=$(/bin/echo -n "$KEY" | openssl base64)
