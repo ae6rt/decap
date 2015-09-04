@@ -21,7 +21,7 @@ tables, and policies.  Your main AWS Dashboard account should have
 these powers.
 
 Put your AWS Dashboard account Access Key ID and Secret Access Key
-in your $HOME/.aws/credentials file (see [AWS Command Line Client Configuration](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files)
+in your $HOME/.aws/credentials file (see [AWS Command Line Client Configuration](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files))
 
 Configure your installation credentials
 
