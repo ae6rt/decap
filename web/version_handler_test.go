@@ -1,0 +1,31 @@
+package main
+
+import (
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"github.com/ae6rt/decap/api/v1"
+	"encoding/json"
+)
+
+func TestVersionHandler(t *testing.T) {
+	buildInfo = "foo"
+	req, err := http.NewRequest("GET", "http://example.com/foo", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	w := httptest.NewRecorder()
+	versionHandler(w, req)
+
+	var version v1.Version
+	err = json.Unmarshal(w.Body.Bytes(), &version)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if version.Version != "foo" {
+		t.Fatalf("Want foo but got %s\n", version.Version)
+	}
+}
