@@ -204,7 +204,9 @@ This is the place to modify the base build container ENTRYPOINT script and Docke
 
 ### Webapp
 
-This is a Go webapp that receives commit hooks from various repository managers.
+This is a Go webapp that receives commit hooks from various repository
+managers.  Upon receiving a hook on a managed project, Decap will
+launch a container to execute a build on the project and branch.
 
 ### Kubernetes resource configs
 
