@@ -181,10 +181,10 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/v1/projects", projectsAPIHandler)
 	r.HandleFunc("/api/v1/version", versionHandler)
-
-	http.HandleFunc("/hooks/github", GitHubHandler{K8sBase: k8s}.handle)
-	http.HandleFunc("/hooks/stash", StashHandler{K8sBase: k8s}.handle)
-	http.HandleFunc("/hooks/bitbucket", BitBucketHandler{K8sBase: k8s}.handle)
+	r.HandleFunc("/hooks/github", GitHubHandler{K8sBase: k8s}.handle)
+	r.HandleFunc("/hooks/stash", StashHandler{K8sBase: k8s}.handle)
+	r.HandleFunc("/hooks/bitbucket", BitBucketHandler{K8sBase: k8s}.handle)
+	r.HandleFunc("/", documentRootHandler)
 	http.Handle("/", r)
 
 	Log.Println("decap ready on port 9090...")
