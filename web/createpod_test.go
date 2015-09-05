@@ -33,15 +33,15 @@ func TestCreatePod(t *testing.T) {
 		if r.Header.Get("Content-Type") != "application/json" {
 			t.Fatalf("Want application/json but got %s\n", r.Header.Get("Accept"))
 		}
-		if r.Header.Get("Authorization") != "Bearer thetoken" {
-			t.Fatalf("Want 'Bearer thetoken' but got '%s'\n", r.Header.Get("Authorization"))
+		if r.Header.Get("Authorization") != "Basic YWRtaW46YWRtaW4xMjM=" { // base64(username:password)
+			t.Fatalf("Want 'Basic YWRtaW46YWRtaW4xMjM=' but got '%s'\n", r.Header.Get("Authorization"))
 		}
 		w.WriteHeader(201)
 		fmt.Fprint(w, "")
 	}))
 	defer testServer.Close()
 
-	k8s := NewK8s(testServer.URL, "thetoken", "admin", "admin123", NoOpLocker{})
+	k8s := NewK8s(testServer.URL, "admin", "admin123", NoOpLocker{})
 	err := k8s.createPod([]byte(""))
 	if err != nil {
 		t.Fatalf("Unexpected error: %v\n", err)

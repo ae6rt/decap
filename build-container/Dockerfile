@@ -8,9 +8,9 @@ RUN rm /tmp/get-pip.py
 RUN mkdir -p /root/.aws
 RUN mkdir -p /home/decap/workspace
 RUN mkdir -p /home/decap/buildscripts
-COPY build.sh /opt/decap/bin/
+COPY entrypoint.sh /opt/decap/bin/
 
-ENTRYPOINT ["/opt/decap/bin/build.sh"]
+ENTRYPOINT ["/opt/decap/bin/entrypoint.sh"]
 
 # Bake in Dockerfile for reference purposes
 RUN mkdir -p /opt/decap

@@ -12,6 +12,10 @@ type Project struct {
 	Key string `json:"key"`
 }
 
+type BuildList struct {
+	Builds []Build `json:"builds"`
+}
+
 type Build struct {
 	ID       string `json:"id"`
 	Branch   string `json:"branch"`

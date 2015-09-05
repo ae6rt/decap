@@ -1,12 +1,12 @@
 package main
 
 import (
+	"encoding/json"
+	"github.com/ae6rt/decap/api/v1"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"github.com/ae6rt/decap/api/v1"
-	"encoding/json"
 )
 
 func TestVersionHandler(t *testing.T) {
