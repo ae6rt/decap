@@ -11,7 +11,7 @@ var documentRootHandler = func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, fmt.Sprintf("%v", err))
 		w.WriteHeader(500)
 	} else {
-		w.Header().Set("text/html")
+		w.Header().Set("Content-type", "text/html")
 		fmt.Fprint(w, string(data))
 	}
 }
