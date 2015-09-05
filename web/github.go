@@ -30,7 +30,7 @@ type GitHubHandler struct {
 	Handler
 }
 
-func (han GitHubHandler) handle(w http.ResponseWriter, r *http.Request) {
+func (handler GitHubHandler) handle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 
 	data, err := ioutil.ReadAll(r.Body)
@@ -45,5 +45,5 @@ func (han GitHubHandler) handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	Log.Printf("GitHub hook received: %s\n", data)
-	go han.K8sBase.launchBuild(event)
+	go handler.K8sBase.launchBuild(event)
 }

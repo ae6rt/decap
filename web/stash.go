@@ -46,7 +46,7 @@ type StashHandler struct {
 	Handler
 }
 
-func (han StashHandler) handle(w http.ResponseWriter, r *http.Request) {
+func (handler StashHandler) handle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 
 	data, err := ioutil.ReadAll(r.Body)
@@ -61,5 +61,5 @@ func (han StashHandler) handle(w http.ResponseWriter, r *http.Request) {
 		Log.Println(err)
 		return
 	}
-	go han.K8sBase.launchBuild(event)
+	go handler.K8sBase.launchBuild(event)
 }

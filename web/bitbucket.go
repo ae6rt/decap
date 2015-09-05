@@ -22,7 +22,7 @@ type BitBucketHandler struct {
 	Handler
 }
 
-func (han BitBucketHandler) handle(w http.ResponseWriter, r *http.Request) {
+func (handler BitBucketHandler) handle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 
 	data, err := ioutil.ReadAll(r.Body)
@@ -32,5 +32,5 @@ func (han BitBucketHandler) handle(w http.ResponseWriter, r *http.Request) {
 	}
 	Log.Printf("BitBucket hook received: %s\n", data)
 
-	go han.K8sBase.launchBuild(BitBucketEvent{})
+	go handler.K8sBase.launchBuild(BitBucketEvent{})
 }
