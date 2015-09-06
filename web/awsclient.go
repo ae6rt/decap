@@ -86,23 +86,21 @@ func (c DefaultAWSClient) GetBuildsByProject(project v1.Project, pageStart, page
 		if err != nil {
 			Log.Printf("Error converting buildElapsedTime to ordinal value: %v\n", err)
 		}
-		//		buildResult, err := strconv.ParseInt(*v["buildResult"].N, 10, 32)
-		//		if err != nil {
-		//			Log.Printf("Error converting buildResult to ordinal value: %v\n", err)
-		//		}
-		//		buildTime, err := strconv.ParseUint(*v["buildTime"].N, 10, 64)
-		//		if err != nil {
-		//			Log.Printf("Error converting buildTime to ordinal value: %v\n", err)
-		//		}
-
-		// ./awsclient.go:102: cannot use buildDuration (type uint64) as type int64 in field value
+		buildResult, err := strconv.ParseInt(*v["buildResult"].N, 10, 32)
+		if err != nil {
+			Log.Printf("Error converting buildResult to ordinal value: %v\n", err)
+		}
+		buildTime, err := strconv.ParseUint(*v["buildTime"].N, 10, 64)
+		if err != nil {
+			Log.Printf("Error converting buildTime to ordinal value: %v\n", err)
+		}
 
 		build := v1.Build{
 			ID:       *v["buildID"].S,
 			Branch:   *v["branch"].S,
 			Duration: buildElapsedTime,
-			//			Result:   buildResult,
-			//			UnixTime: buildTime,
+			Result:   buildResult,
+			UnixTime: buildTime,
 		}
 		builds = append(builds, build)
 	}
