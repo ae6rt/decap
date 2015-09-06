@@ -11,20 +11,17 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-type AWSClient interface {
+type StorageService interface {
 	GetBuildsByProject(project Project, sinceUnixTime uint64, limit uint64) ([]Build, error)
 	GetArtifacts(buildID string) ([]byte, error)
 	GetConsoleLog(buildID string) ([]byte, error)
 }
 
-type DefaultAWSClient struct {
-	AccessKeyId string
-	SecretKeyId string
-	Region      string
-	AWSClient
+type AWSStorageService struct {
+	Config *aws.Config
 }
 
-func NewDefaultAWSClient(accessKey, accessSecret, awsRegion string) AWSClient {
+func NewAWSStorageService(accessKey, accessSecret, awsRegion string) StorageService {
 	key, err := ioutil.ReadFile("/etc/secrets/aws-key")
 	if err != nil {
 		Log.Printf("No /etc/secrets/aws-key.  Falling back to provided default: %v\n", err)
@@ -36,13 +33,13 @@ func NewDefaultAWSClient(accessKey, accessSecret, awsRegion string) AWSClient {
 		Log.Printf("No /etc/secrets/aws-secret.  Falling back to provided default: %v\n", err)
 		secret = []byte(accessSecret)
 	}
-	return DefaultAWSClient{AccessKeyId: string(key), SecretKeyId: string(secret), Region: awsRegion}
+
+	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(string(key), string(secret), "")).WithRegion(awsRegion).WithMaxRetries(3)
+	return AWSStorageService{Config: config}
 }
 
-func (c DefaultAWSClient) GetBuildsByProject(project Project, since uint64, limit uint64) ([]Build, error) {
-	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(c.AccessKeyId, c.SecretKeyId, "")).WithRegion(c.Region).WithMaxRetries(3)
-
-	svc := dynamodb.New(config)
+func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, limit uint64) ([]Build, error) {
+	svc := dynamodb.New(c.Config)
 	params := &dynamodb.QueryInput{
 		TableName:              aws.String("decap-build-metadata"),
 		IndexName:              aws.String("projectKey-buildTime-index"),
@@ -99,17 +96,16 @@ func (c DefaultAWSClient) GetBuildsByProject(project Project, since uint64, limi
 	return builds, nil
 }
 
-func (c DefaultAWSClient) GetArtifacts(buildID string) ([]byte, error) {
+func (c AWSStorageService) GetArtifacts(buildID string) ([]byte, error) {
 	return c.bytesFromBucket("decap-build-artifacts", buildID)
 }
 
-func (c DefaultAWSClient) GetConsoleLog(buildID string) ([]byte, error) {
+func (c AWSStorageService) GetConsoleLog(buildID string) ([]byte, error) {
 	return c.bytesFromBucket("decap-console-logs", buildID)
 }
 
-func (c DefaultAWSClient) bytesFromBucket(bucketName, objectKey string) ([]byte, error) {
-	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(c.AccessKeyId, c.SecretKeyId, "")).WithRegion(c.Region).WithMaxRetries(3)
-	svc := s3.New(config)
+func (c AWSStorageService) bytesFromBucket(bucketName, objectKey string) ([]byte, error) {
+	svc := s3.New(c.Config)
 
 	params := &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),

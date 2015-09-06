@@ -38,17 +38,15 @@ func init() {
 
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
-
 	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, locker)
-
-	var awsClient AWSClient = NewDefaultAWSClient(*awsAccessKey, *awsSecret, *awsRegion)
+	awsStorageService := NewAWSStorageService(*awsAccessKey, *awsSecret, *awsRegion)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/api/v1/version", versionHandler)
 	r.HandleFunc("/api/v1/projects", projectsHandler)
-	r.HandleFunc("/api/v1/builds/{project}/{lib}", buildsHandler(awsClient))
-	r.HandleFunc("/api/v1/logs/{id}", buildLogsHandler(awsClient))
-	r.HandleFunc("/api/v1/artifacts/{id}", buildArtifactsHandler(awsClient))
+	r.HandleFunc("/api/v1/builds/{project}/{lib}", buildsHandler(awsStorageService))
+	r.HandleFunc("/api/v1/logs/{id}", buildLogsHandler(awsStorageService))
+	r.HandleFunc("/api/v1/artifacts/{id}", buildArtifactsHandler(awsStorageService))
 	r.HandleFunc("/hooks/github", GitHubHandler{K8sBase: k8s}.handle)
 	r.HandleFunc("/hooks/stash", StashHandler{K8sBase: k8s}.handle)
 	r.HandleFunc("/hooks/bitbucket", BitBucketHandler{K8sBase: k8s}.handle)

@@ -26,7 +26,7 @@ var projectsHandler = func(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "hello projects handler")
 }
 
-func buildsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.Request) {
+func buildsHandler(storageService StorageService) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		project := vars["project"]
@@ -55,7 +55,7 @@ func buildsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.Requ
 		}
 
 		var buildList []Build
-		buildList, err = awsClient.GetBuildsByProject(Project{projectKey}, since, limit)
+		buildList, err = storageService.GetBuildsByProject(Project{projectKey}, since, limit)
 
 		if err != nil {
 			builds.Meta.Error = fmt.Sprintf("%v", err)
@@ -78,23 +78,23 @@ func buildsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func buildLogsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.Request) {
+func buildLogsHandler(storageService StorageService) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		buildID := vars["id"]
 		var data []byte
-		data, _ = awsClient.GetConsoleLog(buildID)
+		data, _ = storageService.GetConsoleLog(buildID)
 		w.Header().Set("Content-type", "application/x-gzip")
 		w.Write(data)
 	}
 }
 
-func buildArtifactsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.Request) {
+func buildArtifactsHandler(storageService StorageService) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		buildID := vars["id"]
 		var data []byte
-		data, _ = awsClient.GetArtifacts(buildID)
+		data, _ = storageService.GetArtifacts(buildID)
 		w.Header().Set("Content-type", "application/x-gzip")
 		w.Write(data)
 	}
