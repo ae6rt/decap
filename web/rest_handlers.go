@@ -82,6 +82,28 @@ func buildsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+func buildLogsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		buildID := vars["id"]
+		var data []byte
+		data, _ = awsClient.GetConsoleLog(buildID)
+		w.Header().Set("Content-type", "application/x-gzip")
+		fmt.Fprint(w, data)
+	}
+}
+
+func buildArtifactsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		buildID := vars["id"]
+		var data []byte
+		data, _ = awsClient.GetArtifacts(buildID)
+		w.Header().Set("Content-type", "application/x-gzip")
+		fmt.Fprint(w, data)
+	}
+}
+
 var documentRootHandler = func(w http.ResponseWriter, r *http.Request) {
 	if data, err := ioutil.ReadFile("index.html"); err != nil {
 		fmt.Fprintf(w, fmt.Sprintf("%v", err))

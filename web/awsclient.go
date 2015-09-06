@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 type AWSClient interface {
@@ -64,15 +65,15 @@ func (c DefaultAWSClient) GetBuildsByProject(project Project, since uint64, limi
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
+			Log.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
 			if reqErr, ok := err.(awserr.RequestFailure); ok {
 				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
+				Log.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
 			}
 		} else {
 			// This case should never be hit, the SDK should always return an
 			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
+			Log.Println(err.Error())
 		}
 		return nil, err
 	}
@@ -105,9 +106,28 @@ func (c DefaultAWSClient) GetBuildsByProject(project Project, since uint64, limi
 }
 
 func (c DefaultAWSClient) GetArtifacts(buildID string) ([]byte, error) {
-	return nil, nil
+	return c.bytesFromBucket("decap-build-artifacts", buildID)
 }
 
 func (c DefaultAWSClient) GetConsoleLogs(buildID string) ([]byte, error) {
-	return nil, nil
+	return c.bytesFromBucket("decap-console-logs", buildID)
+}
+
+func (c DefaultAWSClient) bytesFromBucket(bucketName, objectKey string) ([]byte, error) {
+	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(c.AccessKeyId, c.SecretKeyId, "")).WithRegion(c.Region).WithMaxRetries(3)
+	svc := s3.New(config)
+
+	params := &s3.GetObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+	}
+
+	resp, err := svc.GetObject(params)
+
+	if err != nil {
+		Log.Println(err.Error())
+		return nil, err
+	}
+
+	return ioutil.ReadAll(resp.Body)
 }

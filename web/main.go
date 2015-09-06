@@ -47,6 +47,8 @@ func main() {
 	r.HandleFunc("/api/v1/version", versionHandler)
 	r.HandleFunc("/api/v1/projects", projectsHandler)
 	r.HandleFunc("/api/v1/builds/{project}/{lib}", buildsHandler(awsClient))
+	r.HandleFunc("/api/v1/logs/{id}", buildLogsHandler(awsClient))
+	r.HandleFunc("/api/v1/artifacts/{id}", buildArtifactsHandler(awsClient))
 	r.HandleFunc("/hooks/github", GitHubHandler{K8sBase: k8s}.handle)
 	r.HandleFunc("/hooks/stash", StashHandler{K8sBase: k8s}.handle)
 	r.HandleFunc("/hooks/bitbucket", BitBucketHandler{K8sBase: k8s}.handle)
