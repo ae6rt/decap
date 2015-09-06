@@ -41,7 +41,7 @@ func main() {
 
 	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, locker)
 
-	awsClient := NewDefaultAWSClient(*awsAccessKey, *awsSecret, *awsRegion)
+	var awsClient AWSClient = NewDefaultAWSClient(*awsAccessKey, *awsSecret, *awsRegion)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/api/v1/version", versionHandler)

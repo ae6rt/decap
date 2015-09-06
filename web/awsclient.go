@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"strconv"
 
@@ -13,7 +12,6 @@ import (
 )
 
 type AWSClient interface {
-	GetBuilds(sinceUnixTime uint64, limit uint64) ([]Build, error)
 	GetBuildsByProject(project Project, sinceUnixTime uint64, limit uint64) ([]Build, error)
 	GetArtifacts(buildID string) ([]byte, error)
 	GetConsoleLog(buildID string) ([]byte, error)
@@ -39,10 +37,6 @@ func NewDefaultAWSClient(accessKey, accessSecret, awsRegion string) AWSClient {
 		secret = []byte(accessSecret)
 	}
 	return DefaultAWSClient{AccessKeyId: string(key), SecretKeyId: string(secret), Region: awsRegion}
-}
-
-func (c DefaultAWSClient) GetBuilds(since uint64, limit uint64) ([]Build, error) {
-	return nil, fmt.Errorf("Not yet implemented\n")
 }
 
 func (c DefaultAWSClient) GetBuildsByProject(project Project, since uint64, limit uint64) ([]Build, error) {
@@ -109,7 +103,7 @@ func (c DefaultAWSClient) GetArtifacts(buildID string) ([]byte, error) {
 	return c.bytesFromBucket("decap-build-artifacts", buildID)
 }
 
-func (c DefaultAWSClient) GetConsoleLogs(buildID string) ([]byte, error) {
+func (c DefaultAWSClient) GetConsoleLog(buildID string) ([]byte, error) {
 	return c.bytesFromBucket("decap-console-logs", buildID)
 }
 
@@ -123,7 +117,6 @@ func (c DefaultAWSClient) bytesFromBucket(bucketName, objectKey string) ([]byte,
 	}
 
 	resp, err := svc.GetObject(params)
-
 	if err != nil {
 		Log.Println(err.Error())
 		return nil, err

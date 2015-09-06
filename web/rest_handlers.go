@@ -55,11 +55,7 @@ func buildsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.Requ
 		}
 
 		var buildList []Build
-		if projectKey != "" {
-			buildList, err = awsClient.GetBuildsByProject(Project{projectKey}, 0, limit)
-		} else {
-			buildList, err = awsClient.GetBuilds(since, limit)
-		}
+		buildList, err = awsClient.GetBuildsByProject(Project{projectKey}, since, limit)
 
 		if err != nil {
 			builds.Meta.Error = fmt.Sprintf("%v", err)
@@ -89,7 +85,7 @@ func buildLogsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.R
 		var data []byte
 		data, _ = awsClient.GetConsoleLog(buildID)
 		w.Header().Set("Content-type", "application/x-gzip")
-		fmt.Fprint(w, data)
+		w.Write(data)
 	}
 }
 
@@ -100,7 +96,7 @@ func buildArtifactsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *h
 		var data []byte
 		data, _ = awsClient.GetArtifacts(buildID)
 		w.Header().Set("Content-type", "application/x-gzip")
-		fmt.Fprint(w, data)
+		w.Write(data)
 	}
 }
 
