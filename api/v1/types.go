@@ -11,7 +11,7 @@ type Project struct {
 type Build struct {
 	ID       string `json:"id"`
 	Branch   string `json:"branch"`
-	Duration int64  `json:"duration"`
 	Result   int    `json:"result"`
-	UnixTime int64  `json:"unixtime"`
+	Duration uint64 `json:"duration"`
+	UnixTime uint64 `json:"unixtime"`
 }

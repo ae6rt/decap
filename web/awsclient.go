@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"strconv"
+
 	"github.com/ae6rt/decap/api/v1"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"io/ioutil"
 )
 
 type AWSClient interface {
@@ -29,14 +30,14 @@ func NewDefaultAWSClient() AWSClient {
 	if err != nil {
 		Log.Printf("No /etc/secrets/aws-key.  Falling back to main default\n", err)
 	} else {
-		key = *awsAccessKey
+		key = []byte(*awsAccessKey)
 	}
 
 	secret, err := ioutil.ReadFile("/etc/secretes/aws-secret")
 	if err != nil {
 		Log.Printf("No /etc/secrets/aws-secret.  Falling back to main default\n", err)
 	} else {
-		secret = *awsSecret
+		secret = []byte(*awsSecret)
 	}
 
 	return DefaultAWSClient{AccessKeyId: string(key), SecretKeyId: string(secret)}
@@ -76,10 +77,36 @@ func (c DefaultAWSClient) GetBuildsByProject(project v1.Project, pageStart, page
 			// error which satisfies the awserr.Error interface.
 			fmt.Println(err.Error())
 		}
+		return nil, err
 	}
-	Log.Println(awsutil.Prettify(resp))
 
-	return nil, nil
+	builds := make([]v1.Build, 0)
+	for _, v := range resp.Items {
+		buildElapsedTime, err := strconv.ParseUint(*v["buildElapsedTime"].N, 10, 64)
+		if err != nil {
+			Log.Printf("Error converting buildElapsedTime to ordinal value: %v\n", err)
+		}
+		//		buildResult, err := strconv.ParseInt(*v["buildResult"].N, 10, 32)
+		//		if err != nil {
+		//			Log.Printf("Error converting buildResult to ordinal value: %v\n", err)
+		//		}
+		//		buildTime, err := strconv.ParseUint(*v["buildTime"].N, 10, 64)
+		//		if err != nil {
+		//			Log.Printf("Error converting buildTime to ordinal value: %v\n", err)
+		//		}
+
+		// ./awsclient.go:102: cannot use buildDuration (type uint64) as type int64 in field value
+
+		build := v1.Build{
+			ID:       *v["buildID"].S,
+			Branch:   *v["branch"].S,
+			Duration: buildElapsedTime,
+			//			Result:   buildResult,
+			//			UnixTime: buildTime,
+		}
+		builds = append(builds, build)
+	}
+	return builds, nil
 }
 
 func (c DefaultAWSClient) GetArtifacts(buildID string) ([]byte, error) {
