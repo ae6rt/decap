@@ -43,10 +43,10 @@ func main() {
 
 	router := httprouter.New()
 	router.GET("/", Index)
-	router.GET("/version", VersionHandler)
-	router.GET("/builds", BuildsHandler(awsStorageService))
-	router.GET("/builds/:id/logs", LogHandler(awsStorageService))
-	router.GET("/builds/:id/artifacts", ArtifactsHandler(awsStorageService))
+	router.GET("/api/v1/version", VersionHandler)
+	router.GET("/api/v1/builds", BuildsHandler(awsStorageService))
+	router.GET("/api/v1/builds/:id/logs", LogHandler(awsStorageService))
+	router.GET("/api/v1/builds/:id/artifacts", ArtifactsHandler(awsStorageService))
 	router.POST("/hooks/:repomanager", HooksHandler(k8s))
 
 	Log.Println("decap ready on port 9090...")
