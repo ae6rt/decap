@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"github.com/ae6rt/decap/api/v1"
-	"github.com/pborman/uuid"
 	"html/template"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pborman/uuid"
 )
 
 type PushEvent interface {
@@ -31,7 +31,7 @@ type Handler interface {
 }
 
 type Decap interface {
-	GetProjects(pageStart, pageLimit int) ([]v1.Project, error)
+	GetProjects(pageStart, pageLimit int) ([]Project, error)
 }
 
 type DefaultDecap struct {
@@ -67,7 +67,7 @@ func NewDefaultDecap(apiServerURL, username, password string, locker Locker) Def
 	}
 }
 
-func (c DefaultDecap) GetProjects(pageStart, pageLimit int) ([]v1.Project, error) {
+func (c DefaultDecap) GetProjects(pageStart, pageLimit int) ([]Project, error) {
 	return nil, nil
 }
 

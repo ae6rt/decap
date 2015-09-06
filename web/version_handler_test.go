@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/ae6rt/decap/api/v1"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -19,7 +18,7 @@ func TestVersionHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	versionHandler(w, req)
 
-	var version v1.Version
+	var version Version
 	err = json.Unmarshal(w.Body.Bytes(), &version)
 	if err != nil {
 		t.Fatal(err)

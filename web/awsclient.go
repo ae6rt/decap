@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"github.com/ae6rt/decap/api/v1"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -13,8 +12,8 @@ import (
 )
 
 type AWSClient interface {
-	GetBuilds(pageStart, pageLimit int) ([]v1.Build, error)
-	GetBuildsByProject(project v1.Project, pageStart, pageLimit int) ([]v1.Build, error)
+	GetBuilds(sinceUnixTime uint64, limit uint64) ([]Build, error)
+	GetBuildsByProject(project Project, sinceUnixTime uint64, limit uint64) ([]Build, error)
 	GetArtifacts(buildID string) ([]byte, error)
 	GetConsoleLog(buildID string) ([]byte, error)
 }
@@ -22,33 +21,31 @@ type AWSClient interface {
 type DefaultAWSClient struct {
 	AccessKeyId string
 	SecretKeyId string
+	Region      string
 	AWSClient
 }
 
-func NewDefaultAWSClient() AWSClient {
+func NewDefaultAWSClient(accessKey, accessSecret, awsRegion string) AWSClient {
 	key, err := ioutil.ReadFile("/etc/secretes/aws-key")
 	if err != nil {
-		Log.Printf("No /etc/secrets/aws-key.  Falling back to main default\n", err)
-	} else {
-		key = []byte(*awsAccessKey)
+		Log.Printf("No /etc/secrets/aws-key.  Falling back to provided default: %v\n", err)
+		key = []byte(accessKey)
 	}
 
-	secret, err := ioutil.ReadFile("/etc/secretes/aws-secret")
+	secret, err := ioutil.ReadFile("/etc/secrets/aws-secret")
 	if err != nil {
-		Log.Printf("No /etc/secrets/aws-secret.  Falling back to main default\n", err)
-	} else {
-		secret = []byte(*awsSecret)
+		Log.Printf("No /etc/secrets/aws-secret.  Falling back to provided default: %v\n", err)
+		secret = []byte(accessSecret)
 	}
-
-	return DefaultAWSClient{AccessKeyId: string(key), SecretKeyId: string(secret)}
+	return DefaultAWSClient{AccessKeyId: string(key), SecretKeyId: string(secret), Region: awsRegion}
 }
 
-func (c DefaultAWSClient) GetBuilds(pageStart, pageLimit int) ([]v1.Build, error) {
-	return nil, nil
+func (c DefaultAWSClient) GetBuilds(since uint64, limit uint64) ([]Build, error) {
+	return nil, fmt.Errorf("Not yet implemented\n")
 }
 
-func (c DefaultAWSClient) GetBuildsByProject(project v1.Project, pageStart, pageLimit int) ([]v1.Build, error) {
-	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(c.AccessKeyId, c.SecretKeyId, "")).WithRegion("us-west-1").WithMaxRetries(3)
+func (c DefaultAWSClient) GetBuildsByProject(project Project, since uint64, limit uint64) ([]Build, error) {
+	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(c.AccessKeyId, c.SecretKeyId, "")).WithRegion(c.Region).WithMaxRetries(3)
 
 	svc := dynamodb.New(config)
 	params := &dynamodb.QueryInput{
@@ -80,7 +77,7 @@ func (c DefaultAWSClient) GetBuildsByProject(project v1.Project, pageStart, page
 		return nil, err
 	}
 
-	builds := make([]v1.Build, 0)
+	builds := make([]Build, 0)
 	for _, v := range resp.Items {
 		buildElapsedTime, err := strconv.ParseUint(*v["buildElapsedTime"].N, 10, 64)
 		if err != nil {
@@ -95,11 +92,11 @@ func (c DefaultAWSClient) GetBuildsByProject(project v1.Project, pageStart, page
 			Log.Printf("Error converting buildTime to ordinal value: %v\n", err)
 		}
 
-		build := v1.Build{
+		build := Build{
 			ID:       *v["buildID"].S,
 			Branch:   *v["branch"].S,
 			Duration: buildElapsedTime,
-			Result:   buildResult,
+			Result:   int(buildResult),
 			UnixTime: buildTime,
 		}
 		builds = append(builds, build)
