@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -16,7 +17,7 @@ func TestVersionHandler(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	versionHandler(w, req)
+	VersionHandler(w, req, httprouter.Params{})
 
 	var version Version
 	err = json.Unmarshal(w.Body.Bytes(), &version)

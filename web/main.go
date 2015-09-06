@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
+	"github.com/julienschmidt/httprouter"
 )
 
 var (
@@ -41,18 +41,14 @@ func main() {
 	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, locker)
 	awsStorageService := NewAWSStorageService(*awsAccessKey, *awsSecret, *awsRegion)
 
-	r := mux.NewRouter()
-	r.HandleFunc("/api/v1/version", versionHandler)
-	r.HandleFunc("/api/v1/projects", projectsHandler)
-	r.HandleFunc("/api/v1/builds/{project}/{lib}", buildsHandler(awsStorageService))
-	r.HandleFunc("/api/v1/logs/{id}", buildLogsHandler(awsStorageService))
-	r.HandleFunc("/api/v1/artifacts/{id}", buildArtifactsHandler(awsStorageService))
-	r.HandleFunc("/hooks/github", GitHubHandler{K8sBase: k8s}.handle)
-	r.HandleFunc("/hooks/stash", StashHandler{K8sBase: k8s}.handle)
-	r.HandleFunc("/hooks/bitbucket", BitBucketHandler{K8sBase: k8s}.handle)
-	r.HandleFunc("/", documentRootHandler)
-	http.Handle("/", r)
+	router := httprouter.New()
+	router.GET("/", Index)
+	router.GET("/version", VersionHandler)
+	router.GET("/builds", BuildsHandler(awsStorageService))
+	router.GET("/builds/:id/logs", LogHandler(awsStorageService))
+	router.GET("/builds/:id/artifacts", ArtifactsHandler(awsStorageService))
+	router.POST("/hooks/:repomanager", HooksHandler(k8s))
 
 	Log.Println("decap ready on port 9090...")
-	http.ListenAndServe(":9090", nil)
+	http.ListenAndServe(":9090", router)
 }
