@@ -44,6 +44,7 @@ func main() {
 	router := httprouter.New()
 	router.GET("/", Index)
 	router.GET("/api/v1/version", VersionHandler)
+	router.GET("/api/v1/projects", ProjectsHandler(awsStorageService))
 	router.GET("/api/v1/builds", BuildsHandler(awsStorageService))
 	router.GET("/api/v1/builds/:id/logs", LogHandler(awsStorageService))
 	router.GET("/api/v1/builds/:id/artifacts", ArtifactsHandler(awsStorageService))

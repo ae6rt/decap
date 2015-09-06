@@ -22,6 +22,11 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 	}
 }
 
+func ProjectsHandler(storageService StorageService) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	}
+}
+
 func LogHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
