@@ -34,40 +34,48 @@ func buildsHandler(awsClient AWSClient) func(w http.ResponseWriter, r *http.Requ
 
 		projectKey := fmt.Sprintf("%s/%s", project, lib)
 
+		var builds Builds
+
 		since, err := toUint64(r.URL.Query().Get("since"), 0)
-		// todo return something json
 		if err != nil {
-			fmt.Fprintf(w, "%v", err)
-			w.WriteHeader(500)
+			builds.Meta.Error = fmt.Sprintf("%v", err)
+			var data []byte
+			data, _ = json.Marshal(&builds)
+			fmt.Fprintf(w, "%s", string(data))
 			return
 		}
 
 		limit, err := toUint64(r.URL.Query().Get("limit"), math.MaxUint64)
-		// todo return something json
 		if err != nil {
-			fmt.Fprintf(w, "%v", err)
-			w.WriteHeader(500)
+			builds.Meta.Error = fmt.Sprintf("%v", err)
+			var data []byte
+			data, _ = json.Marshal(&builds)
+			fmt.Fprintf(w, "%s", string(data))
 			return
 		}
 
-		var builds []Build
-
+		var buildList []Build
 		if projectKey != "" {
-			builds, err = awsClient.GetBuildsByProject(Project{projectKey}, 0, limit)
+			buildList, err = awsClient.GetBuildsByProject(Project{projectKey}, 0, limit)
 		} else {
-			builds, err = awsClient.GetBuilds(since, limit)
+			buildList, err = awsClient.GetBuilds(since, limit)
 		}
 
 		if err != nil {
-			fmt.Fprintf(w, "%v", err)
-			w.WriteHeader(500)
+			builds.Meta.Error = fmt.Sprintf("%v", err)
+			var data []byte
+			data, _ = json.Marshal(&builds)
+			fmt.Fprintf(w, "%s", string(data))
 			return
 		}
 
+		builds.Builds = buildList
 		data, err := json.Marshal(&builds)
 		if err != nil {
-			fmt.Fprintf(w, "%v", err)
-			w.WriteHeader(500)
+			builds.Meta.Error = fmt.Sprintf("%v", err)
+			var data []byte
+			data, _ = json.Marshal(&builds)
+			fmt.Fprintf(w, "%s", string(data))
 			return
 		}
 		fmt.Fprint(w, string(data))

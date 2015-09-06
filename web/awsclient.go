@@ -26,7 +26,7 @@ type DefaultAWSClient struct {
 }
 
 func NewDefaultAWSClient(accessKey, accessSecret, awsRegion string) AWSClient {
-	key, err := ioutil.ReadFile("/etc/secretes/aws-key")
+	key, err := ioutil.ReadFile("/etc/secrets/aws-key")
 	if err != nil {
 		Log.Printf("No /etc/secrets/aws-key.  Falling back to provided default: %v\n", err)
 		key = []byte(accessKey)
