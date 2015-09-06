@@ -26,7 +26,7 @@ func (event GithubEvent) Branches() []string {
 }
 
 type GitHubHandler struct {
-	K8sBase K8sBase
+	K8sBase DefaultDecap
 	Handler
 }
 

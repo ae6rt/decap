@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
+	"github.com/ae6rt/decap/api/v1"
 	"github.com/pborman/uuid"
 	"html/template"
 	"io/ioutil"
@@ -29,17 +30,24 @@ type Handler interface {
 	handle(w http.ResponseWriter, r *http.Request)
 }
 
-type K8sBase struct {
+type Decap interface {
+	GetProjects(pageStart, pageLimit int) ([]v1.Project, error)
+}
+
+type DefaultDecap struct {
 	MasterURL string
-	UserName  string
-	Password  string
+	UserName  string // not needed when running in the cluster - use apiToken instead
+	Password  string // not needed when running in the cluster - use apiToken instead
 	Locker    Locker
 
 	apiToken  string
 	apiClient *http.Client
+
+	Decap
 }
 
-func NewK8s(apiServerURL, username, password string, locker Locker) K8sBase {
+func NewDefaultDecap(apiServerURL, username, password string, locker Locker) DefaultDecap {
+	// todo when running in cluster, provide root certificate via /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 	httpClient = &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}}
@@ -49,7 +57,7 @@ func NewK8s(apiServerURL, username, password string, locker Locker) K8sBase {
 		Log.Printf("No service account token: %v.  Falling back to api server username/password for master authentication.\n", err)
 	}
 
-	return K8sBase{
+	return DefaultDecap{
 		MasterURL: apiServerURL,
 		apiToken:  string(data),
 		UserName:  username,
@@ -59,7 +67,11 @@ func NewK8s(apiServerURL, username, password string, locker Locker) K8sBase {
 	}
 }
 
-func (k8s K8sBase) launchBuild(pushEvent PushEvent) error {
+func (c DefaultDecap) GetProjects(pageStart, pageLimit int) ([]v1.Project, error) {
+	return nil, nil
+}
+
+func (k8s DefaultDecap) launchBuild(pushEvent PushEvent) error {
 	projectKey := pushEvent.ProjectKey()
 
 	buildPod := BuildPod{
@@ -113,7 +125,7 @@ func (k8s K8sBase) launchBuild(pushEvent PushEvent) error {
 	return nil
 }
 
-func (base K8sBase) createPod(pod []byte) error {
+func (base DefaultDecap) createPod(pod []byte) error {
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/namespaces/default/pods", base.MasterURL), bytes.NewReader(pod))
 	if err != nil {
 		Log.Println(err)

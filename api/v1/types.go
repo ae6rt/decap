@@ -4,16 +4,8 @@ type Version struct {
 	Version string `json:"version"`
 }
 
-type ProjectList struct {
-	Projects []Project `json:"projects"`
-}
-
 type Project struct {
 	Key string `json:"key"`
-}
-
-type BuildList struct {
-	Builds []Build `json:"builds"`
 }
 
 type Build struct {

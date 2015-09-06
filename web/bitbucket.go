@@ -18,7 +18,7 @@ func (event BitBucketEvent) Branches() []string {
 }
 
 type BitBucketHandler struct {
-	K8sBase K8sBase
+	K8sBase DefaultDecap
 	Handler
 }
 

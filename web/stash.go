@@ -42,7 +42,7 @@ func (stash StashEvent) Branches() []string {
 }
 
 type StashHandler struct {
-	K8sBase K8sBase
+	K8sBase DefaultDecap
 	Handler
 }
 
