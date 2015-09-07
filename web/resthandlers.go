@@ -10,7 +10,6 @@ import (
 	"strconv"
 )
 
-
 func toUint64(value string, dflt uint64) (uint64, error) {
 	if value == "" {
 		return dflt, nil
@@ -22,7 +21,12 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 	}
 }
 
-func ProjectsHandler(storageService StorageService) httprouter.Handle {
+func ProjectsHandler() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	}
+}
+
+func ProjectBranchesHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 }
@@ -52,8 +56,6 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		project := r.URL.Query().Get("project")
 		library := r.URL.Query().Get("library")
 
-		projectKey := fmt.Sprintf("%s/%s", project, library)
-
 		var builds Builds
 
 		since, err := toUint64(r.URL.Query().Get("since"), 0)
@@ -75,7 +77,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		}
 
 		var buildList []Build
-		buildList, err = storageService.GetBuildsByProject(Project{projectKey}, since, limit)
+		buildList, err = storageService.GetBuildsByProject(Project{Parent: project, Library: library}, since, limit)
 
 		if err != nil {
 			builds.Meta.Error = fmt.Sprintf("%v", err)

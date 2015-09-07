@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/ae6rt/gittools"
 	"github.com/julienschmidt/httprouter"
+	"io/ioutil"
 )
 
 var (
@@ -36,6 +38,26 @@ func init() {
 	}
 }
 
+func findProjects(scriptsRepo string) error {
+	cloneDirectory, err := ioutil.TempDir("", "repoclone")
+	if err != nil {
+		return err
+	}
+	if err := gittools.Clone(*buildScriptsRepo, *buildScriptsRepoBranch, cloneDirectory, true); err != nil {
+		return err
+	}
+
+	buildScripts, err := findBuildScripts(cloneDirectory)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range buildScripts {
+		Log.Printf("%s\n", v)
+	}
+	return nil
+}
+
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
 	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, locker)
@@ -44,11 +66,14 @@ func main() {
 	router := httprouter.New()
 	router.GET("/", Index)
 	router.GET("/api/v1/version", VersionHandler)
-	router.GET("/api/v1/projects", ProjectsHandler(awsStorageService))
+	router.GET("/api/v1/projects", ProjectsHandler())
+	router.GET("/api/v1/projects/branches", ProjectBranchesHandler())
 	router.GET("/api/v1/builds", BuildsHandler(awsStorageService))
 	router.GET("/api/v1/builds/:id/logs", LogHandler(awsStorageService))
 	router.GET("/api/v1/builds/:id/artifacts", ArtifactsHandler(awsStorageService))
 	router.POST("/hooks/:repomanager", HooksHandler(k8s))
+
+	findProjects(*buildScriptsRepo)
 
 	Log.Println("decap ready on port 9090...")
 	http.ListenAndServe(":9090", router)

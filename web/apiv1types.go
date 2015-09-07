@@ -15,7 +15,15 @@ type Projects struct {
 }
 
 type Project struct {
-	Key string `json:"key"`
+	Parent     string            `json:"key"`
+	Library    string            `json:"library"`
+	Descriptor ProjectDescriptor `json:"descriptor"`
+}
+
+type ProjectDescriptor struct {
+	RepoManager     string `json:"repo-manager"`
+	RepoURL         string `json:"repo-url"`
+	RepoDescription string `json:"repo-description"`
 }
 
 type Builds struct {
