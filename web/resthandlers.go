@@ -23,6 +23,14 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 
 func ProjectsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		data, err := json.Marshal(&projects)
+		if err != nil {
+			fmt.Fprintf(w, "%v\n", err)
+			w.WriteHeader(500)
+			return
+		}
+		w.Header().Set("Content-type", "application/json")
+		fmt.Fprint(w, string(data))
 	}
 }
 
@@ -77,7 +85,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		}
 
 		var buildList []Build
-		buildList, err = storageService.GetBuildsByProject(Project{Parent: project, Library: library}, since, limit)
+		buildList, err = storageService.GetBuildsByProject(Project{Parent: project, Library:library }, since, limit)
 
 		if err != nil {
 			builds.Meta.Error = fmt.Sprintf("%v", err)

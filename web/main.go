@@ -6,9 +6,13 @@ import (
 	"net/http"
 	"os"
 
+	"encoding/json"
 	"github.com/ae6rt/gittools"
+	"github.com/ae6rt/retry"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
+	"strings"
+	"time"
 )
 
 var (
@@ -27,6 +31,8 @@ var (
 
 	Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
+	projects []Project
+
 	buildInfo string
 )
 
@@ -38,24 +44,46 @@ func init() {
 	}
 }
 
-func findProjects(scriptsRepo string) error {
-	cloneDirectory, err := ioutil.TempDir("", "repoclone")
-	if err != nil {
-		return err
-	}
-	if err := gittools.Clone(*buildScriptsRepo, *buildScriptsRepoBranch, cloneDirectory, true); err != nil {
-		return err
+func findProjects(scriptsRepo string) ([]Project, error) {
+	projects := make([]Project, 0)
+	work := func() error {
+		Log.Printf("Finding projects via clone of the build-scripts repository\n")
+		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
+		if err != nil {
+			return err
+		}
+		if err := gittools.Clone(*buildScriptsRepo, *buildScriptsRepoBranch, cloneDirectory, true); err != nil {
+			return err
+		}
+
+		buildScripts, err := findBuildScripts(cloneDirectory)
+		if err != nil {
+			return err
+		}
+
+		for _, v := range buildScripts {
+			parts := strings.Split(v, "/")
+			project := Project{Parent: parts[len(parts)-3], Library: parts[len(parts)-2]}
+			parentDir := v[:strings.LastIndex(v, "/")]
+			projectDescriptor := parentDir + "/project.json"
+			data, err := ioutil.ReadFile(projectDescriptor)
+			var descriptor ProjectDescriptor
+			if err == nil {
+				nerr := json.Unmarshal(data, &descriptor)
+				if nerr == nil {
+					project.Descriptor = descriptor
+				}
+			}
+			projects = append(projects, project)
+		}
+		return nil
 	}
 
-	buildScripts, err := findBuildScripts(cloneDirectory)
+	err := retry.New(5*time.Second, 10, retry.DefaultBackoffFunc).Try(work)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	for _, v := range buildScripts {
-		Log.Printf("%s\n", v)
-	}
-	return nil
+	return projects, nil
 }
 
 func main() {
@@ -73,7 +101,11 @@ func main() {
 	router.GET("/api/v1/builds/:id/artifacts", ArtifactsHandler(awsStorageService))
 	router.POST("/hooks/:repomanager", HooksHandler(k8s))
 
-	findProjects(*buildScriptsRepo)
+	var err error
+	projects, err = findProjects(*buildScriptsRepo)
+	if err != nil {
+		Log.Printf("Cannot clone build scripts repository: %v\n", err)
+	}
 
 	Log.Println("decap ready on port 9090...")
 	http.ListenAndServe(":9090", router)

@@ -15,12 +15,13 @@ type Projects struct {
 }
 
 type Project struct {
-	Parent     string            `json:"key"`
+	Parent     string            `json:"parent"`
 	Library    string            `json:"library"`
-	Descriptor ProjectDescriptor `json:"descriptor"`
+	Descriptor ProjectDescriptor `json:"descriptor,omitempty"`
 }
 
 type ProjectDescriptor struct {
+	// Supported values: github
 	RepoManager     string `json:"repo-manager"`
 	RepoURL         string `json:"repo-url"`
 	RepoDescription string `json:"repo-description"`
