@@ -3,6 +3,10 @@
 	"GoVersion": "go1.5",
 	"Deps": [
 		{
+			"ImportPath": "github.com/ae6rt/githubsdk",
+			"Rev": "1d920c331790bb25690a5c297aea934c5a311f13"
+		},
+		{
 			"ImportPath": "github.com/ae6rt/gittools",
 			"Rev": "449f4673f8af9903fbdc4eac5e37a669ea55a10f"
 		},

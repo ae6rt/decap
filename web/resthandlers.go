@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ae6rt/githubsdk"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"math"
@@ -34,8 +35,33 @@ func ProjectsHandler() httprouter.Handle {
 	}
 }
 
-func ProjectBranchesHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func ProjectBranchesHandler(githubClientID, githubClientSecret string) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		parent := params.ByName("parent")
+		library := params.ByName("library")
+
+		for _, v := range projects {
+			if v.Parent == parent && v.Library == library {
+				switch v.Descriptor.RepoManager {
+				case "github":
+					ghClient := githubsdk.NewGithubClient("https://api.github.com", githubClientID, githubClientSecret)
+					branches, err := ghClient.GetBranches(parent, library)
+					if err != nil {
+						fmt.Fprintf(w, "%v\n", err)
+						w.WriteHeader(500)
+						return
+					}
+					data, err := json.Marshal(&branches)
+					if err != nil {
+						fmt.Fprintf(w, "%v\n", err)
+						w.WriteHeader(500)
+						return
+					}
+					fmt.Fprint(w, string(data))
+					return
+				}
+			}
+		}
 	}
 }
 
@@ -85,7 +111,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		}
 
 		var buildList []Build
-		buildList, err = storageService.GetBuildsByProject(Project{Parent: project, Library:library }, since, limit)
+		buildList, err = storageService.GetBuildsByProject(Project{Parent: project, Library: library}, since, limit)
 
 		if err != nil {
 			builds.Meta.Error = fmt.Sprintf("%v", err)
