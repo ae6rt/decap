@@ -13,6 +13,10 @@ func findBuildScripts(root string) ([]string, error) {
 			return err
 		}
 
+		if strings.HasPrefix(path, ".git") {
+			return filepath.SkipDir
+		}
+
 		// record this as a too-deep path we never want to traverse again
 		if info.IsDir() && strings.Count(path, "/") > 2 {
 			return filepath.SkipDir

@@ -8,7 +8,7 @@ import (
 )
 
 func TestFindBuildScripts(t *testing.T) {
-	dir, err := ziptools.Unzip("buildscripts-test.zip")
+	dir, err := ziptools.Unzip("buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}

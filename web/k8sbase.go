@@ -52,10 +52,7 @@ func NewDefaultDecap(apiServerURL, username, password string, locker Locker) Def
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}}
 
-	data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
-	if err != nil {
-		Log.Printf("No service account token: %v.  Falling back to api server username/password for master authentication.\n", err)
-	}
+	data, _ := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 
 	return DefaultDecap{
 		MasterURL: apiServerURL,
