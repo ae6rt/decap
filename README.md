@@ -209,12 +209,23 @@ Here is the base build container reference:  https://github.com/ae6rt/decap/tree
 The following environment variables are available in your build scripts:
 
 * BUILD_ID:  UUID that uniquely identifies this build
-* PROJECT_KEY: a composite key consisting of your project + repository
+* PROJECT_KEY: a composite key consisting of your project parent + library
 * BRANCH_TO_BUILD: an optional git branch to build within your application project. This is typically used with Github or Stash post commit hook events.
 
 Concurrent builds of a given project + branch are currently forbidden,
 and enforced with a lock in etcd, which also runs in the Decap
 cluster.
+
+Build pod instances are labelled as follows
+
+```
+"labels": {
+   "type": "decap-build",
+   "parent": "{{.Parent}}",
+   "library": "{{.Library}}",
+   "branch": "{{.BranchToBuild}}",
+}
+```
 
 ## Developing Decap
 
