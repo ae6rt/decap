@@ -197,6 +197,11 @@ branches on the project.  Knowing the branches, decap can offer to
 let the user build a particular branch on project. Valid repository
 managers are _github_ and _stash_.
 
+### Handling updates to the buildscripts repository
+
+Decap will refresh its representation of the buildscripts repository if you add a post-commit hook to this repository.  Point the handler
+at _baseURL_/hooks/buildscripts.
+
 ## Base Build Container Environment
 
 Here is the base build container reference:  https://github.com/ae6rt/decap/tree/master/build-container
