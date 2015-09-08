@@ -154,6 +154,15 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	fmt.Fprint(w, string(data))
 }
 
+func ExecuteBuildHandler() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		project := params.ByName("parent")
+		library := params.ByName("library")
+		branch := r.URL.Query().Get("branch")
+		fmt.Printf("execute build on %s/%s/%s\n", project, library, branch)
+	}
+}
+
 func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		w.WriteHeader(200)

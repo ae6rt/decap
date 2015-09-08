@@ -58,6 +58,7 @@ func main() {
 	router.GET("/api/v1/projects", ProjectsHandler())
 	router.GET("/api/v1/projects/:parent/:library/branches", ProjectBranchesHandler(*githubClientID, *githubClientSecret))
 	router.GET("/api/v1/builds/:parent/:library", BuildsHandler(awsStorageService))
+	router.PUT("/api/v1/builds/:parent/:library", ExecuteBuildHandler())
 	router.GET("/api/v1/logs/:id", LogHandler(awsStorageService))
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, k8s))
