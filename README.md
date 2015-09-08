@@ -1,3 +1,8 @@
+## History
+
+Mark: How hard can it be to build a build server?
+Josh: Why not use a pure Kubernetes backend?
+
 ## Overview
 
 A headless CI build server based on a Kubernetes backend that

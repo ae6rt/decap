@@ -2,22 +2,28 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/ae6rt/gittools"
-	"github.com/ae6rt/retry"
 	"io/ioutil"
+	"os"
 	"strings"
 	"time"
+
+	"github.com/ae6rt/gittools"
+	"github.com/ae6rt/retry"
 )
 
-func findProjects(scriptsRepo string) ([]Project, error) {
+func findProjects(scriptsRepo, scriptsRepoBranch string) ([]Project, error) {
 	projects := make([]Project, 0)
 	work := func() error {
 		Log.Printf("Finding projects via clone of the build-scripts repository\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
+		defer func() {
+			os.RemoveAll(cloneDirectory)
+		}()
+
 		if err != nil {
 			return err
 		}
-		if err := gittools.Clone(*buildScriptsRepo, *buildScriptsRepoBranch, cloneDirectory, true); err != nil {
+		if err := gittools.Clone(scriptsRepo, scriptsRepoBranch, cloneDirectory, true); err != nil {
 			return err
 		}
 
@@ -28,18 +34,11 @@ func findProjects(scriptsRepo string) ([]Project, error) {
 
 		for _, v := range buildScripts {
 			parts := strings.Split(v, "/")
-			project := Project{Parent: parts[len(parts)-3], Library: parts[len(parts)-2]}
-			parentDir := v[:strings.LastIndex(v, "/")]
-			projectDescriptor := parentDir + "/project.json"
-			data, err := ioutil.ReadFile(projectDescriptor)
-			var descriptor ProjectDescriptor
-			if err == nil {
-				nerr := json.Unmarshal(data, &descriptor)
-				if nerr == nil {
-					project.Descriptor = descriptor
-				}
-			}
-			projects = append(projects, project)
+			projects = append(projects, Project{
+				Parent:     parts[len(parts)-3],
+				Library:    parts[len(parts)-2],
+				Descriptor: projectDescriptor(v),
+			})
 		}
 		return nil
 	}
@@ -49,4 +48,24 @@ func findProjects(scriptsRepo string) ([]Project, error) {
 		return nil, err
 	}
 	return projects, nil
+}
+
+func projectDescriptor(scriptPath string) ProjectDescriptor {
+	// returning an empty descriptor is acceptable, which is what happens on error
+	dpath := descriptorPath(scriptPath)
+	var descriptor ProjectDescriptor
+	data, err := ioutil.ReadFile(dpath)
+	if err != nil {
+		return descriptor
+	}
+	json.Unmarshal(data, &descriptor)
+	return descriptor
+}
+
+func parentPath(fileName string) string {
+	return fileName[:strings.LastIndex(fileName, "/")]
+}
+
+func descriptorPath(scriptPath string) string {
+	return parentPath(scriptPath) + "/project.json"
 }
