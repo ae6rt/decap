@@ -25,9 +25,9 @@ var podTemplate = `
                 }
             },
             {
-                "name": "aws-credentials",
+                "name": "decap-credentials",
                 "secret": {
-                    "secretName": "decap-aws-credentials"
+                    "secretName": "decap-credentials"
                 }
             }
         ],
@@ -60,7 +60,7 @@ var podTemplate = `
                         "mountPath": "/home/decap/buildscripts"
                     },
                     {
-                        "name": "aws-credentials",
+                        "name": "decap-credentials",
                         "mountPath": "/etc/secrets"
                     }
                 ]

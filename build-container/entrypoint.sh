@@ -8,7 +8,7 @@ if [ $# -eq 0 ]; then
 [default]
 aws_access_key_id = $(cat /etc/secrets/aws-key)
 aws_secret_access_key = $(cat /etc/secrets/aws-secret)
-region = $(cat /etc/secrets/region)
+region = $(cat /etc/secrets/aws-region)
 EOF
 
 	TAR=archive.tar
