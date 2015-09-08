@@ -6,7 +6,7 @@ var podTemplate = `
     "apiVersion": "v1",
     "metadata": {
         "name": "{{.BuildID}}",
-        "namespace": "default",
+        "namespace": "decap",
         "creationTimestamp": null,
         "labels": {
             "type": "decap-build"
