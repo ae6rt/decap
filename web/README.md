@@ -1,8 +1,8 @@
 ## Decap Web Service
 
 This is the core web service for Decap.  It receives post commit
-hooks from Stash, Github, and Bitbucket, parses those events and
-launches a new build in the build container accordingly.
+hooks from Github, and Atlassian, parses those events and launches
+a new build in the build container accordingly.
 
 A given branch on a project is locked in etcd to ensure that only
 one container is building this project branch at any one time.  This
@@ -25,9 +25,6 @@ HTTP endpoints for various source code management systems
         <td>Stash</td>
         <td>/hooks/stash</td>
     </tr>
-    <tr>
-        <td>Bitbucket</td>
-        <td>/hooks/bitbucket</td>
 </table>
 
 ### Manually Launching Builds
