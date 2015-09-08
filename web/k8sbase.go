@@ -37,7 +37,6 @@ type Handler interface {
 type Decap interface {
 	GetProjects(pageStart, pageLimit int) ([]Project, error)
 }
-
 type DefaultDecap struct {
 	MasterURL string
 	UserName  string // not needed when running in the cluster - use apiToken instead

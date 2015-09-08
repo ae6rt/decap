@@ -154,12 +154,23 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	fmt.Fprint(w, string(data))
 }
 
-func ExecuteBuildHandler() httprouter.Handle {
+func ExecuteBuildHandler(k8s DefaultDecap) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		project := params.ByName("parent")
+		parent := params.ByName("parent")
 		library := params.ByName("library")
+
+		if _, present := findProject(parent, library); !present {
+			w.WriteHeader(404)
+			return
+		}
+
 		branch := r.URL.Query().Get("branch")
-		fmt.Printf("execute build on %s/%s/%s\n", project, library, branch)
+		if branch == "" {
+			w.WriteHeader(400) // todo add a message
+		}
+
+		event := UserBuildEvent{parent: parent, library: library, branches: []string{branch}}
+		go k8s.launchBuild(event)
 	}
 }
 

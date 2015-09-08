@@ -39,3 +39,25 @@ func TestProjects(t *testing.T) {
 		t.Fatalf("Want a project ae6rt/library but did not find one\n")
 	}
 }
+
+func TestProject(t *testing.T) {
+	dir, err := ziptools.Unzip("buildscripts-repo.zip")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	projects, err = findProjects("file://"+dir, "master")
+	os.RemoveAll(dir)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, present := findProject("ae6rt", "dynamodb-lab"); !present {
+		t.Fatalf("Expecting to find ae6rt/dynamodb-lab project but did not\n")
+	}
+
+	if _, present := findProject("nope", "nope"); present {
+		t.Fatalf("Not expecting to find nope/nope project but did \n")
+	}
+}
