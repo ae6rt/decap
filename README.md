@@ -174,7 +174,23 @@ sh /home/decap/buildscripts/decap-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | t
 
 The build container will call your project's build script, capture
 the console logs, and ship the build artifacts, console logs and
-build metadata to S3 and DynamoDb.
+build metadata to S3 and DynamoDb.  
+
+An optional _project.json_ file may be placed on par with a project's
+build.sh script.  project.json has the following example format
+
+```
+{
+     "repo-manager": "github",
+     "repo-url": "https://github.com/ae6rt/dynamodb-lab.git",
+     "repo-description": "AWS DynamoDb lab"
+}
+```
+
+If this file exists, decap can query the repository manager for
+branches on the project.  Knowing the branches, decap can offer to
+let the user build a particular branch on project. Valid repository
+managers are _github_ and _stash_.
 
 ## Base Build Container Environment
 
