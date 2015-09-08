@@ -191,11 +191,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap)
 
 		var event PushEvent
 		switch repoManager {
-		case "github":
-			event = GithubEvent{}
-
-		// A special repository manager to handle updates to the buildscripts repository
-		case "buildscripts":
+		case "buildscripts": // A special repository manager to handle updates to the buildscripts repository
 			go func() {
 				p, err := findProjects(buildScriptsRepo, buildScriptsBranch)
 				if err != nil {
@@ -205,6 +201,8 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap)
 				}
 			}()
 			return
+		case "github":
+			event = GithubEvent{}
 		}
 
 		data, err := ioutil.ReadAll(r.Body)
