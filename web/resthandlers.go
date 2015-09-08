@@ -39,12 +39,6 @@ func ProjectsHandler() httprouter.Handle {
 
 func ProjectBranchesHandler(githubClientID, githubClientSecret string) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		if githubClientID == "" || githubClientSecret == "" {
-			Log.Printf("No Github client-id configured.")
-			w.WriteHeader(400)
-			return
-		}
-
 		parent := params.ByName("parent")
 		library := params.ByName("library")
 
@@ -56,6 +50,11 @@ func ProjectBranchesHandler(githubClientID, githubClientSecret string) httproute
 
 		switch project.Descriptor.RepoManager {
 		case "github":
+			if githubClientID == "" || githubClientSecret == "" {
+				Log.Printf("No Github client-id configured.")
+				w.WriteHeader(400)
+				return
+			}
 			ghClient := githubsdk.NewGithubClient("https://api.github.com", githubClientID, githubClientSecret)
 			branches, err := ghClient.GetBranches(project.Parent, project.Library)
 			if err != nil {
