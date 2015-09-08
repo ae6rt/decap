@@ -24,6 +24,8 @@ type BuildPod struct {
 	BuildScriptsGitRepoBranch string
 	BuildImage                string
 	ProjectKey                string
+	Parent                    string
+	Library                   string
 	BranchToBuild             string
 	BuildLockKey              string
 }
@@ -78,6 +80,8 @@ func (k8s DefaultDecap) launchBuild(pushEvent PushEvent) error {
 		BuildScriptsGitRepo:       *buildScriptsRepo,
 		BuildScriptsGitRepoBranch: *buildScriptsRepoBranch,
 		ProjectKey:                projectKey,
+		Parent:                    pushEvent.Parent(),
+		Library:                   pushEvent.Library(),
 	}
 
 	tmpl, err := template.New("pod").Parse(podTemplate)

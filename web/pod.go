@@ -9,7 +9,10 @@ var podTemplate = `
         "namespace": "decap",
         "creationTimestamp": null,
         "labels": {
-            "type": "decap-build"
+            "type": "decap-build",
+            "parent": "{{.Parent}}",
+            "library": "{{.Library}}",
+            "branch": "{{.BranchToBuild}}",
         }
     },
     "spec": {
