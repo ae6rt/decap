@@ -176,6 +176,12 @@ func TestGithubEvent(t *testing.T) {
 	if pushEvent.ProjectKey() != "baxterthehacker/public-repo" {
 		t.Fatalf("Want baxterthehacker/public-repo but got %s\n", pushEvent.ProjectKey())
 	}
+	if pushEvent.Parent() != "baxterthehacker" {
+		t.Fatalf("Want baxterthehacker but got %s\n", pushEvent.Parent())
+	}
+	if pushEvent.Library() != "public-repo" {
+		t.Fatalf("Want public-repo but got %s\n", pushEvent.Library())
+	}
 
 	branches := pushEvent.Branches()
 	if len(branches) != 1 {
