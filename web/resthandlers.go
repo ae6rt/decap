@@ -39,6 +39,12 @@ func ProjectsHandler() httprouter.Handle {
 
 func ProjectBranchesHandler(githubClientID, githubClientSecret string) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		if githubClientID == "" || githubClientSecret == "" {
+			Log.Printf("No Github client-id configured.")
+			w.WriteHeader(400)
+			return
+		}
+
 		parent := params.ByName("parent")
 		library := params.ByName("library")
 

@@ -127,21 +127,45 @@ for use in the "Decap Kubernetes Secret for AWS credentials" section below.
 Bring up a Kubernetes cluster as appropriate:
 https://github.com/kubernetes/kubernetes/tree/master/docs/getting-started-guides
 
-### Decap Kubernetes Secret for AWS credentials
+### Decap Kubernetes Secret for AWS and Github credentials 
 
 The Access Key and Secret for user decap created above allow the
 Decap webapp to upload build artifacts and console logs to S3 and
-make and query entries in the DynmamoDb table.
+make and query entries in the DynmamoDb table.  
+
+However, the webapp also needs access to an OAuth2 Github ClientID
+and ClientSecret if you want the webapp to query for branches on a
+project's repository for Github-based projects.  See *Project
+metadata file* below.  The process for generating a Github OAuth2
+credentials for your installation of decap starts here:
+https://github.com/settings/applications/new.
 
 The AWS access key and secret will be mounted in the build container
 using a [Kubernetes Secret Volume
 Mount](https://github.com/kubernetes/kubernetes/blob/master/docs/design/secrets.md).
 
-Using the Kubernetes _k8s-decap-secret.yaml_ created above, inject
-it into the Kubernetes cluster:
+Craft a decap-system-secrets.yaml augmented with the Github OAuth2
+credentials using this as an example:
 
 ```
-$ kubectl create -f k8s-decap-secret.yaml
+apiVersion: v1
+data:
+  aws-key: thekey
+  aws-secret: base64(thesecret)
+  aws-region: base64(theregion)
+  github-client-id: base64(ghcid)
+  github-client-secret: base64(ghsekrit)
+kind: Secret
+metadata:
+     name: decap-credentials
+     namespace: "decap-system"
+type: Opaque
+```
+
+and create it on the Kubernetes cluster:
+
+```
+$ kubectl create -f decap-system-secrets.yaml
 ```
 
 The base build container will automatically have this Kubernetes
@@ -180,6 +204,8 @@ sh /home/decap/buildscripts/decap-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | t
 The build container will call your project's build script, capture
 the console logs, and ship the build artifacts, console logs and
 build metadata to S3 and DynamoDb.  
+
+## Project metadata file
 
 An optional _project.json_ file may be placed on par with a project's
 build.sh script.  project.json has the following example format

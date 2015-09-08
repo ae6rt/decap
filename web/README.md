@@ -1,8 +1,9 @@
 ## Decap Web Service
 
-This is the core web service for Decap.  It receives post commit
-hooks from Github, and Atlassian, parses those events and launches
-a new build in the build container accordingly.
+This is the core web service for Decap.  It exposes REST API endoints
+for a web UI frontend, and receives post commit hooks from Github
+and Atlassian Stash, and parses those events and launches a new
+build in the build container accordingly.
 
 A given branch on a project is locked in etcd to ensure that only
 one container is building this project branch at any one time.  This
