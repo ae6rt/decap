@@ -165,8 +165,6 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap)
 			event = GithubEvent{}
 		case "stash":
 			event = StashEvent{}
-		case "bitbucket":
-			event = BitBucketEvent{}
 
 		// A special repository manager to handle updates to the buildscripts repository
 		case "buildscripts":

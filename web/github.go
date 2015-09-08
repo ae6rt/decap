@@ -10,11 +10,24 @@ import (
 type GithubEvent struct {
 	Ref        string           `json:"ref"`
 	Repository GitHubRepository `json:"repository"`
-	PushEvent
 }
 
 type GitHubRepository struct {
-	FullName string `json:"full_name"`
+	FullName string      `json:"full_name"`
+	Name     string      `json:"name"`
+	Owner    GithubOwner `json:"owner"`
+}
+
+type GithubOwner struct {
+	Name string `json:"name"`
+}
+
+func (event GithubEvent) Parent() string {
+	return event.Repository.Owner.Name
+}
+
+func (event GithubEvent) Library() string {
+	return event.Repository.Name
 }
 
 func (event GithubEvent) ProjectKey() string {

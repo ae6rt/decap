@@ -12,6 +12,8 @@ import (
 )
 
 type PushEvent interface {
+	Parent() string
+	Library() string
 	ProjectKey() string
 	Branches() []string
 }

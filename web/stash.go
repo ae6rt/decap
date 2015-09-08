@@ -29,6 +29,14 @@ type StashRefChange struct {
 	RefID string `json:"refId"`
 }
 
+func (stash StashEvent) Parent() string {
+	return stash.Repository.Project.Key
+}
+
+func (stash StashEvent) Library() string {
+	return stash.Repository.Slug
+}
+
 func (stash StashEvent) ProjectKey() string {
 	return fmt.Sprintf("%s/%s", stash.Repository.Project.Key, stash.Repository.Slug)
 }
@@ -43,7 +51,6 @@ func (stash StashEvent) Branches() []string {
 
 type StashHandler struct {
 	K8sBase DefaultDecap
-	Handler
 }
 
 func (handler StashHandler) handle(w http.ResponseWriter, r *http.Request) {
