@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -22,21 +23,8 @@ type AWSStorageService struct {
 	Config *aws.Config
 }
 
-func NewAWSStorageService(accessKey, accessSecret, awsRegion string) StorageService {
-	key, err := ioutil.ReadFile("/etc/secrets/aws-key")
-	if err != nil {
-		Log.Printf("No /etc/secrets/aws-key.  Falling back to provided default: %v\n", err)
-		key = []byte(accessKey)
-	}
-
-	secret, err := ioutil.ReadFile("/etc/secrets/aws-secret")
-	if err != nil {
-		Log.Printf("No /etc/secrets/aws-secret.  Falling back to provided default: %v\n", err)
-		secret = []byte(accessSecret)
-	}
-
-	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(string(key), string(secret), "")).WithRegion(awsRegion).WithMaxRetries(3)
-	return AWSStorageService{Config: config}
+func NewAWSStorageService(key, secret, region string) StorageService {
+	return AWSStorageService{aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(key, secret, "")).WithRegion(region).WithMaxRetries(3)}
 }
 
 func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, limit uint64) ([]Build, error) {

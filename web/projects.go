@@ -1,11 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/ae6rt/gittools"
+	"github.com/ae6rt/retry"
 	"io/ioutil"
 	"strings"
-	"encoding/json"
-	"github.com/ae6rt/retry"
 	"time"
 )
 

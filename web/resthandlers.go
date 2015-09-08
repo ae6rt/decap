@@ -40,28 +40,34 @@ func ProjectBranchesHandler(githubClientID, githubClientSecret string) httproute
 		parent := params.ByName("parent")
 		library := params.ByName("library")
 
-		for _, v := range projects {
-			if v.Parent == parent && v.Library == library {
-				switch v.Descriptor.RepoManager {
-				case "github":
-					ghClient := githubsdk.NewGithubClient("https://api.github.com", githubClientID, githubClientSecret)
-					branches, err := ghClient.GetBranches(parent, library)
-					if err != nil {
-						fmt.Fprintf(w, "%v\n", err)
-						w.WriteHeader(500)
-						return
-					}
-					data, err := json.Marshal(&branches)
-					if err != nil {
-						fmt.Fprintf(w, "%v\n", err)
-						w.WriteHeader(500)
-						return
-					}
-					fmt.Fprint(w, string(data))
-					return
-				}
-			}
+		project, present := findProject(parent, library)
+		if !present {
+			w.WriteHeader(404)
+			return
 		}
+
+		switch project.Descriptor.RepoManager {
+		case "github":
+			ghClient := githubsdk.NewGithubClient("https://api.github.com", githubClientID, githubClientSecret)
+			branches, err := ghClient.GetBranches(project.Parent, project.Library)
+			if err != nil {
+				// todo put error on json object
+				Log.Print(err)
+				w.WriteHeader(500)
+				fmt.Fprintf(w, "%v\n", err)
+				return
+			}
+			data, err := json.Marshal(&branches)
+			if err != nil {
+				w.WriteHeader(500)
+				// todo put error on json object
+				fmt.Fprintf(w, "%v\n", err)
+				return
+			}
+			w.Write(data)
+			return
+		}
+		w.WriteHeader(404)
 	}
 }
 
@@ -184,4 +190,19 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		w.Header().Set("Content-type", "text/html")
 		fmt.Fprint(w, string(data))
 	}
+}
+
+func findProject(parent, library string) (Project, bool) {
+	for _, v := range getProjects() {
+		if v.Parent == parent && v.Library == library {
+			return v, true
+		}
+	}
+	return Project{}, false
+
+}
+
+func getProjects() []Project {
+	// todo lock with a mutex
+	return projects
 }

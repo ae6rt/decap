@@ -4,7 +4,7 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/ae6rt/githubsdk",
-			"Rev": "34afc2a42820b7536d5b52c2d331981d2579f078"
+			"Rev": "b11f702c03af69b156af44700f8e7232df4c9622"
 		},
 		{
 			"ImportPath": "github.com/ae6rt/gittools",

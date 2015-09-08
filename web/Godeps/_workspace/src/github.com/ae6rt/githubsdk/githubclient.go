@@ -80,7 +80,7 @@ func (gh GithubClient) GetBranches(owner, repository string) ([]GithubBranch, er
 
 		branches = append(branches, b...)
 		url = nextLink(response.Header.Get("Link"))
-		morePages = url == ""
+		morePages = url != ""
 	}
 
 	return branches, nil

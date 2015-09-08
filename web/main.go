@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -13,7 +14,7 @@ var (
 	apiServerBaseURL       = flag.String("api-server-base-url", "https://kubernetes", "Kubernetes API server base URL")
 	apiServerUser          = flag.String("api-server-username", "admin", "Kubernetes API server username to use if no service acccount API token is present.")
 	apiServerPassword      = flag.String("api-server-password", "admin123", "Kubernetes API server password to use if no service acccount API token is present.")
-	awsAccessKey           = flag.String("aws-access-key", "", "Default decap AWS access key.  /etc/secrets/aws-key in the cluster overrides this.")
+	awsKey                 = flag.String("aws-access-key", "", "Default decap AWS access key.  /etc/secrets/aws-key in the cluster overrides this.")
 	awsSecret              = flag.String("aws-secret-key", "", "Default decap AWS access secret.  /etc/secrets/aws-secret in the cluster overrides this.")
 	awsRegion              = flag.String("aws-region", "us-west-1", "Default decap AWS region.  /etc/secrets/aws-region in the cluster overrides this.")
 	githubClientID         = flag.String("github-client-id", "", "Default Github ClientID for quering Github repos.  /etc/secrets/github-client-id in the cluster overrides this.")
@@ -38,12 +39,18 @@ func init() {
 		Log.Printf("%s\n", buildInfo)
 		os.Exit(0)
 	}
+
+	*awsKey = kubeSecret("/etc/secrets/aws-key", *awsKey)
+	*awsSecret = kubeSecret("/etc/secrets/aws-secret", *awsSecret)
+	*awsRegion = kubeSecret("/etc/secrets/aws-region", *awsRegion)
+	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
+	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 }
 
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
 	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, locker)
-	awsStorageService := NewAWSStorageService(*awsAccessKey, *awsSecret, *awsRegion)
+	awsStorageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 
 	router := httprouter.New()
 	router.GET("/", Index)
@@ -66,4 +73,11 @@ func main() {
 
 	Log.Println("decap ready on port 9090...")
 	http.ListenAndServe(":9090", router)
+}
+
+func kubeSecret(file string, defaultValue string) string {
+	if v, err := ioutil.ReadFile(file); err == nil {
+		return string(v)
+	}
+	return defaultValue
 }
