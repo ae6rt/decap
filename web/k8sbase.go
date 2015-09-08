@@ -51,7 +51,7 @@ type DefaultDecap struct {
 
 func NewDefaultDecap(apiServerURL, username, password string, locker Locker) DefaultDecap {
 	// todo when running in cluster, provide root certificate via /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-	httpClient = &http.Client{Transport: &http.Transport{
+	apiClient := &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}}
 
@@ -63,7 +63,7 @@ func NewDefaultDecap(apiServerURL, username, password string, locker Locker) Def
 		UserName:  username,
 		Password:  password,
 		Locker:    locker,
-		apiClient: httpClient,
+		apiClient: apiClient,
 	}
 }
 
@@ -140,7 +140,7 @@ func (base DefaultDecap) createPod(pod []byte) error {
 		req.SetBasicAuth(base.UserName, base.Password)
 	}
 
-	resp, err := httpClient.Do(req)
+	resp, err := base.apiClient.Do(req)
 	if err != nil {
 		return err
 	}

@@ -24,13 +24,11 @@ var (
 	image                  = flag.String("image", "ae6rt/decap-build-base:latest", "Build container image that runs userland build scripts.")
 	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
 
-	httpClient *http.Client
-
-	Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	projects []Project
 
 	repoManagerClientCredentials = make(map[string]RepoManagerCredential)
+
+	Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 	buildInfo string
 )

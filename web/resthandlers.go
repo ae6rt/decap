@@ -50,12 +50,15 @@ func ProjectBranchesHandler(creds map[string]RepoManagerCredential) httprouter.H
 
 		switch project.Descriptor.RepoManager {
 		case "github":
-			if creds["github"].User == "" || creds["github"].Password == "" {
+			user := creds["github"].User
+			password := creds["github"].Password
+
+			if user == "" || password == "" {
 				Log.Printf("No Github client-id configured.")
 				w.WriteHeader(400)
 				return
 			}
-			ghClient := githubsdk.NewGithubClient("https://api.github.com", creds["github"].User, creds["github"].Password)
+			ghClient := githubsdk.NewGithubClient("https://api.github.com", user, password)
 			branches, err := ghClient.GetBranches(project.Parent, project.Library)
 			if err != nil {
 				// todo put error on json object
