@@ -25,7 +25,8 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 
 func ProjectsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		data, err := json.Marshal(&projects)
+		p := getProjects()
+		data, err := json.Marshal(&p)
 		if err != nil {
 			fmt.Fprintf(w, "%v\n", err)
 			w.WriteHeader(500)
