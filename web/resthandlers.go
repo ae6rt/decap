@@ -153,11 +153,11 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	fmt.Fprint(w, string(data))
 }
 
-func HooksHandler(k8s DefaultDecap) httprouter.Handle {
+func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		w.WriteHeader(200)
 
-		repoManager := params.ByName(":repomanager")
+		repoManager := params.ByName("repomanager")
 
 		var event PushEvent
 		switch repoManager {
@@ -167,6 +167,18 @@ func HooksHandler(k8s DefaultDecap) httprouter.Handle {
 			event = StashEvent{}
 		case "bitbucket":
 			event = BitBucketEvent{}
+
+		// A special repository manager to handle updates to the buildscripts repository
+		case "buildscripts":
+			go func() {
+				p, err := findProjects(buildScriptsRepo, buildScriptsBranch)
+				if err != nil {
+					Log.Println(err)
+				} else {
+					setProjects(p)
+				}
+			}()
+			return
 		}
 
 		data, err := ioutil.ReadAll(r.Body)
@@ -190,17 +202,6 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	} else {
 		w.Header().Set("Content-type", "text/html")
 		fmt.Fprint(w, string(data))
-	}
-}
-
-func BuildScriptsHookHandler(repo, branch string) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		p, err := findProjects(repo, branch)
-		if err != nil {
-			Log.Println(err)
-		} else {
-			setProjects(p)
-		}
 	}
 }
 
