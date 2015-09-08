@@ -37,7 +37,7 @@ func ProjectsHandler() httprouter.Handle {
 	}
 }
 
-func ProjectBranchesHandler(githubClientID, githubClientSecret string) httprouter.Handle {
+func ProjectBranchesHandler(creds map[string]RepoManagerCredential) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		parent := params.ByName("parent")
 		library := params.ByName("library")
@@ -50,12 +50,12 @@ func ProjectBranchesHandler(githubClientID, githubClientSecret string) httproute
 
 		switch project.Descriptor.RepoManager {
 		case "github":
-			if githubClientID == "" || githubClientSecret == "" {
+			if creds["github"].User == "" || creds["github"].Password == "" {
 				Log.Printf("No Github client-id configured.")
 				w.WriteHeader(400)
 				return
 			}
-			ghClient := githubsdk.NewGithubClient("https://api.github.com", githubClientID, githubClientSecret)
+			ghClient := githubsdk.NewGithubClient("https://api.github.com", creds["github"].User, creds["github"].Password)
 			branches, err := ghClient.GetBranches(project.Parent, project.Library)
 			if err != nil {
 				// todo put error on json object
@@ -190,8 +190,6 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap)
 		switch repoManager {
 		case "github":
 			event = GithubEvent{}
-		case "stash":
-			event = StashEvent{}
 
 		// A special repository manager to handle updates to the buildscripts repository
 		case "buildscripts":

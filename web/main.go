@@ -30,6 +30,8 @@ var (
 
 	projects []Project
 
+	repoManagerClientCredentials = make(map[string]RepoManagerCredential)
+
 	buildInfo string
 )
 
@@ -45,6 +47,8 @@ func init() {
 	*awsRegion = kubeSecret("/etc/secrets/aws-region", *awsRegion)
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
+
+	repoManagerClientCredentials["github"] = RepoManagerCredential{User: *githubClientID, Password: *githubClientSecret}
 }
 
 func main() {
@@ -56,7 +60,7 @@ func main() {
 	router.GET("/", Index)
 	router.GET("/api/v1/version", VersionHandler)
 	router.GET("/api/v1/projects", ProjectsHandler())
-	router.GET("/api/v1/projects/:parent/:library/branches", ProjectBranchesHandler(*githubClientID, *githubClientSecret))
+	router.GET("/api/v1/projects/:parent/:library/branches", ProjectBranchesHandler(repoManagerClientCredentials))
 	router.GET("/api/v1/builds/:parent/:library", BuildsHandler(awsStorageService))
 	router.POST("/api/v1/builds/:parent/:library", ExecuteBuildHandler(k8s))
 	router.GET("/api/v1/logs/:id", LogHandler(awsStorageService))

@@ -1,7 +1,7 @@
 ## History
 
-Mark: How hard can it be to build a build server?
-Josh: Why not use a pure Kubernetes backend?
+* Mark: How hard can it be to build a build server?
+* Josh: And why not use a pure Kubernetes backend?
 
 ## Overview
 
@@ -220,8 +220,9 @@ build.sh script.  project.json has the following example format
 
 If this file exists, decap can query the repository manager for
 branches on the project.  Knowing the branches, decap can offer to
-let the user build a particular branch on project. Valid repository
-managers are _github_ and _stash_.
+let the user build a particular branch on project. Github is currently
+the only supported repository manager, but Stash and Bitbucket
+manager are planned.
 
 ### Handling updates to the buildscripts repository
 
@@ -236,7 +237,7 @@ The following environment variables are available in your build scripts:
 
 * BUILD_ID:  UUID that uniquely identifies this build
 * PROJECT_KEY: a composite key consisting of your project parent + library
-* BRANCH_TO_BUILD: an optional git branch to build within your application project. This is typically used with Github or Stash post commit hook events.
+* BRANCH_TO_BUILD: an optional git branch to build within your application project. This is typically used with Github post commit hook events.
 
 Concurrent builds of a given project + branch are currently forbidden,
 and enforced with a lock in etcd, which also runs in the Decap
