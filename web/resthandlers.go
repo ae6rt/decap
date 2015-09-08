@@ -164,12 +164,13 @@ func ExecuteBuildHandler(k8s DefaultDecap) httprouter.Handle {
 			return
 		}
 
-		branch := r.URL.Query().Get("branch")
-		if branch == "" {
-			w.WriteHeader(400) // todo add a message
+		branches := r.URL.Query()["branch"]
+		if len(branches) == 0 {
+			// todo add a message
+			w.WriteHeader(400)
 		}
 
-		event := UserBuildEvent{parent: parent, library: library, branches: []string{branch}}
+		event := UserBuildEvent{parent: parent, library: library, branches: branches}
 		go k8s.launchBuild(event)
 	}
 }
