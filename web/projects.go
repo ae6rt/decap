@@ -5,11 +5,14 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ae6rt/gittools"
 	"github.com/ae6rt/retry"
 )
+
+var projectMutex = &sync.Mutex{}
 
 func findProjects(scriptsRepo, scriptsRepoBranch string) ([]Project, error) {
 	projects := make([]Project, 0)
@@ -68,4 +71,18 @@ func parentPath(fileName string) string {
 
 func descriptorPath(scriptPath string) string {
 	return parentPath(scriptPath) + "/project.json"
+}
+
+func getProjects() []Project {
+	p := make([]Project, 0)
+	projectMutex.Lock()
+	p = append(p, projects...)
+	projectMutex.Unlock()
+	return p
+}
+
+func setProjects(p []Project) {
+	projectMutex.Lock()
+	projects = p
+	projectMutex.Unlock()
 }

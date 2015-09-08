@@ -61,6 +61,7 @@ func main() {
 	router.GET("/api/v1/logs/:id", LogHandler(awsStorageService))
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
 	router.POST("/hooks/:repomanager", HooksHandler(k8s))
+	router.POST("/hooks/special/buildscripts", BuildScriptsHookHandler(*buildScriptsRepo, *buildScriptsRepoBranch))
 
 	var err error
 	projects, err = findProjects(*buildScriptsRepo, *buildScriptsRepoBranch)

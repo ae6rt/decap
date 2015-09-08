@@ -193,6 +193,17 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 }
 
+func BuildScriptsHookHandler(repo, branch string) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		p, err := findProjects(repo, branch)
+		if err != nil {
+			Log.Println(err)
+		} else {
+			setProjects(p)
+		}
+	}
+}
+
 func findProject(parent, library string) (Project, bool) {
 	for _, v := range getProjects() {
 		if v.Parent == parent && v.Library == library {
@@ -200,10 +211,4 @@ func findProject(parent, library string) (Project, bool) {
 		}
 	}
 	return Project{}, false
-
-}
-
-func getProjects() []Project {
-	// todo lock with a mutex
-	return projects
 }
