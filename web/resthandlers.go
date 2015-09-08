@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ae6rt/githubsdk"
-	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"math"
 	"net/http"
 	"strconv"
+
+	"github.com/ae6rt/githubsdk"
+	"github.com/julienschmidt/httprouter"
 )
 
 func toUint64(value string, dflt uint64) (uint64, error) {
@@ -92,9 +93,9 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 }
 
 func BuildsHandler(storageService StorageService) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		project := r.URL.Query().Get("project")
-		library := r.URL.Query().Get("library")
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		project := params.ByName("parent")
+		library := params.ByName("library")
 
 		var builds Builds
 
