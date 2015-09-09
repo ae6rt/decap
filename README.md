@@ -29,7 +29,7 @@ webapp.  This webapp in turn makes calls to the Kubernetes API
 master to launch an ephemeral build pod to build a single instance
 of your code.  Once the build is finished the pod exits, saving no
 build pod state from one build to the next.  Build results are
-shipped to S3 buckets and a DynamoDb table.
+shipped to Amazon AWS S3 buckets and a DynamoDb table.
 
 Your build scripts are completely free form.  Here are two examples:
 
