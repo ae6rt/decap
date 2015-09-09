@@ -27,8 +27,8 @@ func TestCreatePod(t *testing.T) {
 			t.Fatalf("wanted POST but found %s\n", r.Method)
 		}
 		url := *r.URL
-		if url.Path != "/api/v1/namespaces/default/pods" {
-			t.Fatalf("Want /api/v1/namespaces/default/pods but got %s\n", url.Path)
+		if url.Path != "/api/v1/namespaces/decap/pods" {
+			t.Fatalf("Want /api/v1/namespaces/decap/pods but got %s\n", url.Path)
 		}
 		if r.Header.Get("Content-Type") != "application/json" {
 			t.Fatalf("Want application/json but got %s\n", r.Header.Get("Accept"))
@@ -42,7 +42,7 @@ func TestCreatePod(t *testing.T) {
 	defer testServer.Close()
 
 	k8s := NewDefaultDecap(testServer.URL, "admin", "admin123", NoOpLocker{})
-	err := k8s.createPod([]byte(""))
+	err := k8s.CreatePod([]byte(""))
 	if err != nil {
 		t.Fatalf("Unexpected error: %v\n", err)
 	}

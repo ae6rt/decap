@@ -23,6 +23,14 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 	}
 }
 
+func StopBuildHandler(k8s DefaultDecap) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		buildID := params.ByName("id")
+		if err := k8s.DeletePod(buildID); err != nil {
+			Log.Println(err)
+		}
+	}
+}
 func ProjectsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		p := getProjects()

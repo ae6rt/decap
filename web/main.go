@@ -60,6 +60,7 @@ func main() {
 	router.GET("/api/v1/projects", ProjectsHandler())
 	router.GET("/api/v1/projects/:parent/:library/branches", ProjectBranchesHandler(repoManagerClientCredentials))
 	router.GET("/api/v1/builds/:parent/:library", BuildsHandler(awsStorageService))
+	router.DELETE("/api/v1/builds/:id", StopBuildHandler(k8s))
 	router.POST("/api/v1/builds/:parent/:library", ExecuteBuildHandler(k8s))
 	router.GET("/api/v1/logs/:id", LogHandler(awsStorageService))
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))

@@ -45,8 +45,6 @@ type DefaultDecap struct {
 
 	apiToken  string
 	apiClient *http.Client
-
-	Decap
 }
 
 func NewDefaultDecap(apiServerURL, username, password string, locker Locker) DefaultDecap {
@@ -111,7 +109,7 @@ func (k8s DefaultDecap) launchBuild(pushEvent PushEvent) error {
 
 		if resp.Node.Value == buildPod.BuildID {
 			Log.Printf("Acquired lock on build %s with key %s\n", buildPod.BuildID, key)
-			if podError := k8s.createPod(hydratedTemplate.Bytes()); podError != nil {
+			if podError := k8s.CreatePod(hydratedTemplate.Bytes()); podError != nil {
 				Log.Println(podError)
 				if _, err := k8s.Locker.Unlock(key, buildPod.BuildID); err != nil {
 					Log.Println(err)
@@ -127,8 +125,8 @@ func (k8s DefaultDecap) launchBuild(pushEvent PushEvent) error {
 	return nil
 }
 
-func (base DefaultDecap) createPod(pod []byte) error {
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/namespaces/default/pods", base.MasterURL), bytes.NewReader(pod))
+func (base DefaultDecap) CreatePod(pod []byte) error {
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/namespaces/decap/pods", base.MasterURL), bytes.NewReader(pod))
 	if err != nil {
 		Log.Println(err)
 		return err
@@ -151,6 +149,38 @@ func (base DefaultDecap) createPod(pod []byte) error {
 	if resp.StatusCode != 201 {
 		if data, err := ioutil.ReadAll(resp.Body); err != nil {
 			Log.Printf("Error reading non-201 response body: %v\n", err)
+			return err
+		} else {
+			Log.Printf("%s\n", string(data))
+			return nil
+		}
+	}
+	return nil
+}
+
+func (base DefaultDecap) DeletePod(podName string) error {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/namespaces/decap/pods/%s", base.MasterURL, podName), nil)
+	if err != nil {
+		Log.Println(err)
+		return err
+	}
+	if base.apiToken != "" {
+		req.Header.Set("Authorization", "Bearer "+base.apiToken)
+	} else {
+		req.SetBasicAuth(base.UserName, base.Password)
+	}
+
+	resp, err := base.apiClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		resp.Body.Close()
+	}()
+
+	if resp.StatusCode != 200 {
+		if data, err := ioutil.ReadAll(resp.Body); err != nil {
+			Log.Printf("Error reading non-200 response body: %v\n", err)
 			return err
 		} else {
 			Log.Printf("%s\n", string(data))
