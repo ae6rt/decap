@@ -257,11 +257,11 @@ The following environment variables are available in your build scripts:
 
 * BUILD_ID:  UUID that uniquely identifies this build
 * PROJECT_KEY: a composite key consisting of your project _parent/library_
-* BRANCH_TO_BUILD: an optional git branch to build within your application project. This is typically used with Github post commit hook events.
+* BRANCH_TO_BUILD: an optional git branch for use with builds that can put it to use
 
-Concurrent builds of a given project + branch are currently forbidden,
-and enforced with a lock in etcd, which also runs in the same pod
-as the Decap webapp.
+Concurrent builds of a given parent/library + branch are currently
+forbidden, and enforced with a lock in etcd, which runs in the same
+pod as the Decap webapp.
 
 Build pod instances are given the following Kubernetes labels
 
