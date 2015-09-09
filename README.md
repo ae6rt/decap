@@ -86,7 +86,7 @@ does not, contact your AWS administrator.
 
 N.B.  Your Dashboard account is used only in a one-time capacity
 to create these resources.  Thereafter, Decap is configured to use
-these resources, including the dedicated IAM user _decap_.  Your
+these resources, including the created IAM user _decap_.  Your
 Dashboard account is not used by Decap at runtime.
 
 Add your AWS Dashboard account Access Key ID and Secret Access Key
