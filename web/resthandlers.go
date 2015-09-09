@@ -23,6 +23,8 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 	}
 }
 
+// todo Cleanup with PreStop might help explain to the world the state of the container immediately before termination.
+// See https://godoc.org/github.com/kubernetes/kubernetes/pkg/api/v1#Lifecycle
 func StopBuildHandler(k8s DefaultDecap) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")

@@ -144,7 +144,7 @@ The AWS access key and secret will be mounted in the build container
 using a [Kubernetes Secret Volume
 Mount](https://github.com/kubernetes/kubernetes/blob/master/docs/design/secrets.md).
 
-Craft a decap-system-secrets.yaml augmented with the Github OAuth2
+Craft a decap-secrets.yaml augmented with the Github OAuth2
 credentials using this as an example:
 
 ```
@@ -158,14 +158,14 @@ data:
 kind: Secret
 metadata:
      name: decap-credentials
-     namespace: "decap-system"
 type: Opaque
 ```
 
 and create it on the Kubernetes cluster:
 
 ```
-$ kubectl create -f decap-system-secrets.yaml
+$ kubectl --namespace=decap-system create -f decap-secrets.yaml
+$ kubectl --namespace=decap create -f decap-secrets.yaml
 ```
 
 The base build container will automatically have this Kubernetes
