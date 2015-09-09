@@ -28,6 +28,7 @@ type BuildPod struct {
 	Library                   string
 	BranchToBuild             string
 	BuildLockKey              string
+	SidecarContainers         string
 }
 
 type Handler interface {

@@ -65,6 +65,7 @@ var podTemplate = `
                     }
                 ]
             }
+            {{.SidecarContainers}}
         ],
         "restartPolicy": "Never"
     }
