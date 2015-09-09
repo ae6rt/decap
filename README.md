@@ -138,8 +138,9 @@ $ kubectl create -f k8s-resources/decap-namespaces.yaml
 
 The AWS Access Key and Secret for user decap created above allows
 the build pod to upload build artifacts and console logs to S3, and
-the decap webapp to access build artifact S3 buckets and query build
-information in the DynmamoDb table.
+to write build information to the DynamoDb table.  The Access Key
+and Secret also allows the decap webapp to access these same buckets
+and table.
 
 To be most effective, Decap also needs access to the list of branches
 for your various projects.  Decap can query your project repositories
