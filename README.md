@@ -58,14 +58,16 @@ localhost:port.
 
 ## AWS Setup
 
-Decap uses S3 buckets to store build artifacts and console logs,
+Decap uses AWS S3 buckets to store build artifacts and console logs,
 and DynamoDb to store overall build results and metadata.
 
-### Install the AWS CLI app
+To run the scripts below that create these AWS resources, you must
+have installed the AWS Command Line Client.  For instructions on
+how to do this, see http://aws.amazon.com/documentation/cli/.
 
-To run the scripts below that create AWS resources Decap needs, you
-will need to install the AWS Command Line Client.  For instructions
-on how to do this, see http://aws.amazon.com/documentation/cli/.
+[jq](https://github.com/stedolan/jq) are also installation requirement,
+and is needed to parse certain outputs of the Amazon _aws_ command
+line tool.
 
 ### IAM user
 

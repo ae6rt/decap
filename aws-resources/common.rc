@@ -8,12 +8,6 @@ AWS_PROFILE=${AWS_PROFILE:-decapadmin}
 function check() {
    local result
 
-   type openssl 2>&1 > /dev/null
-   if [ $? -ne 0 ]; then
-	echo "openssl must be installed to proceed."
-        exit -1
-   fi
-
    type jq 2>&1 > /dev/null
    if [ $? -ne 0 ]; then
 	echo "jq must be installed to proceed.  See https://github.com/stedolan/jq/wiki/Installation."
