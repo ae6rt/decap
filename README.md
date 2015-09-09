@@ -89,10 +89,11 @@ to create these resources.  Thereafter, Decap is configured to use
 these resources, including the created IAM user _decap_.  Your
 Dashboard account is not used by Decap at runtime.
 
-Add your AWS Dashboard account Access Key ID and Secret Access Key
-to $HOME/.aws/credentials file (see [AWS Command Line Client
-Configuration](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files)),
-and a default region to $HOME/.aws/config in a profile named _decapadmin_. 
+#### One time admin configuration
+
+Using a profile name _decapadmin_, add your AWS Dashboard account
+Access Key ID and Secret Access Key to $HOME/.aws/credentials file.
+Add a default region to $HOME/.aws/config.
 
 $HOME/.aws/credentials:
 
