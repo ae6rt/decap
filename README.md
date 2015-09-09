@@ -159,17 +159,16 @@ $ kubectl create -f k8s-resources/decap-namespaces.yaml
 The AWS Access Key and Secret for user decap created above allows
 the build pod to upload build artifacts and console logs to S3, and
 to write build information to the DynamoDb table.  The Access Key
-and Secret also allows the decap webapp to access these same buckets
+and Secret also allows the Decap webapp to access these same buckets
 and table.
 
 To be most effective, Decap also needs access to the list of branches
 for your various projects.  Decap can query your project repositories
 for this branch information.  Without access to your project branch
-information, Decap's web UI cannot offer to easily build a particular
+information, Decap's web UI cannot offer to build a particular
 branch on your projects.  For Github projects, this means Decap
-needs an OAuth2 Github ClientID and ClientSecret.  See *Project
-metadata file* below.  Generate Github OAuth2 credentials here:
-https://github.com/settings/applications/new.
+needs an OAuth2 Github ClientID and ClientSecret.  Generate Github
+OAuth2 credentials here: https://github.com/settings/applications/new.
 
 Using the AWS Access Key and Secret in ./aws-resources/aws.credentials,
 and your Github ClientID and ClientSecret, craft a
@@ -237,7 +236,7 @@ The build container will call your project's build script, capture
 the console logs, and ship the build artifacts, console logs and
 build metadata to S3 and DynamoDb.
 
-## Project metadata file
+## Project metadata files and branch information
 
 An optional _project.json_ file may be placed on par with a project's
 build.sh script.  project.json has the following example format
