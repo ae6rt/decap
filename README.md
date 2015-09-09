@@ -145,10 +145,10 @@ kube-up.sh script to create your cluster.
 ## Namespaces
 
 Decap requires two Kubernetes namespaces:  decap and decap-system.
-The decap namespace is where your build pod runs.  decap-system is
-where the containerized decap webapp runs.
+The decap namespace is where your build pods run.  decap-system is
+where the containerized Decap webapp runs.
 
-Create the Kubernetes namespaces required for decap
+Create the Kubernetes namespaces required for Decap
 
 ```
 $ kubectl create -f k8s-resources/decap-namespaces.yaml
