@@ -18,19 +18,3 @@ cat <<EOF > aws.credentials
 aws_access_key_id = $KEY
 aws_secret_access_key = $SECRET
 EOF
-
-KEY_BASE64=$(/bin/echo -n "$KEY" | openssl base64)
-SECRET_BASE64=$(/bin/echo -n "$SECRET" | openssl base64)
-AWS_REGION_BASE64=$(/bin/echo -n "$AWS_REGION" | openssl base64)
-
-cat <<XXX > k8s-decap-secret.yaml
-apiVersion: v1
-data:
-  aws-key: $KEY_BASE64
-  aws-secret: $SECRET_BASE64
-  region: $AWS_REGION_BASE64
-kind: Secret
-metadata:
-     name: decap-aws-credentials
-type: Opaque
-XXX
