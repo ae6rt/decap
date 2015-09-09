@@ -13,18 +13,18 @@ This project is under active development, and has no releases yet.
 ## Theory of Operation
 
 You have projects you want to build.  Builds are articulated in
-terms of shell scripts.  Decap ships with a _base build container_
-that can locate those build scripts and run them for you.  
+terms of userland shell scripts.  Decap ships with a _base build
+container_ that can locate those build scripts and run them for
+you.
 
-Post commit hooks on your projects of interest drive events into a
-web container in the core Decap containerized application which
-in turn makes calls into the Kubernetes API master to launch a build
-container to build your code.  Builds can also be launched via web
-UI.
+Manually initiated builds, or post commit hooks on your projects
+of interest drive, events into a containerized Decap webapp.  This
+webapp in turn makes calls into the Kubernetes API master to launch
+a build pod to build your code.  
 
 The base build container locates your build scripts based on 
 
-* the git repository the build scripts are located in
+* a git repository the build scripts are located in
 * the subdirectory of that repository where your project resides
 * and the branch your scripts should build in your project repository
 
@@ -68,7 +68,7 @@ Decap stores build information in S3 buckets and a DynamoDb
 table.  These buckets and table are secured using AWS access policies
 that are associated with a dedicated IAM user named _decap_.
 
-In ./aws-resources we provide Decap scripts for creating all the
+In ./aws-resources we provide shell scripts for creating all the
 AWS resources Decap needs.  To run these scripts effectively, you
 will need an AWS account with what we're calling _root like_ powers.
 That is, an account that can create AWS IAM users, buckets, DynamoDb
@@ -78,7 +78,7 @@ these powers.
 Put your AWS Dashboard account Access Key ID and Secret Access Key
 in your $HOME/.aws/credentials file (see [AWS Command Line Client Configuration](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files))
 
-Configure your installation credentials
+Configure your Dashboard credentials
 
 ```
 $ cat $HOME/.aws/credentials
@@ -87,7 +87,7 @@ aws_access_key_id = thekey
 aws_secret_access_key = thesecret
 ```
 
-Configure the default AWS region
+Configure the Dashboard default AWS region
 
 ```
 $ cat $HOME/.aws/config
@@ -98,6 +98,7 @@ region=us-west-1
 Create the AWS resources
 
 ```
+$ cd aws-resources
 $ sh create-world.sh
 ```
 			
@@ -107,6 +108,7 @@ Dashboard UI:
 * an IAM user named decap
 * two S3 buckets, one named decap-console-logs and another named decap-build-artifacts
 * one DynamoDb table named decap-build-metadata
+* a set of access credentials for use by the newly created decap user
 * five policies attached to the user decap
 
 The five policies are named:
@@ -118,33 +120,41 @@ The five policies are named:
 * decap-s3-console-logs
 
 The create-world.sh script also creates an AWS access key for the
-user decap.  The key and secret are written to the file aws.credentials.
-Using this access key and secret, the script also creates a Kubernetes Secret
-for use in the "Decap Kubernetes Secret for AWS credentials" section below.
+system user _decap_.  The key and secret are written to the file
+aws.credentials.
 
 ## Kubernetes Cluster Setup
 
 Bring up a Kubernetes cluster as appropriate:
 https://github.com/kubernetes/kubernetes/tree/master/docs/getting-started-guides
 
+## Namespaces
+
+Create the Kubernetes namespaces required for decap
+
+```
+$ kubectl create -f k8s-resources/decap-namespaces.yaml
+```
+
 ### Decap Kubernetes Secret for AWS and Github credentials 
 
-The Access Key and Secret for user decap created above allow the
-Decap webapp to upload build artifacts and console logs to S3 and
-make and query entries in the DynmamoDb table.  
+The Access Key and Secret for user decap created above, and available
+in ../aws-resources/aws.credentials, allow the Decap webapp to
+upload build artifacts and console logs to S3 and make and query
+entries in the DynmamoDb table.
 
-However, the webapp also needs access to an OAuth2 Github ClientID
-and ClientSecret if you want the webapp to query for branches on a
-project's repository for Github-based projects.  See *Project
-metadata file* below.  The process for generating a Github OAuth2
-credentials for your installation of decap starts here:
-https://github.com/settings/applications/new.
+To be most effective, the webapp also needs access to an OAuth2
+Github ClientID and ClientSecret if you want the webapp to query
+for branches on a project's repository for Github-based projects.
+See *Project metadata file* below.  The process for generating a
+Github OAuth2 credentials for your installation of decap starts
+here: https://github.com/settings/applications/new.
 
 The AWS access key and secret will be mounted in the build container
 using a [Kubernetes Secret Volume
 Mount](https://github.com/kubernetes/kubernetes/blob/master/docs/design/secrets.md).
 
-Craft a decap-secrets.yaml augmented with the Github OAuth2
+Craft a decap-secrets.yaml augmented with your Github OAuth2
 credentials using this as an example:
 
 ```
@@ -153,24 +163,26 @@ data:
   aws-key: thekey
   aws-secret: base64(thesecret)
   aws-region: base64(theregion)
-  github-client-id: base64(ghcid)
-  github-client-secret: base64(ghsekrit)
+  github-client-id: base64(github client-id)
+  github-client-secret: base64(github client-secret)
 kind: Secret
 metadata:
      name: decap-credentials
 type: Opaque
 ```
 
-and create it on the Kubernetes cluster:
+and create it on the Kubernetes cluster in both the _decap_ and
+_decap-system_ namespaces
 
 ```
 $ kubectl --namespace=decap-system create -f decap-secrets.yaml
 $ kubectl --namespace=decap create -f decap-secrets.yaml
 ```
 
-The base build container will automatically have this Kubernetes
-Secret mounted in its container, where the container ENTRYPOINT can
-use them for publishing build results.
+The base build container will automatically have these Kubernetes
+Secrets mounted in both the build container and the webapp container.
+The base build container will use them for publishing build results.
+The webapp container will use them for querying AWs and Github.
 
 ### Decap Kubernetes Pod creation
 
