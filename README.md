@@ -65,7 +65,7 @@ To run the scripts below that create these AWS resources, you must
 have installed the AWS Command Line Client.  For instructions on
 how to do this, see http://aws.amazon.com/documentation/cli/.
 
-[jq](https://github.com/stedolan/jq) are also installation requirement,
+[jq](https://github.com/stedolan/jq) is also installation requirement,
 and is needed to parse certain outputs of the Amazon _aws_ command
 line tool.
 
