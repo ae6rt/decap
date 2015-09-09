@@ -71,10 +71,9 @@ tables, and policies.  Your main AWS _Dashboard_ account should
 have these powers.  If it does not, contact your AWS administrator.
 
 Add your AWS Dashboard account Access Key ID and Secret Access Key
-in your $HOME/.aws/credentials file (see [AWS Command Line Client
+to $HOME/.aws/credentials file (see [AWS Command Line Client
 Configuration](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files)),
-along with your default AWS region in $HOME/.aws/config, into a
-_decapadmin_ profile
+and a default region to $HOME/.aws/config in a profile named _decapadmin_. 
 
 $HOME/.aws/credentials:
 
