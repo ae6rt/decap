@@ -245,7 +245,7 @@ for branch information.
 Decap will refresh its representation of the build scripts repository
 if you add a post-commit hook to the build scripts repository.
 Point the post commit URL at Decap _baseURL_/hooks/buildscripts.  Any
-HTTP post to this endpoint will force a refresh of the build script
+HTTP POST to this endpoint will force a refresh of the build script
 repository in the Decap webapp.
 
 ## Base Build Container Environment
