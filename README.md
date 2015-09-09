@@ -256,7 +256,7 @@ https://github.com/ae6rt/decap/tree/master/build-container
 The following environment variables are available in your build scripts:
 
 * BUILD_ID:  UUID that uniquely identifies this build
-* PROJECT_KEY: a composite key consisting of your project parent + library
+* PROJECT_KEY: a composite key consisting of your project _parent/library_
 * BRANCH_TO_BUILD: an optional git branch to build within your application project. This is typically used with Github post commit hook events.
 
 Concurrent builds of a given project + branch are currently forbidden,
