@@ -57,7 +57,9 @@ and DynamoDb to store overall build results and metadata.
 
 ### Install the AWS CLI app
 
-See http://aws.amazon.com/documentation/cli/
+To run the scripts below that create AWS resources Decap needs, you
+will need to install the AWS Command Line Client.  See
+http://aws.amazon.com/documentation/cli/
 
 ### IAM user
 
@@ -66,9 +68,9 @@ AWS resources Decap needs.  To run these scripts effectively, you
 will need an AWS account with what we're calling _root like_ powers.
 That is, an account that can create AWS IAM users, buckets, DynamoDb
 tables, and policies.  Your main AWS _Dashboard_ account should
-have these powers.
+have these powers.  If it does not, contact your AWS administrator.
 
-Put your AWS Dashboard account Access Key ID and Secret Access Key
+Add your AWS Dashboard account Access Key ID and Secret Access Key
 in your $HOME/.aws/credentials file (see [AWS Command Line Client
 Configuration](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files)),
 along with your default AWS region in $HOME/.aws/config, into a
@@ -89,7 +91,7 @@ $HOME/.aws/config:
 region=us-west-1
 ```
 
-Create the AWS resources
+Create the AWS resources Decap requires
 
 ```
 $ cd aws-resources
