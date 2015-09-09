@@ -64,8 +64,8 @@ and DynamoDb to store overall build results and metadata.
 ### Install the AWS CLI app
 
 To run the scripts below that create AWS resources Decap needs, you
-will need to install the AWS Command Line Client.  See
-http://aws.amazon.com/documentation/cli/
+will need to install the AWS Command Line Client.  For instructions
+on how to do this, see http://aws.amazon.com/documentation/cli/.
 
 ### IAM user
 
