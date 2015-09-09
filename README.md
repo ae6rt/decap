@@ -47,7 +47,7 @@ mvn clean install
 mvn deploy
 ```
 
-### Sidecar containers
+### Sidecar build containers
 
 If your build needs additional services, such as MySQL, RabbitMQ,
 etc., we plan to provide a way to ingest a Kubernetes Pod descriptor
