@@ -50,11 +50,9 @@ mvn deploy
 ### Sidecar build containers
 
 If your build needs additional services, such as MySQL, RabbitMQ,
-etc., we plan to provide a way to ingest a Kubernetes Pod descriptor
-into the build instruction that will allow you to run these supporting
-sidecar services in the build pod along with the main build container.
-This means those services will be available to your build at
-localhost:port.
+etc., Decap provides a way to ingest a set of additional container
+specs into the Kubernetes build Pod descriptor.  This means those
+services will be available to your build at localhost:port.
 
 ## AWS Setup
 
@@ -238,7 +236,7 @@ The build container will call your project's build script, capture
 the console logs, and ship the build artifacts, console logs and
 build metadata to S3 and DynamoDb.
 
-## Project metadata files and branch information
+### Project metadata files and branch information
 
 An optional _project.json_ file may be placed on par with a project's
 build.sh script.  project.json has the following example format
@@ -260,6 +258,10 @@ and Bitbucket managers are planned.
 If the project.json file is absent, Decap will lack information
 about your project that allows it to query your project repository
 for branch information.
+
+### Sidecar build containers
+
+TBD
 
 ### Handling updates to the build scripts repository
 
