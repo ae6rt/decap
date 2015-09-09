@@ -7,20 +7,23 @@
 ## Overview
 
 Decap is a CI build server based on a Kubernetes backend that
-executes shell script based builds in a special build container.
+executes shell script-based builds in a special build container.
 
 This project is under active development, and has no releases yet.
 
 ## Theory of Operation
 
-You have projects you want to build.  Your builds are articulated in
-terms of userland shell scripts.  Decap ships with a _base build
-container_ that mounts your build scripts as a git repository and locates them by a _parent/libary_ convention in the container filesystem.
+You have projects you want to build.  Your builds are articulated
+in terms of userland shell scripts.  Decap ships with a _base build
+container_ that mounts your build scripts as a git repository and
+locates them by a _parent/libary_ convention in the container
+filesystem.
 
 Manually initiated builds, or post commit hooks on your projects
-of interest, drive HTTP requests to a containerized Decap webapp.  This
-webapp in turn makes calls to the Kubernetes API master to launch
-a build pod to build your code.  Build results are shipped to S3 buckets and a DynamoDb table.
+of interest, drive HTTP requests to a containerized Decap webapp.
+This webapp in turn makes calls to the Kubernetes API master to
+launch a build pod to build your code.  Build results are shipped
+to S3 buckets and a DynamoDb table.
 
 Your build scripts are completely free form.  Here are two examples:
 
@@ -62,11 +65,14 @@ In ./aws-resources we provide shell scripts for creating all the
 AWS resources Decap needs.  To run these scripts effectively, you
 will need an AWS account with what we're calling _root like_ powers.
 That is, an account that can create AWS IAM users, buckets, DynamoDb
-tables, and policies.  Your main AWS _Dashboard_ account should have
-these powers.
+tables, and policies.  Your main AWS _Dashboard_ account should
+have these powers.
 
 Put your AWS Dashboard account Access Key ID and Secret Access Key
-in your $HOME/.aws/credentials file (see [AWS Command Line Client Configuration](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files)), along with your default AWS region in $HOME/.aws/config, into a _decapadmin_ profile
+in your $HOME/.aws/credentials file (see [AWS Command Line Client
+Configuration](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files)),
+along with your default AWS region in $HOME/.aws/config, into a
+_decapadmin_ profile
 
 $HOME/.aws/credentials:
 
@@ -110,12 +116,16 @@ The five policies are named:
 ## Kubernetes Cluster Setup
 
 Bring up a Kubernetes cluster as appropriate:
-https://github.com/kubernetes/kubernetes/tree/master/docs/getting-started-guides
+https://github.com/kubernetes/kubernetes/tree/master/docs/getting-started-guides.
+Decap requires SkyDNS, which is included if you use the standard
+kube-up.sh script to create your cluster.
+
 
 ## Namespaces
 
-Decap requires two Kubernetes namespaces:  decap and decap-system.  The
-decap namespace is where your build pod runs.  decap-system is where the containerized decap webapp runs.
+Decap requires two Kubernetes namespaces:  decap and decap-system.
+The decap namespace is where your build pod runs.  decap-system is
+where the containerized decap webapp runs.
 
 Create the Kubernetes namespaces required for decap
 
@@ -125,15 +135,23 @@ $ kubectl create -f k8s-resources/decap-namespaces.yaml
 
 ### Decap Kubernetes Secret for AWS and Github credentials
 
-The AWS Access Key and Secret for user decap created above allows the build pod to
-upload build artifacts and console logs to S3, and the decap webapp to access build artifact S3 buckets and query build information in the DynmamoDb table.
+The AWS Access Key and Secret for user decap created above allows
+the build pod to upload build artifacts and console logs to S3, and
+the decap webapp to access build artifact S3 buckets and query build
+information in the DynmamoDb table.
 
-To be most effective, Decap also needs access to the list of branches for your various projects.  Decap can query your project repositories for this branch information.  Without access to your project branch information, Decap's web UI cannot offer to easily build a particular branch on your projects.  For Github projects, this means Decap needs an OAuth2 Github ClientID and ClientSecret.
-See *Project metadata file* below.  Generate
-Github OAuth2 credentials
-here: https://github.com/settings/applications/new.
+To be most effective, Decap also needs access to the list of branches
+for your various projects.  Decap can query your project repositories
+for this branch information.  Without access to your project branch
+information, Decap's web UI cannot offer to easily build a particular
+branch on your projects.  For Github projects, this means Decap
+needs an OAuth2 Github ClientID and ClientSecret.  See *Project
+metadata file* below.  Generate Github OAuth2 credentials here:
+https://github.com/settings/applications/new.
 
-Using the AWS Access Key and Secret in ./aws-resources/aws.credentials, and your Github ClientID and ClientSecret, craft a k8s-resources/decap-secrets.yaml
+Using the AWS Access Key and Secret in ./aws-resources/aws.credentials,
+and your Github ClientID and ClientSecret, craft a
+k8s-resources/decap-secrets.yaml
 
 ```
 apiVersion: v1
@@ -182,12 +200,20 @@ repository
 https://github.com/ae6rt/decap-build-scripts
 ```
 
-The build container refers to this repository as a mounted volume.  Build
-scripts are indexed by _project key_ by the build container entrypoint.  For github based projects, the project key is the github username + "/" + repository name.  Generally, the username is referred to as the _parent_ and the repository basename as the _library_  For example, if the github username is ae6rt and the repository name is dynamodb-lab, then the project key is "ae6rt/dynamodb-lab".  The build script is by convention named build.sh and is located relative to the top level of the build scipts repository at ae6rt/dynamodb-lab/build.sh.
+The build container refers to this repository as a mounted volume.
+Build scripts are indexed by _project key_ by the build container
+entrypoint.  For github based projects, the project key is the
+github username + "/" + repository name.  Generally, the username
+is referred to as the _parent_ and the repository basename as the
+_library_  For example, if the github username is ae6rt and the
+repository name is dynamodb-lab, then the project key is
+"ae6rt/dynamodb-lab".  The build script is by convention named
+build.sh and is located relative to the top level of the build
+scipts repository at ae6rt/dynamodb-lab/build.sh.
 
 The build container will call your project's build script, capture
 the console logs, and ship the build artifacts, console logs and
-build metadata to S3 and DynamoDb.  
+build metadata to S3 and DynamoDb.
 
 ## Project metadata file
 
@@ -208,14 +234,22 @@ let the user build a particular branch on a project. Github is currently
 the only supported repository manager, but Stash and Bitbucket
 managers are planned.
 
+If the project.json file is absent, Decap will lack information
+about your project that allows it to query your project repository
+for branch information.
+
 ### Handling updates to the build scripts repository
 
-Decap will refresh its representation of the build scripts repository if you add a post-commit hook to the build scripts repository.  Point the post commit URL
-at _baseURL_/hooks/buildscripts.  Any HTTP post to this endpoint will force a refresh of the build script repository in the Decap webapp.
+Decap will refresh its representation of the build scripts repository
+if you add a post-commit hook to the build scripts repository.
+Point the post commit URL at _baseURL_/hooks/buildscripts.  Any
+HTTP post to this endpoint will force a refresh of the build script
+repository in the Decap webapp.
 
 ## Base Build Container Environment
 
-Here is the base build container reference:  https://github.com/ae6rt/decap/tree/master/build-container
+Here is the base build container reference:
+https://github.com/ae6rt/decap/tree/master/build-container
 
 The following environment variables are available in your build scripts:
 
@@ -224,7 +258,8 @@ The following environment variables are available in your build scripts:
 * BRANCH_TO_BUILD: an optional git branch to build within your application project. This is typically used with Github post commit hook events.
 
 Concurrent builds of a given project + branch are currently forbidden,
-and enforced with a lock in etcd, which also runs in the same pod as the Decap webapp.
+and enforced with a lock in etcd, which also runs in the same pod
+as the Decap webapp.
 
 Build pod instances are given the following Kubernetes labels
 
