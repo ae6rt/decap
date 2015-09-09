@@ -10,8 +10,8 @@ Decap is a CI build server based on a Kubernetes backend that
 executes shell script-based builds in a specially provided build
 pod.  The backend is a containerized webapp that manages build pods,
 and the frontend a single page app that provides a friendly UX.
-Builds are executed in pods spun up on demand, with build results
-published to S3 buckets and a DynamoDb table.
+Builds are executed in pods spun up on demand on a per-build basis,
+with build results published to S3 buckets and a DynamoDb table.
 
 This project is under active development, and has no releases yet.
 

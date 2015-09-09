@@ -20,7 +20,7 @@ func TestFindSidecars(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Sidecars are located relative to parent of build.sh scripts
+	// Sidecars are located on-par with a build.sh
 	for _, v := range scripts {
 		parent := parentPath(v)
 		sidecars, err := findSidecars(parent)
