@@ -76,10 +76,10 @@ This account must be capable of creating the following types of
 resources on AWS:
 
 * AWS IAM users
-* access credentials
-* buckets
+* Access credentials
+* S3 buckets
 * DynamoDb tables
-* policies  
+* Policies 
 
 Your main AWS _Dashboard_ account should have these powers.  If it
 does not, contact your AWS administrator.
