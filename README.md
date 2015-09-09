@@ -231,10 +231,10 @@ build.sh script.  project.json has the following example format
 ```
 
 If this file exists, Decap will query the repository manager for
-branches on the project.  Knowing the branches, Decap can offer to
-let the user build a particular branch on a project. Github is currently
-the only supported repository manager, but Stash and Bitbucket
-managers are planned.
+branches on the project.  Knowing the branches, the Decap web UI
+can offer to let the user build a particular branch on a project.
+Github is currently the only supported repository manager, but Stash
+and Bitbucket managers are planned.
 
 If the project.json file is absent, Decap will lack information
 about your project that allows it to query your project repository
