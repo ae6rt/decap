@@ -69,12 +69,20 @@ on how to do this, see http://aws.amazon.com/documentation/cli/.
 
 ### IAM user
 
-In ./aws-resources we provide shell scripts for creating all the
-AWS resources Decap needs.  To run these scripts effectively, you
-will need an AWS account with what we're calling _root like_ powers.
-That is, an account that can create AWS IAM users, buckets, DynamoDb
-tables, and policies.  Your main AWS _Dashboard_ account should
-have these powers.  If it does not, contact your AWS administrator.
+In ./aws-resources we provide shell scripts for creating the AWS
+resources Decap needs.  To run these scripts effectively, you will
+need an AWS account with what we're calling _root like_ powers.
+This account must be capable of creating the following types of
+resources on AWS:
+
+* AWS IAM users
+* access credentials
+* buckets
+* DynamoDb tables
+* policies  
+
+Your main AWS _Dashboard_ account should have these powers.  If it
+does not, contact your AWS administrator.
 
 Add your AWS Dashboard account Access Key ID and Secret Access Key
 to $HOME/.aws/credentials file (see [AWS Command Line Client
