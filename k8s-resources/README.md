@@ -1,19 +1,7 @@
-k8s resources
+Decap Kubernetes resources
 ------------
 
 These are Kubernetes resources to define the decap service.
 
-Installation into the cluster
------------------------------
-
-kubectl create -f aws-secret.yaml
-
-kubectl create -f decap.yaml
-
-Launching a build
----------
-
-Builds are currently launched by posting a post-receive hook to the
-web service on port 9090.  See web/ in the top level.
-
-
+See the main installation README in the top level of this project
+for information on how to use these resources.
