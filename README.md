@@ -23,11 +23,13 @@ container_ that mounts your build scripts as a git repository and
 locates them by a _parent/libary_ convention in the container
 filesystem.
 
-Manually initiated builds, or post commit hooks on your projects
-of interest, drive HTTP requests to a containerized Decap webapp.
-This webapp in turn makes calls to the Kubernetes API master to
-launch a build pod to build your code.  Build results are shipped
-to S3 buckets and a DynamoDb table.
+Either manually initiated builds or post commit hooks on your
+projects of interest drive HTTP requests to the containerized Decap
+webapp.  This webapp in turn makes calls to the Kubernetes API
+master to launch an ephemeral build pod to build a single instance
+of your code.  Once the build is finished the pod exits, saving no
+build pod state from one build to the next.  Build results are
+shipped to S3 buckets and a DynamoDb table.
 
 Your build scripts are completely free form.  Here are two examples:
 
