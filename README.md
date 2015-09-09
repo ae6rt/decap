@@ -23,7 +23,7 @@ container_ that mounts your build scripts as a git repository and
 locates them by a _parent/libary_ convention in the container
 filesystem.
 
-Either manually initiated builds or post commit hooks on your
+Either user-initiated builds or post commit hooks sent from your
 projects of interest drive HTTP requests to the containerized Decap
 webapp.  This webapp in turn makes calls to the Kubernetes API
 master to launch an ephemeral build pod to build a single instance
