@@ -8,17 +8,17 @@ check
 
 TABLE_NAME="${APPLICATION_NAME}-build-metadata"
 
-KEY_SCHEMA=$(cat <<KS
+KEY_SCHEMA=$(cat <<EOF
 [
             {
                 "KeyType": "HASH", 
                 "AttributeName": "buildID"
             }
 ]
-KS
+EOF
 )
 
-ATTRIBUTE_DEFINITIONS=$(cat <<ATTRS
+ATTRIBUTE_DEFINITIONS=$(cat <<EOF
 [
             {
                 "AttributeName": "buildID",
@@ -37,10 +37,10 @@ ATTRIBUTE_DEFINITIONS=$(cat <<ATTRS
                 "AttributeType": "S"
             }
 ]
-ATTRS
+EOF
 )
 
-GLOBAL_SECONDARY_INDEXES=$(cat <<GSI
+GLOBAL_SECONDARY_INDEXES=$(cat <<EOF
 [
 {
                 "IndexName": "projectKey-buildTime-index", 
@@ -79,7 +79,7 @@ GLOBAL_SECONDARY_INDEXES=$(cat <<GSI
                 ]
 }
 ]
-GSI
+EOF
 )
 
 echo "===Creating DynamoDb Table"

@@ -10,7 +10,7 @@ USER=$APPLICATION_NAME
 
 ACCOUNT_ID=$(aws --profile $AWS_PROFILE iam get-user | jq -r ".User.UserId")
 
-DB_POLICY=$(cat <<DBPOLICY
+DB_POLICY=$(cat <<EOF
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -25,10 +25,10 @@ DB_POLICY=$(cat <<DBPOLICY
         }
     ]
 }
-DBPOLICY
+EOF
 )
 
-PROJECT_KEY_INDEX_POLICY=$(cat <<PKEY
+PROJECT_KEY_INDEX_POLICY=$(cat <<EOF
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -43,10 +43,10 @@ PROJECT_KEY_INDEX_POLICY=$(cat <<PKEY
         }
     ]
 }
-PKEY
+EOF
 )
 
-IS_BUILDING__INDEX_POLICY=$(cat <<ISBUILDING
+IS_BUILDING__INDEX_POLICY=$(cat <<EOF
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -61,7 +61,7 @@ IS_BUILDING__INDEX_POLICY=$(cat <<ISBUILDING
         }
     ]
 }
-ISBUILDING
+EOF
 )
 
 echo "===Creating policies for Dynamodb table"

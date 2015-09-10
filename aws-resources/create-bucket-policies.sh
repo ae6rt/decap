@@ -9,7 +9,7 @@ USER=$APPLICATION_NAME
 
 ACCOUNT_ID=$(aws --profile $AWS_PROFILE iam get-user | jq -r ".User.UserId")
 
-CONSOLE_LOGS_BUCKET_POLICY=$(cat <<CONSOLE
+CONSOLE_LOGS_BUCKET_POLICY=$(cat <<EOF
 {
 	"Version": "2012-10-17",
 	"Statement": [
@@ -29,10 +29,10 @@ CONSOLE_LOGS_BUCKET_POLICY=$(cat <<CONSOLE
 		}
 	]
 }
-CONSOLE
+EOF
 )
 
-BUILD_ARTIFACTS_BUCKET_POLICY=$(cat <<ARTIFACTS
+BUILD_ARTIFACTS_BUCKET_POLICY=$(cat <<EOF
 {
         "Version": "2012-10-17",
         "Statement": [
@@ -52,7 +52,7 @@ BUILD_ARTIFACTS_BUCKET_POLICY=$(cat <<ARTIFACTS
                 }
         ]
 }
-ARTIFACTS
+EOF
 )
 
 
