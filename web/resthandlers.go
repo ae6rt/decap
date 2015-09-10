@@ -201,8 +201,21 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap)
 		repoManager := params.ByName("repomanager")
 		if !(repoManager == "github" || repoManager == "buildscripts") {
 			Log.Printf("repomanager %s not supported\n", repoManager)
+			w.WriteHeader(400)
 			return
 		}
+
+		data, err := ioutil.ReadAll(r.Body)
+		defer func() {
+			r.Body.Close()
+		}()
+
+		if err != nil {
+			Log.Println(err)
+			w.WriteHeader(500)
+			return
+		}
+		Log.Printf("%s hook received: %s\n", repoManager, data)
 
 		var event BuildEvent
 		switch repoManager {
@@ -210,27 +223,23 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap)
 			p, err := findProjects(buildScriptsRepo, buildScriptsBranch)
 			if err != nil {
 				Log.Println(err)
+				w.WriteHeader(500)
 			} else {
 				setProjects(p)
 			}
 			return
 		case "github":
 			event = GithubEvent{}
+			if err := json.Unmarshal(data, &event); err != nil {
+				Log.Println(err)
+				w.WriteHeader(500)
+				return
+			}
 		}
-
-		data, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			Log.Println(err)
-			return
-		}
-		if err := json.Unmarshal(data, &event); err != nil {
-			Log.Println(err)
-			return
-		}
-		Log.Printf("%s hook received: %s\n", repoManager, data)
-		go k8s.launchBuild(event)
 
 		w.WriteHeader(200)
+
+		go k8s.launchBuild(event)
 	}
 }
 
