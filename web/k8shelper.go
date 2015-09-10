@@ -34,10 +34,6 @@ type BuildPod struct {
 	AWSRegion                 string
 }
 
-type Handler interface {
-	handle(w http.ResponseWriter, r *http.Request)
-}
-
 type DefaultDecap struct {
 	MasterURL       string
 	UserName        string // not needed when running in the cluster - use apiToken instead
@@ -70,8 +66,8 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret string,
 	}
 }
 
-func (k8s DefaultDecap) launchBuild(pushEvent BuildEvent) error {
-	projectKey := pushEvent.ProjectKey()
+func (k8s DefaultDecap) launchBuild(buildEvent BuildEvent) error {
+	projectKey := buildEvent.ProjectKey()
 
 	projs := getProjects()
 
@@ -80,8 +76,8 @@ func (k8s DefaultDecap) launchBuild(pushEvent BuildEvent) error {
 		BuildScriptsGitRepo:       *buildScriptsRepo,
 		BuildScriptsGitRepoBranch: *buildScriptsRepoBranch,
 		ProjectKey:                projectKey,
-		Parent:                    pushEvent.Parent(),
-		Library:                   pushEvent.Library(),
+		Parent:                    buildEvent.Parent(),
+		Library:                   buildEvent.Library(),
 		SidecarContainers:         projs[projectKey].Sidecars,
 		AWSAccessKeyID:            k8s.AWSAccessKeyID,
 		AWSAccessSecret:           k8s.AWSAccessSecret,
@@ -93,7 +89,7 @@ func (k8s DefaultDecap) launchBuild(pushEvent BuildEvent) error {
 		return err
 	}
 
-	for _, branch := range pushEvent.Branches() {
+	for _, branch := range buildEvent.Branches() {
 		key := k8s.Locker.Key(projectKey, branch)
 
 		buildPod.BranchToBuild = branch
