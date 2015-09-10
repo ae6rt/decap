@@ -35,8 +35,11 @@ func StopBuildHandler(k8s DefaultDecap) httprouter.Handle {
 }
 func ProjectsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		p := getProjects()
-		data, err := json.Marshal(&p)
+		a := make([]Project, 0)
+		for _, v := range getProjects() {
+			a = append(a, v)
+		}
+		data, err := json.Marshal(&a)
 		if err != nil {
 			fmt.Fprintf(w, "%v\n", err)
 			w.WriteHeader(500)
@@ -242,13 +245,4 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		w.Header().Set("Content-type", "text/html")
 		fmt.Fprint(w, string(data))
 	}
-}
-
-func findProject(parent, library string) (Project, bool) {
-	for _, v := range getProjects() {
-		if v.Parent == parent && v.Library == library {
-			return v, true
-		}
-	}
-	return Project{}, false
 }

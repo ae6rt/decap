@@ -24,8 +24,6 @@ var (
 	image                  = flag.String("image", "ae6rt/decap-build-base:latest", "Build container image that runs userland build scripts.")
 	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
 
-	projects []Project
-
 	repoManagerClientCredentials = make(map[string]RepoManagerCredential)
 
 	Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
@@ -72,7 +70,7 @@ func main() {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
 	for _, v := range projects {
-		Log.Printf("Project: %#v\n", v)
+		Log.Printf("Project: %+v\n", v)
 	}
 
 	Log.Println("decap ready on port 9090...")

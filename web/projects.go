@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -12,10 +13,11 @@ import (
 	"github.com/ae6rt/retry"
 )
 
+var projects map[string]Project
 var projectMutex = &sync.Mutex{}
 
-func findProjects(scriptsRepo, scriptsRepoBranch string) ([]Project, error) {
-	projects := make([]Project, 0)
+func findProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, error) {
+	projects := make(map[string]Project, 0)
 	work := func() error {
 		Log.Printf("Finding projects via clone of the build-scripts repository\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
@@ -37,11 +39,30 @@ func findProjects(scriptsRepo, scriptsRepoBranch string) ([]Project, error) {
 
 		for _, v := range buildScripts {
 			parts := strings.Split(v, "/")
-			projects = append(projects, Project{
+			parent := parentPath(v)
+			sidecars, err := findSidecars(parent)
+			if err != nil {
+				Log.Println(err)
+			}
+			var cars string
+			for _, sc := range sidecars {
+				data, err := ioutil.ReadFile(sc)
+				if err != nil {
+					Log.Println(err)
+				} else {
+					cars = fmt.Sprintf(",%s%s", cars, string(data))
+				}
+			}
+
+			p := Project{
 				Parent:     parts[len(parts)-3],
 				Library:    parts[len(parts)-2],
 				Descriptor: projectDescriptor(v),
-			})
+				Sidecars:   cars,
+			}
+
+			key := parts[len(parts)-3] + "/" + parts[len(parts)-2]
+			projects[key] = p
 		}
 		return nil
 	}
@@ -73,16 +94,24 @@ func descriptorPath(scriptPath string) string {
 	return parentPath(scriptPath) + "/project.json"
 }
 
-func getProjects() []Project {
-	p := make([]Project, 0)
+func getProjects() map[string]Project {
+	p := make(map[string]Project, 0)
 	projectMutex.Lock()
-	p = append(p, projects...)
+	for k, v := range projects {
+		p[k] = v
+	}
 	projectMutex.Unlock()
 	return p
 }
 
-func setProjects(p []Project) {
+func setProjects(p map[string]Project) {
 	projectMutex.Lock()
 	projects = p
 	projectMutex.Unlock()
+}
+
+func findProject(parent, library string) (Project, bool) {
+	pr := getProjects()
+	p, ok := pr[parent+"/"+library]
+	return p, ok
 }

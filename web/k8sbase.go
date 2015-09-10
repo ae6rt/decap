@@ -66,12 +66,10 @@ func NewDefaultDecap(apiServerURL, username, password string, locker Locker) Def
 	}
 }
 
-func (c DefaultDecap) GetProjects(pageStart, pageLimit int) ([]Project, error) {
-	return nil, nil
-}
-
 func (k8s DefaultDecap) launchBuild(pushEvent PushEvent) error {
 	projectKey := pushEvent.ProjectKey()
+
+	projs := getProjects()
 
 	buildPod := BuildPod{
 		BuildImage:                *image,
@@ -80,6 +78,7 @@ func (k8s DefaultDecap) launchBuild(pushEvent PushEvent) error {
 		ProjectKey:                projectKey,
 		Parent:                    pushEvent.Parent(),
 		Library:                   pushEvent.Library(),
+		SidecarContainers:         projs[projectKey].Sidecars,
 	}
 
 	tmpl, err := template.New("pod").Parse(podTemplate)
