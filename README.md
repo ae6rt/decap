@@ -2,7 +2,7 @@
 
 > Mark: How hard can it be to build a build server?
 
-> Josh: How hard can space travel be?  But whatever.  So why not use a pure Kubernetes backend?
+> Josh: How hard can space travel be?  But no matter.  So why not use a pure Kubernetes backend?
 
 ## Overview
 
@@ -12,6 +12,10 @@ pod.  The backend is a containerized webapp that manages build pods,
 and the frontend a single page app that provides a friendly UX.
 Builds are executed in pods spun up on demand on a per-build basis,
 with build results published to S3 buckets and a DynamoDb table.
+
+Decap was originally conceived as a headless build server, driven solely
+by post commit hooks from userland build repositories.  It now has a frontend,
+but the name stuck.
 
 This project is under active development, and has no releases yet.
 
