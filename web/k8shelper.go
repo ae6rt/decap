@@ -28,7 +28,7 @@ type BuildPod struct {
 	Library                   string
 	BranchToBuild             string
 	BuildLockKey              string
-	SidecarContainers         []byte
+	SidecarContainers         string
 	AWSAccessKeyID            string
 	AWSAccessSecret           string
 	AWSRegion                 string

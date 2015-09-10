@@ -8,7 +8,7 @@ import (
 )
 
 func TestPodJson(t *testing.T) {
-	content := []byte(`
+	content := `
 ,{
     "image": "mysql:5.6", 
     "name": "mysql", 
@@ -17,14 +17,9 @@ func TestPodJson(t *testing.T) {
             "containerPort": 3306
         }
     ]
-}`,
-	)
+}`
 
-	var data []byte
-
-	data = append(data, []byte(",")...)
-	data = append(data, content...)
-	pod := BuildPod{SidecarContainers: data}
+	pod := BuildPod{SidecarContainers: content}
 
 	hydratedTemplate := bytes.NewBufferString("")
 	theTemplate, err := template.New("test").Parse(podTemplate)
