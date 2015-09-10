@@ -35,7 +35,7 @@ func findSidecars(root string) ([]string, error) {
 	defer func() {
 		err := os.Chdir(pwd)
 		if err != nil {
-			Log.Printf("findBuildScripts cannot restore working directory to %s: %v\n", pwd, err)
+			Log.Printf("findSidecars cannot restore working directory to %s: %v\n", pwd, err)
 		}
 	}()
 
