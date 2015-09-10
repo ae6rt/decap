@@ -78,8 +78,12 @@ func main() {
 }
 
 func kubeSecret(file string, defaultValue string) string {
-	if v, err := ioutil.ReadFile(file); err == nil {
+	if v, err := ioutil.ReadFile(file); err != nil {
+		Log.Printf("Secret %s not found in the filesystem.  Using default.\n", file)
+		return defaultValue
+	} else {
+		Log.Printf("Successfully read secret %s from the filesystem\n", file)
 		return string(v)
 	}
-	return defaultValue
+
 }
