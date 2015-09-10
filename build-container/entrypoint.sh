@@ -2,6 +2,8 @@
 
 set -ux
 
+env | sort
+
 if [ $# -eq 0 ]; then
 
    TAR=archive.tar
@@ -40,7 +42,7 @@ EOF
 
    popd
 
-   tar czf /tmp/${TAR}.gz -C /build-artifacts
+   tar czf /tmp/${TAR}.gz -C /build-artifacts /dev/null
 
    gzip $CONSOLE
 
