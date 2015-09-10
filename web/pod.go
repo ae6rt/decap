@@ -77,7 +77,7 @@ var podTemplate = `
                     }
                 ]
             }
-            {{.SidecarContainers}}
+            {{.RawJson .SidecarContainers}}
         ],
         "restartPolicy": "Never"
     }

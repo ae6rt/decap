@@ -34,6 +34,10 @@ type BuildPod struct {
 	AWSRegion                 string
 }
 
+func (buildPod BuildPod) RawJson(v string) template.JS {
+	return template.JS(v)
+}
+
 type DefaultDecap struct {
 	MasterURL       string
 	UserName        string // not needed when running in the cluster - use apiToken instead
