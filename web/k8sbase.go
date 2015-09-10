@@ -29,6 +29,9 @@ type BuildPod struct {
 	BranchToBuild             string
 	BuildLockKey              string
 	SidecarContainers         string
+	AWSAccessKeyID            string
+	AWSAccessSecret           string
+	AWSRegion                 string
 }
 
 type Handler interface {
@@ -39,16 +42,18 @@ type Decap interface {
 	GetProjects(pageStart, pageLimit int) ([]Project, error)
 }
 type DefaultDecap struct {
-	MasterURL string
-	UserName  string // not needed when running in the cluster - use apiToken instead
-	Password  string // not needed when running in the cluster - use apiToken instead
-	Locker    Locker
+	MasterURL       string
+	UserName        string // not needed when running in the cluster - use apiToken instead
+	Password        string // not needed when running in the cluster - use apiToken instead
+	AWSAccessKeyID  string
+	AWSAccessSecret string
+	Locker          Locker
 
 	apiToken  string
 	apiClient *http.Client
 }
 
-func NewDefaultDecap(apiServerURL, username, password string, locker Locker) DefaultDecap {
+func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret string, locker Locker) DefaultDecap {
 	// todo when running in cluster, provide root certificate via /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 	apiClient := &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -57,12 +62,14 @@ func NewDefaultDecap(apiServerURL, username, password string, locker Locker) Def
 	data, _ := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 
 	return DefaultDecap{
-		MasterURL: apiServerURL,
-		apiToken:  string(data),
-		UserName:  username,
-		Password:  password,
-		Locker:    locker,
-		apiClient: apiClient,
+		MasterURL:       apiServerURL,
+		apiToken:        string(data),
+		UserName:        username,
+		Password:        password,
+		Locker:          locker,
+		AWSAccessKeyID:  awsKey,
+		AWSAccessSecret: awsSecret,
+		apiClient:       apiClient,
 	}
 }
 
@@ -79,6 +86,8 @@ func (k8s DefaultDecap) launchBuild(pushEvent PushEvent) error {
 		Parent:                    pushEvent.Parent(),
 		Library:                   pushEvent.Library(),
 		SidecarContainers:         projs[projectKey].Sidecars,
+		AWSAccessKeyID:            k8s.AWSAccessKeyID,
+		AWSAccessSecret:           k8s.AWSAccessSecret,
 	}
 
 	tmpl, err := template.New("pod").Parse(podTemplate)

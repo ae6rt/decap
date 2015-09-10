@@ -51,6 +51,18 @@ var podTemplate = `
                     {
                         "name": "BUILD_LOCK_KEY",
                         "value": "{{.BuildLockKey}}"
+                    },
+                    {
+                        "name": "AWS_ACCESS_KEY_ID",
+                        "value": "{{.AWSAccessKeyID}}"
+                    },
+                    {
+                        "name": "AWS_SECRET_ACCESS_KEY",
+                        "value": "{{.AWSAccessSecret}}"
+                    },
+                    {
+                        "name": "AWS_DEFAULT_REGION",
+                        "value": "{{.AWSRegion}}"
                     }
                 ],
                 "resources": {},

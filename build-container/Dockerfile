@@ -5,8 +5,8 @@ RUN python /tmp/get-pip.py
 RUN pip install awscli
 RUN rm /tmp/get-pip.py 
 
-RUN mkdir -p /root/.aws
 RUN mkdir -p /home/decap/workspace
+RUN mkdir -p /build-artifacts
 RUN mkdir -p /home/decap/buildscripts
 COPY entrypoint.sh /opt/decap/bin/
 

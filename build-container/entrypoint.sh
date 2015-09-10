@@ -4,21 +4,15 @@ set -ux
 
 if [ $# -eq 0 ]; then
 
-	cat <<EOF > $HOME/.aws/credentials
-[default]
-aws_access_key_id = $(cat /etc/secrets/aws-key)
-aws_secret_access_key = $(cat /etc/secrets/aws-secret)
-region = $(cat /etc/secrets/aws-region)
-EOF
-
 	TAR=archive.tar
+	ARTIFACTS=/build-artifacts
 	WORKSPACE=/home/decap/workspace
 	CONSOLE=/tmp/console.log
 
-    let START=$(date +%s)
+	let START=$(date +%s)
 
-    	cat <<YYY > buildstart.json
-    {
+    	cat <<EOF > buildstart.json
+{
         "buildID": {
             "S": "$BUILD_ID"
         },
@@ -34,8 +28,8 @@ EOF
         "isBuilding": {
             "N": "1"
         }
-    }
-YYY
+}
+EOF
 
     aws dynamodb put-item --table-name decap-build-metadata --item file://buildstart.json
 
@@ -44,10 +38,9 @@ YYY
 	sh /home/decap/buildscripts/decap-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
 	BUILD_EXITCODE=${PIPESTATUS[0]}
 
-	# todo what gets archived needs to be configurable
-	tar czf /tmp/${TAR}.gz .
-
 	popd
+
+	tar czf /tmp/${TAR}.gz -C /build-artifacts
 
 	gzip $CONSOLE
 
@@ -57,7 +50,7 @@ YYY
 	aws s3 cp --content-type application/x-gzip /tmp/${TAR}.gz s3://decap-build-artifacts/$BUILD_ID
 	aws s3 cp --content-type application/x-gzip ${CONSOLE}.gz s3://decap-console-logs/$BUILD_ID
 
-	cat <<XXX > buildstop.json
+	cat <<EOF > buildstop.json
 {
     "buildID": {
         "S": "$BUILD_ID"
@@ -81,7 +74,7 @@ YYY
         "N": "0"
     }
 }
-XXX
+EOF
 
 	aws dynamodb put-item --table-name decap-build-metadata --item file://buildstop.json
 	

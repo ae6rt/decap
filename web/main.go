@@ -49,7 +49,7 @@ func init() {
 
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
-	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, locker)
+	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, locker)
 	awsStorageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 
 	router := httprouter.New()

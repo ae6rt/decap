@@ -41,7 +41,7 @@ func TestCreatePod(t *testing.T) {
 	}))
 	defer testServer.Close()
 
-	k8s := NewDefaultDecap(testServer.URL, "admin", "admin123", NoOpLocker{})
+	k8s := NewDefaultDecap(testServer.URL, "admin", "admin123", "key", "sekrit", NoOpLocker{})
 	err := k8s.CreatePod([]byte(""))
 	if err != nil {
 		t.Fatalf("Unexpected error: %v\n", err)
