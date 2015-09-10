@@ -33,8 +33,8 @@ var (
 
 func init() {
 	flag.Parse()
+	Log.Printf("%s\n", buildInfo)
 	if *versionFlag {
-		Log.Printf("%s\n", buildInfo)
 		os.Exit(0)
 	}
 
