@@ -44,13 +44,14 @@ type DefaultDecap struct {
 	Password        string // not needed when running in the cluster - use apiToken instead
 	AWSAccessKeyID  string
 	AWSAccessSecret string
+	AWSRegion       string
 	Locker          Locker
 
 	apiToken  string
 	apiClient *http.Client
 }
 
-func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret string, locker Locker) DefaultDecap {
+func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker Locker) DefaultDecap {
 	// todo when running in cluster, provide root certificate via /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 	apiClient := &http.Client{Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -66,6 +67,7 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret string,
 		Locker:          locker,
 		AWSAccessKeyID:  awsKey,
 		AWSAccessSecret: awsSecret,
+		AWSRegion:       awsRegion,
 		apiClient:       apiClient,
 	}
 }
@@ -85,6 +87,7 @@ func (k8s DefaultDecap) launchBuild(buildEvent BuildEvent) error {
 		SidecarContainers:         projs[projectKey].Sidecars,
 		AWSAccessKeyID:            k8s.AWSAccessKeyID,
 		AWSAccessSecret:           k8s.AWSAccessSecret,
+		AWSRegion:                 k8s.AWSRegion,
 	}
 
 	tmpl, err := template.New("pod").Parse(podTemplate)
