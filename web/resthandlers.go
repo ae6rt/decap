@@ -217,7 +217,6 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap)
 		}
 		Log.Printf("%s hook received: %s\n", repoManager, data)
 
-		var event BuildEvent
 		switch repoManager {
 		case "buildscripts": // A special repository manager to handle updates to the buildscripts repository
 			p, err := findProjects(buildScriptsRepo, buildScriptsBranch)
@@ -229,17 +228,16 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap)
 			}
 			return
 		case "github":
-			event = GithubEvent{}
+			event := GithubEvent{}
 			if err := json.Unmarshal(data, &event); err != nil {
 				Log.Println(err)
 				w.WriteHeader(500)
 				return
 			}
+			go k8s.launchBuild(event)
 		}
 
 		w.WriteHeader(200)
-
-		go k8s.launchBuild(event)
 	}
 }
 
