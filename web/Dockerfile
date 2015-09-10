@@ -1,5 +1,5 @@
 FROM centos:7
-COPY decap-linux-amd64 /
-COPY index.html /
 RUN yum install -y git
+COPY index.html /
+COPY decap-linux-amd64 /
 ENTRYPOINT ["/decap-linux-amd64"]
