@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -50,7 +49,7 @@ func findProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, er
 				if err != nil {
 					Log.Println(err)
 				} else {
-					cars = fmt.Sprintf(",%s%s", cars, string(data))
+					cars = cars + ", " + string(data)
 				}
 			}
 
