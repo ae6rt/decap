@@ -42,7 +42,9 @@ EOF
 
    popd
 
-   tar czf /tmp/${TAR}.gz -C /build-artifacts /dev/null
+   pushd /build-artifacts
+   tar czf /tmp/${TAR}.gz .
+   popd
 
    gzip $CONSOLE
 
