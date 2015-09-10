@@ -78,7 +78,7 @@ EOF
 
    aws dynamodb put-item --table-name decap-build-metadata --item file://buildstop.json
 	
-   curl -i http://lockservice:2379/v2/keys/${BUILD_LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
+   curl -i http://lockservice.decap-system:2379/v2/keys/${BUILD_LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
 else
    exec "$@"
 fi
