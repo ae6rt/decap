@@ -43,13 +43,14 @@ func findProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, er
 			if err != nil {
 				Log.Println(err)
 			}
-			var cars string
+			var cars []byte
 			for _, sc := range sidecars {
 				data, err := ioutil.ReadFile(sc)
 				if err != nil {
 					Log.Println(err)
 				} else {
-					cars = cars + ", " + string(data)
+					cars = append(cars, []byte(",")...)
+					cars = append(cars, data...)
 				}
 			}
 

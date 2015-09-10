@@ -8,7 +8,7 @@ import (
 )
 
 func TestPodJson(t *testing.T) {
-	content := `
+	content := []byte(`
 {
     "image": "mysql:5.6", 
     "name": "mysql", 
@@ -17,7 +17,8 @@ func TestPodJson(t *testing.T) {
             "containerPort": 3306
         }
     ]
-}`
+}`,
+	)
 	pod := BuildPod{SidecarContainers: content}
 
 	hydratedTemplate := bytes.NewBufferString("")
@@ -31,9 +32,9 @@ func TestPodJson(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := "Hello json: " + content
+	expected := "Hello json: " + string(content)
 	actual := string(hydratedTemplate.Bytes())
-	if actual != "Hello json: "+content {
+	if actual != expected {
 		t.Fatalf("Want "+expected+" , but got %s\n", actual)
 	}
 }

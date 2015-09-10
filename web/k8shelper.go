@@ -28,13 +28,13 @@ type BuildPod struct {
 	Library                   string
 	BranchToBuild             string
 	BuildLockKey              string
-	SidecarContainers         string
+	SidecarContainers         []byte
 	AWSAccessKeyID            string
 	AWSAccessSecret           string
 	AWSRegion                 string
 }
 
-func (buildPod BuildPod) RawJson(v string) template.JS {
+func (buildPod BuildPod) RawJson(v []byte) template.JS {
 	return template.JS(v)
 }
 
