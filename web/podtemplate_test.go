@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 
 	"text/template"
@@ -9,7 +10,7 @@ import (
 
 func TestPodJson(t *testing.T) {
 	content := []byte(`
-{
+,{
     "image": "mysql:5.6", 
     "name": "mysql", 
     "ports": [
@@ -22,8 +23,7 @@ func TestPodJson(t *testing.T) {
 	pod := BuildPod{SidecarContainers: content}
 
 	hydratedTemplate := bytes.NewBufferString("")
-
-	theTemplate, err := template.New("test").Parse("Hello json: {{.RawJson .SidecarContainers}}")
+	theTemplate, err := template.New("test").Parse(podTemplate)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,9 +32,6 @@ func TestPodJson(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := "Hello json: " + string(content)
 	actual := string(hydratedTemplate.Bytes())
-	if actual != expected {
-		t.Fatalf("Want "+expected+" , but got %s\n", actual)
-	}
+	fmt.Println(actual)
 }

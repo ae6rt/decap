@@ -12,7 +12,7 @@ var podTemplate = `
             "type": "decap-build",
             "parent": "{{.Parent}}",
             "library": "{{.Library}}",
-            "branch": "{{.BranchToBuild}}",
+            "branch": "{{.BranchToBuild}}"
         }
     },
     "spec": {
