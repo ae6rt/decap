@@ -4,14 +4,14 @@ set -ux
 
 if [ $# -eq 0 ]; then
 
-	TAR=archive.tar
-	ARTIFACTS=/build-artifacts
-	WORKSPACE=/home/decap/workspace
-	CONSOLE=/tmp/console.log
+   TAR=archive.tar
+   ARTIFACTS=/build-artifacts
+   WORKSPACE=/home/decap/workspace
+   CONSOLE=/tmp/console.log
 
-	let START=$(date +%s)
+   let START=$(date +%s)
 
-    	cat <<EOF > buildstart.json
+   cat <<EOF > buildstart.json
 {
         "buildID": {
             "S": "$BUILD_ID"
@@ -31,26 +31,26 @@ if [ $# -eq 0 ]; then
 }
 EOF
 
-    aws dynamodb put-item --table-name decap-build-metadata --item file://buildstart.json
+   aws dynamodb put-item --table-name decap-build-metadata --item file://buildstart.json
 
-	pushd $WORKSPACE
+   pushd $WORKSPACE
 
-	sh /home/decap/buildscripts/decap-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
-	BUILD_EXITCODE=${PIPESTATUS[0]}
+   sh /home/decap/buildscripts/decap-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
+   BUILD_EXITCODE=${PIPESTATUS[0]}
 
-	popd
+   popd
 
-	tar czf /tmp/${TAR}.gz -C /build-artifacts
+   tar czf /tmp/${TAR}.gz -C /build-artifacts
 
-	gzip $CONSOLE
+   gzip $CONSOLE
 
-	let STOP=$(date +%s)
-	DURATION=`expr $STOP - $START`
+   let STOP=$(date +%s)
+   DURATION=`expr $STOP - $START`
 
-	aws s3 cp --content-type application/x-gzip /tmp/${TAR}.gz s3://decap-build-artifacts/$BUILD_ID
-	aws s3 cp --content-type application/x-gzip ${CONSOLE}.gz s3://decap-console-logs/$BUILD_ID
+   aws s3 cp --content-type application/x-gzip /tmp/${TAR}.gz s3://decap-build-artifacts/$BUILD_ID
+   aws s3 cp --content-type application/x-gzip ${CONSOLE}.gz s3://decap-console-logs/$BUILD_ID
 
-	cat <<EOF > buildstop.json
+   cat <<EOF > buildstop.json
 {
     "buildID": {
         "S": "$BUILD_ID"
@@ -76,9 +76,9 @@ EOF
 }
 EOF
 
-	aws dynamodb put-item --table-name decap-build-metadata --item file://buildstop.json
+   aws dynamodb put-item --table-name decap-build-metadata --item file://buildstop.json
 	
-	curl -i http://lockservice:2379/v2/keys/${BUILD_LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
+   curl -i http://lockservice:2379/v2/keys/${BUILD_LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
 else
-	exec "$@"
+   exec "$@"
 fi
