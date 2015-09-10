@@ -11,7 +11,7 @@ import (
 	"github.com/pborman/uuid"
 )
 
-type PushEvent interface {
+type BuildEvent interface {
 	Parent() string
 	Library() string
 	ProjectKey() string
@@ -38,9 +38,6 @@ type Handler interface {
 	handle(w http.ResponseWriter, r *http.Request)
 }
 
-type Decap interface {
-	GetProjects(pageStart, pageLimit int) ([]Project, error)
-}
 type DefaultDecap struct {
 	MasterURL       string
 	UserName        string // not needed when running in the cluster - use apiToken instead
@@ -73,7 +70,7 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret string,
 	}
 }
 
-func (k8s DefaultDecap) launchBuild(pushEvent PushEvent) error {
+func (k8s DefaultDecap) launchBuild(pushEvent BuildEvent) error {
 	projectKey := pushEvent.ProjectKey()
 
 	projs := getProjects()

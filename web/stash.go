@@ -13,7 +13,7 @@ type StashEvent struct {
 	Repository StashRepository  `json:"repository"`
 	RefChanges []StashRefChange `json:"refChanges"`
 
-	PushEvent
+	BuildEvent
 }
 
 type StashRepository struct {

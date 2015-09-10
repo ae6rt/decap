@@ -2,6 +2,7 @@ package main
 
 import "fmt"
 
+// UserBuildEvent captures a user-initiated build request.
 type UserBuildEvent struct {
 	parent   string
 	library  string

@@ -172,7 +172,7 @@ func TestGithubEvent(t *testing.T) {
 		return
 	}
 
-	pushEvent := PushEvent(event)
+	pushEvent := BuildEvent(event)
 	if pushEvent.ProjectKey() != "baxterthehacker/public-repo" {
 		t.Fatalf("Want baxterthehacker/public-repo but got %s\n", pushEvent.ProjectKey())
 	}

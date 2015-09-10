@@ -27,7 +27,7 @@ func TestStashEvent(t *testing.T) {
 		return
 	}
 
-	pushEvent := PushEvent(event)
+	pushEvent := BuildEvent(event)
 	if pushEvent.ProjectKey() != "project/somelib" {
 		t.Fatalf("Want project/somelib but got %s\n", pushEvent.ProjectKey())
 	}

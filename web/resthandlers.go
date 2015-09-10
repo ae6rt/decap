@@ -208,7 +208,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap)
 				return
 			}
 
-			var event PushEvent
+			var event BuildEvent
 			switch repoManager {
 			case "buildscripts": // A special repository manager to handle updates to the buildscripts repository
 				p, err := findProjects(buildScriptsRepo, buildScriptsBranch)
