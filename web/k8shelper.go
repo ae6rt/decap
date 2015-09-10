@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"net/http"
+	"text/template"
 
 	"github.com/pborman/uuid"
 )
@@ -34,8 +34,8 @@ type BuildPod struct {
 	AWSRegion                 string
 }
 
-func (buildPod BuildPod) RawJson(v []byte) template.JS {
-	return template.JS(v)
+func (buildPod BuildPod) RawJson(v []byte) string {
+	return string(v)
 }
 
 type DefaultDecap struct {

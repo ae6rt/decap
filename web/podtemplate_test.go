@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"testing"
 
 	"text/template"
@@ -20,7 +19,12 @@ func TestPodJson(t *testing.T) {
     ]
 }`,
 	)
-	pod := BuildPod{SidecarContainers: content}
+
+	var data []byte
+
+	data = append(data, []byte(",")...)
+	data = append(data, content...)
+	pod := BuildPod{SidecarContainers: data}
 
 	hydratedTemplate := bytes.NewBufferString("")
 	theTemplate, err := template.New("test").Parse(podTemplate)
@@ -32,6 +36,6 @@ func TestPodJson(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actual := string(hydratedTemplate.Bytes())
-	fmt.Println(actual)
+	//	actual := string(hydratedTemplate.Bytes())
+	//fmt.Println(actual)
 }
