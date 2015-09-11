@@ -18,15 +18,17 @@ type Project struct {
 	Parent     string            `json:"parent"`
 	Library    string            `json:"library"`
 	Descriptor ProjectDescriptor `json:"descriptor,omitempty"`
-	Sidecars   string
+	Sidecars   []Sidecar         `json:"sidecars,omitempty"`
 }
 
 type ProjectDescriptor struct {
-	// Supported values: github
+	Image           string `json:"build-image"`
 	RepoManager     string `json:"repo-manager"`
 	RepoURL         string `json:"repo-url"`
 	RepoDescription string `json:"repo-description"`
 }
+
+type Sidecar string
 
 type Builds struct {
 	Meta
