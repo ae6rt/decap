@@ -12,7 +12,7 @@ func TestProjects(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proj, err := findProjects("file://"+dir, "master")
+	proj, err := assembleProjects("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {
@@ -46,7 +46,7 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projects, err = findProjects("file://"+dir, "master")
+	projects, err = assembleProjects("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {

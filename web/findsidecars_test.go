@@ -1,13 +1,6 @@
 package main
 
-import (
-	"os"
-	"strings"
-	"testing"
-
-	"github.com/ae6rt/ziptools"
-)
-
+/*
 func TestFindSidecars(t *testing.T) {
 	dir, err := ziptools.Unzip("buildscripts-repo.zip")
 	if err != nil {
@@ -35,3 +28,4 @@ func TestFindSidecars(t *testing.T) {
 	}
 	os.RemoveAll(dir)
 }
+*/

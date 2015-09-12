@@ -116,6 +116,76 @@ func findBuildScripts(root string) ([]string, error) {
 	return files, nil
 }
 
+func projectKey(team, project string) string {
+	return fmt.Sprintf("%s/%s", team, project)
+}
+
+func teamProject(file string) (string, string, error) {
+	parts := strings.Split(file, "/")
+	if len(parts) < 3 {
+		return "", "", fmt.Errorf("Path does not contain minimum depth of 3: %s", file)
+	}
+	return parts[len(parts)-3], parts[len(parts)-2], nil
+}
+
+func indexFilesByTeamProject(files []string) map[string]string {
+	m := make(map[string]string)
+	for _, file := range files {
+		team, project, err := teamProject(file)
+		if err != nil {
+			Log.Println(err)
+			continue
+		}
+		key := projectKey(team, project)
+		m[key] = file
+	}
+	return m
+}
+
+func indexSidecarsByTeamProject(files []string) map[string][]string {
+	m := make(map[string][]string)
+	for _, file := range files {
+		team, project, err := teamProject(file)
+		if err != nil {
+			Log.Println(err)
+			continue
+		}
+		key := projectKey(team, project)
+		arr, present := m[key]
+		if !present {
+			arr = make([]string, 0)
+		}
+		arr = append(arr, file)
+		m[key] = arr
+	}
+	return m
+}
+
+func readSidecars(files []string) []string {
+	arr := make([]string, len(files))
+	for i, v := range files {
+		data, err := ioutil.ReadFile(v)
+		if err != nil {
+			Log.Println(err)
+			continue
+		}
+		arr[i] = string(data)
+	}
+	return arr
+}
+
+func descriptorForTeamProject(file string) (ProjectDescriptor, error) {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return ProjectDescriptor{}, err
+	}
+	var descriptor ProjectDescriptor
+	if err := json.Unmarshal(data, &descriptor); err != nil {
+		return ProjectDescriptor{}, err
+	}
+	return descriptor, nil
+}
+
 func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, error) {
 	projects := make(map[string]Project, 0)
 	work := func() error {
@@ -132,105 +202,48 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 			return err
 		}
 
+		// The build scripts are considered the anchor for a project.
+		// If the build.sh does not exist, then the project effectively does not exist.
+		// We could have chosen the project.json descriptor, as this must also exist for a valid project.
 		buildScripts, err := filesByRegex(cloneDirectory, buildScriptRegex)
 		if err != nil {
 			return err
 		}
-		descriptors, err := filesByRegex(cloneDirectory, projectDescriptorRegex)
+		descriptorFiles, err := filesByRegex(cloneDirectory, projectDescriptorRegex)
 		if err != nil {
 			return err
 		}
-		sidecars, err := filesByRegex(cloneDirectory, sideCarRegex)
+		sidecarFiles, err := filesByRegex(cloneDirectory, sideCarRegex)
 		if err != nil {
 			return err
 		}
 
-		for _, v := range buildScripts {
-			parts := strings.Split(v, "/")
-			parent := parentPath(v)
-			sidecars, err := findSidecars(parent)
+		buildScriptMap := indexFilesByTeamProject(buildScripts)
+		descriptorMap := indexFilesByTeamProject(descriptorFiles)
+		sidecarMap := indexSidecarsByTeamProject(sidecarFiles)
+
+		for k, _ := range buildScriptMap {
+			_, present := descriptorMap[k]
+			if !present {
+				Log.Printf("Skipping project without a descriptor: %s\n", k)
+				continue
+			}
+			descriptor, err := descriptorForTeamProject(descriptorMap[k])
 			if err != nil {
 				Log.Println(err)
-			}
-			var cars string
-			for _, sc := range sidecars {
-				data, err := ioutil.ReadFile(sc)
-				if err != nil {
-					Log.Println(err)
-				} else {
-					cars = cars + "," + string(data)
-				}
+				continue
 			}
 
+			sidecars := readSidecars(sidecarMap[k])
+
+			parts := strings.Split(k, "/")
 			p := Project{
-				Parent:     parts[len(parts)-3],
-				Library:    parts[len(parts)-2],
-				Descriptor: projectDescriptor(v),
-				Sidecars:   cars,
+				Parent:     parts[0],
+				Library:    parts[1],
+				Descriptor: descriptor,
+				Sidecars:   sidecars,
 			}
-
-			key := parts[len(parts)-3] + "/" + parts[len(parts)-2]
-			projects[key] = p
-		}
-		return nil
-	}
-
-	err := retry.New(5*time.Second, 10, retry.DefaultBackoffFunc).Try(work)
-	if err != nil {
-		return nil, err
-	}
-	return projects, nil
-
-}
-
-// deprecated in favor of assembleProjects()
-func findProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, error) {
-	projects := make(map[string]Project, 0)
-	work := func() error {
-		Log.Printf("Finding projects via clone of the build-scripts repository\n")
-		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
-		defer func() {
-			os.RemoveAll(cloneDirectory)
-		}()
-
-		if err != nil {
-			return err
-		}
-		if err := gittools.Clone(scriptsRepo, scriptsRepoBranch, cloneDirectory, true); err != nil {
-			return err
-		}
-
-		buildScripts, err := findBuildScripts(cloneDirectory)
-		if err != nil {
-			return err
-		}
-
-		for _, v := range buildScripts {
-			parts := strings.Split(v, "/")
-			parent := parentPath(v)
-			sidecars, err := findSidecars(parent)
-			if err != nil {
-				Log.Println(err)
-			}
-			var cars string
-			for _, sc := range sidecars {
-				data, err := ioutil.ReadFile(sc)
-				if err != nil {
-					Log.Println(err)
-				} else {
-					cars = cars + "," + string(data)
-				}
-			}
-
-			p := Project{
-				Parent:     parts[len(parts)-3],
-				Library:    parts[len(parts)-2],
-				Descriptor: projectDescriptor(v),
-				Sidecars:   cars,
-			}
-
-			key := parts[len(parts)-3] + "/" + parts[len(parts)-2]
-			projects[key] = p
+			projects[k] = p
 		}
 		return nil
 	}
@@ -242,6 +255,7 @@ func findProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, er
 	return projects, nil
 }
 
+/*
 func projectDescriptor(scriptPath string) ProjectDescriptor {
 	// returning an empty descriptor is acceptable, which is what happens on error
 	dpath := descriptorPath(scriptPath)
@@ -253,14 +267,7 @@ func projectDescriptor(scriptPath string) ProjectDescriptor {
 	json.Unmarshal(data, &descriptor)
 	return descriptor
 }
-
-func parentPath(fileName string) string {
-	return fileName[:strings.LastIndex(fileName, "/")]
-}
-
-func descriptorPath(scriptPath string) string {
-	return parentPath(scriptPath) + "/project.json"
-}
+*/
 
 func getProjects() map[string]Project {
 	p := make(map[string]Project, 0)

@@ -65,7 +65,7 @@ func main() {
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, k8s))
 
 	var err error
-	projects, err = findProjects(*buildScriptsRepo, *buildScriptsRepoBranch)
+	projects, err = assembleProjects(*buildScriptsRepo, *buildScriptsRepoBranch)
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}

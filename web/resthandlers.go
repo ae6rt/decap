@@ -219,7 +219,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap)
 
 		switch repoManager {
 		case "buildscripts": // A special repository manager to handle updates to the buildscripts repository
-			p, err := findProjects(buildScriptsRepo, buildScriptsBranch)
+			p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch)
 			if err != nil {
 				Log.Println(err)
 				w.WriteHeader(500)

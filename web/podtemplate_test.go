@@ -19,7 +19,7 @@ func TestPodJson(t *testing.T) {
     ]
 }`
 
-	pod := BuildPod{SidecarContainers: content}
+	pod := BuildPod{SidecarContainers: []string{content}}
 
 	hydratedTemplate := bytes.NewBufferString("")
 	theTemplate, err := template.New("test").Parse(podTemplate)
