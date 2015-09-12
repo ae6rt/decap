@@ -35,9 +35,14 @@ func StopBuildHandler(k8s DefaultDecap) httprouter.Handle {
 }
 func ProjectsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		team := r.URL.Query().Get("team")
 		a := make([]Project, 0)
 		for _, v := range getProjects() {
-			a = append(a, v)
+			if team != "" && team == v.Team {
+				a = append(a, v)
+			} else {
+				a = append(a, v)
+			}
 		}
 		data, err := json.Marshal(&a)
 		if err != nil {
@@ -52,10 +57,10 @@ func ProjectsHandler() httprouter.Handle {
 
 func ProjectBranchesHandler(creds map[string]RepoManagerCredential) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		parent := params.ByName("parent")
+		team := params.ByName("team")
 		library := params.ByName("library")
 
-		project, present := findProject(parent, library)
+		project, present := projectByTeamLibrary(team, library)
 		if !present {
 			w.WriteHeader(404)
 			return
@@ -72,7 +77,7 @@ func ProjectBranchesHandler(creds map[string]RepoManagerCredential) httprouter.H
 				return
 			}
 			ghClient := githubsdk.NewGithubClient("https://api.github.com", user, password)
-			branches, err := ghClient.GetBranches(project.Parent, project.Library)
+			branches, err := ghClient.GetBranches(project.Team, project.Library)
 			if err != nil {
 				// todo put error on json object
 				Log.Print(err)
@@ -116,7 +121,7 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 
 func BuildsHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		project := params.ByName("parent")
+		project := params.ByName("team")
 		library := params.ByName("library")
 
 		var builds Builds
@@ -140,7 +145,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		}
 
 		var buildList []Build
-		buildList, err = storageService.GetBuildsByProject(Project{Parent: project, Library: library}, since, limit)
+		buildList, err = storageService.GetBuildsByProject(Project{Team: project, Library: library}, since, limit)
 
 		if err != nil {
 			builds.Meta.Error = fmt.Sprintf("%v", err)
@@ -177,10 +182,10 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 
 func ExecuteBuildHandler(k8s DefaultDecap) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		parent := params.ByName("parent")
+		team := params.ByName("team")
 		library := params.ByName("library")
 
-		if _, present := findProject(parent, library); !present {
+		if _, present := projectByTeamLibrary(team, library); !present {
 			w.WriteHeader(404)
 			return
 		}
@@ -191,7 +196,7 @@ func ExecuteBuildHandler(k8s DefaultDecap) httprouter.Handle {
 			w.WriteHeader(400)
 		}
 
-		event := UserBuildEvent{parent: parent, library: library, branches: branches}
+		event := UserBuildEvent{team: team, library: library, branches: branches}
 		go k8s.launchBuild(event)
 	}
 }

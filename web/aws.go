@@ -29,7 +29,7 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 		KeyConditionExpression: aws.String("projectKey = :pkey"),
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":pkey": {
-				S: aws.String(fmt.Sprintf("%s/%s", project.Parent, project.Library)),
+				S: aws.String(fmt.Sprintf("%s/%s", project.Team, project.Library)),
 			},
 		},
 	}

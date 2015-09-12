@@ -10,7 +10,7 @@ var podTemplate = `
         "creationTimestamp": null,
         "labels": {
             "type": "decap-build",
-            "parent": "{{.Parent}}",
+            "team": "{{.Team}}",
             "library": "{{.Library}}",
             "branch": "{{.BranchToBuild}}"
         }

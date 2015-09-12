@@ -30,8 +30,8 @@ func TestGithubEvent(t *testing.T) {
 	if pushEvent.ProjectKey() != "ae6rt/dynamodb-lab" {
 		t.Fatalf("Want ae6rt/dynamodb-lab", pushEvent.ProjectKey())
 	}
-	if pushEvent.Parent() != "ae6rt" {
-		t.Fatalf("Want ae6rt but got %s\n", pushEvent.Parent())
+	if pushEvent.Team() != "ae6rt" {
+		t.Fatalf("Want ae6rt but got %s\n", pushEvent.Team())
 	}
 	if pushEvent.Library() != "dynamodb-lab" {
 		t.Fatalf("Want dynamodb-lab", pushEvent.Library())

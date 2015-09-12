@@ -12,7 +12,7 @@ import (
 )
 
 type BuildEvent interface {
-	Parent() string
+	Team() string
 	Library() string
 	ProjectKey() string
 	Branches() []string
@@ -24,7 +24,7 @@ type BuildPod struct {
 	BuildScriptsGitRepoBranch string
 	BuildImage                string
 	ProjectKey                string
-	Parent                    string
+	Team                      string
 	Library                   string
 	BranchToBuild             string
 	BuildLockKey              string
@@ -86,7 +86,7 @@ func (k8s DefaultDecap) launchBuild(buildEvent BuildEvent) error {
 		BuildScriptsGitRepo:       *buildScriptsRepo,
 		BuildScriptsGitRepoBranch: *buildScriptsRepoBranch,
 		ProjectKey:                projectKey,
-		Parent:                    buildEvent.Parent(),
+		Team:                      buildEvent.Team(),
 		Library:                   buildEvent.Library(),
 		SidecarContainers:         projs[projectKey].Sidecars,
 		AWSAccessKeyID:            k8s.AWSAccessKeyID,

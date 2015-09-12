@@ -15,7 +15,7 @@ type Projects struct {
 }
 
 type Project struct {
-	Parent     string            `json:"parent"`
+	Team       string            `json:"team"`
 	Library    string            `json:"library"`
 	Descriptor ProjectDescriptor `json:"descriptor,omitempty"`
 	Sidecars   []string          `json:"sidecars,omitempty"`

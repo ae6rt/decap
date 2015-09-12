@@ -4,13 +4,13 @@ import "fmt"
 
 // UserBuildEvent captures a user-initiated build request.
 type UserBuildEvent struct {
-	parent   string
+	team string
 	library  string
 	branches []string
 }
 
-func (e UserBuildEvent) Parent() string {
-	return e.parent
+func (e UserBuildEvent) Team() string {
+	return e.team
 }
 
 func (e UserBuildEvent) Library() string {
@@ -18,7 +18,7 @@ func (e UserBuildEvent) Library() string {
 }
 
 func (e UserBuildEvent) ProjectKey() string {
-	return fmt.Sprintf("%s/%s", e.parent, e.library)
+	return fmt.Sprintf("%s/%s", e.team, e.library)
 }
 
 func (e UserBuildEvent) Branches() []string {

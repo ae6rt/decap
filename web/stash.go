@@ -29,7 +29,7 @@ type StashRefChange struct {
 	RefID string `json:"refId"`
 }
 
-func (stash StashEvent) Parent() string {
+func (stash StashEvent) Team() string {
 	return stash.Repository.Project.Key
 }
 

@@ -18,7 +18,7 @@ type GithubOwner struct {
 	Name string `json:"name"`
 }
 
-func (event GithubEvent) Parent() string {
+func (event GithubEvent) Team() string {
 	return event.Repository.Owner.Name
 }
 

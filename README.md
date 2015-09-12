@@ -24,7 +24,7 @@ This project is under active development, and has no releases yet.
 You have projects you want to build.  Your builds are articulated
 in terms of userland shell scripts.  Decap ships with a _base build
 container_ that mounts your build scripts as a git repository and
-locates them by a _parent/libary_ convention in the container
+locates them by a _team/libary_ convention in the container
 filesystem.
 
 Either user-initiated builds or post commit hooks sent from your
@@ -229,7 +229,7 @@ The build container refers to this repository as a mounted volume.
 Build scripts are indexed by _project key_ by the build container
 entrypoint.  For github based projects, the project key is the
 github username + "/" + repository name.  Generally, the username
-is referred to as the _parent_ and the repository basename as the
+is referred to as the _team_ and the repository basename as the
 _library_  For example, if the github username is ae6rt and the
 repository name is dynamodb-lab, then the project key is
 "ae6rt/dynamodb-lab".  The build script is by convention named
@@ -283,10 +283,10 @@ https://github.com/ae6rt/decap/tree/master/build-container
 The following environment variables are available in your build scripts:
 
 * BUILD_ID:  UUID that uniquely identifies this build
-* PROJECT_KEY: a composite key consisting of your project _parent/library_
+* PROJECT_KEY: a composite key consisting of your project _team/library_
 * BRANCH_TO_BUILD: an optional git branch for use with builds that can put it to use
 
-Concurrent builds of a given parent/library + branch are currently
+Concurrent builds of a given team/library + branch are currently
 forbidden, and enforced with a lock in etcd, which runs in the same
 pod as the Decap webapp.
 
@@ -295,7 +295,7 @@ Build pod instances are given the following Kubernetes labels
 ```
 "labels": {
    "type": "decap-build",
-   "parent": "{{.Parent}}",
+   "team": "{{.Team}}",
    "library": "{{.Library}}",
    "branch": "{{.BranchToBuild}}",
 }

@@ -26,7 +26,7 @@ func TestAssembleProjects(t *testing.T) {
 
 	foundIt := false
 	for _, v := range proj {
-		if v.Parent == "ae6rt" && v.Library == "dynamodb-lab" {
+		if v.Team == "ae6rt" && v.Library == "dynamodb-lab" {
 			foundIt = true
 			if v.Descriptor.RepoManager != "github" {
 				t.Fatalf("Want github but got %s\n", v.Descriptor.RepoManager)
@@ -55,11 +55,11 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, present := findProject("ae6rt", "dynamodb-lab"); !present {
+	if _, present := projectByTeamLibrary("ae6rt", "dynamodb-lab"); !present {
 		t.Fatalf("Expecting to find ae6rt/dynamodb-lab project but did not\n")
 	}
 
-	if _, present := findProject("nope", "nope"); present {
+	if _, present := projectByTeamLibrary("nope", "nope"); present {
 		t.Fatalf("Not expecting to find nope/nope project but did \n")
 	}
 }

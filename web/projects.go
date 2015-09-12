@@ -182,12 +182,16 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 				Log.Println(err)
 				continue
 			}
+			if descriptor.Image == "" {
+				Log.Printf("Skipping project % without descriptor build image: %+v\n", k, descriptor)
+				continue
+			}
 
 			sidecars := readSidecars(sidecarMap[k])
 
 			parts := strings.Split(k, "/")
 			p := Project{
-				Parent:     parts[0],
+				Team:     parts[0],
 				Library:    parts[1],
 				Descriptor: descriptor,
 				Sidecars:   sidecars,
@@ -220,9 +224,9 @@ func setProjects(p map[string]Project) {
 	projectMutex.Unlock()
 }
 
-func findProject(parent, library string) (Project, bool) {
+func projectByTeamLibrary(team, library string) (Project, bool) {
 	pr := getProjects()
-	key := projectKey(parent, library)
+	key := projectKey(team, library)
 	p, ok := pr[key]
 	return p, ok
 }
