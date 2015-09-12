@@ -34,14 +34,18 @@ type BuildPod struct {
 	AWSRegion                 string
 }
 
-func (buildPod BuildPod) RawJson(v []byte) string {
-	return string(v)
+func (buildPod BuildPod) FormatSidecars(sidecars []string) string {
+	var s string
+	for _, v := range sidecars {
+		s = s + "," + v
+	}
+	return s
 }
 
 type DefaultDecap struct {
 	MasterURL       string
-	UserName        string // not needed when running in the cluster - use apiToken instead
-	Password        string // not needed when running in the cluster - use apiToken instead
+	UserName        string
+	Password        string
 	AWSAccessKeyID  string
 	AWSAccessSecret string
 	AWSRegion       string
