@@ -54,13 +54,18 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	team := r.URL.Query().Get("team")
 	arr := make([]Project, 0)
-	for _, v := range getProjects() {
-		if team != "" && team == v.Team {
-			arr = append(arr, v)
-		} else {
+	if team != "" {
+		for _, v := range getProjects() {
+			if team == v.Team {
+				arr = append(arr, v)
+			}
+		}
+	} else {
+		for _, v := range getProjects() {
 			arr = append(arr, v)
 		}
 	}
+
 	p := Projects{Projects: arr}
 	data, err := json.Marshal(&p)
 	if err != nil {
