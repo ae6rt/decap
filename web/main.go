@@ -21,7 +21,6 @@ var (
 	githubClientSecret     = flag.String("github-client-secret", "", "Default Github Client Secret for quering Github repos.  /etc/secrets/github-client-secret in the cluster overrides this.")
 	buildScriptsRepo       = flag.String("build-scripts-repo", "https://github.com/ae6rt/decap-build-scripts.git", "Git repo where userland build scripts are held.")
 	buildScriptsRepoBranch = flag.String("build-scripts-repo-branch", "master", "Branch or revision to use on git repo where userland build scripts are held.")
-	image                  = flag.String("image", "ae6rt/decap-build-base:latest", "Build container image that runs userland build scripts.")
 	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
 
 	repoManagerClientCredentials = make(map[string]RepoManagerCredential)
@@ -58,13 +57,13 @@ func main() {
 	router := httprouter.New()
 	router.GET("/", Index)
 	router.GET("/api/v1/version", VersionHandler)
-	router.GET("/api/v1/projects", ProjectsHandler())
+	router.GET("/api/v1/projects", ProjectsHandler)
 	router.GET("/api/v1/projects/:team/:library/branches", ProjectBranchesHandler(repoManagerClientCredentials))
 	router.GET("/api/v1/builds/:team/:library", BuildsHandler(awsStorageService))
 	router.DELETE("/api/v1/builds/:id", StopBuildHandler(k8s))
 	router.POST("/api/v1/builds/:team/:library", ExecuteBuildHandler(k8s))
 	router.GET("/api/v1/logs/:id", LogHandler(awsStorageService))
-	router.GET("/api/v1/teams", TeamsHandler())
+	router.GET("/api/v1/teams", TeamsHandler)
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, k8s))
 

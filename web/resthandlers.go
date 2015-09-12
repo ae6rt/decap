@@ -34,44 +34,42 @@ func StopBuildHandler(k8s DefaultDecap) httprouter.Handle {
 	}
 }
 
-func TeamsHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		a := make([]Team, 0)
-		for _, v := range getProjects() {
-			a = append(a, Team{Name: v.Team})
-		}
-		teams := Teams{Teams: a}
-		data, err := json.Marshal(&teams)
-		if err != nil {
-			fmt.Fprintf(w, "%v\n", err)
-			w.WriteHeader(500)
-			return
-		}
-		w.Header().Set("Content-type", "application/json")
-		fmt.Fprint(w, string(data))
+func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	a := make([]Team, 0)
+	p := getProjects()
+	for _, v := range p {
+		a = append(a, Team{Name: v.Team})
 	}
+	teams := Teams{Teams: a}
+	data, err := json.Marshal(&teams)
+	if err != nil {
+		fmt.Fprintf(w, "%v\n", err)
+		w.WriteHeader(500)
+		return
+	}
+	w.Header().Set("Content-type", "application/json")
+	fmt.Fprint(w, string(data))
 }
 
-func ProjectsHandler() httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		team := r.URL.Query().Get("team")
-		a := make([]Project, 0)
-		for _, v := range getProjects() {
-			if team != "" && team == v.Team {
-				a = append(a, v)
-			} else {
-				a = append(a, v)
-			}
+func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	team := r.URL.Query().Get("team")
+	arr := make([]Project, 0)
+	for _, v := range getProjects() {
+		if team != "" && team == v.Team {
+			arr = append(arr, v)
+		} else {
+			arr = append(arr, v)
 		}
-		data, err := json.Marshal(&a)
-		if err != nil {
-			fmt.Fprintf(w, "%v\n", err)
-			w.WriteHeader(500)
-			return
-		}
-		w.Header().Set("Content-type", "application/json")
-		fmt.Fprint(w, string(data))
 	}
+	p := Projects{Projects: arr}
+	data, err := json.Marshal(&p)
+	if err != nil {
+		fmt.Fprintf(w, "%v\n", err)
+		w.WriteHeader(500)
+		return
+	}
+	w.Header().Set("Content-type", "application/json")
+	fmt.Fprint(w, string(data))
 }
 
 func ProjectBranchesHandler(creds map[string]RepoManagerCredential) httprouter.Handle {

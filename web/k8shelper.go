@@ -82,7 +82,7 @@ func (k8s DefaultDecap) launchBuild(buildEvent BuildEvent) error {
 	projs := getProjects()
 
 	buildPod := BuildPod{
-		BuildImage:                *image,
+		BuildImage:                projs[projectKey].Descriptor.Image,
 		BuildScriptsGitRepo:       *buildScriptsRepo,
 		BuildScriptsGitRepoBranch: *buildScriptsRepoBranch,
 		ProjectKey:                projectKey,

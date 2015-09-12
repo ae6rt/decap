@@ -15,7 +15,7 @@ type Version struct {
 
 type Projects struct {
 	Meta
-	Projects []Projects `json:"projects"`
+	Projects []Project `json:"projects"`
 }
 
 type Project struct {
