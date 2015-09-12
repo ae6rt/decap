@@ -6,6 +6,7 @@ type Meta struct {
 }
 
 type Version struct {
+	Meta
 	Version string `json:"version"`
 	Commit  string `json:"commit"`
 	Date    string `json:"date"`
@@ -31,8 +32,6 @@ type ProjectDescriptor struct {
 	RepoDescription string `json:"repo-description"`
 }
 
-type Sidecar string
-
 type Builds struct {
 	Meta
 	Builds []Build `json:"builds"`
@@ -44,4 +43,13 @@ type Build struct {
 	Result   int    `json:"result"`
 	Duration uint64 `json:"duration"`
 	UnixTime uint64 `json:"unixtime"`
+}
+
+type Teams struct {
+	Meta
+	Teams []Team `json:"teams"`
+}
+
+type Team struct {
+	Name string `json:"name"`
 }

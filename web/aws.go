@@ -4,8 +4,6 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -29,7 +27,7 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 		KeyConditionExpression: aws.String("projectKey = :pkey"),
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":pkey": {
-				S: aws.String(fmt.Sprintf("%s/%s", project.Team, project.Library)),
+				S: aws.String(projectKey(project.Team, project.Library)),
 			},
 		},
 	}

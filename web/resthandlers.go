@@ -33,6 +33,25 @@ func StopBuildHandler(k8s DefaultDecap) httprouter.Handle {
 		}
 	}
 }
+
+func TeamsHandler() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		a := make([]Team, 0)
+		for _, v := range getProjects() {
+			a = append(a, Team{Name: v.Team})
+		}
+		teams := Teams{Teams: a}
+		data, err := json.Marshal(&teams)
+		if err != nil {
+			fmt.Fprintf(w, "%v\n", err)
+			w.WriteHeader(500)
+			return
+		}
+		w.Header().Set("Content-type", "application/json")
+		fmt.Fprint(w, string(data))
+	}
+}
+
 func ProjectsHandler() httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		team := r.URL.Query().Get("team")

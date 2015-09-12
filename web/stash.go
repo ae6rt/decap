@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -38,7 +37,7 @@ func (stash StashEvent) Library() string {
 }
 
 func (stash StashEvent) ProjectKey() string {
-	return fmt.Sprintf("%s/%s", stash.Repository.Project.Key, stash.Repository.Slug)
+	return projectKey(stash.Repository.Project.Key, stash.Repository.Slug)
 }
 
 func (stash StashEvent) Branches() []string {
