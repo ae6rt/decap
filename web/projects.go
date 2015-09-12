@@ -54,61 +54,13 @@ func filesByRegex(root, expression string) ([]string, error) {
 		}
 
 		if strings.Count(path, "/") == slashOffset && info.Mode().IsRegular() && regex.MatchString(info.Name()) {
-			files = append(files, root+"/"+path)
+			files = append(files, path)
 		}
 		return nil
 	}
 
 	// Walk relative to root.
 	err = filepath.Walk(root, markFn)
-	if err != nil {
-		return nil, err
-	}
-
-	return files, nil
-}
-
-func findBuildScripts(root string) ([]string, error) {
-	files := make([]string, 0)
-	markFn := func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if strings.HasPrefix(path, ".git") {
-			return filepath.SkipDir
-		}
-
-		// record this as a too-deep path we never want to traverse again
-		if info.IsDir() && strings.Count(path, "/") > 2 {
-			return filepath.SkipDir
-		}
-
-		// We compare again the depth to 2 because ./build.sh is an undesirable possibility.
-		if strings.Count(path, "/") == 2 && info.Mode().IsRegular() && info.Name() == "build.sh" {
-			files = append(files, root+"/"+path)
-		}
-		return nil
-	}
-
-	pwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		err := os.Chdir(pwd)
-		if err != nil {
-			Log.Printf("findBuildScripts cannot restore working directory to %s: %v\n", pwd, err)
-		}
-	}()
-
-	// Change directory to root so we have no need to know how many "/" root itself contains.
-	if err := os.Chdir(root); err != nil {
-		return nil, err
-	}
-
-	// Walk relative to root.
-	err = filepath.Walk(".", markFn)
 	if err != nil {
 		return nil, err
 	}
@@ -187,9 +139,9 @@ func descriptorForTeamProject(file string) (ProjectDescriptor, error) {
 }
 
 func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, error) {
-	projects := make(map[string]Project, 0)
+	proj := make(map[string]Project, 0)
 	work := func() error {
-		Log.Printf("Finding projects via clone of the build-scripts repository\n")
+		Log.Printf("Clone build-scripts repository...\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
 		defer func() {
 			os.RemoveAll(cloneDirectory)
@@ -202,9 +154,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 			return err
 		}
 
-		// The build scripts are considered the anchor for a project.
-		// If the build.sh does not exist, then the project effectively does not exist.
-		// We could have chosen the project.json descriptor, as this must also exist for a valid project.
+		// Build scripts are the anchors for a project.  If build.sh does not exist the project is skipped.
 		buildScripts, err := filesByRegex(cloneDirectory, buildScriptRegex)
 		if err != nil {
 			return err
@@ -223,8 +173,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 		sidecarMap := indexSidecarsByTeamProject(sidecarFiles)
 
 		for k, _ := range buildScriptMap {
-			_, present := descriptorMap[k]
-			if !present {
+			if _, present := descriptorMap[k]; !present {
 				Log.Printf("Skipping project without a descriptor: %s\n", k)
 				continue
 			}
@@ -243,7 +192,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 				Descriptor: descriptor,
 				Sidecars:   sidecars,
 			}
-			projects[k] = p
+			proj[k] = p
 		}
 		return nil
 	}
@@ -252,22 +201,8 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 	if err != nil {
 		return nil, err
 	}
-	return projects, nil
+	return proj, nil
 }
-
-/*
-func projectDescriptor(scriptPath string) ProjectDescriptor {
-	// returning an empty descriptor is acceptable, which is what happens on error
-	dpath := descriptorPath(scriptPath)
-	var descriptor ProjectDescriptor
-	data, err := ioutil.ReadFile(dpath)
-	if err != nil {
-		return descriptor
-	}
-	json.Unmarshal(data, &descriptor)
-	return descriptor
-}
-*/
 
 func getProjects() map[string]Project {
 	p := make(map[string]Project, 0)
@@ -287,6 +222,7 @@ func setProjects(p map[string]Project) {
 
 func findProject(parent, library string) (Project, bool) {
 	pr := getProjects()
-	p, ok := pr[parent+"/"+library]
+	key := projectKey(parent, library)
+	p, ok := pr[key]
 	return p, ok
 }
