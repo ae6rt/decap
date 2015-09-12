@@ -28,12 +28,15 @@ var (
 
 	Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	buildInfo string
+	buildVersion string
+	buildCommit  string
+	buildDate    string
+	buildGoSDK   string
 )
 
 func init() {
 	flag.Parse()
-	Log.Printf("%s\n", buildInfo)
+	Log.Printf("Version: %s, Commit: %s, Date: %s, Go SDK: %s\n", buildVersion, buildCommit, buildDate, buildGoSDK)
 	if *versionFlag {
 		os.Exit(0)
 	}

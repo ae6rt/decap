@@ -7,6 +7,9 @@ type Meta struct {
 
 type Version struct {
 	Version string `json:"version"`
+	Commit  string `json:"commit"`
+	Date    string `json:"date"`
+	SDK     string `json:"sdk"`
 }
 
 type Projects struct {

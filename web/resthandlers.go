@@ -169,7 +169,12 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 }
 
 func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	version := Version{buildInfo}
+	version := Version{
+		Version: buildVersion,
+		Commit:  buildCommit,
+		Date:    buildDate,
+		SDK:     buildGoSDK,
+	}
 	data, err := json.Marshal(&version)
 	if err != nil {
 		fmt.Fprintf(w, "%v\n", err)

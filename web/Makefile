@@ -9,7 +9,7 @@ VERSION := 0.1
 DATE := $(shell date)
 COMMIT_ID := $(shell git rev-parse --short HEAD 2>/dev/null || echo $$COMMIT_ID)
 SDK_INFO := $(shell go version)
-LD_FLAGS := '-X "main.buildInfo=Version: $(VERSION), commitID: $(COMMIT_ID), build date: $(DATE), SDK: $(SDK_INFO)"'
+LD_FLAGS := '-X "main.buildVersion=$(VERSION)" -X "main.buildCommit=$(COMMIT_ID)" -X "main.buildDate=$(DATE)" -X "main.buildGoSDK=$(SDK_INFO)"'
 IMAGE=$(DOCKER_USER)/decap:latest
 
 all: clean binaries 
