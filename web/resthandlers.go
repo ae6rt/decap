@@ -96,6 +96,7 @@ func ExecuteBuildHandler(decap Decap) httprouter.Handle {
 		if len(branches) == 0 {
 			// todo add a message
 			w.WriteHeader(400)
+			return
 		}
 
 		event := UserBuildEvent{team: team, library: library, branches: branches}
@@ -113,19 +114,19 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 		}
 
 		data, err := ioutil.ReadAll(r.Body)
-		defer func() {
-			r.Body.Close()
-		}()
-
 		if err != nil {
 			Log.Println(err)
 			w.WriteHeader(500)
 			return
 		}
+		defer func() {
+			r.Body.Close()
+		}()
+
 		Log.Printf("%s hook received: %s\n", repoManager, data)
 
 		switch repoManager {
-		case "buildscripts": // A special repository manager to handle updates to the buildscripts repository
+		case "buildscripts":
 			p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch)
 			if err != nil {
 				Log.Println(err)
