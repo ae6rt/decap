@@ -12,7 +12,7 @@ import (
 	"github.com/ae6rt/retry"
 )
 
-type RepositoryCoordinates struct {
+type SCMCoordinates struct {
 	Username string
 	Password string
 	BaseURL  string
@@ -21,7 +21,7 @@ type RepositoryCoordinates struct {
 }
 
 type GithubClient struct {
-	RepositoryCoordinates
+	SCMCoordinates
 }
 
 type Branch struct {
@@ -47,12 +47,12 @@ type StashBranch struct {
 	IsDefault       bool   `json:"isDefault"`
 }
 
-type RepositoryClient interface {
+type SCMClient interface {
 	GetBranches(team, repository string) ([]Branch, error)
 }
 
-func NewGithubClient(baseURL, clientID, clientSecret string) RepositoryClient {
-	return GithubClient{RepositoryCoordinates{BaseURL: baseURL, Username: clientID, Password: clientSecret, httpClient: &http.Client{}}}
+func NewGithubClient(baseURL, clientID, clientSecret string) SCMClient {
+	return GithubClient{SCMCoordinates{BaseURL: baseURL, Username: clientID, Password: clientSecret, httpClient: &http.Client{}}}
 }
 
 func (gh GithubClient) GetBranches(owner, repository string) ([]Branch, error) {
