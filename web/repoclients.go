@@ -52,7 +52,7 @@ type RepositoryClient interface {
 }
 
 func NewGithubClient(baseURL, clientID, clientSecret string) RepositoryClient {
-	return GithubClient{RepositoryCoordinates{BaseURL: baseURL, Username: clientID, Password: clientSecret}}
+	return GithubClient{RepositoryCoordinates{BaseURL: baseURL, Username: clientID, Password: clientSecret, httpClient: &http.Client{}}}
 }
 
 func (gh GithubClient) GetBranches(owner, repository string) ([]Branch, error) {
