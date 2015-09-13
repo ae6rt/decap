@@ -55,7 +55,7 @@ func main() {
 	awsStorageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 
 	router := httprouter.New()
-	router.GET("/", Index)
+	router.ServeFiles("/decap/*filepath", http.Dir("./static"))
 	router.GET("/api/v1/version", VersionHandler)
 	router.GET("/api/v1/projects", ProjectsHandler)
 	router.GET("/api/v1/projects/:team/:library/branches", ProjectBranchesHandler(repoManagerClientCredentials))
