@@ -23,7 +23,7 @@ var (
 	buildScriptsRepoBranch = flag.String("build-scripts-repo-branch", "master", "Branch or revision to use on git repo where userland build scripts are held.")
 	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
 
-	repoManagerClientCredentials = make(map[string]RepoManagerCredential)
+	repoClients = make(map[string]RepositoryClient)
 
 	Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
@@ -46,7 +46,7 @@ func init() {
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 
-	repoManagerClientCredentials["github"] = RepoManagerCredential{User: *githubClientID, Password: *githubClientSecret}
+	repoClients["github"] = NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret)
 }
 
 func main() {
@@ -58,7 +58,7 @@ func main() {
 	router.ServeFiles("/decap/*filepath", http.Dir("./static"))
 	router.GET("/api/v1/version", VersionHandler)
 	router.GET("/api/v1/projects", ProjectsHandler)
-	router.GET("/api/v1/projects/:team/:library/branches", ProjectBranchesHandler(repoManagerClientCredentials))
+	router.GET("/api/v1/projects/:team/:library/branches", ProjectBranchesHandler(repoClients))
 	router.GET("/api/v1/builds/:team/:library", BuildsHandler(awsStorageService))
 	router.DELETE("/api/v1/builds/:id", StopBuildHandler(k8s))
 	router.POST("/api/v1/builds/:team/:library", ExecuteBuildHandler(k8s))

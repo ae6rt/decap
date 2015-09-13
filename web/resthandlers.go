@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ae6rt/githubsdk"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -160,7 +159,7 @@ func StopBuildHandler(decap Decap) httprouter.Handle {
 	}
 }
 
-func ProjectBranchesHandler(creds map[string]RepoManagerCredential) httprouter.Handle {
+func ProjectBranchesHandler(repoClients map[string]RepositoryClient) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		library := params.ByName("library")
@@ -173,16 +172,8 @@ func ProjectBranchesHandler(creds map[string]RepoManagerCredential) httprouter.H
 
 		switch project.Descriptor.RepoManager {
 		case "github":
-			user := creds["github"].User
-			password := creds["github"].Password
-
-			if user == "" || password == "" {
-				Log.Printf("No Github client-id configured.")
-				w.WriteHeader(400)
-				return
-			}
-			ghClient := githubsdk.NewGithubClient("https://api.github.com", user, password)
-			branches, err := ghClient.GetBranches(project.Team, project.Library)
+			repoClient := repoClients["github"]
+			branches, err := repoClient.GetBranches(project.Team, project.Library)
 			if err != nil {
 				// todo put error on json object
 				Log.Print(err)
