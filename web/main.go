@@ -23,8 +23,6 @@ var (
 	buildScriptsRepoBranch = flag.String("build-scripts-repo-branch", "master", "Branch or revision to use on git repo where userland build scripts are held.")
 	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
 
-	repoClients = make(map[string]RepositoryClient)
-
 	Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 	buildVersion string
@@ -45,14 +43,15 @@ func init() {
 	*awsRegion = kubeSecret("/etc/secrets/aws-region", *awsRegion)
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
-
-	repoClients["github"] = NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret)
 }
 
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
 	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker)
 	awsStorageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
+	repoClients := map[string]RepositoryClient{
+		"github": NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
+	}
 
 	router := httprouter.New()
 	router.ServeFiles("/decap/*filepath", http.Dir("./static"))
