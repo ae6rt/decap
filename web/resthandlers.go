@@ -23,16 +23,6 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 	}
 }
 
-func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	if data, err := ioutil.ReadFile("index.html"); err != nil {
-		fmt.Fprintf(w, fmt.Sprintf("%v", err))
-		w.WriteHeader(500)
-	} else {
-		w.Header().Set("Content-type", "text/html")
-		fmt.Fprint(w, string(data))
-	}
-}
-
 func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	version := Version{
 		Version: buildVersion,
@@ -49,7 +39,6 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	w.Header().Set("Content-type", "application/json")
 	fmt.Fprint(w, string(data))
 }
-
 
 func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	a := make([]Team, 0)
