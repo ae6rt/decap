@@ -68,76 +68,6 @@ func filesByRegex(root, expression string) ([]string, error) {
 	return files, nil
 }
 
-func projectKey(team, project string) string {
-	return fmt.Sprintf("%s/%s", team, project)
-}
-
-func teamProject(file string) (string, string, error) {
-	parts := strings.Split(file, "/")
-	if len(parts) < 3 {
-		return "", "", fmt.Errorf("Path does not contain minimum depth of 3: %s", file)
-	}
-	return parts[len(parts)-3], parts[len(parts)-2], nil
-}
-
-func indexFilesByTeamProject(files []string) map[string]string {
-	m := make(map[string]string)
-	for _, file := range files {
-		team, project, err := teamProject(file)
-		if err != nil {
-			Log.Println(err)
-			continue
-		}
-		key := projectKey(team, project)
-		m[key] = file
-	}
-	return m
-}
-
-func indexSidecarsByTeamProject(files []string) map[string][]string {
-	m := make(map[string][]string)
-	for _, file := range files {
-		team, project, err := teamProject(file)
-		if err != nil {
-			Log.Println(err)
-			continue
-		}
-		key := projectKey(team, project)
-		arr, present := m[key]
-		if !present {
-			arr = make([]string, 0)
-		}
-		arr = append(arr, file)
-		m[key] = arr
-	}
-	return m
-}
-
-func readSidecars(files []string) []string {
-	arr := make([]string, len(files))
-	for i, v := range files {
-		data, err := ioutil.ReadFile(v)
-		if err != nil {
-			Log.Println(err)
-			continue
-		}
-		arr[i] = string(data)
-	}
-	return arr
-}
-
-func descriptorForTeamProject(file string) (ProjectDescriptor, error) {
-	data, err := ioutil.ReadFile(file)
-	if err != nil {
-		return ProjectDescriptor{}, err
-	}
-	var descriptor ProjectDescriptor
-	if err := json.Unmarshal(data, &descriptor); err != nil {
-		return ProjectDescriptor{}, err
-	}
-	return descriptor, nil
-}
-
 func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, error) {
 	proj := make(map[string]Project, 0)
 	work := func() error {
@@ -230,3 +160,74 @@ func projectByTeamLibrary(team, library string) (Project, bool) {
 	p, ok := pr[key]
 	return p, ok
 }
+
+func projectKey(team, project string) string {
+	return fmt.Sprintf("%s/%s", team, project)
+}
+
+func teamProject(file string) (string, string, error) {
+	parts := strings.Split(file, "/")
+	if len(parts) < 3 {
+		return "", "", fmt.Errorf("Path does not contain minimum depth of 3: %s", file)
+	}
+	return parts[len(parts)-3], parts[len(parts)-2], nil
+}
+
+func indexFilesByTeamProject(files []string) map[string]string {
+	m := make(map[string]string)
+	for _, file := range files {
+		team, project, err := teamProject(file)
+		if err != nil {
+			Log.Println(err)
+			continue
+		}
+		key := projectKey(team, project)
+		m[key] = file
+	}
+	return m
+}
+
+func indexSidecarsByTeamProject(files []string) map[string][]string {
+	m := make(map[string][]string)
+	for _, file := range files {
+		team, project, err := teamProject(file)
+		if err != nil {
+			Log.Println(err)
+			continue
+		}
+		key := projectKey(team, project)
+		arr, present := m[key]
+		if !present {
+			arr = make([]string, 0)
+		}
+		arr = append(arr, file)
+		m[key] = arr
+	}
+	return m
+}
+
+func readSidecars(files []string) []string {
+	arr := make([]string, len(files))
+	for i, v := range files {
+		data, err := ioutil.ReadFile(v)
+		if err != nil {
+			Log.Println(err)
+			continue
+		}
+		arr[i] = string(data)
+	}
+	return arr
+}
+
+func descriptorForTeamProject(file string) (ProjectDescriptor, error) {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return ProjectDescriptor{}, err
+	}
+	var descriptor ProjectDescriptor
+	if err := json.Unmarshal(data, &descriptor); err != nil {
+		return ProjectDescriptor{}, err
+	}
+	return descriptor, nil
+}
+

@@ -23,16 +23,33 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 	}
 }
 
-// todo Cleanup with PreStop might help explain to the world the state of the container immediately before termination.
-// See https://godoc.org/github.com/kubernetes/kubernetes/pkg/api/v1#Lifecycle
-func StopBuildHandler(k8s DefaultDecap) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		buildID := params.ByName("id")
-		if err := k8s.DeletePod(buildID); err != nil {
-			Log.Println(err)
-		}
+func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	if data, err := ioutil.ReadFile("index.html"); err != nil {
+		fmt.Fprintf(w, fmt.Sprintf("%v", err))
+		w.WriteHeader(500)
+	} else {
+		w.Header().Set("Content-type", "text/html")
+		fmt.Fprint(w, string(data))
 	}
 }
+
+func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	version := Version{
+		Version: buildVersion,
+		Commit:  buildCommit,
+		Date:    buildDate,
+		SDK:     buildGoSDK,
+	}
+	data, err := json.Marshal(&version)
+	if err != nil {
+		fmt.Fprintf(w, "%v\n", err)
+		w.WriteHeader(500)
+		return
+	}
+	w.Header().Set("Content-type", "application/json")
+	fmt.Fprint(w, string(data))
+}
+
 
 func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	a := make([]Team, 0)
@@ -75,6 +92,83 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	}
 	w.Header().Set("Content-type", "application/json")
 	fmt.Fprint(w, string(data))
+}
+
+func ExecuteBuildHandler(decap Decap) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		team := params.ByName("team")
+		library := params.ByName("library")
+
+		if _, present := projectByTeamLibrary(team, library); !present {
+			w.WriteHeader(404)
+			return
+		}
+
+		branches := r.URL.Query()["branch"]
+		if len(branches) == 0 {
+			// todo add a message
+			w.WriteHeader(400)
+		}
+
+		event := UserBuildEvent{team: team, library: library, branches: branches}
+		go decap.LaunchBuild(event)
+	}
+}
+
+func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		repoManager := params.ByName("repomanager")
+		if !(repoManager == "github" || repoManager == "buildscripts") {
+			Log.Printf("repomanager %s not supported\n", repoManager)
+			w.WriteHeader(400)
+			return
+		}
+
+		data, err := ioutil.ReadAll(r.Body)
+		defer func() {
+			r.Body.Close()
+		}()
+
+		if err != nil {
+			Log.Println(err)
+			w.WriteHeader(500)
+			return
+		}
+		Log.Printf("%s hook received: %s\n", repoManager, data)
+
+		switch repoManager {
+		case "buildscripts": // A special repository manager to handle updates to the buildscripts repository
+			p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch)
+			if err != nil {
+				Log.Println(err)
+				w.WriteHeader(500)
+			} else {
+				setProjects(p)
+			}
+			return
+		case "github":
+			event := GithubEvent{}
+			if err := json.Unmarshal(data, &event); err != nil {
+				Log.Println(err)
+				w.WriteHeader(500)
+				return
+			}
+			go decap.LaunchBuild(event)
+		}
+
+		w.WriteHeader(200)
+	}
+}
+
+// todo Cleanup with PreStop might help explain to the world the state of the container immediately before termination.
+// See https://godoc.org/github.com/kubernetes/kubernetes/pkg/api/v1#Lifecycle
+func StopBuildHandler(decap Decap) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		buildID := params.ByName("id")
+		if err := decap.DeletePod(buildID); err != nil {
+			Log.Println(err)
+		}
+	}
 }
 
 func ProjectBranchesHandler(creds map[string]RepoManagerCredential) httprouter.Handle {
@@ -186,99 +280,6 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			fmt.Fprintf(w, "%s", string(data))
 			return
 		}
-		fmt.Fprint(w, string(data))
-	}
-}
-
-func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	version := Version{
-		Version: buildVersion,
-		Commit:  buildCommit,
-		Date:    buildDate,
-		SDK:     buildGoSDK,
-	}
-	data, err := json.Marshal(&version)
-	if err != nil {
-		fmt.Fprintf(w, "%v\n", err)
-		w.WriteHeader(500)
-		return
-	}
-	w.Header().Set("Content-type", "application/json")
-	fmt.Fprint(w, string(data))
-}
-
-func ExecuteBuildHandler(k8s DefaultDecap) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		team := params.ByName("team")
-		library := params.ByName("library")
-
-		if _, present := projectByTeamLibrary(team, library); !present {
-			w.WriteHeader(404)
-			return
-		}
-
-		branches := r.URL.Query()["branch"]
-		if len(branches) == 0 {
-			// todo add a message
-			w.WriteHeader(400)
-		}
-
-		event := UserBuildEvent{team: team, library: library, branches: branches}
-		go k8s.launchBuild(event)
-	}
-}
-
-func HooksHandler(buildScriptsRepo, buildScriptsBranch string, k8s DefaultDecap) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		repoManager := params.ByName("repomanager")
-		if !(repoManager == "github" || repoManager == "buildscripts") {
-			Log.Printf("repomanager %s not supported\n", repoManager)
-			w.WriteHeader(400)
-			return
-		}
-
-		data, err := ioutil.ReadAll(r.Body)
-		defer func() {
-			r.Body.Close()
-		}()
-
-		if err != nil {
-			Log.Println(err)
-			w.WriteHeader(500)
-			return
-		}
-		Log.Printf("%s hook received: %s\n", repoManager, data)
-
-		switch repoManager {
-		case "buildscripts": // A special repository manager to handle updates to the buildscripts repository
-			p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch)
-			if err != nil {
-				Log.Println(err)
-				w.WriteHeader(500)
-			} else {
-				setProjects(p)
-			}
-			return
-		case "github":
-			event := GithubEvent{}
-			if err := json.Unmarshal(data, &event); err != nil {
-				Log.Println(err)
-				w.WriteHeader(500)
-				return
-			}
-			go k8s.launchBuild(event)
-		}
-
-		w.WriteHeader(200)
-	}
-}
-
-func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	if data, err := ioutil.ReadFile("index.html"); err != nil {
-		fmt.Fprintf(w, fmt.Sprintf("%v", err))
-		w.WriteHeader(500)
-	} else {
-		w.Header().Set("Content-type", "text/html")
 		fmt.Fprint(w, string(data))
 	}
 }

@@ -55,6 +55,22 @@ type DefaultDecap struct {
 	apiClient *http.Client
 }
 
+type RepoManagerCredential struct {
+	User     string
+	Password string
+}
+
+type StorageService interface {
+	GetBuildsByProject(project Project, sinceUnixTime uint64, limit uint64) ([]Build, error)
+	GetArtifacts(buildID string) ([]byte, error)
+	GetConsoleLog(buildID string) ([]byte, error)
+}
+
+type Decap interface {
+	LaunchBuild(buildEvent BuildEvent) error
+	DeletePod(podName string) error
+}
+
 func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker Locker) DefaultDecap {
 	// todo when running in cluster, provide root certificate via /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 	apiClient := &http.Client{Transport: &http.Transport{
@@ -76,7 +92,7 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsReg
 	}
 }
 
-func (k8s DefaultDecap) launchBuild(buildEvent BuildEvent) error {
+func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 	projectKey := buildEvent.ProjectKey()
 
 	projs := getProjects()

@@ -49,7 +49,7 @@ func (stash StashEvent) Branches() []string {
 }
 
 type StashHandler struct {
-	K8sBase DefaultDecap
+	decap Decap
 }
 
 func (handler StashHandler) handle(w http.ResponseWriter, r *http.Request) {
@@ -67,5 +67,5 @@ func (handler StashHandler) handle(w http.ResponseWriter, r *http.Request) {
 		Log.Println(err)
 		return
 	}
-	go handler.K8sBase.launchBuild(event)
+	go handler.decap.LaunchBuild(event)
 }
