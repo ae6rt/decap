@@ -198,8 +198,12 @@ func ProjectBranchesHandler(repoClients map[string]SCMClient) httprouter.Handle 
 func LogHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
-		var data []byte
-		data, _ = storageService.GetConsoleLog(buildID)
+		data, err := storageService.GetConsoleLog(buildID)
+		if err != nil {
+			Log.Println(err)
+			w.WriteHeader(500)
+			return
+		}
 		w.Header().Set("Content-type", "application/x-gzip")
 		w.Write(data)
 	}
@@ -208,8 +212,12 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
-		var data []byte
-		data, _ = storageService.GetArtifacts(buildID)
+		data, err := storageService.GetArtifacts(buildID)
+		if err != nil {
+			Log.Println(err)
+			w.WriteHeader(500)
+			return
+		}
 		w.Header().Set("Content-type", "application/x-gzip")
 		w.Write(data)
 	}
