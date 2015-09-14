@@ -106,18 +106,3 @@ func TestExecuteBuildNoSuchProject(t *testing.T) {
 		t.Fatalf("Want 404 but got %d\n", w.Code)
 	}
 }
-
-type MockDecap struct {
-	event UserBuildEvent
-}
-
-func (d *MockDecap) LaunchBuild(p BuildEvent) error {
-	if v, ok := p.(UserBuildEvent); ok {
-		d.event = v
-	}
-	return nil
-}
-
-func (d *MockDecap) DeletePod(podName string) error {
-	return nil
-}

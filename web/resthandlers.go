@@ -134,7 +134,6 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 			} else {
 				setProjects(p)
 			}
-			return
 		case "github":
 			event := GithubEvent{}
 			if err := json.Unmarshal(data, &event); err != nil {
