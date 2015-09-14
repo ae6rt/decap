@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -70,6 +71,7 @@ func TestProjectBranchesNoRepManager(t *testing.T) {
 		t.Fatalf("Want 400 but got %d\n", w.Code)
 	}
 }
+
 func TestProjectBranches(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "http://example.com", nil)
@@ -87,7 +89,7 @@ func TestProjectBranches(t *testing.T) {
 		},
 	}
 
-	githubClient := MockScmClient{}
+	githubClient := MockScmClient{branches: []Branch{Branch{Ref: "refs/heads/master"}}}
 	scmClients := map[string]SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
 	ProjectBranchesHandler(scmClients)(w, req, httprouter.Params{
@@ -98,5 +100,16 @@ func TestProjectBranches(t *testing.T) {
 
 	if w.Code != 200 {
 		t.Fatalf("Want 200 but got %d\n", w.Code)
+	}
+
+	data := w.Body.Bytes()
+
+	var b []Branch
+	json.Unmarshal(data, &b)
+	if len(b) != 1 {
+		t.Fatalf("Want 1 but got %d\n", len(b))
+	}
+	if b[0].Ref != "refs/heads/master" {
+		t.Fatalf("Want refs/heads/master but got %s\n", b[0].Ref)
 	}
 }
