@@ -191,7 +191,7 @@ func ProjectBranchesHandler(repoClients map[string]SCMClient) httprouter.Handle 
 			w.Write(data)
 			return
 		}
-		w.WriteHeader(404)
+		w.WriteHeader(400)
 	}
 }
 
