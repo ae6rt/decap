@@ -29,14 +29,17 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 		Date:    buildDate,
 		SDK:     buildGoSDK,
 	}
+	w.Header().Set("Content-type", "application/json")
+
 	data, err := json.Marshal(&version)
 	if err != nil {
-		fmt.Fprintf(w, "%v\n", err)
+		version = Version{Meta: Meta{Error: err.Error()}}
+		data, _ := json.Marshal(&version)
 		w.WriteHeader(500)
+		w.Write(data)
 		return
 	}
-	w.Header().Set("Content-type", "application/json")
-	fmt.Fprint(w, string(data))
+	w.Write(data)
 }
 
 func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -45,15 +48,18 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	for _, v := range p {
 		a = append(a, Team{Name: v.Team})
 	}
+	w.Header().Set("Content-type", "application/json")
+
 	teams := Teams{Teams: a}
 	data, err := json.Marshal(&teams)
 	if err != nil {
-		fmt.Fprintf(w, "%v\n", err)
+		teams := Teams{Meta: Meta{Error: err.Error()}}
+		data, _ := json.Marshal(&teams)
 		w.WriteHeader(500)
+		w.Write(data)
 		return
 	}
-	w.Header().Set("Content-type", "application/json")
-	fmt.Fprint(w, string(data))
+	w.Write(data)
 }
 
 func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -71,15 +77,18 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 		}
 	}
 
+	w.Header().Set("Content-type", "application/json")
+
 	p := Projects{Projects: arr}
 	data, err := json.Marshal(&p)
 	if err != nil {
-		fmt.Fprintf(w, "%v\n", err)
+		p := Projects{Meta: Meta{Error: err.Error()}}
+		data, _ := json.Marshal(&p)
 		w.WriteHeader(500)
+		w.Write(data)
 		return
 	}
-	w.Header().Set("Content-type", "application/json")
-	fmt.Fprint(w, string(data))
+	w.Write(data)
 }
 
 func ExecuteBuildHandler(decap Decap) httprouter.Handle {
@@ -172,6 +181,7 @@ func ProjectBranchesHandler(repoClients map[string]SCMClient) httprouter.Handle 
 
 		switch project.Descriptor.RepoManager {
 		case "github":
+			w.Header().Set("Content-type", "application/json")
 			repoClient := repoClients["github"]
 			nativeBranches, err := repoClient.GetBranches(project.Team, project.Library)
 			if err != nil {
