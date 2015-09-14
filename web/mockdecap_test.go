@@ -1,7 +1,8 @@
 package main
 
 type MockDecap struct {
-	event BuildEvent
+	event   BuildEvent
+	buildID string
 }
 
 func (d *MockDecap) LaunchBuild(p BuildEvent) error {
@@ -10,5 +11,6 @@ func (d *MockDecap) LaunchBuild(p BuildEvent) error {
 }
 
 func (d *MockDecap) DeletePod(podName string) error {
+	d.buildID = podName
 	return nil
 }
