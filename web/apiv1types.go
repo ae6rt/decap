@@ -53,3 +53,8 @@ type Teams struct {
 type Team struct {
 	Name string `json:"name"`
 }
+
+type Branches struct {
+	Meta
+	Branches []Branch `json:"branches"`
+}

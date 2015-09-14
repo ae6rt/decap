@@ -173,21 +173,25 @@ func ProjectBranchesHandler(repoClients map[string]SCMClient) httprouter.Handle 
 		switch project.Descriptor.RepoManager {
 		case "github":
 			repoClient := repoClients["github"]
-			branches, err := repoClient.GetBranches(project.Team, project.Library)
+			nativeBranches, err := repoClient.GetBranches(project.Team, project.Library)
 			if err != nil {
-				// todo put error on json object
 				Log.Print(err)
+				data, _ := json.Marshal(&Branches{Meta: Meta{Error: err.Error()}})
 				w.WriteHeader(500)
-				fmt.Fprintf(w, "%v\n", err)
+				w.Write(data)
 				return
 			}
+
+			branches := Branches{Branches: nativeBranches}
 			data, err := json.Marshal(&branches)
 			if err != nil {
+				Log.Print(err)
+				data, _ := json.Marshal(&Branches{Meta: Meta{Error: err.Error()}})
 				w.WriteHeader(500)
-				// todo put error on json object
-				fmt.Fprintf(w, "%v\n", err)
+				w.Write(data)
 				return
 			}
+
 			w.Write(data)
 			return
 		}

@@ -104,12 +104,12 @@ func TestProjectBranches(t *testing.T) {
 
 	data := w.Body.Bytes()
 
-	var b []Branch
+	var b Branches
 	json.Unmarshal(data, &b)
-	if len(b) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(b))
+	if len(b.Branches) != 1 {
+		t.Fatalf("Want 1 but got %d\n", len(b.Branches))
 	}
-	if b[0].Ref != "refs/heads/master" {
-		t.Fatalf("Want refs/heads/master but got %s\n", b[0].Ref)
+	if b.Branches[0].Ref != "refs/heads/master" {
+		t.Fatalf("Want refs/heads/master but got %s\n", b.Branches[0].Ref)
 	}
 }
