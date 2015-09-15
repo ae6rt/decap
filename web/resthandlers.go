@@ -209,6 +209,9 @@ func ProjectBranchesHandler(repoClients map[string]SCMClient) httprouter.Handle 
 }
 
 // Return plain text console log
+/*
+http://stackoverflow.com/questions/16890648/how-can-i-use-golangs-compress-gzip-package-to-gzip-a-file
+*/
 func ReadableLogHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
