@@ -4,7 +4,7 @@ import "fmt"
 
 // UserBuildEvent captures a user-initiated build request.
 type UserBuildEvent struct {
-	team string
+	team     string
 	library  string
 	branches []string
 }

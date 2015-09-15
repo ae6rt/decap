@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"strconv"
 
@@ -24,12 +25,17 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 	params := &dynamodb.QueryInput{
 		TableName:              aws.String("decap-build-metadata"),
 		IndexName:              aws.String("projectKey-buildTime-index"),
-		KeyConditionExpression: aws.String("projectKey = :pkey"),
+		KeyConditionExpression: aws.String("projectKey = :pkey and buildTime > :since"),
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":pkey": {
 				S: aws.String(projectKey(project.Team, project.Library)),
 			},
+			":since": {
+				N: aws.String(fmt.Sprintf("%d", since)),
+			},
 		},
+		ScanIndexForward: aws.Bool(false),
+		Limit:            aws.Int64(int64(limit)),
 	}
 
 	resp, err := svc.Query(params)

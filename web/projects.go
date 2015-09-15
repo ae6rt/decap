@@ -121,7 +121,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 
 			parts := strings.Split(k, "/")
 			p := Project{
-				Team:     parts[0],
+				Team:       parts[0],
 				Library:    parts[1],
 				Descriptor: descriptor,
 				Sidecars:   sidecars,
@@ -230,4 +230,3 @@ func descriptorForTeamProject(file string) (ProjectDescriptor, error) {
 	}
 	return descriptor, nil
 }
-

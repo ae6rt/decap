@@ -1,8 +1,7 @@
 package main
 
 type Meta struct {
-	Error            string `json:"error,omitempty"`
-	LastEvaluatedKey string `json:"lastkey,omitempty"`
+	Error string `json:"error,omitempty"`
 }
 
 type Version struct {
