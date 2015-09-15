@@ -208,6 +208,37 @@ func ProjectBranchesHandler(repoClients map[string]SCMClient) httprouter.Handle 
 	}
 }
 
+// Return plain text console log
+func ReadableLogHandler(storageService StorageService) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		buildID := params.ByName("id")
+		data, err := storageService.GetConsoleLog(buildID)
+		if err != nil {
+			Log.Println(err)
+			w.WriteHeader(500)
+			return
+		}
+		w.Header().Set("Content-type", "text/plain")
+		w.Write(data)
+	}
+}
+
+// Return plain text list of files in artifacts tarball
+func ReadableArtifactsHandler(storageService StorageService) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		buildID := params.ByName("id")
+		data, err := storageService.GetConsoleLog(buildID)
+		if err != nil {
+			Log.Println(err)
+			w.WriteHeader(500)
+			return
+		}
+		w.Header().Set("Content-type", "text/plain")
+		w.Write(data)
+	}
+}
+
+// Return gzipped console log
 func LogHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
@@ -222,6 +253,7 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 	}
 }
 
+// Return artifacts gzipped tarball
 func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")

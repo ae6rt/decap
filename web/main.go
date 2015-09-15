@@ -63,6 +63,8 @@ func main() {
 	router.POST("/api/v1/builds/:team/:library", ExecuteBuildHandler(k8s))
 	router.GET("/api/v1/teams", TeamsHandler)
 	router.GET("/api/v1/logs/:id", LogHandler(awsStorageService))
+	router.GET("/api/v1/readables/logs/:id", ReadableLogHandler(awsStorageService))
+	router.GET("/api/v1/readables/artifacts/:id", ReadableArtifactsHandler(awsStorageService))
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, k8s))
 
