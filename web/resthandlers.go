@@ -241,11 +241,9 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		project := params.ByName("team")
 		library := params.ByName("library")
 
-		var builds Builds
-
 		since, err := toUint64(r.URL.Query().Get("since"), 0)
 		if err != nil {
-			builds.Meta.Error = err.Error()
+			builds := Builds{Meta: Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
 			w.WriteHeader(400)
 			w.Write(data)
@@ -254,26 +252,26 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 
 		limit, err := toUint64(r.URL.Query().Get("limit"), math.MaxUint64)
 		if err != nil {
-			builds.Meta.Error = err.Error()
+			builds := Builds{Meta: Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
 			w.WriteHeader(400)
 			w.Write(data)
 			return
 		}
 
-		var buildList []Build
-		buildList, err = storageService.GetBuildsByProject(Project{Team: project, Library: library}, since, limit)
+		buildList, err := storageService.GetBuildsByProject(Project{Team: project, Library: library}, since, limit)
 
 		if err != nil {
-			builds.Meta.Error = err.Error()
+			builds := Builds{Meta: Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
 			w.Write(data)
 			return
 		}
 
-		builds.Builds = buildList
+		builds := Builds{Builds: buildList}
 		data, err := json.Marshal(&builds)
 		if err != nil {
+			builds := Builds{Meta: Meta{Error: err.Error()}}
 			builds.Meta.Error = err.Error()
 			data, _ := json.Marshal(&builds)
 			w.Write(data)
