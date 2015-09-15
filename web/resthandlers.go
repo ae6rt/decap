@@ -264,6 +264,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		if err != nil {
 			builds := Builds{Meta: Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
+			w.WriteHeader(502)
 			w.Write(data)
 			return
 		}
@@ -274,6 +275,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			builds := Builds{Meta: Meta{Error: err.Error()}}
 			builds.Meta.Error = err.Error()
 			data, _ := json.Marshal(&builds)
+			w.WriteHeader(500)
 			w.Write(data)
 			return
 		}

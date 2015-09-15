@@ -32,6 +32,9 @@ func TestBuildsHandlerSinceNotUnsigned(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if w.Code != 400 {
+		t.Fatalf("Expected 400 but got %d\n", w.Code)
+	}
 	if b.Error == "" {
 		t.Fatal("Expected an error because since is signed")
 	}
@@ -56,6 +59,9 @@ func TestBuildsHandlerLimitNotUnsigned(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if w.Code != 400 {
+		t.Fatalf("Expected 400 but got %d\n", w.Code)
+	}
 	if b.Error == "" {
 		t.Fatal("Expected an error because limit is signed")
 	}
@@ -79,6 +85,9 @@ func TestBuildsHandlerWithStorageServiceError(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &b)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if w.Code != 502 {
+		t.Fatalf("Expected 502 but got %d\n", w.Code)
 	}
 	if b.Error == "" {
 		t.Fatal("Expected an error")
