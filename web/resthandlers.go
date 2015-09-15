@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -248,6 +247,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		if err != nil {
 			builds.Meta.Error = err.Error()
 			data, _ := json.Marshal(&builds)
+			w.WriteHeader(400)
 			w.Write(data)
 			return
 		}
@@ -256,6 +256,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		if err != nil {
 			builds.Meta.Error = err.Error()
 			data, _ := json.Marshal(&builds)
+			w.WriteHeader(400)
 			w.Write(data)
 			return
 		}
@@ -278,6 +279,6 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			w.Write(data)
 			return
 		}
-		fmt.Fprint(w, string(data))
+		w.Write(data)
 	}
 }
