@@ -9,7 +9,7 @@ import (
 )
 
 func TestAssembleProjects(t *testing.T) {
-	dir, err := ziptools.Unzip("buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func TestAssembleProjects(t *testing.T) {
 }
 
 func TestProject(t *testing.T) {
-	dir, err := ziptools.Unzip("buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +65,7 @@ func TestProject(t *testing.T) {
 }
 
 func TestFindBuildScriptsByRegex(t *testing.T) {
-	dir, err := ziptools.Unzip("buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +88,7 @@ func TestFindBuildScriptsByRegex(t *testing.T) {
 }
 
 func TestFindProjectDescriptorsByRegex(t *testing.T) {
-	dir, err := ziptools.Unzip("buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +111,7 @@ func TestFindProjectDescriptorsByRegex(t *testing.T) {
 }
 
 func TestFindSidecarsByRegex(t *testing.T) {
-	dir, err := ziptools.Unzip("buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -134,7 +134,7 @@ func TestFindSidecarsByRegex(t *testing.T) {
 }
 
 func TestReadSidecars(t *testing.T) {
-	dir, err := ziptools.Unzip("buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}

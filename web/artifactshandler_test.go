@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/julienschmidt/httprouter"
@@ -16,7 +18,11 @@ func TestArtifactsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	storageService := MockStorageService{data: []byte("foo")}
+	data, err := ioutil.ReadFile("test-data/sample.tar.gz")
+	if err != nil {
+		t.Fatal(err)
+	}
+	storageService := MockStorageService{data: data}
 
 	w := httptest.NewRecorder()
 	ArtifactsHandler(&storageService)(w, req, httprouter.Params{
@@ -32,8 +38,40 @@ func TestArtifactsHandler(t *testing.T) {
 		t.Fatalf("Want application/x-gzip but got %s\n", w.Header()["Content-Type"][0])
 	}
 
-	if w.Body.String() != "foo" {
-		t.Fatalf("Want foo but got %s\n", w.Body.String())
+	if len(w.Body.Bytes()) != 7037 {
+		t.Fatalf("Want 7037 but got %d\n", len(w.Body.Bytes()))
+	}
+}
+
+func TestArtifactsHandlerManifestOnly(t *testing.T) {
+	req, err := http.NewRequest("POST", "http://example.com", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("Accept", "text/plain")
+
+	data, err := ioutil.ReadFile("test-data/sample.tar.gz")
+	if err != nil {
+		t.Fatal(err)
+	}
+	storageService := MockStorageService{data: data}
+
+	w := httptest.NewRecorder()
+	ArtifactsHandler(&storageService)(w, req, httprouter.Params{
+		httprouter.Param{Key: "id", Value: "the-build-id"},
+	},
+	)
+
+	if storageService.buildID != "the-build-id" {
+		t.Fatalf("Want the-build-id but got %s\n", storageService.buildID)
+	}
+
+	if w.Header()["Content-Type"][0] != "text/plain" {
+		t.Fatalf("Want text/plain but got %s\n", w.Header()["Content-Type"][0])
+	}
+
+	if !strings.Contains(w.Body.String(), "artifactshandler_test.go") {
+		t.Fatalf("Want contains artifactshandler_test.go: %s\n", w.Body.String())
 	}
 }
 

@@ -1,7 +1,12 @@
 package main
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -208,39 +213,6 @@ func ProjectBranchesHandler(repoClients map[string]SCMClient) httprouter.Handle 
 	}
 }
 
-// Return plain text console log
-/*
-http://stackoverflow.com/questions/16890648/how-can-i-use-golangs-compress-gzip-package-to-gzip-a-file
-*/
-func ReadableLogHandler(storageService StorageService) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		buildID := params.ByName("id")
-		data, err := storageService.GetConsoleLog(buildID)
-		if err != nil {
-			Log.Println(err)
-			w.WriteHeader(500)
-			return
-		}
-		w.Header().Set("Content-type", "text/plain")
-		w.Write(data)
-	}
-}
-
-// Return plain text list of files in artifacts tarball
-func ReadableArtifactsHandler(storageService StorageService) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		buildID := params.ByName("id")
-		data, err := storageService.GetConsoleLog(buildID)
-		if err != nil {
-			Log.Println(err)
-			w.WriteHeader(500)
-			return
-		}
-		w.Header().Set("Content-type", "text/plain")
-		w.Write(data)
-	}
-}
-
 // Return gzipped console log
 func LogHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -251,8 +223,28 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 			w.WriteHeader(500)
 			return
 		}
-		w.Header().Set("Content-type", "application/x-gzip")
-		w.Write(data)
+		if r.Header.Get("Accept") == "text/plain" {
+			inputBuffer := bytes.NewBuffer(data)
+			source, err := gzip.NewReader(inputBuffer)
+			if err != nil {
+				Log.Println(err)
+				w.WriteHeader(500)
+				return
+			}
+			defer func() {
+				source.Close()
+			}()
+
+			var outputBuffer = new(bytes.Buffer)
+			io.Copy(outputBuffer, source)
+			w.Header().Set("Content-type", "text/plain")
+			w.Write(outputBuffer.Bytes())
+
+		} else {
+			w.Header().Set("Content-type", "application/x-gzip")
+			w.Write(data)
+		}
+
 	}
 }
 
@@ -266,8 +258,46 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 			w.WriteHeader(500)
 			return
 		}
-		w.Header().Set("Content-type", "application/x-gzip")
-		w.Write(data)
+		if r.Header.Get("Accept") == "text/plain" {
+			// unzip
+			inputBuffer := bytes.NewBuffer(data)
+			source, err := gzip.NewReader(inputBuffer)
+			if err != nil {
+				Log.Println(err)
+				w.WriteHeader(500)
+				return
+			}
+			defer func() {
+				source.Close()
+			}()
+
+			var outputBuffer = new(bytes.Buffer)
+			io.Copy(outputBuffer, source)
+
+			newData := outputBuffer.Bytes()
+
+			// get tar manifest
+			plainReader := bytes.NewReader(newData)
+			tr := tar.NewReader(plainReader)
+			records := ""
+			for {
+				hdr, err := tr.Next()
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					Log.Println(err)
+					w.WriteHeader(500)
+					return
+				}
+				records = fmt.Sprintf("%s\n%s", records, hdr.Name)
+			}
+			w.Header().Set("Content-type", "text/plain")
+			w.Write([]byte(records))
+		} else {
+			w.Header().Set("Content-type", "application/x-gzip")
+			w.Write(data)
+		}
 	}
 }
 

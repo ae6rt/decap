@@ -14,7 +14,7 @@ import (
 )
 
 func TestHooksHandlerNoRepoManager(t *testing.T) {
-	dir, err := ziptools.Unzip("buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func TestHooksHandlerNoRepoManager(t *testing.T) {
 }
 
 func TestHooksHandlerBuildScripts(t *testing.T) {
-	dir, err := ziptools.Unzip("buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestHooksHandlerBuildScripts(t *testing.T) {
 }
 
 func TestHooksHandlerGithub(t *testing.T) {
-	dir, err := ziptools.Unzip("buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
