@@ -213,7 +213,7 @@ func ProjectBranchesHandler(repoClients map[string]SCMClient) httprouter.Handle 
 	}
 }
 
-// Return gzipped console log
+// Return gzipped console log, or console log in plain text if Accept: text/plain is set
 func LogHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
@@ -248,7 +248,7 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 	}
 }
 
-// Return artifacts gzipped tarball
+// Return artifacts gzipped tarball, or file listing in tarball if Accept: text/plain is set
 func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
