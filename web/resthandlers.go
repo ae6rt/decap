@@ -244,7 +244,6 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 			w.Header().Set("Content-type", "application/x-gzip")
 			w.Write(data)
 		}
-
 	}
 }
 
