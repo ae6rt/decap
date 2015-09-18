@@ -81,7 +81,7 @@ func main() {
 		Log.Printf("Project: %+v\n", v)
 	}
 
-	go websock()
+	go websock(k8s)
 
 	Log.Println("decap ready on port 9090...")
 	http.ListenAndServe(":9090", router)
@@ -98,19 +98,22 @@ func kubeSecret(file string, defaultValue string) string {
 
 }
 
-func websock() {
+func websock(decap Decap) {
 	t, err := url.Parse(*apiServerBaseURL)
 	if err != nil {
-		log.Fatal(err)
+		Log.Printf("Error parsing apiServerBaseURL.  Will be unable to reap exited pods.: %v\n", err)
+		return
 	}
 
 	originURL, err := url.Parse(*apiServerBaseURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
 	if err != nil {
-		log.Fatal(err)
+		Log.Printf("Error parsing websocket origin URL.  Will be unable to reap exited pods.: %v\n", err)
+		return
 	}
 	serviceURL, err := url.Parse("wss://" + t.Host + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
 	if err != nil {
-		log.Fatal(err)
+		Log.Printf("Error parsing websocket service URL.  Will be unable to reap exited pods.: %v\n", err)
+		return
 	}
 
 	data, _ := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
@@ -132,9 +135,10 @@ func websock() {
 
 	conn, err := websocket.DialConfig(&cfg)
 	if err != nil {
-		log.Fatalf("Error opening connection: %v\n", err)
+		Log.Printf("Error opening websocket connection.  Will be unable to reap exited pods.: %v\n", err)
+		return
 	}
-	log.Print("Watching pods on websocket")
+	Log.Print("Watching pods on websocket")
 
 	var msg string
 	for {
@@ -143,12 +147,12 @@ func websock() {
 			if err == io.EOF {
 				break
 			}
-			log.Println("Couldn't receive msg " + err.Error())
+			Log.Println("Couldn't receive msg " + err.Error())
 			break
 		}
 		var pod Pod
 		if err := json.Unmarshal([]byte(msg), &pod); err != nil {
-			log.Println(err)
+			Log.Println(err)
 			continue
 		}
 		var deletePod bool
@@ -159,11 +163,14 @@ func websock() {
 			}
 		}
 		if deletePod {
-			log.Printf("Would delete:  %+v\n", pod)
+			err := decap.DeletePod(pod.Object.Meta.Name)
+			if err != nil {
+				Log.Print(err)
+			} else {
+				Log.Printf("Pod deleted: %s\n", pod.Object.Meta.Name)
+			}
 		}
-
 	}
-
 }
 
 type Pod struct {
