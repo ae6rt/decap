@@ -134,6 +134,7 @@ func websock() {
 	if err != nil {
 		log.Fatalf("Error opening connection: %v\n", err)
 	}
+	log.Print("Watching pods on websocket")
 
 	var msg string
 	for {
