@@ -1,13 +1,19 @@
 package main
 
 import (
+	"crypto/tls"
+	"encoding/base64"
+	"encoding/json"
 	"flag"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/julienschmidt/httprouter"
+	"golang.org/x/net/websocket"
 )
 
 var (
@@ -75,6 +81,8 @@ func main() {
 		Log.Printf("Project: %+v\n", v)
 	}
 
+	go websock()
+
 	Log.Println("decap ready on port 9090...")
 	http.ListenAndServe(":9090", router)
 }
@@ -88,4 +96,103 @@ func kubeSecret(file string, defaultValue string) string {
 		return string(v)
 	}
 
+}
+
+func websock() {
+	t, err := url.Parse(*apiServerBaseURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	originURL, err := url.Parse(*apiServerBaseURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
+	if err != nil {
+		log.Fatal(err)
+	}
+	serviceURL, err := url.Parse("wss://" + t.Host + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	data, _ := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+
+	var hdrs http.Header
+	if len(data) == 0 {
+		hdrs = map[string][]string{"Authorization": []string{"Basic " + base64.StdEncoding.EncodeToString([]byte(*apiServerUser+":"+*apiServerPassword))}}
+	} else {
+		hdrs = map[string][]string{"Authorization": []string{"Bearer " + string(data)}}
+	}
+
+	cfg := websocket.Config{
+		Location:  serviceURL,
+		Origin:    originURL,
+		TlsConfig: &tls.Config{InsecureSkipVerify: true},
+		Header:    hdrs,
+		Version:   websocket.ProtocolVersionHybi13,
+	}
+
+	conn, err := websocket.DialConfig(&cfg)
+	if err != nil {
+		log.Fatalf("Error opening connection: %v\n", err)
+	}
+
+	var msg string
+	for {
+		err := websocket.Message.Receive(conn, &msg)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			log.Println("Couldn't receive msg " + err.Error())
+			break
+		}
+		var pod Pod
+		if err := json.Unmarshal([]byte(msg), &pod); err != nil {
+			log.Println(err)
+			continue
+		}
+		var deletePod bool
+		for _, status := range pod.Object.Status.Statuses {
+			if status.Name == "build-server" && status.State.Terminated.ContainerID != "" {
+				deletePod = true
+				break
+			}
+		}
+		if deletePod {
+			log.Printf("Would delete:  %+v\n", pod)
+		}
+
+	}
+
+}
+
+type Pod struct {
+	Object Object `json:"object"`
+}
+
+type Object struct {
+	Meta   Metadata `json:"metadata"`
+	Status Status   `json:"status"`
+}
+
+type Metadata struct {
+	Name string `json:"name"`
+}
+
+type Status struct {
+	Statuses []ContainerStatus `json:"containerStatuses"`
+}
+
+type ContainerStatus struct {
+	Name  string `json:"name"`
+	Ready bool   `json:"ready"`
+	State State  `json:"state"`
+}
+
+type State struct {
+	Terminated Terminated `json:"terminated"`
+}
+
+type Terminated struct {
+	ContainerID string `json:"containerID"`
+	ExitCode    int    `json:"exitCode"`
 }
