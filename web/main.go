@@ -163,8 +163,7 @@ func websock(decap Decap) {
 			}
 		}
 		if deletePod {
-			err := decap.DeletePod(pod.Object.Meta.Name)
-			if err != nil {
+			if err := decap.DeletePod(pod.Object.Meta.Name); err != nil {
 				Log.Print(err)
 			} else {
 				Log.Printf("Pod deleted: %s\n", pod.Object.Meta.Name)
