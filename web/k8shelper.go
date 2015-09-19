@@ -259,6 +259,7 @@ func (base DefaultDecap) DeletePod(podName string) error {
 	return nil
 }
 
+// todo this should be folded into some standalone object.  I don't want it in the way of unit testing, as it has a live websocket client embedded in it.
 func websock(decap Decap) {
 	t, err := url.Parse(*apiServerBaseURL)
 	if err != nil {
