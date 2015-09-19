@@ -315,10 +315,15 @@ func (decap DefaultDecap) Websock() {
 			}
 		}
 		if deletePod {
-			if err := decap.DeletePod(pod.Object.Meta.Name); err != nil {
-				Log.Print(err)
+			_, err := decap.Locker.Lock(pod.Object.Meta.Name, "anyvalue")
+			if err == nil {
+				if err := decap.DeletePod(pod.Object.Meta.Name); err != nil {
+					Log.Print(err)
+				} else {
+					Log.Printf("Pod deleted: %s\n", pod.Object.Meta.Name)
+				}
 			} else {
-				Log.Printf("Pod deleted: %s\n", pod.Object.Meta.Name)
+				Log.Println(err)
 			}
 		}
 	}

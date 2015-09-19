@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
+	"time"
+
 	etcd "github.com/coreos/etcd/client"
 	"golang.org/x/net/context"
-	"time"
 )
 
 type DefaultLock struct {
