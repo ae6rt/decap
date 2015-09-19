@@ -113,7 +113,16 @@ func (gh GithubClient) GetBranches(owner, repository string) ([]Branch, error) {
 
 	genericBranches := make([]Branch, len(branches))
 	for i, v := range branches {
-		b := Branch{Ref: v.Ref, Type: v.Object.Type}
+		var refType string
+		switch v.Object.Type {
+		case "tag":
+			refType = "tag"
+		case "commit":
+			refType = "commit"
+		default:
+			refType = "__unsupported"
+		}
+		b := Branch{Ref: v.Ref, Type: refType}
 		genericBranches[i] = b
 	}
 
