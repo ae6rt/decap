@@ -315,7 +315,7 @@ func (decap DefaultDecap) Websock() {
 			}
 		}
 		if deletePod {
-			_, err := decap.Locker.Lock(pod.Object.Meta.Name, "anyvalue")
+			_, err := decap.Locker.Lock("/pods/"+pod.Object.Meta.Name, "anyvalue")
 			if err == nil {
 				if err := decap.DeletePod(pod.Object.Meta.Name); err != nil {
 					Log.Print(err)
