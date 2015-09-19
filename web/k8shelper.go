@@ -322,8 +322,6 @@ func (decap DefaultDecap) Websock() {
 				} else {
 					Log.Printf("Pod deleted: %s\n", pod.Object.Meta.Name)
 				}
-			} else {
-				Log.Println(err)
 			}
 		}
 	}
