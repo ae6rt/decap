@@ -8,8 +8,46 @@ import (
 	"net/http"
 	"text/template"
 
+	"encoding/base64"
+	"encoding/json"
+	"io"
+	"net/url"
+
 	"github.com/pborman/uuid"
+	"golang.org/x/net/websocket"
 )
+
+type PodWatch struct {
+	Object Object `json:"object"`
+}
+
+type Object struct {
+	Meta   Metadata `json:"metadata"`
+	Status Status   `json:"status"`
+}
+
+type Metadata struct {
+	Name string `json:"name"`
+}
+
+type Status struct {
+	Statuses []ContainerStatus `json:"containerStatuses"`
+}
+
+type ContainerStatus struct {
+	Name  string `json:"name"`
+	Ready bool   `json:"ready"`
+	State State  `json:"state"`
+}
+
+type State struct {
+	Terminated Terminated `json:"terminated"`
+}
+
+type Terminated struct {
+	ContainerID string `json:"containerID"`
+	ExitCode    int    `json:"exitCode"`
+}
 
 type BuildEvent interface {
 	Team() string
@@ -219,4 +257,78 @@ func (base DefaultDecap) DeletePod(podName string) error {
 		}
 	}
 	return nil
+}
+
+func websock(decap Decap) {
+	t, err := url.Parse(*apiServerBaseURL)
+	if err != nil {
+		Log.Printf("Error parsing apiServerBaseURL.  Will be unable to reap exited pods.: %v\n", err)
+		return
+	}
+
+	originURL, err := url.Parse(*apiServerBaseURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
+	if err != nil {
+		Log.Printf("Error parsing websocket origin URL.  Will be unable to reap exited pods.: %v\n", err)
+		return
+	}
+	serviceURL, err := url.Parse("wss://" + t.Host + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
+	if err != nil {
+		Log.Printf("Error parsing websocket service URL.  Will be unable to reap exited pods.: %v\n", err)
+		return
+	}
+
+	data, _ := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+
+	var hdrs http.Header
+	if len(data) == 0 {
+		hdrs = map[string][]string{"Authorization": []string{"Basic " + base64.StdEncoding.EncodeToString([]byte(*apiServerUser+":"+*apiServerPassword))}}
+	} else {
+		hdrs = map[string][]string{"Authorization": []string{"Bearer " + string(data)}}
+	}
+
+	cfg := websocket.Config{
+		Location:  serviceURL,
+		Origin:    originURL,
+		TlsConfig: &tls.Config{InsecureSkipVerify: true},
+		Header:    hdrs,
+		Version:   websocket.ProtocolVersionHybi13,
+	}
+
+	conn, err := websocket.DialConfig(&cfg)
+	if err != nil {
+		Log.Printf("Error opening websocket connection.  Will be unable to reap exited pods.: %v\n", err)
+		return
+	}
+	Log.Print("Watching pods on websocket")
+
+	var msg string
+	for {
+		err := websocket.Message.Receive(conn, &msg)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			Log.Println("Couldn't receive msg " + err.Error())
+			break
+		}
+		var pod PodWatch
+		if err := json.Unmarshal([]byte(msg), &pod); err != nil {
+			Log.Println(err)
+			continue
+		}
+		var deletePod bool
+		for _, status := range pod.Object.Status.Statuses {
+			if status.Name == "build-server" && status.State.Terminated.ContainerID != "" {
+				deletePod = true
+				break
+			}
+		}
+		if deletePod {
+			if err := decap.DeletePod(pod.Object.Meta.Name); err != nil {
+				Log.Print(err)
+			} else {
+				Log.Printf("Pod deleted: %s\n", pod.Object.Meta.Name)
+			}
+		}
+	}
 }
