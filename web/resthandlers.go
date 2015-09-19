@@ -120,8 +120,9 @@ func ExecuteBuildHandler(decap Decap) httprouter.Handle {
 func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
-		if !(repoManager == "github" || repoManager == "buildscripts") {
-			Log.Printf("repomanager %s not supported\n", repoManager)
+
+		if r.Body == nil {
+			Log.Println("Expecting an HTTP entity")
 			w.WriteHeader(400)
 			return
 		}
@@ -148,15 +149,28 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 				setProjects(p)
 			}
 		case "github":
-			event := GithubEvent{}
-			if err := json.Unmarshal(data, &event); err != nil {
-				Log.Println(err)
-				w.WriteHeader(500)
+			eventType := r.Header.Get("X-Github-Event")
+			switch eventType {
+			case "create":
+				w.WriteHeader(400)
+				return
+			case "push":
+				event := GithubEvent{}
+				if err := json.Unmarshal(data, &event); err != nil {
+					Log.Println(err)
+					w.WriteHeader(500)
+					return
+				}
+				go decap.LaunchBuild(event)
+			default:
+				w.WriteHeader(400)
 				return
 			}
-			go decap.LaunchBuild(event)
+		default:
+			Log.Printf("repomanager %s not supported\n", repoManager)
+			w.WriteHeader(400)
+			return
 		}
-
 		w.WriteHeader(200)
 	}
 }

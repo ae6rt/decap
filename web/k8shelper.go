@@ -60,6 +60,14 @@ type BuildEvent interface {
 	Branches() []string
 }
 
+type CreateBranchEvent interface {
+	Team() string
+	Library() string
+	ProjectKey() string
+	BranchOrTag() string
+	IsBranch() bool
+}
+
 type BuildPod struct {
 	BuildID                   string
 	BuildScriptsGitRepo       string
