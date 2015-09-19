@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -21,6 +20,7 @@ var (
 	githubClientSecret     = flag.String("github-client-secret", "", "Default Github Client Secret for quering Github repos.  /etc/secrets/github-client-secret in the cluster overrides this.")
 	buildScriptsRepo       = flag.String("build-scripts-repo", "https://github.com/ae6rt/decap-build-scripts.git", "Git repo where userland build scripts are held.")
 	buildScriptsRepoBranch = flag.String("build-scripts-repo-branch", "master", "Branch or revision to use on git repo where userland build scripts are held.")
+	noWebsocket            = flag.Bool("no-websocket", false, "Do not start websocket client that watches pods.")
 	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
 
 	Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
@@ -75,19 +75,10 @@ func main() {
 		Log.Printf("Project: %+v\n", v)
 	}
 
-	go websock(k8s)
+	if !*noWebsocket {
+		go k8s.Websock()
+	}
 
 	Log.Println("decap ready on port 9090...")
 	http.ListenAndServe(":9090", router)
-}
-
-func kubeSecret(file string, defaultValue string) string {
-	if v, err := ioutil.ReadFile(file); err != nil {
-		Log.Printf("Secret %s not found in the filesystem.  Using default.\n", file)
-		return defaultValue
-	} else {
-		Log.Printf("Successfully read secret %s from the filesystem\n", file)
-		return string(v)
-	}
-
 }

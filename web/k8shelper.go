@@ -259,32 +259,23 @@ func (base DefaultDecap) DeletePod(podName string) error {
 	return nil
 }
 
-// todo this should be folded into some standalone object.  I don't want it in the way of unit testing, as it has a live websocket client embedded in it.
-func websock(decap Decap) {
-	t, err := url.Parse(*apiServerBaseURL)
-	if err != nil {
-		Log.Printf("Error parsing apiServerBaseURL.  Will be unable to reap exited pods.: %v\n", err)
-		return
-	}
-
-	originURL, err := url.Parse(*apiServerBaseURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
+func (decap DefaultDecap) Websock() {
+	originURL, err := url.Parse(decap.MasterURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
 	if err != nil {
 		Log.Printf("Error parsing websocket origin URL.  Will be unable to reap exited pods.: %v\n", err)
 		return
 	}
-	serviceURL, err := url.Parse("wss://" + t.Host + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
+	serviceURL, err := url.Parse("wss://" + originURL.Host + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
 	if err != nil {
 		Log.Printf("Error parsing websocket service URL.  Will be unable to reap exited pods.: %v\n", err)
 		return
 	}
 
-	data, _ := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
-
 	var hdrs http.Header
-	if len(data) == 0 {
-		hdrs = map[string][]string{"Authorization": []string{"Basic " + base64.StdEncoding.EncodeToString([]byte(*apiServerUser+":"+*apiServerPassword))}}
+	if decap.apiToken != "" {
+		hdrs = map[string][]string{"Authorization": []string{"Bearer " + decap.apiToken}}
 	} else {
-		hdrs = map[string][]string{"Authorization": []string{"Bearer " + string(data)}}
+		hdrs = map[string][]string{"Authorization": []string{"Basic " + base64.StdEncoding.EncodeToString([]byte(decap.UserName+":"+decap.Password))}}
 	}
 
 	cfg := websocket.Config{
@@ -310,7 +301,6 @@ func websock(decap Decap) {
 				break
 			}
 			Log.Println("Couldn't receive msg " + err.Error())
-			break
 		}
 		var pod PodWatch
 		if err := json.Unmarshal([]byte(msg), &pod); err != nil {
@@ -331,5 +321,15 @@ func websock(decap Decap) {
 				Log.Printf("Pod deleted: %s\n", pod.Object.Meta.Name)
 			}
 		}
+	}
+}
+
+func kubeSecret(file string, defaultValue string) string {
+	if v, err := ioutil.ReadFile(file); err != nil {
+		Log.Printf("Secret %s not found in the filesystem.  Using default.\n", file)
+		return defaultValue
+	} else {
+		Log.Printf("Successfully read secret %s from the filesystem\n", file)
+		return string(v)
 	}
 }
