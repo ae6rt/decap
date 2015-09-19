@@ -25,11 +25,17 @@ type GithubClient struct {
 }
 
 type Branch struct {
-	Ref string `json:"ref"`
+	Ref  string `json:"ref"`
+	Type string `json:"type"`
 }
 
 type GithubBranch struct {
-	Ref string `json:"ref"`
+	Ref    string       `json:"ref"`
+	Object GithubObject `json:"object"`
+}
+
+type GithubObject struct {
+	Type string `json:"type"`
 }
 
 type StashBranches struct {
@@ -107,7 +113,7 @@ func (gh GithubClient) GetBranches(owner, repository string) ([]Branch, error) {
 
 	genericBranches := make([]Branch, len(branches))
 	for i, v := range branches {
-		b := Branch{v.Ref}
+		b := Branch{Ref: v.Ref, Type: v.Object.Type}
 		genericBranches[i] = b
 	}
 
