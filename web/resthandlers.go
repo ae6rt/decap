@@ -152,8 +152,13 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 			eventType := r.Header.Get("X-Github-Event")
 			switch eventType {
 			case "create":
-				w.WriteHeader(400)
-				return
+				event := GithubEvent{}
+				if err := json.Unmarshal(data, &event); err != nil {
+					Log.Println(err)
+					w.WriteHeader(500)
+					return
+				}
+				go decap.LaunchBuild(event)
 			case "push":
 				event := GithubEvent{}
 				if err := json.Unmarshal(data, &event); err != nil {

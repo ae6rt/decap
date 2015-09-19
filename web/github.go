@@ -5,6 +5,7 @@ import "strings"
 // Captures a github post commit hook payload
 type GithubEvent struct {
 	Ref        string           `json:"ref"`
+	RefType    string           `json:"ref_type"`
 	Repository GitHubRepository `json:"repository"`
 }
 
@@ -31,5 +32,12 @@ func (event GithubEvent) ProjectKey() string {
 }
 
 func (event GithubEvent) Branches() []string {
-	return []string{strings.ToLower(strings.Replace(event.Ref, "refs/heads/", "", -1))}
+	switch event.RefType {
+	case "branch":
+		return []string{event.Ref}
+	case "tag":
+		return []string{}
+	default:
+		return []string{strings.ToLower(strings.Replace(event.Ref, "refs/heads/", "", -1))}
+	}
 }
