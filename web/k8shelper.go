@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/url"
 
+	"github.com/ae6rt/decap/web/k8stypes"
 	"github.com/pborman/uuid"
 	"golang.org/x/net/websocket"
 )
@@ -118,47 +119,47 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 		key := k8s.Locker.Key(projectKey, branch)
 		buildID := uuid.NewRandom().String()
 
-		containers := make([]Container, 1+len(projs[projectKey].Sidecars))
+		containers := make([]k8stypes.Container, 1+len(projs[projectKey].Sidecars))
 
-		baseContainer := Container{
+		baseContainer := k8stypes.Container{
 			Name:  "build-server",
 			Image: projs[projectKey].Descriptor.Image,
-			VolumeMounts: []VolumeMount{
-				VolumeMount{
+			VolumeMounts: []k8stypes.VolumeMount{
+				k8stypes.VolumeMount{
 					Name:      "build-scripts",
 					MountPath: "/home/decap/buildscripts",
 				},
-				VolumeMount{
+				k8stypes.VolumeMount{
 					Name:      "decap-credentials",
 					MountPath: "/etc/secrets",
 				},
 			},
-			Env: []EnvVar{
-				EnvVar{
+			Env: []k8stypes.EnvVar{
+				k8stypes.EnvVar{
 					Name:  "BUILD_ID",
 					Value: buildID,
 				},
-				EnvVar{
+				k8stypes.EnvVar{
 					Name:  "PROJECT_KEY",
 					Value: projectKey,
 				},
-				EnvVar{
+				k8stypes.EnvVar{
 					Name:  "BRANCH_TO_BUILD",
 					Value: branch,
 				},
-				EnvVar{
+				k8stypes.EnvVar{
 					Name:  "BUILD_LOCK_KEY",
 					Value: key,
 				},
-				EnvVar{
+				k8stypes.EnvVar{
 					Name:  "AWS_ACCESS_KEY_ID",
 					Value: k8s.AWSAccessKeyID,
 				},
-				EnvVar{
+				k8stypes.EnvVar{
 					Name:  "AWS_SECRET_ACCESS_KEY",
 					Value: k8s.AWSAccessSecret,
 				},
-				EnvVar{
+				k8stypes.EnvVar{
 					Name:  "AWS_DEFAULT_REGION",
 					Value: k8s.AWSRegion,
 				},
@@ -167,7 +168,7 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 
 		containers[0] = baseContainer
 		for i, v := range projs[projectKey].Sidecars {
-			var c Container
+			var c k8stypes.Container
 			err := json.Unmarshal([]byte(v), &c)
 			if err != nil {
 				Log.Println(err)
@@ -176,12 +177,12 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 			containers[i+1] = c
 		}
 
-		pod := Pod{
-			TypeMeta: TypeMeta{
+		pod := k8stypes.Pod{
+			TypeMeta: k8stypes.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
-			ObjectMeta: ObjectMeta{
+			ObjectMeta: k8stypes.ObjectMeta{
 				Name:      buildID,
 				Namespace: "decap",
 				Labels: map[string]string{
@@ -191,21 +192,21 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 					"branch":  branch,
 				},
 			},
-			Spec: PodSpec{
-				Volumes: []Volume{
-					Volume{
+			Spec: k8stypes.PodSpec{
+				Volumes: []k8stypes.Volume{
+					k8stypes.Volume{
 						Name: "build-scripts",
-						VolumeSource: VolumeSource{
-							GitRepo: &GitRepoVolumeSource{
+						VolumeSource: k8stypes.VolumeSource{
+							GitRepo: &k8stypes.GitRepoVolumeSource{
 								Repository: *buildScriptsRepo,
 								Revision:   *buildScriptsRepoBranch,
 							},
 						},
 					},
-					Volume{
+					k8stypes.Volume{
 						Name: "decap-credentials",
-						VolumeSource: VolumeSource{
-							Secret: &SecretVolumeSource{
+						VolumeSource: k8stypes.VolumeSource{
+							Secret: &k8stypes.SecretVolumeSource{
 								SecretName: "decap-credentials",
 							},
 						},
