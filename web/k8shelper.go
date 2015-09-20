@@ -179,7 +179,7 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 		pod := Pod{
 			TypeMeta: TypeMeta{
 				Kind:       "Pod",
-				APIVersion: "1.0",
+				APIVersion: "v1",
 			},
 			ObjectMeta: ObjectMeta{
 				Name:      buildID,
