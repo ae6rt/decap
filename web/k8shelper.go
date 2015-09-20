@@ -211,7 +211,8 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 						},
 					},
 				},
-				Containers: containers,
+				Containers:    containers,
+				RestartPolicy: "Never",
 			},
 		}
 
