@@ -249,7 +249,7 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 }
 
 func (base DefaultDecap) CreatePod(pod []byte) error {
-	Log.Printf("spec pod:\n%s\n", string(pod))
+	Log.Printf("spec pod:%+v\n", pod)
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/namespaces/decap/pods", base.MasterURL), bytes.NewReader(pod))
 	if err != nil {
