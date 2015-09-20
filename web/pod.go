@@ -27,7 +27,7 @@ var podTemplate = `
             {
                 "name": "decap-credentials",
                 "secret": {
-                    "secretName": "decap-credentials"
+                    "secretName": "c"
                 }
             }
         ],

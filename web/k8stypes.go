@@ -15,6 +15,242 @@ package main
 
 import "time"
 
+type Pod struct {
+	TypeMeta `json:",inline"`
+	// Standard object's metadata.
+	// More info: http://releases.k8s.io/HEAD/docs/devel/api-conventions.md#metadata
+	ObjectMeta `json:"metadata,omitempty"`
+
+	// Specification of the desired behavior of the pod.
+	// More info: http://releases.k8s.io/HEAD/docs/devel/api-conventions.md#spec-and-status
+	Spec PodSpec `json:"spec,omitempty"`
+
+	// Most recently observed status of the pod.
+	// This data may not be up to date.
+	// Populated by the system.
+	// Read-only.
+	// More info: http://releases.k8s.io/HEAD/docs/devel/api-conventions.md#spec-and-status
+	Status PodStatus `json:"status,omitempty"`
+}
+
+type RestartPolicy string
+
+type DNSPolicy string
+
+type PodSpec struct {
+	// List of volumes that can be mounted by containers belonging to the pod.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/volumes.md
+	Volumes []Volume `json:"volumes,omitempty" patchStrategy:"merge" patchMergeKey:"name"`
+	// List of containers belonging to the pod.
+	// Containers cannot currently be added or removed.
+	// There must be at least one container in a Pod.
+	// Cannot be updated.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/containers.md
+	Containers []Container `json:"containers" patchStrategy:"merge" patchMergeKey:"name"`
+	// Restart policy for all containers within the pod.
+	// One of Always, OnFailure, Never.
+	// Default to Always.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/pod-states.md#restartpolicy
+	RestartPolicy RestartPolicy `json:"restartPolicy,omitempty"`
+	// Optional duration in seconds the pod needs to terminate gracefully. May be decreased in delete request.
+	// Value must be non-negative integer. The value zero indicates delete immediately.
+	// If this value is nil, the default grace period will be used instead.
+	// The grace period is the duration in seconds after the processes running in the pod are sent
+	// a termination signal and the time when the processes are forcibly halted with a kill signal.
+	// Set this value longer than the expected cleanup time for your process.
+	// Defaults to 30 seconds.
+	TerminationGracePeriodSeconds *int64 `json:"terminationGracePeriodSeconds,omitempty"`
+	// Optional duration in seconds the pod may be active on the node relative to
+	// StartTime before the system will actively try to mark it failed and kill associated containers.
+	// Value must be a positive integer.
+	ActiveDeadlineSeconds *int64 `json:"activeDeadlineSeconds,omitempty"`
+	// Set DNS policy for containers within the pod.
+	// One of 'ClusterFirst' or 'Default'.
+	// Defaults to "ClusterFirst".
+	DNSPolicy DNSPolicy `json:"dnsPolicy,omitempty"`
+	// NodeSelector is a selector which must be true for the pod to fit on a node.
+	// Selector which must match a node's labels for the pod to be scheduled on that node.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/node-selection/README.md
+	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
+
+	// ServiceAccountName is the name of the ServiceAccount to use to run this pod.
+	// More info: http://releases.k8s.io/HEAD/docs/design/service_accounts.md
+	ServiceAccountName string `json:"serviceAccountName,omitempty"`
+	// DeprecatedServiceAccount is a depreciated alias for ServiceAccountName.
+	// Deprecated: Use serviceAccountName instead.
+	DeprecatedServiceAccount string `json:"serviceAccount,omitempty"`
+
+	// NodeName is a request to schedule this pod onto a specific node. If it is non-empty,
+	// the scheduler simply schedules this pod onto that node, assuming that it fits resource
+	// requirements.
+	NodeName string `json:"nodeName,omitempty"`
+	// Host networking requested for this pod. Use the host's network namespace.
+	// If this option is set, the ports that will be used must be specified.
+	// Default to false.
+	HostNetwork bool `json:"hostNetwork,omitempty"`
+	// Use the host's pid namespace.
+	// Optional: Default to false.
+	HostPID bool `json:"hostPID,omitempty"`
+	// ImagePullSecrets is an optional list of references to secrets in the same namespace to use for pulling any of the images used by this PodSpec.
+	// If specified, these secrets will be passed to individual puller implementations for them to use. For example,
+	// in the case of docker, only DockerConfig type secrets are honored.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/images.md#specifying-imagepullsecrets-on-a-pod
+	ImagePullSecrets []LocalObjectReference `json:"imagePullSecrets,omitempty" patchStrategy:"merge" patchMergeKey:"name"`
+}
+
+type PodPhase string
+
+const (
+	// PodPending means the pod has been accepted by the system, but one or more of the containers
+	// has not been started. This includes time before being bound to a node, as well as time spent
+	// pulling images onto the host.
+	PodPending PodPhase = "Pending"
+	// PodRunning means the pod has been bound to a node and all of the containers have been started.
+	// At least one container is still running or is in the process of being restarted.
+	PodRunning PodPhase = "Running"
+	// PodSucceeded means that all containers in the pod have voluntarily terminated
+	// with a container exit code of 0, and the system is not going to restart any of these containers.
+	PodSucceeded PodPhase = "Succeeded"
+	// PodFailed means that all containers in the pod have terminated, and at least one container has
+	// terminated in a failure (exited with a non-zero exit code or was stopped by the system).
+	PodFailed PodPhase = "Failed"
+	// PodUnknown means that for some reason the state of the pod could not be obtained, typically due
+	// to an error in communicating with the host of the pod.
+	PodUnknown PodPhase = "Unknown"
+)
+
+type PodCondition struct {
+	// Type is the type of the condition.
+	// Currently only Ready.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/pod-states.md#pod-conditions
+	Type PodConditionType `json:"type"`
+	// Status is the status of the condition.
+	// Can be True, False, Unknown.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/pod-states.md#pod-conditions
+	Status ConditionStatus `json:"status"`
+	// Last time we probed the condition.
+	LastProbeTime Time `json:"lastProbeTime,omitempty"`
+	// Last time the condition transitioned from one status to another.
+	LastTransitionTime Time `json:"lastTransitionTime,omitempty"`
+	// Unique, one-word, CamelCase reason for the condition's last transition.
+	Reason string `json:"reason,omitempty"`
+	// Human-readable message indicating details about last transition.
+	Message string `json:"message,omitempty"`
+}
+
+type Time struct {
+	time.Time
+}
+
+type PodConditionType string
+
+const (
+	// PodReady means the pod is able to service requests and should be added to the
+	// load balancing pools of all matching services.
+	PodReady PodConditionType = "Ready"
+)
+
+type ConditionStatus string
+
+const (
+	ConditionTrue    ConditionStatus = "True"
+	ConditionFalse   ConditionStatus = "False"
+	ConditionUnknown ConditionStatus = "Unknown"
+)
+
+type ContainerState struct {
+	// Details about a waiting container
+	Waiting *ContainerStateWaiting `json:"waiting,omitempty"`
+	// Details about a running container
+	Running *ContainerStateRunning `json:"running,omitempty"`
+	// Details about a terminated container
+	Terminated *ContainerStateTerminated `json:"terminated,omitempty"`
+}
+
+type ContainerStateWaiting struct {
+	// (brief) reason the container is not yet running.
+	Reason string `json:"reason,omitempty"`
+	// Message regarding why the container is not yet running.
+	Message string `json:"message,omitempty"`
+}
+
+type ContainerStateRunning struct {
+	// Time at which the container was last (re-)started
+	StartedAt Time `json:"startedAt,omitempty"`
+}
+
+type ContainerStateTerminated struct {
+	// Exit status from the last termination of the container
+	ExitCode int `json:"exitCode"`
+	// Signal from the last termination of the container
+	Signal int `json:"signal,omitempty"`
+	// (brief) reason from the last termination of the container
+	Reason string `json:"reason,omitempty"`
+	// Message regarding the last termination of the container
+	Message string `json:"message,omitempty"`
+	// Time at which previous execution of the container started
+	StartedAt Time `json:"startedAt,omitempty"`
+	// Time at which the container last terminated
+	FinishedAt Time `json:"finishedAt,omitempty"`
+	// Container's ID in the format 'docker://<container_id>'
+	ContainerID string `json:"containerID,omitempty"`
+}
+
+type ContainerStatus struct {
+	// This must be a DNS_LABEL. Each container in a pod must have a unique name.
+	// Cannot be updated.
+	Name string `json:"name"`
+	// Details about the container's current condition.
+	State ContainerState `json:"state,omitempty"`
+	// Details about the container's last termination condition.
+	LastTerminationState ContainerState `json:"lastState,omitempty"`
+	// Specifies whether the container has passed its readiness probe.
+	Ready bool `json:"ready"`
+	// The number of times the container has been restarted, currently based on
+	// the number of dead containers that have not yet been removed.
+	// Note that this is calculated from dead containers. But those containers are subject to
+	// garbage collection. This value will get capped at 5 by GC.
+	RestartCount int `json:"restartCount"`
+	// The image the container is running.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/images.md
+	// TODO(dchen1107): Which image the container is running with?
+	Image string `json:"image"`
+	// ImageID of the container's image.
+	ImageID string `json:"imageID"`
+	// Container's ID in the format 'docker://<container_id>'.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/container-environment.md#container-information
+	ContainerID string `json:"containerID,omitempty"`
+}
+
+type PodStatus struct {
+	// Current condition of the pod.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/pod-states.md#pod-phase
+	Phase PodPhase `json:"phase,omitempty"`
+	// Current service state of pod.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/pod-states.md#pod-conditions
+	Conditions []PodCondition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
+	// A human readable message indicating details about why the pod is in this condition.
+	Message string `json:"message,omitempty"`
+	// A brief CamelCase message indicating details about why the pod is in this state.
+	// e.g. 'OutOfDisk'
+	Reason string `json:"reason,omitempty"`
+
+	// IP address of the host to which the pod is assigned. Empty if not yet scheduled.
+	HostIP string `json:"hostIP,omitempty"`
+	// IP address allocated to the pod. Routable at least within the cluster.
+	// Empty if not yet allocated.
+	PodIP string `json:"podIP,omitempty"`
+
+	// RFC 3339 date and time at which the object was acknowledged by the Kubelet.
+	// This is before the Kubelet pulled the container image(s) for the pod.
+	StartTime *Time `json:"startTime,omitempty"`
+
+	// The list has one entry per container in the manifest. Each entry is currently the output
+	// of `docker inspect`.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/pod-states.md#container-statuses
+	ContainerStatuses []ContainerStatus `json:"containerStatuses,omitempty"`
+}
+
 type TypeMeta struct {
 	// Kind is a string value representing the REST resource this object represents.
 	// Servers may infer this from the endpoint the client submits requests to.
@@ -106,7 +342,7 @@ type ObjectMeta struct {
 	// Read-only.
 	// Null for lists.
 	// More info: http://releases.k8s.io/HEAD/docs/devel/api-conventions.md#metadata
-	CreationTimestamp time.Time `json:"creationTimestamp,omitempty"`
+	CreationTimestamp Time `json:"creationTimestamp,omitempty"`
 
 	// DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This
 	// field is set by the server when a graceful deletion is requested by the user, and is not
@@ -122,7 +358,7 @@ type ObjectMeta struct {
 	// Populated by the system when a graceful deletion is requested.
 	// Read-only.
 	// More info: http://releases.k8s.io/HEAD/docs/devel/api-conventions.md#metadata
-	DeletionTimestamp *time.Time `json:"deletionTimestamp,omitempty"`
+	DeletionTimestamp *Time `json:"deletionTimestamp,omitempty"`
 
 	// Number of seconds allowed for this object to gracefully terminate before
 	// it will be removed from the system. Only set when deletionTimestamp is also set.

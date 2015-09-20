@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"text/template"
 
 	"encoding/base64"
 	"encoding/json"
@@ -31,10 +30,10 @@ type Metadata struct {
 }
 
 type Status struct {
-	Statuses []ContainerStatus `json:"containerStatuses"`
+	Statuses []XContainerStatus `json:"containerStatuses"`
 }
 
-type ContainerStatus struct {
+type XContainerStatus struct {
 	Name  string `json:"name"`
 	Ready bool   `json:"ready"`
 	State State  `json:"state"`
@@ -58,30 +57,6 @@ type BuildEvent interface {
 	Library() string
 	ProjectKey() string
 	Branches() []string
-}
-
-type BuildPod struct {
-	BuildID                   string
-	BuildScriptsGitRepo       string
-	BuildScriptsGitRepoBranch string
-	BuildImage                string
-	ProjectKey                string
-	Team                      string
-	Library                   string
-	BranchToBuild             string
-	BuildLockKey              string
-	SidecarContainers         []string
-	AWSAccessKeyID            string
-	AWSAccessSecret           string
-	AWSRegion                 string
-}
-
-func (buildPod BuildPod) FormatSidecars(sidecars []string) string {
-	var s string
-	for _, v := range sidecars {
-		s = s + "," + v
-	}
-	return s
 }
 
 type DefaultDecap struct {
@@ -139,59 +114,133 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 
 	projs := getProjects()
 
-	buildPod := BuildPod{
-		BuildImage:                projs[projectKey].Descriptor.Image,
-		BuildScriptsGitRepo:       *buildScriptsRepo,
-		BuildScriptsGitRepoBranch: *buildScriptsRepoBranch,
-		ProjectKey:                projectKey,
-		Team:                      buildEvent.Team(),
-		Library:                   buildEvent.Library(),
-		SidecarContainers:         projs[projectKey].Sidecars,
-		AWSAccessKeyID:            k8s.AWSAccessKeyID,
-		AWSAccessSecret:           k8s.AWSAccessSecret,
-		AWSRegion:                 k8s.AWSRegion,
-	}
-
-	tmpl, err := template.New("pod").Parse(podTemplate)
-	if err != nil {
-		Log.Println(err)
-		return err
-	}
-
 	for _, branch := range buildEvent.Branches() {
 		key := k8s.Locker.Key(projectKey, branch)
+		buildID := uuid.NewRandom().String()
 
-		buildPod.BranchToBuild = branch
-		buildPod.BuildID = uuid.NewRandom().String()
-		buildPod.BuildLockKey = key
+		containers := make([]Container, 1+len(projs[projectKey].Sidecars))
 
-		hydratedTemplate := bytes.NewBufferString("")
-		err = tmpl.Execute(hydratedTemplate, buildPod)
+		baseContainer := Container{
+			Name:  "build-server",
+			Image: projs[projectKey].Descriptor.Image,
+			VolumeMounts: []VolumeMount{
+				VolumeMount{
+					Name:      "build-scripts",
+					MountPath: "/home/decap/buildscripts",
+				},
+				VolumeMount{
+					Name:      "decap-credentials",
+					MountPath: "/etc/secrets",
+				},
+			},
+			Env: []EnvVar{
+				EnvVar{
+					Name:  "BUILD_ID",
+					Value: buildID,
+				},
+				EnvVar{
+					Name:  "PROJECT_KEY",
+					Value: projectKey,
+				},
+				EnvVar{
+					Name:  "BRANCH_TO_BUILD",
+					Value: branch,
+				},
+				EnvVar{
+					Name:  "BUILD_LOCK_KEY",
+					Value: key,
+				},
+				EnvVar{
+					Name:  "AWS_ACCESS_KEY_ID",
+					Value: k8s.AWSAccessKeyID,
+				},
+				EnvVar{
+					Name:  "AWS_SECRET_ACCESS_KEY",
+					Value: k8s.AWSAccessSecret,
+				},
+				EnvVar{
+					Name:  "AWS_DEFAULT_REGION",
+					Value: k8s.AWSRegion,
+				},
+			},
+		}
+
+		containers[0] = baseContainer
+		for i, v := range projs[projectKey].Sidecars {
+			var c Container
+			err := json.Unmarshal([]byte(v), &c)
+			if err != nil {
+				Log.Println(err)
+				continue
+			}
+			containers[i+1] = c
+		}
+
+		pod := Pod{
+			TypeMeta: TypeMeta{
+				Kind:       "Pod",
+				APIVersion: "1.0",
+			},
+			ObjectMeta: ObjectMeta{
+				Name:      buildID,
+				Namespace: "decap",
+				Labels: map[string]string{
+					"type":    "decap-build",
+					"team":    buildEvent.Team(),
+					"library": buildEvent.Library(),
+					"branch":  branch,
+				},
+			},
+			Spec: PodSpec{
+				Volumes: []Volume{
+					Volume{
+						Name: "build-scripts",
+						VolumeSource: VolumeSource{
+							GitRepo: &GitRepoVolumeSource{
+								Repository: *buildScriptsRepo,
+								Revision:   *buildScriptsRepoBranch,
+							},
+						},
+					},
+					Volume{
+						Name: "decap-credentials",
+						VolumeSource: VolumeSource{
+							Secret: &SecretVolumeSource{
+								SecretName: "decap-credentials",
+							},
+						},
+					},
+				},
+				Containers: containers,
+			},
+		}
+
+		podBytes, err := json.Marshal(&pod)
 		if err != nil {
 			Log.Println(err)
 			continue
 		}
 
 		fullyQualifiedKey := "/buildlocks/" + key
-		resp, err := k8s.Locker.Lock(fullyQualifiedKey, buildPod.BuildID)
+		resp, err := k8s.Locker.Lock(fullyQualifiedKey, buildID)
 		if err != nil {
-			Log.Printf("Failed to acquire lock %s on build %s: %v\n", key, buildPod.BuildID, err)
+			Log.Printf("Failed to acquire lock %s on build %s: %v\n", key, buildID, err)
 			continue
 		}
 
-		if resp.Node.Value == buildPod.BuildID {
-			Log.Printf("Acquired lock on build %s with key %s\n", buildPod.BuildID, key)
-			if podError := k8s.CreatePod(hydratedTemplate.Bytes()); podError != nil {
+		if resp.Node.Value == buildID {
+			Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
+			if podError := k8s.CreatePod(podBytes); podError != nil {
 				Log.Println(podError)
-				if _, err := k8s.Locker.Unlock(fullyQualifiedKey, buildPod.BuildID); err != nil {
+				if _, err := k8s.Locker.Unlock(fullyQualifiedKey, buildID); err != nil {
 					Log.Println(err)
 				} else {
-					Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildPod.BuildID, key, podError)
+					Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, key, podError)
 				}
 			}
-			Log.Printf("Created pod=%s\n", buildPod.BuildID)
+			Log.Printf("Created pod=%s\n", buildID)
 		} else {
-			Log.Printf("Failed to acquire lock %s on build %s\n", key, buildPod.BuildID)
+			Log.Printf("Failed to acquire lock %s on build %s\n", key, buildID)
 		}
 	}
 	return nil
