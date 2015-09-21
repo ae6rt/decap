@@ -131,7 +131,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 		return nil
 	}
 
-	err := retry.New(5*time.Second, 10, retry.DefaultBackoffFunc).Try(work)
+	err := retry.New(5*time.Second, 60, retry.DefaultBackoffFunc).Try(work)
 	if err != nil {
 		return nil, err
 	}
