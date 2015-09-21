@@ -346,8 +346,7 @@ func (decap DefaultDecap) Websock() {
 			Version:   websocket.ProtocolVersionHybi13,
 		}
 
-		conn, err = websocket.DialConfig(&cfg)
-		if err != nil {
+		if conn, err = websocket.DialConfig(&cfg); err != nil {
 			return err
 		}
 		return nil
