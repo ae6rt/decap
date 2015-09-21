@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"encoding/base64"
 	"encoding/json"
@@ -13,6 +14,7 @@ import (
 	"net/url"
 
 	"github.com/ae6rt/decap/web/k8stypes"
+	"github.com/ae6rt/retry"
 	"github.com/pborman/uuid"
 	"golang.org/x/net/websocket"
 )
@@ -316,33 +318,42 @@ func (base DefaultDecap) DeletePod(podName string) error {
 }
 
 func (decap DefaultDecap) Websock() {
-	originURL, err := url.Parse(decap.MasterURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
-	if err != nil {
-		Log.Printf("Error parsing websocket origin URL.  Will be unable to reap exited pods.: %v\n", err)
-		return
-	}
-	serviceURL, err := url.Parse("wss://" + originURL.Host + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
-	if err != nil {
-		Log.Printf("Error parsing websocket service URL.  Will be unable to reap exited pods.: %v\n", err)
-		return
+
+	var conn *websocket.Conn
+
+	work := func() error {
+		originURL, err := url.Parse(decap.MasterURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
+		if err != nil {
+			return err
+		}
+		serviceURL, err := url.Parse("wss://" + originURL.Host + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
+		if err != nil {
+			return err
+		}
+
+		var hdrs http.Header
+		if decap.apiToken != "" {
+			hdrs = map[string][]string{"Authorization": []string{"Bearer " + decap.apiToken}}
+		} else {
+			hdrs = map[string][]string{"Authorization": []string{"Basic " + base64.StdEncoding.EncodeToString([]byte(decap.UserName+":"+decap.Password))}}
+		}
+
+		cfg := websocket.Config{
+			Location:  serviceURL,
+			Origin:    originURL,
+			TlsConfig: &tls.Config{InsecureSkipVerify: true},
+			Header:    hdrs,
+			Version:   websocket.ProtocolVersionHybi13,
+		}
+
+		conn, err = websocket.DialConfig(&cfg)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
-	var hdrs http.Header
-	if decap.apiToken != "" {
-		hdrs = map[string][]string{"Authorization": []string{"Bearer " + decap.apiToken}}
-	} else {
-		hdrs = map[string][]string{"Authorization": []string{"Basic " + base64.StdEncoding.EncodeToString([]byte(decap.UserName+":"+decap.Password))}}
-	}
-
-	cfg := websocket.Config{
-		Location:  serviceURL,
-		Origin:    originURL,
-		TlsConfig: &tls.Config{InsecureSkipVerify: true},
-		Header:    hdrs,
-		Version:   websocket.ProtocolVersionHybi13,
-	}
-
-	conn, err := websocket.DialConfig(&cfg)
+	err := retry.New(5*time.Second, 60, retry.DefaultBackoffFunc).Try(work)
 	if err != nil {
 		Log.Printf("Error opening websocket connection.  Will be unable to reap exited pods.: %v\n", err)
 		return
