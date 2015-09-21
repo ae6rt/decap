@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"time"
 
+	"github.com/ae6rt/retry"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -21,34 +23,45 @@ func NewAWSStorageService(key, secret, region string) StorageService {
 }
 
 func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, limit uint64) ([]Build, error) {
-	svc := dynamodb.New(c.Config)
-	params := &dynamodb.QueryInput{
-		TableName:              aws.String("decap-build-metadata"),
-		IndexName:              aws.String("projectKey-buildTime-index"),
-		KeyConditionExpression: aws.String("projectKey = :pkey and buildTime > :since"),
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":pkey": {
-				S: aws.String(projectKey(project.Team, project.Library)),
-			},
-			":since": {
-				N: aws.String(fmt.Sprintf("%d", since)),
-			},
-		},
-		ScanIndexForward: aws.Bool(false),
-		Limit:            aws.Int64(int64(limit)),
-	}
 
-	resp, err := svc.Query(params)
+	var resp *dynamodb.QueryOutput
 
-	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			Log.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				Log.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			Log.Println(err.Error())
+	work := func() error {
+		svc := dynamodb.New(c.Config)
+		params := &dynamodb.QueryInput{
+			TableName:              aws.String("decap-build-metadata"),
+			IndexName:              aws.String("projectKey-buildTime-index"),
+			KeyConditionExpression: aws.String("projectKey = :pkey and buildTime > :since"),
+			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+				":pkey": {
+					S: aws.String(projectKey(project.Team, project.Library)),
+				},
+				":since": {
+					N: aws.String(fmt.Sprintf("%d", since)),
+				},
+			},
+			ScanIndexForward: aws.Bool(false),
+			Limit:            aws.Int64(int64(limit)),
 		}
+
+		var err error
+		resp, err = svc.Query(params)
+
+		if err != nil {
+			if awsErr, ok := err.(awserr.Error); ok {
+				Log.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
+				if reqErr, ok := err.(awserr.RequestFailure); ok {
+					Log.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
+				}
+			} else {
+				Log.Println(err.Error())
+			}
+			return err
+		}
+		return nil
+	}
+	err := retry.New(5*time.Second, 3, retry.DefaultBackoffFunc).Try(work)
+	if err != nil {
 		return nil, err
 	}
 
@@ -88,16 +101,26 @@ func (c AWSStorageService) GetConsoleLog(buildID string) ([]byte, error) {
 }
 
 func (c AWSStorageService) bytesFromBucket(bucketName, objectKey string) ([]byte, error) {
-	svc := s3.New(c.Config)
 
-	params := &s3.GetObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(objectKey),
+	var resp *s3.GetObjectOutput
+
+	work := func() error {
+		svc := s3.New(c.Config)
+
+		params := &s3.GetObjectInput{
+			Bucket: aws.String(bucketName),
+			Key:    aws.String(objectKey),
+		}
+
+		var err error
+		if resp, err = svc.GetObject(params); err != nil {
+			Log.Println(err.Error())
+			return err
+		}
+		return nil
 	}
 
-	resp, err := svc.GetObject(params)
-	if err != nil {
-		Log.Println(err.Error())
+	if err := retry.New(5*time.Second, 3, retry.DefaultBackoffFunc).Try(work); err != nil {
 		return nil, err
 	}
 
