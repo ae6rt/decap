@@ -133,8 +133,6 @@ func (c AWSStorageService) GetBuildsBuildling() ([]Build, error) {
 		return nil, err
 	}
 
-	log.Println(awsutil.Prettify(resp))
-
 	builds := make([]Build, 0)
 	for _, v := range resp.Items {
 		buildTime, err := strconv.ParseUint(*v["buildTime"].N, 10, 64)
