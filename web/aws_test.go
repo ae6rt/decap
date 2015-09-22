@@ -85,33 +85,7 @@ func TestDynamoDbGetBuilds(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-
-		fmt.Fprintf(w,
-			`{
-    "builds": [
-        {
-            "branch": "master", 
-            "duration": 1, 
-            "id": "c8846985-0bda-4d5a-92f1-586b012d5105", 
-            "result": 0, 
-            "unixtime": 1442792985
-        }, 
-        {
-            "branch": "master", 
-            "duration": 0, 
-            "id": "3f5f0b9b-a5eb-4197-acd5-fb0e677c65c3", 
-            "result": 0, 
-            "unixtime": 1442788846
-        }, 
-        {
-            "branch": "master", 
-            "duration": 0, 
-            "id": "4dad3d9d-75c1-414c-8126-b5b77f56281d", 
-            "result": 0, 
-            "unixtime": 1442788582
-        }
-    ]
-}`)
+		fmt.Fprintf(w, "")
 	}))
 	defer testServer.Close()
 
