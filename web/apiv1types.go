@@ -37,11 +37,12 @@ type Builds struct {
 }
 
 type Build struct {
-	ID       string `json:"id"`
-	Branch   string `json:"branch"`
-	Result   int    `json:"result"`
-	Duration uint64 `json:"duration"`
-	UnixTime uint64 `json:"unixtime"`
+	ID         string `json:"id"`
+	ProjectKey string `json:"projectKey"`
+	Branch     string `json:"branch"`
+	Result     int    `json:"result,omitempty"`
+	Duration   uint64 `json:"duration,omitempty"`
+	UnixTime   uint64 `json:"unixtime"`
 }
 
 type Teams struct {

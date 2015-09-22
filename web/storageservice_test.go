@@ -17,6 +17,10 @@ func (s *MockStorageService) GetBuildsByProject(project Project, sinceTime uint6
 	return s.builds, s.err
 }
 
+func (s *MockStorageService) GetBuildsBuildling() ([]Build, error) {
+	return s.builds, s.err
+}
+
 func (s *MockStorageService) GetArtifacts(buildID string) ([]byte, error) {
 	s.buildID = buildID
 	return s.data, s.err
