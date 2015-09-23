@@ -3,14 +3,12 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"strconv"
 	"time"
 
 	"github.com/ae6rt/retry"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
