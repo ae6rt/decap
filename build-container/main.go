@@ -9,11 +9,14 @@ import (
 	"github.com/ae6rt/decap/build-container/locks"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/spf13/cobra"
 )
 
 var buildInfo string
+var buildStartTime string
+var buildDuration string
 var bucketName string
 var buildID string
 var contentType string
@@ -72,11 +75,38 @@ var putS3Cmd = &cobra.Command{
 	},
 }
 
+/*
+{
+        "buildID": {
+            "S": "$BUILD_ID"
+        },
+        "buildTime": {
+            "N": "$START"
+        },
+        "projectKey": {
+            "S": "$PROJECT_KEY"
+        },
+        "branch": {
+            "S": "$BRANCH_TO_BUILD"
+        },
+        "isBuilding": {
+            "N": "1"
+        }
+}
+*/
 var buildStartCmd = &cobra.Command{
 	Use:   "build-start",
 	Short: "mark a build as started in DynamoDb",
 	Long:  "mark a build as started in DynamoDb",
 	Run: func(cmd *cobra.Command, args []string) {
+
+		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+		svc := dynamodb.New(config)
+
+		params := &dynamodb.PutItemInput{
+			TableName: aws.String("decap-build-metadata"),
+			Item:      map[string]*dynamodb.AttributeValue{"projectKey": {S: aws.String(":pkey")}},
+		}
 	},
 }
 
