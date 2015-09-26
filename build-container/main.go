@@ -19,15 +19,20 @@ var buildInfo string
 
 var debug bool
 
+var buildID string
+
+var tableName string
 var buildStartTime int64
 var buildDuration int64
 var buildResult int64
+var projectKey string
+var branchToBuild string
 
 var bucketName string
-var buildID string
 var contentType string
 var fileName string
 var awsRegion string
+
 var Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 var BCToolCmd = &cobra.Command{
@@ -91,8 +96,8 @@ var putS3Cmd = &cobra.Command{
 
 var buildStartCmd = &cobra.Command{
 	Use:   "build-start",
-	Short: "Mark a build as started in DynamoDb",
-	Long:  "Mark a build as started in DynamoDb.  This sets the isBuilding flag and sets the build start time.",
+	Short: "Mark a build as started in Decap.",
+	Long:  "Mark a build as started in Decap.",
 	Run: func(cmd *cobra.Command, args []string) {
 		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
 		if debug {
@@ -100,19 +105,19 @@ var buildStartCmd = &cobra.Command{
 		}
 		svc := dynamodb.New(config)
 		params := &dynamodb.PutItemInput{
-			TableName: aws.String("decap-build-metadata"),
+			TableName: aws.String(tableName),
 			Item: map[string]*dynamodb.AttributeValue{
 				"buildID": {
-					S: aws.String(os.Getenv("BUILD_ID")),
+					S: aws.String(buildID),
 				},
 				"projectKey": {
-					S: aws.String(os.Getenv("PROJECT_KEY")),
+					S: aws.String(projectKey),
 				},
 				"buildTime": {
 					N: aws.String(fmt.Sprintf("%d", buildStartTime)),
 				},
 				"branch": {
-					S: aws.String(os.Getenv("BRANCH_TO_BUILD")),
+					S: aws.String(branchToBuild),
 				},
 				"isBuilding": {
 					N: aws.String("1"),
@@ -136,16 +141,16 @@ var buildStartCmd = &cobra.Command{
 
 var buildFinishCmd = &cobra.Command{
 	Use:   "build-finish",
-	Short: "Mark a build as finished in DynamoDb",
-	Long:  "Mark a build as finished in DynamoDb.  This clears the isBuilding flag and sets the build result and duration.",
+	Short: "Mark a build as finished in Decap.",
+	Long:  "Mark a build as finished in Decap.",
 	Run: func(cmd *cobra.Command, args []string) {
 		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
 		svc := dynamodb.New(config)
 		params := &dynamodb.UpdateItemInput{
-			TableName: aws.String("decap-build-metadata"),
+			TableName: aws.String(tableName),
 			Key: map[string]*dynamodb.AttributeValue{
 				"buildID": {
-					S: aws.String(os.Getenv("BUILD_ID")),
+					S: aws.String(buildID),
 				},
 			},
 			UpdateExpression: aws.String("SET buildElapsedTime = :buildDuration, buildResult = :buildResult, isBuilding = :isBuilding"),
@@ -179,19 +184,21 @@ var buildFinishCmd = &cobra.Command{
 }
 
 func init() {
-	putS3Cmd.Flags().StringVarP(&bucketName, "bucket-name", "b", "", "S3 Bucket Name")
-	putS3Cmd.Flags().StringVarP(&buildID, "build-id", "i", "", "Build ID")
-	putS3Cmd.Flags().StringVarP(&contentType, "content-type", "t", "", "Content Type")
-	putS3Cmd.Flags().StringVarP(&fileName, "filename", "f", "", "File Name")
-	putS3Cmd.Flags().StringVarP(&awsRegion, "aws-region", "r", "us-west-1", "AWS Region")
+	putS3Cmd.Flags().StringVarP(&bucketName, "bucket-name", "", "", "S3 Bucket Name")
+	putS3Cmd.Flags().StringVarP(&contentType, "content-type", "", "", "Content Type")
+	putS3Cmd.Flags().StringVarP(&fileName, "filename", "", "", "File Name")
 
-	buildStartCmd.Flags().StringVarP(&awsRegion, "aws-region", "r", "us-west-1", "AWS Region")
-	buildStartCmd.Flags().Int64VarP(&buildStartTime, "start-time", "s", 0, "Unix time in seconds since the epoch when the build started")
+	buildStartCmd.Flags().StringVarP(&tableName, "table-name", "", "", "DynamoDb build metadata table name")
+	buildStartCmd.Flags().StringVarP(&projectKey, "project-key", "", "", "Project key")
+	buildStartCmd.Flags().StringVarP(&branchToBuild, "branch", "", "", "Branch being built")
+	buildStartCmd.Flags().Int64VarP(&buildStartTime, "start-time", "", 0, "Unix time in seconds since the epoch when the build started")
 
-	buildFinishCmd.Flags().StringVarP(&awsRegion, "aws-region", "r", "us-west-1", "AWS Region")
-	buildFinishCmd.Flags().Int64VarP(&buildResult, "build-result", "s", 0, "Unix exit code of the executed build")
-	buildFinishCmd.Flags().Int64VarP(&buildDuration, "build-duration", "d", 0, "Duration of the build in seconds")
+	buildFinishCmd.Flags().StringVarP(&tableName, "table-name", "", "", "DynamoDb build metadata table name")
+	buildFinishCmd.Flags().Int64VarP(&buildResult, "build-result", "", 0, "Unix exit code of the executed build")
+	buildFinishCmd.Flags().Int64VarP(&buildDuration, "build-duration", "", 0, "Duration of the build in seconds")
 
+	BCToolCmd.PersistentFlags().StringVarP(&buildID, "build-id", "", "", "Build ID")
+	BCToolCmd.PersistentFlags().StringVarP(&awsRegion, "aws-region", "", "", "AWS Region")
 	BCToolCmd.PersistentFlags().BoolVarP(&debug, "debug", "", false, "Provide debug logging")
 
 	BCToolCmd.AddCommand(versionCmd)
