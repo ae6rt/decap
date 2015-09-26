@@ -55,7 +55,7 @@ var putS3Cmd = &cobra.Command{
 		svc := s3.New(config)
 		data, err := ioutil.ReadFile(fileName)
 		if err != nil {
-			log.Fatal(err)
+			Log.Fatal(err)
 		}
 		params := &s3.PutObjectInput{
 			Bucket:        aws.String(bucketName),
@@ -64,8 +64,10 @@ var putS3Cmd = &cobra.Command{
 			ContentType:   aws.String(contentType),
 			ContentLength: aws.Int64(int64(len(data))),
 		}
-		if _, err = svc.PutObject(params); err != nil {
-			log.Fatal(err.Error())
+		if _, err := svc.PutObject(params); err != nil {
+			Log.Fatal(err.Error())
+		} else {
+			Log.Println("PUT successful")
 		}
 	},
 }
