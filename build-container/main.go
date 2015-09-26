@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -15,8 +16,8 @@ import (
 )
 
 var buildInfo string
-var buildStartTime string
-var buildDuration string
+var buildStartTime int64
+var buildDuration int64
 var bucketName string
 var buildID string
 var contentType string
@@ -70,7 +71,7 @@ var putS3Cmd = &cobra.Command{
 		if _, err := svc.PutObject(params); err != nil {
 			Log.Fatal(err.Error())
 		} else {
-			Log.Println("PUT successful")
+			Log.Println("S3 PUT successful")
 		}
 	},
 }
@@ -100,12 +101,54 @@ var buildStartCmd = &cobra.Command{
 	Long:  "mark a build as started in DynamoDb",
 	Run: func(cmd *cobra.Command, args []string) {
 
+		projectKey := os.Getenv("PROJECT_KEY")
+		buildID := os.Getenv("BUILD_ID")
+		branch := os.Getenv("BRANCH_TO_BUILD")
+
 		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
 		svc := dynamodb.New(config)
 
 		params := &dynamodb.PutItemInput{
 			TableName: aws.String("decap-build-metadata"),
-			Item:      map[string]*dynamodb.AttributeValue{"projectKey": {S: aws.String(":pkey")}},
+			Item: map[string]*dynamodb.AttributeValue{
+				"projectKey": {
+					S: aws.String(":pkey"),
+				},
+				"buildID": {
+					S: aws.String(":buildID"),
+				},
+				"buildTime": {
+					N: aws.String(":buildTime"),
+				},
+				"branch": {
+					S: aws.String(":branch"),
+				},
+				"isBuildling": {
+					N: aws.String("1"),
+				},
+			},
+			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+				":pkey": {
+					S: aws.String(projectKey),
+				},
+				":buildID": {
+					S: aws.String(buildID),
+				},
+				":buildTime": {
+					N: aws.String(fmt.Sprintf("%d", buildStartTime)),
+				},
+				":branch": {
+					S: aws.String(branch),
+				},
+			},
+		}
+
+		_, err := svc.PutItem(params)
+
+		if err != nil {
+			Log.Fatal(err.Error())
+		} else {
+			Log.Println("DynamoDb PUT successful")
 		}
 	},
 }
@@ -116,6 +159,8 @@ func init() {
 	putS3Cmd.Flags().StringVarP(&contentType, "content-type", "t", "", "Content Type")
 	putS3Cmd.Flags().StringVarP(&fileName, "filename", "f", "", "File Name")
 	putS3Cmd.Flags().StringVarP(&awsRegion, "aws-region", "r", "", "AWS Region")
+
+	buildStartCmd.Flags().Int64VarP(&buildStartTime, "build-start-time", "s", 0, "Build start Unix-time")
 
 	BCToolCmd.AddCommand(versionCmd)
 	BCToolCmd.AddCommand(unlockBuildCmd)
