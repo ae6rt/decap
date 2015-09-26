@@ -7,6 +7,7 @@ RUN curl -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && python /tmp/
 RUN mkdir -p /home/decap/workspace /build-artifacts /home/decap/buildscripts /opt/decap
 
 COPY entrypoint.sh /opt/decap/bin/
+COPY bctool-linux-amd64 /opt/decap/bin/bctool
 
 ENTRYPOINT ["/opt/decap/bin/entrypoint.sh"]
 
