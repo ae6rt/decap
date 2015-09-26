@@ -74,69 +74,58 @@ var putS3Cmd = &cobra.Command{
 		if _, err := svc.PutObject(params); err != nil {
 			Log.Fatal(err.Error())
 		} else {
-			Log.Println("S3 PUT successful")
+			Log.Println("S3 Put successful")
 		}
 	},
 }
 
 var buildStartCmd = &cobra.Command{
 	Use:   "build-start",
-	Short: "mark a build as started in DynamoDb",
-	Long:  "mark a build as started in DynamoDb",
+	Short: "Mark a build as started in DynamoDb",
+	Long:  "Mark a build as started in DynamoDb.  This sets the isBuilding flag and sets the build start time.",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		projectKey := os.Getenv("PROJECT_KEY")
-		buildID := os.Getenv("BUILD_ID")
-		branch := os.Getenv("BRANCH_TO_BUILD")
-
 		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
 		svc := dynamodb.New(config)
-
 		params := &dynamodb.PutItemInput{
 			TableName: aws.String("decap-build-metadata"),
 			Item: map[string]*dynamodb.AttributeValue{
 				"buildID": {
-					S: aws.String(buildID),
+					S: aws.String(os.Getenv("BUILD_ID")),
 				},
 				"projectKey": {
-					S: aws.String(projectKey),
+					S: aws.String(os.Getenv("PROJECT_KEY")),
 				},
 				"buildTime": {
 					N: aws.String(fmt.Sprintf("%d", buildStartTime)),
 				},
 				"branch": {
-					S: aws.String(branch),
+					S: aws.String(os.Getenv("BRANCH_TO_BUILD")),
 				},
 				"isBuilding": {
 					N: aws.String("1"),
 				},
 			},
 		}
-
 		if _, err := svc.PutItem(params); err != nil {
 			Log.Fatal(err.Error())
 		} else {
-			Log.Println("DynamoDb PUT successful")
+			Log.Println("DynamoDb Put successful")
 		}
 	},
 }
 
 var buildFinishCmd = &cobra.Command{
 	Use:   "build-finish",
-	Short: "mark a build as finished in DynamoDb",
-	Long:  "mark a build as finished in DynamoDb",
+	Short: "Mark a build as finished in DynamoDb",
+	Long:  "Mark a build as finished in DynamoDb.  This clears the isBuilding flag and sets the build result and duration.",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		buildID := os.Getenv("BUILD_ID")
-
 		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
 		svc := dynamodb.New(config)
-
 		params := &dynamodb.UpdateItemInput{
 			TableName: aws.String("decap-build-metadata"),
 			Key: map[string]*dynamodb.AttributeValue{
 				"buildID": {
-					S: aws.String(buildID),
+					S: aws.String(os.Getenv("BUILD_ID")),
 				},
 			},
 			UpdateExpression: aws.String("SET buildElapsedTime = :buildDuration, buildResult = :buildResult, isBuilding = :isBuilding"),
@@ -152,11 +141,10 @@ var buildFinishCmd = &cobra.Command{
 				},
 			},
 		}
-
 		if _, err := svc.UpdateItem(params); err != nil {
 			Log.Fatal(err.Error())
 		} else {
-			Log.Println("DynamoDb PUT successful")
+			Log.Println("DynamoDb Update successful")
 		}
 	},
 }
