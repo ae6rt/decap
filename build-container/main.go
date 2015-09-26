@@ -16,8 +16,11 @@ import (
 )
 
 var buildInfo string
+
 var buildStartTime int64
 var buildDuration int64
+var buildResult int64
+
 var bucketName string
 var buildID string
 var contentType string
@@ -76,25 +79,6 @@ var putS3Cmd = &cobra.Command{
 	},
 }
 
-/*
-{
-        "buildID": {
-            "S": "$BUILD_ID"
-        },
-        "buildTime": {
-            "N": "$START"
-        },
-        "projectKey": {
-            "S": "$PROJECT_KEY"
-        },
-        "branch": {
-            "S": "$BRANCH_TO_BUILD"
-        },
-        "isBuilding": {
-            "N": "1"
-        }
-}
-*/
 var buildStartCmd = &cobra.Command{
 	Use:   "build-start",
 	Short: "mark a build as started in DynamoDb",
@@ -111,41 +95,65 @@ var buildStartCmd = &cobra.Command{
 		params := &dynamodb.PutItemInput{
 			TableName: aws.String("decap-build-metadata"),
 			Item: map[string]*dynamodb.AttributeValue{
-				"projectKey": {
-					S: aws.String(":pkey"),
-				},
 				"buildID": {
-					S: aws.String(":buildID"),
-				},
-				"buildTime": {
-					N: aws.String(":buildTime"),
-				},
-				"branch": {
-					S: aws.String(":branch"),
-				},
-				"isBuildling": {
-					N: aws.String("1"),
-				},
-			},
-			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-				":pkey": {
-					S: aws.String(projectKey),
-				},
-				":buildID": {
 					S: aws.String(buildID),
 				},
-				":buildTime": {
+				"projectKey": {
+					S: aws.String(projectKey),
+				},
+				"buildTime": {
 					N: aws.String(fmt.Sprintf("%d", buildStartTime)),
 				},
-				":branch": {
+				"branch": {
 					S: aws.String(branch),
+				},
+				"isBuilding": {
+					N: aws.String("1"),
 				},
 			},
 		}
 
-		_, err := svc.PutItem(params)
+		if _, err := svc.PutItem(params); err != nil {
+			Log.Fatal(err.Error())
+		} else {
+			Log.Println("DynamoDb PUT successful")
+		}
+	},
+}
 
-		if err != nil {
+var buildFinishCmd = &cobra.Command{
+	Use:   "build-finish",
+	Short: "mark a build as finished in DynamoDb",
+	Long:  "mark a build as finished in DynamoDb",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		buildID := os.Getenv("BUILD_ID")
+
+		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+		svc := dynamodb.New(config)
+
+		params := &dynamodb.UpdateItemInput{
+			TableName: aws.String("decap-build-metadata"),
+			Key: map[string]*dynamodb.AttributeValue{
+				"buildID": {
+					S: aws.String(buildID),
+				},
+			},
+			UpdateExpression: aws.String("SET buildElapsedTime = :buildDuration, buildResult = :buildResult, isBuilding = :isBuilding"),
+			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+				":buildDuration": {
+					N: aws.String(fmt.Sprintf("%d", buildDuration)),
+				},
+				":buildResult": {
+					N: aws.String(fmt.Sprintf("%d", buildResult)),
+				},
+				":isBuilding": {
+					N: aws.String("0"),
+				},
+			},
+		}
+
+		if _, err := svc.UpdateItem(params); err != nil {
 			Log.Fatal(err.Error())
 		} else {
 			Log.Println("DynamoDb PUT successful")
@@ -158,13 +166,20 @@ func init() {
 	putS3Cmd.Flags().StringVarP(&buildID, "build-id", "i", "", "Build ID")
 	putS3Cmd.Flags().StringVarP(&contentType, "content-type", "t", "", "Content Type")
 	putS3Cmd.Flags().StringVarP(&fileName, "filename", "f", "", "File Name")
-	putS3Cmd.Flags().StringVarP(&awsRegion, "aws-region", "r", "", "AWS Region")
+	putS3Cmd.Flags().StringVarP(&awsRegion, "aws-region", "r", "us-west-1", "AWS Region")
 
-	buildStartCmd.Flags().Int64VarP(&buildStartTime, "build-start-time", "s", 0, "Build start Unix-time")
+	buildStartCmd.Flags().StringVarP(&awsRegion, "aws-region", "r", "us-west-1", "AWS Region")
+	buildStartCmd.Flags().Int64VarP(&buildStartTime, "start-time", "s", 0, "Unix time in seconds since the epoch when the build started")
+
+	buildFinishCmd.Flags().StringVarP(&awsRegion, "aws-region", "r", "us-west-1", "AWS Region")
+	buildFinishCmd.Flags().Int64VarP(&buildResult, "build-result", "s", 0, "Unix exit code of the executed build")
+	buildFinishCmd.Flags().Int64VarP(&buildDuration, "build-duration", "d", 0, "Duration of the build in seconds")
 
 	BCToolCmd.AddCommand(versionCmd)
 	BCToolCmd.AddCommand(unlockBuildCmd)
 	BCToolCmd.AddCommand(putS3Cmd)
+	BCToolCmd.AddCommand(buildStartCmd)
+	BCToolCmd.AddCommand(buildFinishCmd)
 }
 
 func main() {
