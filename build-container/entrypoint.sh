@@ -33,8 +33,6 @@ if [ $# -eq 0 ]; then
    bctool s3put --aws-region ${AWS_DEFAULT_REGION} --bucket-name decap-console-logs  --build-id ${BUILD_ID} --content-type application/x-gzip --filename ${CONSOLE}.gz
 
    bctool build-finish --aws-region ${AWS_DEFAULT_REGION} --table-name decap-build-metadata --build-id ${BUILD_ID} --build-duration ${DURATION} --build-result ${BUILD_EXIT_CODE} 
-
-   curl -i http://lockservice.decap-system:2379/v2/keys/buildlocks/${BUILD_LOCK_KEY}?prevValue=${BUILD_ID} -XDELETE
 else
    exec "$@"
 fi
