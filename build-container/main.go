@@ -17,6 +17,8 @@ import (
 
 var buildInfo string
 
+var debug bool
+
 var buildStartTime int64
 var buildDuration int64
 var buildResult int64
@@ -59,6 +61,9 @@ var putS3Cmd = &cobra.Command{
 	Long:  `put a file to an S3 bucket`,
 	Run: func(cmd *cobra.Command, args []string) {
 		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+		if debug {
+			Log.Printf("%+v\n", config)
+		}
 		svc := s3.New(config)
 		data, err := ioutil.ReadFile(fileName)
 		if err != nil {
@@ -71,9 +76,14 @@ var putS3Cmd = &cobra.Command{
 			ContentType:   aws.String(contentType),
 			ContentLength: aws.Int64(int64(len(data))),
 		}
-		if _, err := svc.PutObject(params); err != nil {
+		if debug {
+			Log.Printf("%+v\n", params)
+		}
+		if resp, err := svc.PutObject(params); err != nil {
+			Log.Printf("%+v\n", resp)
 			Log.Fatal(err.Error())
 		} else {
+			Log.Printf("%+v\n", resp)
 			Log.Println("S3 Put successful")
 		}
 	},
@@ -85,6 +95,9 @@ var buildStartCmd = &cobra.Command{
 	Long:  "Mark a build as started in DynamoDb.  This sets the isBuilding flag and sets the build start time.",
 	Run: func(cmd *cobra.Command, args []string) {
 		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+		if debug {
+			Log.Printf("%+v\n", config)
+		}
 		svc := dynamodb.New(config)
 		params := &dynamodb.PutItemInput{
 			TableName: aws.String("decap-build-metadata"),
@@ -106,9 +119,16 @@ var buildStartCmd = &cobra.Command{
 				},
 			},
 		}
-		if _, err := svc.PutItem(params); err != nil {
+		if debug {
+			Log.Printf("%+v\n", params)
+		}
+		if resp, err := svc.PutItem(params); err != nil {
+			Log.Printf("%+v\n", resp)
 			Log.Fatal(err.Error())
 		} else {
+			if debug {
+				Log.Printf("%+v\n", resp)
+			}
 			Log.Println("DynamoDb Put successful")
 		}
 	},
@@ -141,9 +161,18 @@ var buildFinishCmd = &cobra.Command{
 				},
 			},
 		}
-		if _, err := svc.UpdateItem(params); err != nil {
+
+		if debug {
+			Log.Printf("%+v\n", params)
+		}
+
+		if resp, err := svc.UpdateItem(params); err != nil {
+			Log.Printf("%+v\n", resp)
 			Log.Fatal(err.Error())
 		} else {
+			if debug {
+				Log.Printf("%+v\n", resp)
+			}
 			Log.Println("DynamoDb Update successful")
 		}
 	},
@@ -162,6 +191,8 @@ func init() {
 	buildFinishCmd.Flags().StringVarP(&awsRegion, "aws-region", "r", "us-west-1", "AWS Region")
 	buildFinishCmd.Flags().Int64VarP(&buildResult, "build-result", "s", 0, "Unix exit code of the executed build")
 	buildFinishCmd.Flags().Int64VarP(&buildDuration, "build-duration", "d", 0, "Duration of the build in seconds")
+
+	BCToolCmd.PersistentFlags().BoolVarP(&debug, "debug", "", false, "Provide debug logging")
 
 	BCToolCmd.AddCommand(versionCmd)
 	BCToolCmd.AddCommand(unlockBuildCmd)
