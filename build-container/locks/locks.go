@@ -12,11 +12,8 @@ var client *http.Client = &http.Client{}
 
 var Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-func Unlock() error {
-	lock := os.Getenv("BUILD_LOCK_KEY")
-	buildID := os.Getenv("BUILD_ID")
-
-	url := fmt.Sprintf("http://lockservice.decap-system:2379/v2/keys/buildlocks/%?prevValue=%s", lock, buildID)
+func Unlock(baseURL, buildID, buildLockKey string) error {
+	url := fmt.Sprintf("%s/v2/keys/buildlocks/%?prevValue=%s", baseURL, buildLockKey, buildID)
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		return err

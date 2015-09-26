@@ -21,6 +21,9 @@ var debug bool
 
 var buildID string
 
+var lockServiceBaseURL string
+var buildLockKey string
+
 var tableName string
 var buildStartTime int64
 var buildDuration int64
@@ -56,7 +59,7 @@ var unlockBuildCmd = &cobra.Command{
 	Short: "Unlock a build",
 	Long:  `Unlock a build`,
 	Run: func(cmd *cobra.Command, args []string) {
-		locks.Unlock()
+		locks.Unlock(lockServiceBaseURL, buildID, buildLockKey)
 	},
 }
 
@@ -184,6 +187,9 @@ var buildFinishCmd = &cobra.Command{
 }
 
 func init() {
+	unlockBuildCmd.Flags().StringVarP(&lockServiceBaseURL, "lockservice-base-url", "", "http://lockservice.decap-system:2379", "Lock service base URL")
+	unlockBuildCmd.Flags().StringVarP(&buildLockKey, "build-lock-key", "", "", "The build's build lock key.")
+
 	putS3Cmd.Flags().StringVarP(&bucketName, "bucket-name", "", "", "S3 Bucket Name")
 	putS3Cmd.Flags().StringVarP(&contentType, "content-type", "", "", "Content Type")
 	putS3Cmd.Flags().StringVarP(&fileName, "filename", "", "", "File Name")

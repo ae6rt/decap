@@ -167,6 +167,18 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 					Value: k8s.AWSRegion,
 				},
 			},
+			Lifecycle: &k8stypes.Lifecycle{
+				PreStop: &k8stypes.Handler{
+					Exec: &k8stypes.ExecAction{
+						Command: []string{
+							"bctool", "unlock",
+							"--lockservice-base-url", "http://lockservice.decap-system:2379",
+							"--build-id", buildID,
+							"--build-lock-key", key,
+						},
+					},
+				},
+			},
 		}
 
 		containers[0] = baseContainer
