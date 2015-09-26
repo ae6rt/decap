@@ -186,7 +186,7 @@ var buildFinishCmd = &cobra.Command{
 	},
 }
 
-func init() {
+func main() {
 	unlockBuildCmd.Flags().StringVarP(&lockServiceBaseURL, "lockservice-base-url", "", "http://lockservice.decap-system:2379", "Lock service base URL")
 	unlockBuildCmd.Flags().StringVarP(&buildLockKey, "build-lock-key", "", "", "The build's build lock key.")
 
@@ -212,8 +212,6 @@ func init() {
 	BCToolCmd.AddCommand(putS3Cmd)
 	BCToolCmd.AddCommand(buildStartCmd)
 	BCToolCmd.AddCommand(buildFinishCmd)
-}
 
-func main() {
 	BCToolCmd.Execute()
 }
