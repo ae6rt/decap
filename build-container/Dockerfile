@@ -3,13 +3,12 @@ FROM centos:7.1.1503
 MAINTAINER Mark Petrovic <mspetrovic@gmail.com>
 
 RUN yum update -y && yum install -y git
-RUN curl -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && python /tmp/get-pip.py && pip install awscli && rm /tmp/get-pip.py 
-RUN mkdir -p /home/decap/workspace /build-artifacts /home/decap/buildscripts /opt/decap
+RUN mkdir -p /home/decap/workspace /build-artifacts /home/decap/buildscripts
 
-COPY entrypoint.sh /opt/decap/bin/
-COPY bctool-linux-amd64 /opt/decap/bin/bctool
+COPY entrypoint.sh /usr/local/bin/
+COPY bctool-linux-amd64 /usr/local/bin/bctool
 
-ENTRYPOINT ["/opt/decap/bin/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # Bake in Dockerfile for reference purposes
-COPY Dockerfile /opt/decap/
+COPY Dockerfile /opt/decap/Dockerfile
