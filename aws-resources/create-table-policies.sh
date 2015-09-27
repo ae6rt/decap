@@ -46,31 +46,11 @@ PROJECT_KEY_INDEX_POLICY=$(cat <<EOF
 EOF
 )
 
-IS_BUILDING__INDEX_POLICY=$(cat <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:*"
-            ],
-            "Resource": [
-                "arn:aws:dynamodb:${AWS_REGION}:${ACCOUNT_ID}:table/${APPLICATION_NAME}-build-metadata/index/isBuilding-index"
-            ]
-        }
-    ]
-}
-EOF
-)
-
 echo "===Creating policies for Dynamodb table"
 
 BASE_POLICY=$(aws --profile $AWS_PROFILE iam create-policy --policy-name ${APPLICATION_NAME}-db-base --policy-document "$DB_POLICY" --description "Give r/w to $USER user on metadata table")
 
 PROJECT_KEY_POLICY=$(aws --profile $AWS_PROFILE iam create-policy --policy-name ${APPLICATION_NAME}-db-projectKey --policy-document "$PROJECT_KEY_INDEX_POLICY" --description "Give r/w to $USER user on projectKey index")
-
-IS_BUILDING_POLICY=$(aws --profile $AWS_PROFILE iam create-policy --policy-name ${APPLICATION_NAME}-db-isBuilding --policy-document "$IS_BUILDING__INDEX_POLICY" --description "Give r/w to $USER user on isBuilding index")
 
 for i in "$BASE_POLICY" "$PROJECT_KEY_POLICY" "$IS_BUILDING_POLICY"; do 
 	aws --profile $AWS_PROFILE iam attach-user-policy --user-name $USER --policy-arn "$(echo "$i" | jq -r ".Policy.Arn")"

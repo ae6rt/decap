@@ -29,10 +29,6 @@ ATTRIBUTE_DEFINITIONS=$(cat <<EOF
                 "AttributeType": "N"
             },
             {
-                "AttributeName": "isBuilding",
-                "AttributeType": "N"
-            },
-            {
                 "AttributeName": "projectKey",
                 "AttributeType": "S"
             }
@@ -61,23 +57,7 @@ GLOBAL_SECONDARY_INDEXES=$(cat <<EOF
                         "AttributeName": "buildTime"
                     }
                 ] 
-}, 
-{
-                "IndexName": "isBuilding-index", 
-                "Projection": {
-                    "ProjectionType": "ALL"
-                }, 
-                "ProvisionedThroughput": {
-                    "WriteCapacityUnits": 2, 
-                    "ReadCapacityUnits": 1
-                }, 
-                "KeySchema": [
-                    {
-                        "KeyType": "HASH", 
-                        "AttributeName": "isBuilding"
-                    }
-                ]
-}
+} 
 ]
 EOF
 )
