@@ -365,30 +365,3 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		w.Write(data)
 	}
 }
-
-func BuildsBuildingHandler(storageService StorageService) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-
-		buildList, err := storageService.GetBuildsBuildling()
-
-		if err != nil {
-			builds := Builds{Meta: Meta{Error: err.Error()}}
-			data, _ := json.Marshal(&builds)
-			w.WriteHeader(502)
-			w.Write(data)
-			return
-		}
-
-		builds := Builds{Builds: buildList}
-		data, err := json.Marshal(&builds)
-		if err != nil {
-			builds := Builds{Meta: Meta{Error: err.Error()}}
-			builds.Meta.Error = err.Error()
-			data, _ := json.Marshal(&builds)
-			w.WriteHeader(500)
-			w.Write(data)
-			return
-		}
-		w.Write(data)
-	}
-}
