@@ -13,8 +13,6 @@ if [ $# -eq 0 ]; then
 
    START=$(date +%s)
 
-   bctool build-start --aws-region ${AWS_DEFAULT_REGION} --table-name decap-build-metadata --build-id ${BUILD_ID} --start-time ${START} --project-key ${PROJECT_KEY} --branch ${BRANCH_TO_BUILD} 
-
    pushd $WORKSPACE
    	sh /home/decap/buildscripts/decap-build-scripts/${PROJECT_KEY}/build.sh 2>&1 | tee $CONSOLE
    	BUILD_EXITCODE=${PIPESTATUS[0]}
@@ -32,7 +30,8 @@ if [ $# -eq 0 ]; then
    bctool s3put --aws-region ${AWS_DEFAULT_REGION} --bucket-name decap-build-artifacts --build-id ${BUILD_ID} --content-type application/x-gzip --filename /tmp/${TAR}.gz 
    bctool s3put --aws-region ${AWS_DEFAULT_REGION} --bucket-name decap-console-logs  --build-id ${BUILD_ID} --content-type application/x-gzip --filename ${CONSOLE}.gz
 
-   bctool build-finish --aws-region ${AWS_DEFAULT_REGION} --table-name decap-build-metadata --build-id ${BUILD_ID} --build-duration ${DURATION} --build-result ${BUILD_EXIT_CODE} 
+   bctool record-build-metadata  --aws-region ${AWS_DEFAULT_REGION}  --table-name decap-build-metadata  --build-id ${BUILD_ID}  --start-time ${START} --project-key ${PROJECT_KEY} --branch ${BRANCH_TO_BUILD} \
+	--build-duration ${DURATION} --build-result ${BUILD_EXIT_CODE} 
 else
    exec "$@"
 fi

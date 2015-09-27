@@ -46,8 +46,8 @@ var BCToolCmd = &cobra.Command{
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Print the version number of bctool",
-	Long:  `All software has versions. This is bctool's`,
+	Short: "Print version and build info for bctool",
+	Long:  `All software has build info. This is bctool's`,
 	Run: func(cmd *cobra.Command, args []string) {
 		Log.Println(buildInfo)
 		os.Exit(0)
@@ -97,10 +97,10 @@ var putS3Cmd = &cobra.Command{
 	},
 }
 
-var buildStartCmd = &cobra.Command{
-	Use:   "build-start",
-	Short: "Mark a build as started in Decap.",
-	Long:  "Mark a build as started in Decap.",
+var recordBuildCmd = &cobra.Command{
+	Use:   "record-build-metadata",
+	Short: "Record build metadata in backing store",
+	Long:  "Record build metadata in backing store",
 	Run: func(cmd *cobra.Command, args []string) {
 		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
 		if debug {
@@ -122,8 +122,11 @@ var buildStartCmd = &cobra.Command{
 				"branch": {
 					S: aws.String(branchToBuild),
 				},
-				"isBuilding": {
-					N: aws.String("1"),
+				"buildResult": {
+					N: aws.String(fmt.Sprintf("%d", buildResult)),
+				},
+				"buildElapsedTime": {
+					N: aws.String(fmt.Sprintf("%d", buildDuration)),
 				},
 			},
 		}
@@ -142,50 +145,6 @@ var buildStartCmd = &cobra.Command{
 	},
 }
 
-var buildFinishCmd = &cobra.Command{
-	Use:   "build-finish",
-	Short: "Mark a build as finished in Decap.",
-	Long:  "Mark a build as finished in Decap.",
-	Run: func(cmd *cobra.Command, args []string) {
-		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
-		svc := dynamodb.New(config)
-		params := &dynamodb.UpdateItemInput{
-			TableName: aws.String(tableName),
-			Key: map[string]*dynamodb.AttributeValue{
-				"buildID": {
-					S: aws.String(buildID),
-				},
-			},
-			UpdateExpression: aws.String("SET buildElapsedTime = :buildDuration, buildResult = :buildResult, isBuilding = :isBuilding"),
-			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-				":buildDuration": {
-					N: aws.String(fmt.Sprintf("%d", buildDuration)),
-				},
-				":buildResult": {
-					N: aws.String(fmt.Sprintf("%d", buildResult)),
-				},
-				":isBuilding": {
-					N: aws.String("0"),
-				},
-			},
-		}
-
-		if debug {
-			Log.Printf("%+v\n", params)
-		}
-
-		if resp, err := svc.UpdateItem(params); err != nil {
-			Log.Printf("%+v\n", resp)
-			Log.Fatal(err.Error())
-		} else {
-			if debug {
-				Log.Printf("%+v\n", resp)
-			}
-			Log.Println("DynamoDb Update successful")
-		}
-	},
-}
-
 func main() {
 	unlockBuildCmd.Flags().StringVarP(&lockServiceBaseURL, "lockservice-base-url", "", "http://lockservice.decap-system:2379", "Lock service base URL")
 	unlockBuildCmd.Flags().StringVarP(&buildLockKey, "build-lock-key", "", "", "The build's build lock key.")
@@ -194,14 +153,12 @@ func main() {
 	putS3Cmd.Flags().StringVarP(&contentType, "content-type", "", "", "Content Type")
 	putS3Cmd.Flags().StringVarP(&fileName, "filename", "", "", "File Name")
 
-	buildStartCmd.Flags().StringVarP(&tableName, "table-name", "", "", "DynamoDb build metadata table name")
-	buildStartCmd.Flags().StringVarP(&projectKey, "project-key", "", "", "Project key")
-	buildStartCmd.Flags().StringVarP(&branchToBuild, "branch", "", "", "Branch being built")
-	buildStartCmd.Flags().Int64VarP(&buildStartTime, "start-time", "", 0, "Unix time in seconds since the epoch when the build started")
-
-	buildFinishCmd.Flags().StringVarP(&tableName, "table-name", "", "", "DynamoDb build metadata table name")
-	buildFinishCmd.Flags().Int64VarP(&buildResult, "build-result", "", 0, "Unix exit code of the executed build")
-	buildFinishCmd.Flags().Int64VarP(&buildDuration, "build-duration", "", 0, "Duration of the build in seconds")
+	recordBuildCmd.Flags().StringVarP(&tableName, "table-name", "", "", "DynamoDb build metadata table name")
+	recordBuildCmd.Flags().StringVarP(&projectKey, "project-key", "", "", "Project key")
+	recordBuildCmd.Flags().StringVarP(&branchToBuild, "branch", "", "", "Branch being built")
+	recordBuildCmd.Flags().Int64VarP(&buildStartTime, "start-time", "", 0, "Unix time in seconds since the epoch when the build started")
+	recordBuildCmd.Flags().Int64VarP(&buildResult, "build-result", "", 0, "Unix exit code of the executed build")
+	recordBuildCmd.Flags().Int64VarP(&buildDuration, "build-duration", "", 0, "Duration of the build in seconds")
 
 	BCToolCmd.PersistentFlags().StringVarP(&buildID, "build-id", "", "", "Build ID")
 	BCToolCmd.PersistentFlags().StringVarP(&awsRegion, "aws-region", "", "", "AWS Region")
@@ -210,8 +167,7 @@ func main() {
 	BCToolCmd.AddCommand(versionCmd)
 	BCToolCmd.AddCommand(unlockBuildCmd)
 	BCToolCmd.AddCommand(putS3Cmd)
-	BCToolCmd.AddCommand(buildStartCmd)
-	BCToolCmd.AddCommand(buildFinishCmd)
+	BCToolCmd.AddCommand(recordBuildCmd)
 
 	BCToolCmd.Execute()
 }
