@@ -31,7 +31,11 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 		params := &dynamodb.QueryInput{
 			TableName:              aws.String("decap-build-metadata"),
 			IndexName:              aws.String("project-key-build-start-time-index"),
-			KeyConditionExpression: aws.String("project-key = :pkey and build-start-time > :since"),
+			KeyConditionExpression: aws.String("#pkey = :pkey and #bst > :since"),
+			ExpressionAttributeNames: map[string]*string{
+				"#pkey": aws.String("project-key"),
+				"#bst":  aws.String("build-start-time"),
+			},
 			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 				":pkey": {
 					S: aws.String(projectKey(project.Team, project.Library)),

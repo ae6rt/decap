@@ -106,8 +106,8 @@ func TestDynamoDbGetBuilds(t *testing.T) {
 	if v.IndexName != "project-key-build-start-time-index" {
 		t.Fatalf("Want project-key-build-start-time-index but got %s\n", v.IndexName)
 	}
-	if v.KeyConditionExpression != "project-key = :pkey and build-start-time > :since" {
-		t.Fatalf("Want project-key = :pkey and build-start-time > :since but got %s\n", v.KeyConditionExpression)
+	if v.KeyConditionExpression != "#pkey = :pkey and #bst > :since" {
+		t.Fatalf("Want #pkey = :pkey and #bst > :since but got %s\n", v.KeyConditionExpression)
 	}
 	if v.Limit != 1 {
 		t.Fatalf("Want 1 but got %d\n", v.Limit)
