@@ -30,8 +30,8 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 		svc := dynamodb.New(c.Config)
 		params := &dynamodb.QueryInput{
 			TableName:              aws.String("decap-build-metadata"),
-			IndexName:              aws.String("projectKey-buildTime-index"),
-			KeyConditionExpression: aws.String("projectKey = :pkey and buildTime > :since"),
+			IndexName:              aws.String("project-key-build-time-index"),
+			KeyConditionExpression: aws.String("project-key = :pkey and build-start-time > :since"),
 			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 				":pkey": {
 					S: aws.String(projectKey(project.Team, project.Library)),
@@ -67,21 +67,21 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 
 	builds := make([]Build, 0)
 	for _, v := range resp.Items {
-		buildElapsedTime, err := strconv.ParseUint(*v["buildElapsedTime"].N, 10, 64)
+		buildElapsedTime, err := strconv.ParseUint(*v["build-duration"].N, 10, 64)
 		if err != nil {
-			Log.Printf("Error converting buildElapsedTime to ordinal value: %v\n", err)
+			Log.Printf("Error converting build-duration to ordinal value: %v\n", err)
 		}
-		buildResult, err := strconv.ParseInt(*v["buildResult"].N, 10, 32)
+		buildResult, err := strconv.ParseInt(*v["build-result"].N, 10, 32)
 		if err != nil {
-			Log.Printf("Error converting buildResult to ordinal value: %v\n", err)
+			Log.Printf("Error converting build-result to ordinal value: %v\n", err)
 		}
-		buildTime, err := strconv.ParseUint(*v["buildTime"].N, 10, 64)
+		buildTime, err := strconv.ParseUint(*v["build-start-time"].N, 10, 64)
 		if err != nil {
-			Log.Printf("Error converting buildTime to ordinal value: %v\n", err)
+			Log.Printf("Error converting build-start-time to ordinal value: %v\n", err)
 		}
 
 		build := Build{
-			ID:       *v["buildID"].S,
+			ID:       *v["build-id"].S,
 			Branch:   *v["branch"].S,
 			Duration: buildElapsedTime,
 			Result:   int(buildResult),

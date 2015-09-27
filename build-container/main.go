@@ -110,22 +110,22 @@ var recordBuildCmd = &cobra.Command{
 		params := &dynamodb.PutItemInput{
 			TableName: aws.String(tableName),
 			Item: map[string]*dynamodb.AttributeValue{
-				"buildID": {
+				"build-id": {
 					S: aws.String(buildID),
 				},
-				"projectKey": {
+				"project-key": {
 					S: aws.String(projectKey),
 				},
-				"buildTime": {
+				"build-start-time": {
 					N: aws.String(fmt.Sprintf("%d", buildStartTime)),
 				},
 				"branch": {
 					S: aws.String(branchToBuild),
 				},
-				"buildResult": {
+				"build-result": {
 					N: aws.String(fmt.Sprintf("%d", buildResult)),
 				},
-				"buildElapsedTime": {
+				"build-duration": {
 					N: aws.String(fmt.Sprintf("%d", buildDuration)),
 				},
 			},
@@ -156,7 +156,7 @@ func main() {
 	recordBuildCmd.Flags().StringVarP(&tableName, "table-name", "", "", "DynamoDb build metadata table name")
 	recordBuildCmd.Flags().StringVarP(&projectKey, "project-key", "", "", "Project key")
 	recordBuildCmd.Flags().StringVarP(&branchToBuild, "branch", "", "", "Branch being built")
-	recordBuildCmd.Flags().Int64VarP(&buildStartTime, "start-time", "", 0, "Unix time in seconds since the epoch when the build started")
+	recordBuildCmd.Flags().Int64VarP(&buildStartTime, "build-start-time", "", 0, "Unix time in seconds since the epoch when the build started")
 	recordBuildCmd.Flags().Int64VarP(&buildResult, "build-result", "", 0, "Unix exit code of the executed build")
 	recordBuildCmd.Flags().Int64VarP(&buildDuration, "build-duration", "", 0, "Duration of the build in seconds")
 

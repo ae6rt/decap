@@ -52,12 +52,11 @@ Dashboard UI:
 * an IAM user named decap
 * two S3 buckets, one named decap-console-logs and another named decap-build-artifacts
 * one DynamoDb table named decap-build-metadata
-* five policies attached to the user decap
+* four policies attached to the user decap
 
 The five policies are named:
 
 * decap-db-base
-* decap-db-isBuilding
 * decap-db-projectKey
 * decap-s3-build-artifacts
 * decap-s3-console-logs

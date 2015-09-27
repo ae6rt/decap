@@ -30,7 +30,7 @@ if [ $# -eq 0 ]; then
    bctool s3put --aws-region ${AWS_DEFAULT_REGION} --bucket-name decap-build-artifacts --build-id ${BUILD_ID} --content-type application/x-gzip --filename /tmp/${TAR}.gz 
    bctool s3put --aws-region ${AWS_DEFAULT_REGION} --bucket-name decap-console-logs  --build-id ${BUILD_ID} --content-type application/x-gzip --filename ${CONSOLE}.gz
 
-   bctool record-build-metadata  --aws-region ${AWS_DEFAULT_REGION}  --table-name decap-build-metadata  --build-id ${BUILD_ID}  --start-time ${START} --project-key ${PROJECT_KEY} --branch ${BRANCH_TO_BUILD} \
+   bctool record-build-metadata  --aws-region ${AWS_DEFAULT_REGION}  --table-name decap-build-metadata  --build-id ${BUILD_ID}  --build-start-time ${START} --project-key ${PROJECT_KEY} --branch ${BRANCH_TO_BUILD} \
 	--build-duration ${DURATION} --build-result ${BUILD_EXIT_CODE} 
 else
    exec "$@"

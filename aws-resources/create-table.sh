@@ -12,7 +12,7 @@ KEY_SCHEMA=$(cat <<EOF
 [
             {
                 "KeyType": "HASH", 
-                "AttributeName": "buildID"
+                "AttributeName": "build-id"
             }
 ]
 EOF
@@ -21,15 +21,15 @@ EOF
 ATTRIBUTE_DEFINITIONS=$(cat <<EOF
 [
             {
-                "AttributeName": "buildID",
+                "AttributeName": "build-id",
                 "AttributeType": "S"
             },
             {
-                "AttributeName": "buildTime",
+                "AttributeName": "build-start-time",
                 "AttributeType": "N"
             },
             {
-                "AttributeName": "projectKey",
+                "AttributeName": "project-key",
                 "AttributeType": "S"
             }
 ]
@@ -39,7 +39,7 @@ EOF
 GLOBAL_SECONDARY_INDEXES=$(cat <<EOF
 [
 {
-                "IndexName": "projectKey-buildTime-index", 
+                "IndexName": "project-key-build-start-time-index", 
                 "Projection": {
                     "ProjectionType": "ALL"
                 }, 
@@ -50,11 +50,11 @@ GLOBAL_SECONDARY_INDEXES=$(cat <<EOF
                 "KeySchema": [
                     {
                         "KeyType": "HASH", 
-                        "AttributeName": "projectKey"
+                        "AttributeName": "project-key"
                     }, 
                     {
                         "KeyType": "RANGE", 
-                        "AttributeName": "buildTime"
+                        "AttributeName": "build-start-time"
                     }
                 ] 
 } 
