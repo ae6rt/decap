@@ -89,6 +89,7 @@ type StorageService interface {
 type Decap interface {
 	LaunchBuild(buildEvent BuildEvent) error
 	DeletePod(podName string) error
+	DeferBuild(event UserBuildEvent) error
 }
 
 func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker Locker) DefaultDecap {
@@ -110,6 +111,10 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsReg
 		AWSRegion:       awsRegion,
 		apiClient:       apiClient,
 	}
+}
+
+func (decap DefaultDecap) DeferBuild(event UserBuildEvent) error {
+	return nil
 }
 
 func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
@@ -241,6 +246,16 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 		resp, err := k8s.Locker.Lock(fullyQualifiedKey, buildID)
 		if err != nil {
 			Log.Printf("Failed to acquire lock %s on build %s: %v\n", key, buildID, err)
+			deferredBuild := UserBuildEvent{
+				TeamFld:     buildEvent.Team(),
+				LibraryFld:  buildEvent.Library(),
+				BranchesFld: []string{branch},
+			}
+			if err := k8s.DeferBuild(deferredBuild); err != nil {
+				Log.Printf("Failed to defer build: %+v\n", deferredBuild)
+			} else {
+				Log.Printf("Deferred build: %+v\n", deferredBuild)
+			}
 			continue
 		}
 

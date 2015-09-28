@@ -14,3 +14,7 @@ func (d *MockDecap) DeletePod(podName string) error {
 	d.buildID = podName
 	return nil
 }
+
+func (d *MockDecap) DeferBuild(event UserBuildEvent) error {
+	return nil
+}
