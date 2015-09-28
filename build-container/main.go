@@ -38,6 +38,10 @@ var awsRegion string
 
 var Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
+var awsConfig = func() *aws.Config {
+	return aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+}
+
 var BCToolCmd = &cobra.Command{
 	Use:   "bctool",
 	Short: "bctool is a multifunction build container tool.",
@@ -95,7 +99,7 @@ var putS3Cmd = &cobra.Command{
 	Short: "put a file to an S3 bucket",
 	Long:  `put a file to an S3 bucket`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+		config := awsConfig()
 		if debug {
 			Log.Printf("%+v\n", config)
 		}
@@ -131,7 +135,7 @@ var recordBuildCmd = &cobra.Command{
 	Short: "Record build metadata in backing store",
 	Long:  "Record build metadata in backing store",
 	Run: func(cmd *cobra.Command, args []string) {
-		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+		config := awsConfig()
 		if debug {
 			Log.Printf("%+v\n", config)
 		}
