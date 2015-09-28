@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 
-	"github.com/ae6rt/decap/build-container/locks"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -58,7 +58,29 @@ var unlockBuildCmd = &cobra.Command{
 	Short: "Unlock a build",
 	Long:  `A build by project-key and branch is locked to prevent concurrent builds of that branch.  Decap will unlock the branch automatically when a build completes using this command.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		locks.Unlock(lockServiceBaseURL, buildID, buildLockKey)
+		var client *http.Client = &http.Client{}
+		url := fmt.Sprintf("%s/v2/keys/buildlocks/%?prevValue=%s", lockServiceBaseURL, buildLockKey, buildID)
+		req, err := http.NewRequest("DELETE", url, nil)
+		if err != nil {
+			Log.Printf("Error forming new URL for build-unlock: %v\n", err)
+			return
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			Log.Printf("Error executing build-unlock: %v\n", err)
+			return
+		}
+		defer func() {
+			resp.Body.Close()
+		}()
+
+		if resp.StatusCode != 201 {
+			if data, err := ioutil.ReadAll(resp.Body); err != nil {
+				Log.Printf("Error reading non-201 response body: %v\n", err)
+			} else {
+				Log.Printf("%s\n", string(data))
+			}
+		}
 	},
 }
 
