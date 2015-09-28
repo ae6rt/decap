@@ -59,7 +59,7 @@ var unlockBuildCmd = &cobra.Command{
 	Long:  `A build by project-key and branch is locked to prevent concurrent builds of that branch.  Decap will unlock the branch automatically when a build completes using this command.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var client *http.Client = &http.Client{}
-		url := fmt.Sprintf("%s/v2/keys/buildlocks/%?prevValue=%s", lockServiceBaseURL, buildLockKey, buildID)
+		url := fmt.Sprintf("%s/v2/keys/buildlocks/%s?prevValue=%s", lockServiceBaseURL, buildLockKey, buildID)
 		req, err := http.NewRequest("DELETE", url, nil)
 		if err != nil {
 			Log.Printf("Error forming new URL for build-unlock: %v\n", err)
@@ -74,12 +74,18 @@ var unlockBuildCmd = &cobra.Command{
 			resp.Body.Close()
 		}()
 
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			Log.Println(err)
+			return
+		}
+
 		if resp.StatusCode != 201 {
-			if data, err := ioutil.ReadAll(resp.Body); err != nil {
-				Log.Printf("Error reading non-201 response body: %v\n", err)
-			} else {
-				Log.Printf("%s\n", string(data))
-			}
+			Log.Printf("Error reading non-201 response body: %v\n", err)
+			Log.Println(data)
+		}
+		if debug {
+			Log.Println(data)
 		}
 	},
 }
