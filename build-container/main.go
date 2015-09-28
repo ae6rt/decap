@@ -56,7 +56,7 @@ var versionCmd = &cobra.Command{
 var unlockBuildCmd = &cobra.Command{
 	Use:   "unlock",
 	Short: "Unlock a build",
-	Long:  `Unlock a build`,
+	Long:  `A build by project-key and branch is locked to prevent concurrent builds of that branch.  Decap will unlock the branch automatically when a build completes using this command.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		locks.Unlock(lockServiceBaseURL, buildID, buildLockKey)
 	},
