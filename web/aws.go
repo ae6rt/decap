@@ -85,11 +85,12 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 		}
 
 		build := Build{
-			ID:       *v["build-id"].S,
-			Branch:   *v["branch"].S,
-			Duration: buildElapsedTime,
-			Result:   int(buildResult),
-			UnixTime: buildTime,
+			ID:         *v["build-id"].S,
+			ProjectKey: *v["project-key"].S,
+			Branch:     *v["branch"].S,
+			Duration:   buildElapsedTime,
+			Result:     int(buildResult),
+			UnixTime:   buildTime,
 		}
 		builds = append(builds, build)
 	}

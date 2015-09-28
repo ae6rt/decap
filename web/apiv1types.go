@@ -38,11 +38,11 @@ type Builds struct {
 
 type Build struct {
 	ID         string `json:"id"`
-	ProjectKey string `json:"projectKey"`
+	ProjectKey string `json:"project-key"`
 	Branch     string `json:"branch"`
 	Result     int    `json:"result,omitempty"`
 	Duration   uint64 `json:"duration,omitempty"`
-	UnixTime   uint64 `json:"unixtime"`
+	UnixTime   uint64 `json:"start-time"`
 }
 
 type Teams struct {

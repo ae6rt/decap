@@ -38,7 +38,7 @@ PROJECT_KEY_INDEX_POLICY=$(cat <<EOF
                 "dynamodb:*"
             ],
             "Resource": [
-                "arn:aws:dynamodb:${AWS_REGION}:${ACCOUNT_ID}:table/${APPLICATION_NAME}-build-metadata/index/project-key-build-time-index"
+                "arn:aws:dynamodb:${AWS_REGION}:${ACCOUNT_ID}:table/${APPLICATION_NAME}-build-metadata/index/project-key-build-start-time-index"
             ]
         }
     ]
