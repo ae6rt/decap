@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"strconv"
 
@@ -333,7 +332,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			return
 		}
 
-		limit, err := toUint64(r.URL.Query().Get("limit"), math.MaxUint64)
+		limit, err := toUint64(r.URL.Query().Get("limit"), 100)
 		if err != nil {
 			builds := Builds{Meta: Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
