@@ -50,7 +50,6 @@ var versionCmd = &cobra.Command{
 	Long:  `All software has build info. This is bctool's`,
 	Run: func(cmd *cobra.Command, args []string) {
 		Log.Println(buildInfo)
-		os.Exit(0)
 	},
 }
 
@@ -91,7 +90,9 @@ var putS3Cmd = &cobra.Command{
 			Log.Printf("%+v\n", resp)
 			Log.Fatal(err.Error())
 		} else {
-			Log.Printf("%+v\n", resp)
+			if debug {
+				Log.Printf("%+v\n", resp)
+			}
 			Log.Println("S3 Put successful")
 		}
 	},
