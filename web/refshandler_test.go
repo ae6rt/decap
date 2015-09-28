@@ -30,7 +30,7 @@ func TestProjectBranchesNoSuchProject(t *testing.T) {
 	githubClient := MockScmClient{}
 	scmClients := map[string]SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
-	ProjectBranchesHandler(scmClients)(w, req, httprouter.Params{
+	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "nope"},
 		httprouter.Param{Key: "library", Value: "p1"},
 	},
@@ -61,7 +61,7 @@ func TestProjectBranchesNoRepManager(t *testing.T) {
 	githubClient := MockScmClient{}
 	scmClients := map[string]SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
-	ProjectBranchesHandler(scmClients)(w, req, httprouter.Params{
+	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
 		httprouter.Param{Key: "library", Value: "p1"},
 	},
@@ -92,7 +92,7 @@ func TestProjectBranches(t *testing.T) {
 	githubClient := MockScmClient{branches: []Branch{Branch{Ref: "refs/heads/master"}}}
 	scmClients := map[string]SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
-	ProjectBranchesHandler(scmClients)(w, req, httprouter.Params{
+	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
 		httprouter.Param{Key: "library", Value: "p1"},
 	},

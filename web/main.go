@@ -57,7 +57,7 @@ func main() {
 	router.ServeFiles("/decap/*filepath", http.Dir("./static"))
 	router.GET("/api/v1/version", VersionHandler)
 	router.GET("/api/v1/projects", ProjectsHandler)
-	router.GET("/api/v1/projects/:team/:library/branches", ProjectBranchesHandler(scmManagers))
+	router.GET("/api/v1/projects/:team/:library/refs", ProjectRefsHandler(scmManagers))
 	router.GET("/api/v1/builds/:team/:library", BuildsHandler(awsStorageService))
 	router.DELETE("/api/v1/builds/:id", StopBuildHandler(k8s))
 	router.POST("/api/v1/builds/:team/:library", ExecuteBuildHandler(k8s))

@@ -190,7 +190,8 @@ func StopBuildHandler(decap Decap) httprouter.Handle {
 	}
 }
 
-func ProjectBranchesHandler(repoClients map[string]SCMClient) httprouter.Handle {
+// Handle requests for branches and tags on a project
+func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		library := params.ByName("library")

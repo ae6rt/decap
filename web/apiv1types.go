@@ -56,5 +56,5 @@ type Team struct {
 
 type Branches struct {
 	Meta
-	Branches []Branch `json:"branches"`
+	Branches []Branch `json:"refs"`
 }
