@@ -206,7 +206,7 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 		case "github":
 			w.Header().Set("Content-type", "application/json")
 			repoClient := repoClients["github"]
-			nativeBranches, err := repoClient.GetBranches(project.Team, project.Library)
+			nativeBranches, err := repoClient.GetRefs(project.Team, project.Library)
 			if err != nil {
 				Log.Print(err)
 				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})

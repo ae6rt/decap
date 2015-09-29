@@ -7,7 +7,7 @@ type MockScmClient struct {
 	err        error
 }
 
-func (c *MockScmClient) GetBranches(team, repo string) ([]Ref, error) {
+func (c *MockScmClient) GetRefs(team, repo string) ([]Ref, error) {
 	c.team = team
 	c.repository = repo
 	return c.branches, c.err
