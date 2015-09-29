@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
@@ -30,9 +29,6 @@ func TestS3Put(t *testing.T) {
 		w.WriteHeader(200)
 	}))
 	defer testServer.Close()
-
-	os.Setenv("AWS_ACCESS_KEY_ID ", "key")
-	os.Setenv("AWS_SECRET_ACCESS_KEY", "sekrit")
 
 	awsAccessKey = "key"
 	awsAccessSecret = "sekrit"
