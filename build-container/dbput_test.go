@@ -13,6 +13,10 @@ import (
 
 func TestDbPut(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Fatalf("wanted POST but found %s\n", r.Method)
+		}
+
 		data, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			t.Fatal(err)
@@ -26,28 +30,39 @@ func TestDbPut(t *testing.T) {
 		}
 
 		item := x["Item"].(map[string]interface{})
-		if item["branch"].(map[string]interface{})["S"].(string) != "branch" {
-			t.Fatalf("Want branch but got %s\n", item["branch"].(map[string]interface{})["S"].(string) != "branch")
-		}
-		if item["build-duration"].(map[string]interface{})["N"].(string) != "3" {
-			t.Fatalf("Want 3 but got %s\n", item["build-duration"].(map[string]interface{})["N"].(string))
-		}
-		if item["build-id"].(map[string]interface{})["S"].(string) != "uuid" {
-			t.Fatalf("Want uuid but got %s\n", item["build-id"].(map[string]interface{})["S"].(string))
-		}
-		if item["build-result"].(map[string]interface{})["N"].(string) != "2" {
-			t.Fatalf("Want 2 but got %s\n", item["build-result"].(map[string]interface{})["N"].(string))
-		}
-		if item["build-start-time"].(map[string]interface{})["N"].(string) != "1" {
-			t.Fatalf("Want 1 but got %s\n", item["build-start-time"].(map[string]interface{})["N"].(string))
-		}
-		if item["project-key"].(map[string]interface{})["S"].(string) != "pkey" {
-			t.Fatalf("Want pkey but got %s\n", item["project-key"].(map[string]interface{})["S"].(string) != "pkey")
+
+		var u string
+
+		u = item["branch"].(map[string]interface{})["S"].(string)
+		if u != "branch" {
+			t.Fatalf("Want branch but got %s\n", u)
 		}
 
-		if r.Method != "POST" {
-			t.Fatalf("wanted POST but found %s\n", r.Method)
+		u = item["build-duration"].(map[string]interface{})["N"].(string)
+		if u != "3" {
+			t.Fatalf("Want 3 but got %s\n", u)
 		}
+
+		u = item["build-id"].(map[string]interface{})["S"].(string)
+		if u != "uuid" {
+			t.Fatalf("Want uuid but got %s\n", u)
+		}
+
+		u = item["build-result"].(map[string]interface{})["N"].(string)
+		if u != "2" {
+			t.Fatalf("Want 2 but got %s\n", u)
+		}
+
+		u = item["build-start-time"].(map[string]interface{})["N"].(string)
+		if u != "1" {
+			t.Fatalf("Want 1 but got %s\n", u)
+		}
+
+		u = item["project-key"].(map[string]interface{})["S"].(string)
+		if u != "pkey" {
+			t.Fatalf("Want pkey but got %s\n", u)
+		}
+
 		w.WriteHeader(200)
 	}))
 	defer testServer.Close()
