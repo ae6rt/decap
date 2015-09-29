@@ -59,7 +59,7 @@ type BuildEvent interface {
 	Team() string
 	Library() string
 	ProjectKey() string
-	Branches() []string
+	Refs() []string
 }
 
 type DefaultDecap struct {
@@ -122,7 +122,7 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 
 	projs := getProjects()
 
-	for _, branch := range buildEvent.Branches() {
+	for _, branch := range buildEvent.Refs() {
 		key := k8s.Locker.Key(projectKey, branch)
 		buildID := uuid.NewRandom().String()
 

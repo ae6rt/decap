@@ -32,7 +32,7 @@ func TestStashEvent(t *testing.T) {
 		t.Fatalf("Want project/somelib but got %s\n", pushEvent.ProjectKey())
 	}
 
-	branches := pushEvent.Branches()
+	branches := pushEvent.Refs()
 	if len(branches) != 1 {
 		t.Fatalf("Want 1 but got %d\n", len(branches))
 	}

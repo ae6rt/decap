@@ -21,6 +21,6 @@ func (e UserBuildEvent) ProjectKey() string {
 	return fmt.Sprintf("%s/%s", e.TeamFld, e.LibraryFld)
 }
 
-func (e UserBuildEvent) Branches() []string {
+func (e UserBuildEvent) Refs() []string {
 	return e.BranchesFld
 }

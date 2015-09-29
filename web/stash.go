@@ -40,7 +40,7 @@ func (stash StashEvent) ProjectKey() string {
 	return projectKey(stash.Repository.Project.Key, stash.Repository.Slug)
 }
 
-func (stash StashEvent) Branches() []string {
+func (stash StashEvent) Refs() []string {
 	branches := make([]string, 0)
 	for _, v := range stash.RefChanges {
 		branches = append(branches, strings.ToLower(strings.Replace(v.RefID, "refs/heads/", "", -1)))

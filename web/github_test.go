@@ -37,7 +37,7 @@ func TestGithubEvent(t *testing.T) {
 		t.Fatalf("Want dynamodb-lab", pushEvent.Library())
 	}
 
-	branches := pushEvent.Branches()
+	branches := pushEvent.Refs()
 	if len(branches) != 1 {
 		t.Fatalf("Want 1 but got %d\n", len(branches))
 	}

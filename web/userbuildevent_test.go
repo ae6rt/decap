@@ -14,7 +14,7 @@ func TestUserEvent(t *testing.T) {
 		t.Fatalf("Want team/lib but got %s\n", event.ProjectKey())
 	}
 
-	branches := event.Branches()
+	branches := event.Refs()
 	if len(branches) != 1 {
 		t.Fatalf("Want 1 but got %d\n", len(branches))
 	}
