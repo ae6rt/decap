@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -13,9 +12,6 @@ import (
 
 func TestS3Put(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		for k, v := range r.Header {
-			fmt.Printf("%s:%v\n", k, v)
-		}
 		if strings.ToUpper(r.Method) != "PUT" {
 			t.Fatalf("wanted GET but found %s\n", r.Method)
 		}

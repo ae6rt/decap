@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -11,46 +11,40 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
-/*
-{
-    "Item": {
-        "branch": {
-            "S": "branch"
-        },
-        "build-duration": {
-            "N": "3"
-        },
-        "build-id": {
-            "S": "uuid"
-        },
-        "build-result": {
-            "N": "2"
-        },
-        "build-start-time": {
-            "N": "1"
-        },
-        "project-key": {
-            "S": "pkey"
-        }
-    },
-    "TableName": "table"
-}
-*/
-
 func TestDbPut(t *testing.T) {
-
-	type Bag struct {
-		//		Item      Item   `json:"Item"`
-		TableName string `json:"TableName"`
-	}
-
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b, _ := ioutil.ReadAll(r.Body)
-		fmt.Println(string(b))
-		fmt.Println(r)
-		for k, v := range r.Header {
-			fmt.Printf("%s:%v\n", k, v)
+		data, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			t.Fatal(err)
 		}
+
+		var x map[string]interface{}
+		err = json.Unmarshal(data, &x)
+
+		if x["TableName"].(string) != "table" {
+			t.Fatalf("Want table but found %s\n", x["TableName"].(string))
+		}
+
+		item := x["Item"].(map[string]interface{})
+		if item["branch"].(map[string]interface{})["S"].(string) != "branch" {
+			t.Fatalf("Want branch but got %s\n", item["branch"].(map[string]interface{})["S"].(string) != "branch")
+		}
+		if item["build-duration"].(map[string]interface{})["N"].(string) != "3" {
+			t.Fatalf("Want 3 but got %s\n", item["build-duration"].(map[string]interface{})["N"].(string))
+		}
+		if item["build-id"].(map[string]interface{})["S"].(string) != "uuid" {
+			t.Fatalf("Want uuid but got %s\n", item["build-id"].(map[string]interface{})["S"].(string))
+		}
+		if item["build-result"].(map[string]interface{})["N"].(string) != "2" {
+			t.Fatalf("Want 2 but got %s\n", item["build-result"].(map[string]interface{})["N"].(string))
+		}
+		if item["build-start-time"].(map[string]interface{})["N"].(string) != "1" {
+			t.Fatalf("Want 1 but got %s\n", item["build-start-time"].(map[string]interface{})["N"].(string))
+		}
+		if item["project-key"].(map[string]interface{})["S"].(string) != "pkey" {
+			t.Fatalf("Want pkey but got %s\n", item["project-key"].(map[string]interface{})["S"].(string) != "pkey")
+		}
+
 		if r.Method != "POST" {
 			t.Fatalf("wanted POST but found %s\n", r.Method)
 		}
@@ -76,5 +70,4 @@ func TestDbPut(t *testing.T) {
 	buildDuration = 3
 
 	recordBuildCmd.Run(nil, nil)
-
 }
