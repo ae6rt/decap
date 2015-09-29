@@ -54,7 +54,12 @@ type Team struct {
 	Name string `json:"name"`
 }
 
-type Branches struct {
+type Ref struct {
+	RefID string `json:"ref"`
+	Type string `json:"type"`
+}
+
+type Refs struct {
 	Meta
-	Branches []Branch `json:"refs"`
+	Refs []Ref `json:"refs"`
 }

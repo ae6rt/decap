@@ -209,17 +209,17 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 			nativeBranches, err := repoClient.GetBranches(project.Team, project.Library)
 			if err != nil {
 				Log.Print(err)
-				data, _ := json.Marshal(&Branches{Meta: Meta{Error: err.Error()}})
+				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})
 				w.WriteHeader(500)
 				w.Write(data)
 				return
 			}
 
-			branches := Branches{Branches: nativeBranches}
+			branches := Refs{Refs: nativeBranches}
 			data, err := json.Marshal(&branches)
 			if err != nil {
 				Log.Print(err)
-				data, _ := json.Marshal(&Branches{Meta: Meta{Error: err.Error()}})
+				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})
 				w.WriteHeader(500)
 				w.Write(data)
 				return

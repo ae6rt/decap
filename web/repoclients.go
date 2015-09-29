@@ -24,11 +24,6 @@ type GithubClient struct {
 	SCMCoordinates
 }
 
-type Branch struct {
-	Ref  string `json:"ref"`
-	Type string `json:"type"`
-}
-
 type GithubBranch struct {
 	Ref    string       `json:"ref"`
 	Object GithubObject `json:"object"`
@@ -54,14 +49,14 @@ type StashBranch struct {
 }
 
 type SCMClient interface {
-	GetBranches(team, repository string) ([]Branch, error)
+	GetBranches(team, repository string) ([]Ref, error)
 }
 
 func NewGithubClient(baseURL, clientID, clientSecret string) SCMClient {
 	return GithubClient{SCMCoordinates{BaseURL: baseURL, Username: clientID, Password: clientSecret, httpClient: &http.Client{}}}
 }
 
-func (gh GithubClient) GetBranches(owner, repository string) ([]Branch, error) {
+func (gh GithubClient) GetBranches(owner, repository string) ([]Ref, error) {
 
 	branches := make([]GithubBranch, 0)
 	var data []byte
@@ -111,7 +106,7 @@ func (gh GithubClient) GetBranches(owner, repository string) ([]Branch, error) {
 		morePages = url != ""
 	}
 
-	genericBranches := make([]Branch, len(branches))
+	genericBranches := make([]Ref, len(branches))
 	for i, v := range branches {
 		var refType string
 		switch v.Object.Type {
@@ -122,7 +117,7 @@ func (gh GithubClient) GetBranches(owner, repository string) ([]Branch, error) {
 		default:
 			refType = "__unsupported"
 		}
-		b := Branch{Ref: v.Ref, Type: refType}
+		b := Ref{RefID: v.Ref, Type: refType}
 		genericBranches[i] = b
 	}
 
