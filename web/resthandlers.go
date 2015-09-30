@@ -46,11 +46,17 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 }
 
 func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	a := make([]Team, 0)
 	p := getProjects()
+	filter := make(map[string]string)
 	for _, v := range p {
-		a = append(a, Team{Name: v.Team})
+		filter[v.Team] = ""
 	}
+
+	a := make([]Team, 0)
+	for k, _ := range filter {
+		a = append(a, Team{Name: k})
+	}
+
 	w.Header().Set("Content-type", "application/json")
 
 	teams := Teams{Teams: a}
