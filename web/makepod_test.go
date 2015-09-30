@@ -86,6 +86,14 @@ func TestMakePod(t *testing.T) {
 		t.Fatalf("Want repobranch but got %v\n", volume.VolumeSource.GitRepo.Revision)
 	}
 
+	volume = pod.Spec.Volumes[1]
+	if volume.Name != "decap-credentials" {
+		t.Fatalf("Want decap-credentials but got %v\n", volume.Name)
+	}
+	if volume.VolumeSource.Secret.SecretName != "decap-credentials" {
+		t.Fatalf("Want repo but got %v\n", volume.VolumeSource.Secret.SecretName)
+	}
+
 	if len(pod.Spec.Containers) != 1+len(sidecars) {
 		t.Fatalf("Want %d but got %v\n", 1+len(sidecars), len(pod.Spec.Containers))
 	}
