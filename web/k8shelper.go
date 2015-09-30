@@ -43,11 +43,9 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsReg
 }
 
 func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, branch string, projects map[string]Project) k8stypes.Container {
-
 	projectKey := buildEvent.ProjectKey()
 	lockKey := decap.Locker.Key(projectKey, branch)
-
-	baseContainer := k8stypes.Container{
+	return k8stypes.Container{
 		Name:  "build-server",
 		Image: projects[projectKey].Descriptor.Image,
 		VolumeMounts: []k8stypes.VolumeMount{
@@ -103,7 +101,6 @@ func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, bran
 			},
 		},
 	}
-	return baseContainer
 }
 
 func (decap DefaultDecap) makeSidecarContainers(buildEvent BuildEvent, projects map[string]Project) []k8stypes.Container {
