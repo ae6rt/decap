@@ -107,8 +107,8 @@ func (decap DefaultDecap) makeSidecarContainers(buildEvent BuildEvent, projects 
 	projectKey := buildEvent.ProjectKey()
 	arr := make([]k8stypes.Container, len(projects[projectKey].Sidecars))
 
-	var c k8stypes.Container
 	for i, v := range projects[projectKey].Sidecars {
+		var c k8stypes.Container
 		err := json.Unmarshal([]byte(v), &c)
 		if err != nil {
 			Log.Println(err)
