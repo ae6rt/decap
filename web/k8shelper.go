@@ -73,6 +73,8 @@ type DefaultDecap struct {
 
 	apiToken  string
 	apiClient *http.Client
+
+	maxPods int
 }
 
 type RepoManagerCredential struct {
@@ -110,6 +112,7 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsReg
 		AWSAccessSecret: awsSecret,
 		AWSRegion:       awsRegion,
 		apiClient:       apiClient,
+		maxPods:         10,
 	}
 }
 
@@ -247,9 +250,9 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 		if err != nil {
 			Log.Printf("Failed to acquire lock %s on build %s: %v\n", key, buildID, err)
 			deferredBuild := UserBuildEvent{
-				TeamFld:     buildEvent.Team(),
-				LibraryFld:  buildEvent.Library(),
-				BranchesFld: []string{branch},
+				TeamFld:    buildEvent.Team(),
+				LibraryFld: buildEvent.Library(),
+				RefsFld:    []string{branch},
 			}
 			if err := k8s.DeferBuild(deferredBuild); err != nil {
 				Log.Printf("Failed to defer build: %+v\n", deferredBuild)

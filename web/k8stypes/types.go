@@ -13,7 +13,37 @@ limitations under the License.
 
 package k8stypes
 
-import "time"
+import (
+	"time"
+
+	"github.com/ae6rt/decap/web/k8sresource"
+)
+
+type PodList struct {
+	TypeMeta `json:",inline"`
+	// Standard list metadata.
+	// More info: http://releases.k8s.io/HEAD/docs/devel/api-conventions.md#types-kinds
+	ListMeta `json:"metadata,omitempty"`
+
+	// List of pods.
+	// More info: http://releases.k8s.io/HEAD/docs/user-guide/pods.md
+	Items []Pod `json:"items"`
+}
+
+type ListMeta struct {
+	// SelfLink is a URL representing this object.
+	// Populated by the system.
+	// Read-only.
+	SelfLink string `json:"selfLink,omitempty"`
+
+	// String that identifies the server's internal version of this object that
+	// can be used by clients to determine when objects have changed.
+	// Value must be treated as opaque by clients and passed unmodified back to the server.
+	// Populated by the system.
+	// Read-only.
+	// More info: http://releases.k8s.io/HEAD/docs/devel/api-conventions.md#concurrency-control-and-consistency
+	ResourceVersion string `json:"resourceVersion,omitempty"`
+}
 
 type Pod struct {
 	TypeMeta `json:",inline"`
@@ -492,7 +522,7 @@ type Container struct {
 	// Compute Resources required by this container.
 	// Cannot be updated.
 	// More info: http://releases.k8s.io/HEAD/docs/user-guide/persistent-volumes.md#resources
-	//Resources ResourceRequirements `json:"resources,omitempty"`
+	Resources ResourceRequirements `json:"resources,omitempty"`
 	// Pod volumes to mount into the container's filesyste.
 	// Cannot be updated.
 	VolumeMounts []VolumeMount `json:"volumeMounts,omitempty" patchStrategy:"merge" patchMergeKey:"name"`
@@ -532,6 +562,45 @@ type Container struct {
 	// Default is false.
 	TTY bool `json:"tty,omitempty"`
 }
+
+type ResourceRequirements struct {
+	// Limits describes the maximum amount of compute resources allowed.
+	// More info: http://releases.k8s.io/HEAD/docs/design/resources.md#resource-specifications
+	Limits ResourceList `json:"limits,omitempty"`
+	// Requests describes the minimum amount of compute resources required.
+	// If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+	// otherwise to an implementation-defined value.
+	// More info: http://releases.k8s.io/HEAD/docs/design/resources.md#resource-specifications
+	Requests ResourceList `json:"requests,omitempty"`
+}
+
+type ResourceList map[ResourceName]k8sresource.Quantity
+
+type ResourceName string
+
+const (
+	// CPU, in cores. (500m = .5 cores)
+	ResourceCPU ResourceName = "cpu"
+	// Memory, in bytes. (500Gi = 500GiB = 500 * 1024 * 1024 * 1024)
+	ResourceMemory ResourceName = "memory"
+	// Volume size, in bytes (e,g. 5Gi = 5GiB = 5 * 1024 * 1024 * 1024)
+	ResourceStorage ResourceName = "storage"
+)
+
+const (
+	// Pods, number
+	ResourcePods ResourceName = "pods"
+	// Services, number
+	ResourceServices ResourceName = "services"
+	// ReplicationControllers, number
+	ResourceReplicationControllers ResourceName = "replicationcontrollers"
+	// ResourceQuotas, number
+	ResourceQuotas ResourceName = "resourcequotas"
+	// ResourceSecrets, number
+	ResourceSecrets ResourceName = "secrets"
+	// ResourcePersistentVolumeClaims, number
+	ResourcePersistentVolumeClaims ResourceName = "persistentvolumeclaims"
+)
 
 type ContainerPort struct {
 	// If specified, this must be an IANA_SVC_NAME and unique within the pod. Each

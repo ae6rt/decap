@@ -111,7 +111,7 @@ func ExecuteBuildHandler(decap Decap) httprouter.Handle {
 			return
 		}
 
-		event := UserBuildEvent{TeamFld: team, LibraryFld: library, BranchesFld: branches}
+		event := UserBuildEvent{TeamFld: team, LibraryFld: library, RefsFld: branches}
 		go decap.LaunchBuild(event)
 	}
 }
@@ -227,8 +227,9 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 
 			w.Write(data)
 			return
+		default:
+			w.WriteHeader(400)
 		}
-		w.WriteHeader(400)
 	}
 }
 

@@ -6,7 +6,7 @@ import "fmt"
 type UserBuildEvent struct {
 	TeamFld string
 	LibraryFld string
-	BranchesFld []string
+	RefsFld []string
 }
 
 func (e UserBuildEvent) Team() string {
@@ -22,5 +22,5 @@ func (e UserBuildEvent) ProjectKey() string {
 }
 
 func (e UserBuildEvent) Refs() []string {
-	return e.BranchesFld
+	return e.RefsFld
 }
