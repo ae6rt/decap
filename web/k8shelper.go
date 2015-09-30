@@ -120,7 +120,7 @@ func (decap DefaultDecap) makeSidecarContainers(buildEvent BuildEvent, projects 
 }
 
 func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string, containers []k8stypes.Container) k8stypes.Pod {
-	pod := k8stypes.Pod{
+	return k8stypes.Pod{
 		TypeMeta: k8stypes.TypeMeta{
 			Kind:       "Pod",
 			APIVersion: "v1",
@@ -159,7 +159,6 @@ func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string,
 			RestartPolicy: "Never",
 		},
 	}
-	return pod
 }
 
 func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
