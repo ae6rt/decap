@@ -161,6 +161,16 @@ func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string,
 	}
 }
 
+func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch string, projects map[string]Project) []k8stypes.Container {
+	baseContainer := decap.makeBaseContainer(buildEvent, buildID, branch, projects)
+	sidecars := decap.makeSidecarContainers(buildEvent, projects)
+
+	containers := make([]k8stypes.Container, 0)
+	containers = append(containers, baseContainer)
+	containers = append(containers, sidecars...)
+	return containers
+}
+
 func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 	projectKey := buildEvent.ProjectKey()
 
@@ -170,12 +180,7 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 		key := k8s.Locker.Key(projectKey, branch)
 		buildID := uuid.NewRandom().String()
 
-		baseContainer := k8s.makeBaseContainer(buildEvent, buildID, branch, projs)
-		sidecars := k8s.makeSidecarContainers(buildEvent, projs)
-
-		containers := make([]k8stypes.Container, 0)
-		containers = append(containers, baseContainer)
-		containers = append(containers, sidecars...)
+		containers := k8s.makeContainers(buildEvent, buildID, branch, projs)
 
 		pod := k8s.makePod(buildEvent, buildID, branch, containers)
 
