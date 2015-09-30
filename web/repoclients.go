@@ -24,12 +24,7 @@ type GithubClient struct {
 	SCMCoordinates
 }
 
-type Branch struct {
-	Ref  string `json:"ref"`
-	Type string `json:"type"`
-}
-
-type GithubBranch struct {
+type GithubRef struct {
 	Ref    string       `json:"ref"`
 	Object GithubObject `json:"object"`
 }
@@ -54,16 +49,16 @@ type StashBranch struct {
 }
 
 type SCMClient interface {
-	GetBranches(team, repository string) ([]Branch, error)
+	GetRefs(team, repository string) ([]Ref, error)
 }
 
 func NewGithubClient(baseURL, clientID, clientSecret string) SCMClient {
 	return GithubClient{SCMCoordinates{BaseURL: baseURL, Username: clientID, Password: clientSecret, httpClient: &http.Client{}}}
 }
 
-func (gh GithubClient) GetBranches(owner, repository string) ([]Branch, error) {
+func (gh GithubClient) GetRefs(owner, repository string) ([]Ref, error) {
 
-	branches := make([]GithubBranch, 0)
+	refs := make([]GithubRef, 0)
 	var data []byte
 	url := fmt.Sprintf("%s/repos/%s/%s/git/refs?client_id=%s&client_secret=%s&page=1", gh.BaseURL, owner, repository, gh.Username, gh.Password)
 	var response *http.Response
@@ -101,18 +96,18 @@ func (gh GithubClient) GetBranches(owner, repository string) ([]Branch, error) {
 			return nil, err
 		}
 
-		var b []GithubBranch
+		var b []GithubRef
 		if err := json.Unmarshal(data, &b); err != nil {
 			return nil, err
 		}
 
-		branches = append(branches, b...)
+		refs = append(refs, b...)
 		url = gh.nextLink(response.Header.Get("Link"))
 		morePages = url != ""
 	}
 
-	genericBranches := make([]Branch, len(branches))
-	for i, v := range branches {
+	genericRefs := make([]Ref, len(refs))
+	for i, v := range refs {
 		var refType string
 		switch v.Object.Type {
 		case "tag":
@@ -122,11 +117,11 @@ func (gh GithubClient) GetBranches(owner, repository string) ([]Branch, error) {
 		default:
 			refType = "__unsupported"
 		}
-		b := Branch{Ref: v.Ref, Type: refType}
-		genericBranches[i] = b
+		b := Ref{RefID: v.Ref, Type: refType}
+		genericRefs[i] = b
 	}
 
-	return genericBranches, nil
+	return genericRefs, nil
 }
 
 func (gh GithubClient) nextLink(header string) string {

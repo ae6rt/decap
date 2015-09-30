@@ -117,7 +117,7 @@ func ExecuteBuildHandler(decap Decap) httprouter.Handle {
 			return
 		}
 
-		event := UserBuildEvent{TeamFld: team, LibraryFld: library, BranchesFld: branches}
+		event := UserBuildEvent{TeamFld: team, LibraryFld: library, RefsFld: branches}
 		go decap.LaunchBuild(event)
 	}
 }
@@ -212,20 +212,20 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 		case "github":
 			w.Header().Set("Content-type", "application/json")
 			repoClient := repoClients["github"]
-			nativeBranches, err := repoClient.GetBranches(project.Team, project.Library)
+			nativeBranches, err := repoClient.GetRefs(project.Team, project.Library)
 			if err != nil {
 				Log.Print(err)
-				data, _ := json.Marshal(&Branches{Meta: Meta{Error: err.Error()}})
+				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})
 				w.WriteHeader(500)
 				w.Write(data)
 				return
 			}
 
-			branches := Branches{Branches: nativeBranches}
+			branches := Refs{Refs: nativeBranches}
 			data, err := json.Marshal(&branches)
 			if err != nil {
 				Log.Print(err)
-				data, _ := json.Marshal(&Branches{Meta: Meta{Error: err.Error()}})
+				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})
 				w.WriteHeader(500)
 				w.Write(data)
 				return
@@ -233,8 +233,9 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 
 			w.Write(data)
 			return
+		default:
+			w.WriteHeader(400)
 		}
-		w.WriteHeader(400)
 	}
 }
 

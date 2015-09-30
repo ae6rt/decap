@@ -34,9 +34,15 @@ var branchToBuild string
 var bucketName string
 var contentType string
 var fileName string
+var awsAccessKey string
+var awsAccessSecret string
 var awsRegion string
 
 var Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+
+var awsConfig = func() *aws.Config {
+	return aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+}
 
 var BCToolCmd = &cobra.Command{
 	Use:   "bctool",
@@ -95,7 +101,7 @@ var putS3Cmd = &cobra.Command{
 	Short: "put a file to an S3 bucket",
 	Long:  `put a file to an S3 bucket`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+		config := awsConfig()
 		if debug {
 			Log.Printf("%+v\n", config)
 		}
@@ -131,7 +137,7 @@ var recordBuildCmd = &cobra.Command{
 	Short: "Record build metadata in backing store",
 	Long:  "Record build metadata in backing store",
 	Run: func(cmd *cobra.Command, args []string) {
-		config := aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+		config := awsConfig()
 		if debug {
 			Log.Printf("%+v\n", config)
 		}
@@ -181,6 +187,9 @@ func main() {
 	putS3Cmd.Flags().StringVarP(&bucketName, "bucket-name", "", "", "S3 Bucket Name")
 	putS3Cmd.Flags().StringVarP(&contentType, "content-type", "", "", "Content Type")
 	putS3Cmd.Flags().StringVarP(&fileName, "filename", "", "", "File Name")
+	putS3Cmd.Flags().StringVarP(&awsAccessKey, "aws-access-key-id", "", "", "AWS Access Key ID")
+	putS3Cmd.Flags().StringVarP(&awsAccessSecret, "aws-secret-access-key", "", "", "AWS Access Secret")
+	putS3Cmd.Flags().StringVarP(&awsRegion, "aws-region", "", "", "AWS Region")
 
 	recordBuildCmd.Flags().StringVarP(&tableName, "table-name", "", "", "DynamoDb build metadata table name")
 	recordBuildCmd.Flags().StringVarP(&projectKey, "project-key", "", "", "Project key")
@@ -188,9 +197,11 @@ func main() {
 	recordBuildCmd.Flags().Int64VarP(&buildStartTime, "build-start-time", "", 0, "Unix time in seconds since the epoch when the build started")
 	recordBuildCmd.Flags().Int64VarP(&buildResult, "build-result", "", 0, "Unix exit code of the executed build")
 	recordBuildCmd.Flags().Int64VarP(&buildDuration, "build-duration", "", 0, "Duration of the build in seconds")
+	recordBuildCmd.Flags().StringVarP(&awsAccessKey, "aws-access-key-id", "", "", "AWS Access Key ID")
+	recordBuildCmd.Flags().StringVarP(&awsAccessSecret, "aws-secret-access-key", "", "", "AWS Access Secret")
+	recordBuildCmd.Flags().StringVarP(&awsRegion, "aws-region", "", "", "AWS Region")
 
 	BCToolCmd.PersistentFlags().StringVarP(&buildID, "build-id", "", "", "Build ID")
-	BCToolCmd.PersistentFlags().StringVarP(&awsRegion, "aws-region", "", "", "AWS Region")
 	BCToolCmd.PersistentFlags().BoolVarP(&debug, "debug", "", false, "Provide debug logging")
 
 	BCToolCmd.AddCommand(versionCmd)

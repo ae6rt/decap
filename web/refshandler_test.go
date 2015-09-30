@@ -10,7 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func TestProjectBranchesNoSuchProject(t *testing.T) {
+func TestProjectRefsNoSuchProject(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "http://example.com", nil)
 	if err != nil {
@@ -41,7 +41,7 @@ func TestProjectBranchesNoSuchProject(t *testing.T) {
 	}
 }
 
-func TestProjectBranchesNoRepManager(t *testing.T) {
+func TestProjectRefsNoRepManager(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "http://example.com", nil)
 	if err != nil {
@@ -72,7 +72,7 @@ func TestProjectBranchesNoRepManager(t *testing.T) {
 	}
 }
 
-func TestProjectBranches(t *testing.T) {
+func TestProjectRefsGithub(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "http://example.com", nil)
 	if err != nil {
@@ -89,7 +89,7 @@ func TestProjectBranches(t *testing.T) {
 		},
 	}
 
-	githubClient := MockScmClient{branches: []Branch{Branch{Ref: "refs/heads/master"}}}
+	githubClient := MockScmClient{branches: []Ref{Ref{RefID: "refs/heads/master"}}}
 	scmClients := map[string]SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
@@ -104,12 +104,12 @@ func TestProjectBranches(t *testing.T) {
 
 	data := w.Body.Bytes()
 
-	var b Branches
+	var b Refs
 	json.Unmarshal(data, &b)
-	if len(b.Branches) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(b.Branches))
+	if len(b.Refs) != 1 {
+		t.Fatalf("Want 1 but got %d\n", len(b.Refs))
 	}
-	if b.Branches[0].Ref != "refs/heads/master" {
-		t.Fatalf("Want refs/heads/master but got %s\n", b.Branches[0].Ref)
+	if b.Refs[0].RefID != "refs/heads/master" {
+		t.Fatalf("Want refs/heads/master but got %s\n", b.Refs[0].RefID)
 	}
 }

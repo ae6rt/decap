@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestUserEvent(t *testing.T) {
-	event := UserBuildEvent{TeamFld: "team", LibraryFld: "lib", BranchesFld: []string{"master"}}
+	event := UserBuildEvent{TeamFld: "team", LibraryFld: "lib", RefsFld: []string{"master"}}
 	if event.Team() != "team" {
 		t.Fatalf("Want team but got %s\n", event.Team())
 	}
@@ -14,7 +14,7 @@ func TestUserEvent(t *testing.T) {
 		t.Fatalf("Want team/lib but got %s\n", event.ProjectKey())
 	}
 
-	branches := event.Branches()
+	branches := event.Refs()
 	if len(branches) != 1 {
 		t.Fatalf("Want 1 but got %d\n", len(branches))
 	}

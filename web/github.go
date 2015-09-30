@@ -31,7 +31,7 @@ func (event GithubEvent) ProjectKey() string {
 	return event.Repository.FullName
 }
 
-func (event GithubEvent) Branches() []string {
+func (event GithubEvent) Refs() []string {
 	switch event.RefType {
 	case "branch":
 		return []string{event.Ref}
