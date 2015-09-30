@@ -47,7 +47,7 @@ func init() {
 
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
-	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker)
+	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
 	awsStorageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]SCMClient{
 		"github": NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
@@ -64,6 +64,7 @@ func main() {
 	router.GET("/api/v1/teams", TeamsHandler)
 	router.GET("/api/v1/logs/:id", LogHandler(awsStorageService))
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
+	router.POST("/api/v1/shutdown/:state", ShutdownHandler)
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, k8s))
 
 	var err error

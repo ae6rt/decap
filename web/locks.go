@@ -11,7 +11,6 @@ import (
 
 type DefaultLock struct {
 	Config etcd.Config
-	Locker
 }
 
 type Locker interface {
@@ -29,7 +28,7 @@ func (d DefaultLock) Lock(key, value string) (*etcd.Response, error) {
 	return client.Set(context.Background(), key, value, &etcd.SetOptions{PrevExist: etcd.PrevNoExist})
 }
 
-func (d DefaultLock) UnLock(key, value string) (*etcd.Response, error) {
+func (d DefaultLock) Unlock(key, value string) (*etcd.Response, error) {
 	c, err := etcd.New(d.Config)
 	if err != nil {
 		return nil, err
