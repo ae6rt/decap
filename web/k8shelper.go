@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -20,8 +21,20 @@ import (
 )
 
 func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker Locker, buildScriptsRepo, buildScriptsRepoBranch string) DefaultDecap {
+
+	tlsConfig := tls.Config{}
+	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+	if err != nil {
+		Log.Printf("Skipping Kubernetes master TLS verify: %v\n", err)
+		tlsConfig.InsecureSkipVerify = true
+	} else {
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+		tlsConfig.RootCAs = caCertPool
+	}
+
 	apiClient := &http.Client{Transport: &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tlsConfig,
 	}}
 
 	data, _ := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
@@ -229,7 +242,7 @@ func (decap DefaultDecap) CreatePod(pod []byte) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	if decap.apiToken != "" {
-		req.Header.Set("Authorization", "Bearer "+ decap.apiToken)
+		req.Header.Set("Authorization", "Bearer "+decap.apiToken)
 	} else {
 		req.SetBasicAuth(decap.UserName, decap.Password)
 	}
@@ -261,7 +274,7 @@ func (decap DefaultDecap) DeletePod(podName string) error {
 		return err
 	}
 	if decap.apiToken != "" {
-		req.Header.Set("Authorization", "Bearer "+ decap.apiToken)
+		req.Header.Set("Authorization", "Bearer "+decap.apiToken)
 	} else {
 		req.SetBasicAuth(decap.UserName, decap.Password)
 	}
