@@ -190,8 +190,7 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 			continue
 		}
 
-		fullyQualifiedKey := "/buildlocks/" + key
-		resp, err := k8s.Locker.Lock(fullyQualifiedKey, buildID)
+		resp, err := k8s.Locker.Lock(key, buildID)
 		if err != nil {
 			Log.Printf("Failed to acquire lock %s on build %s: %v\n", key, buildID, err)
 			deferredBuild := UserBuildEvent{
@@ -211,7 +210,7 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 			Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
 			if podError := k8s.CreatePod(podBytes); podError != nil {
 				Log.Println(podError)
-				if _, err := k8s.Locker.Unlock(fullyQualifiedKey, buildID); err != nil {
+				if _, err := k8s.Locker.Unlock(key, buildID); err != nil {
 					Log.Println(err)
 				} else {
 					Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, key, podError)

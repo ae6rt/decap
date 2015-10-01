@@ -25,7 +25,7 @@ func (d DefaultLock) Lock(key, value string) (*etcd.Response, error) {
 		return nil, err
 	}
 	client := etcd.NewKeysAPI(c)
-	return client.Set(context.Background(), key, value, &etcd.SetOptions{PrevExist: etcd.PrevNoExist})
+	return client.Set(context.Background(), "/buildlocks/"+key, value, &etcd.SetOptions{PrevExist: etcd.PrevNoExist})
 }
 
 func (d DefaultLock) Unlock(key, value string) (*etcd.Response, error) {
@@ -34,7 +34,7 @@ func (d DefaultLock) Unlock(key, value string) (*etcd.Response, error) {
 		return nil, err
 	}
 	client := etcd.NewKeysAPI(c)
-	return client.Delete(context.Background(), key, &etcd.DeleteOptions{PrevValue: value})
+	return client.Delete(context.Background(), "/buildlocks/"+key, &etcd.DeleteOptions{PrevValue: value})
 }
 
 func (d DefaultLock) Key(projectKey, branch string) string {
