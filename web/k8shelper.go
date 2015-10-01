@@ -171,18 +171,18 @@ func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch 
 	return containers
 }
 
-func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
+func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 	projectKey := buildEvent.ProjectKey()
 
 	projs := getProjects()
 
 	for _, branch := range buildEvent.Refs() {
-		key := k8s.Locker.Key(projectKey, branch)
+		key := decap.Locker.Key(projectKey, branch)
 		buildID := uuid.NewRandom().String()
 
-		containers := k8s.makeContainers(buildEvent, buildID, branch, projs)
+		containers := decap.makeContainers(buildEvent, buildID, branch, projs)
 
-		pod := k8s.makePod(buildEvent, buildID, branch, containers)
+		pod := decap.makePod(buildEvent, buildID, branch, containers)
 
 		podBytes, err := json.Marshal(&pod)
 		if err != nil {
@@ -190,10 +190,10 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 			continue
 		}
 
-		resp, err := k8s.Locker.Lock(key, buildID)
+		resp, err := decap.Locker.Lock(key, buildID)
 		if err != nil {
 			Log.Printf("Failed to acquire lock %s on build %s: %v\n", key, buildID, err)
-			if err := k8s.DeferBuild(buildEvent, branch); err != nil {
+			if err := decap.DeferBuild(buildEvent, branch); err != nil {
 				Log.Printf("Failed to defer build: %+v\n", buildID)
 			} else {
 				Log.Printf("Deferred build: %+v\n", buildID)
@@ -203,9 +203,9 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 
 		if resp.Node.Value == buildID {
 			Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
-			if podError := k8s.CreatePod(podBytes); podError != nil {
+			if podError := decap.CreatePod(podBytes); podError != nil {
 				Log.Println(podError)
-				if _, err := k8s.Locker.Unlock(key, buildID); err != nil {
+				if _, err := decap.Locker.Unlock(key, buildID); err != nil {
 					Log.Println(err)
 				} else {
 					Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, key, podError)
@@ -219,22 +219,22 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 	return nil
 }
 
-func (base DefaultDecap) CreatePod(pod []byte) error {
+func (decap DefaultDecap) CreatePod(pod []byte) error {
 	Log.Printf("spec pod:%+v\n", pod)
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/namespaces/decap/pods", base.MasterURL), bytes.NewReader(pod))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/namespaces/decap/pods", decap.MasterURL), bytes.NewReader(pod))
 	if err != nil {
 		Log.Println(err)
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if base.apiToken != "" {
-		req.Header.Set("Authorization", "Bearer "+base.apiToken)
+	if decap.apiToken != "" {
+		req.Header.Set("Authorization", "Bearer "+ decap.apiToken)
 	} else {
-		req.SetBasicAuth(base.UserName, base.Password)
+		req.SetBasicAuth(decap.UserName, decap.Password)
 	}
 
-	resp, err := base.apiClient.Do(req)
+	resp, err := decap.apiClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -254,19 +254,19 @@ func (base DefaultDecap) CreatePod(pod []byte) error {
 	return nil
 }
 
-func (base DefaultDecap) DeletePod(podName string) error {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/namespaces/decap/pods/%s", base.MasterURL, podName), nil)
+func (decap DefaultDecap) DeletePod(podName string) error {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/namespaces/decap/pods/%s", decap.MasterURL, podName), nil)
 	if err != nil {
 		Log.Println(err)
 		return err
 	}
-	if base.apiToken != "" {
-		req.Header.Set("Authorization", "Bearer "+base.apiToken)
+	if decap.apiToken != "" {
+		req.Header.Set("Authorization", "Bearer "+ decap.apiToken)
 	} else {
-		req.SetBasicAuth(base.UserName, base.Password)
+		req.SetBasicAuth(decap.UserName, decap.Password)
 	}
 
-	resp, err := base.apiClient.Do(req)
+	resp, err := decap.apiClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -362,16 +362,6 @@ func (decap DefaultDecap) Websock() {
 	}
 }
 
-func kubeSecret(file string, defaultValue string) string {
-	if v, err := ioutil.ReadFile(file); err != nil {
-		Log.Printf("Secret %s not found in the filesystem.  Using default.\n", file)
-		return defaultValue
-	} else {
-		Log.Printf("Successfully read secret %s from the filesystem\n", file)
-		return string(v)
-	}
-}
-
 func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
 	// only defer the most recent project/branch.  displace old deferrals.
 	_ = UserBuildEvent{
@@ -380,4 +370,14 @@ func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
 		RefsFld:    []string{branch},
 	}
 	return nil
+}
+
+func kubeSecret(file string, defaultValue string) string {
+	if v, err := ioutil.ReadFile(file); err != nil {
+		Log.Printf("Secret %s not found in the filesystem.  Using default.\n", file)
+		return defaultValue
+	} else {
+		Log.Printf("Successfully read secret %s from the filesystem\n", file)
+		return string(v)
+	}
 }
