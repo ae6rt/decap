@@ -193,15 +193,10 @@ func (k8s DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 		resp, err := k8s.Locker.Lock(key, buildID)
 		if err != nil {
 			Log.Printf("Failed to acquire lock %s on build %s: %v\n", key, buildID, err)
-			deferredBuild := UserBuildEvent{
-				TeamFld:    buildEvent.Team(),
-				LibraryFld: buildEvent.Library(),
-				RefsFld:    []string{branch},
-			}
-			if err := k8s.DeferBuild(deferredBuild); err != nil {
-				Log.Printf("Failed to defer build: %+v\n", deferredBuild)
+			if err := k8s.DeferBuild(buildEvent, branch); err != nil {
+				Log.Printf("Failed to defer build: %+v\n", buildID)
 			} else {
-				Log.Printf("Deferred build: %+v\n", deferredBuild)
+				Log.Printf("Deferred build: %+v\n", buildID)
 			}
 			continue
 		}
@@ -377,6 +372,12 @@ func kubeSecret(file string, defaultValue string) string {
 	}
 }
 
-func (decap DefaultDecap) DeferBuild(event UserBuildEvent) error {
+func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
+	// only defer the most recent project/branch.  displace old deferrals.
+	_ = UserBuildEvent{
+		TeamFld:    event.Team(),
+		LibraryFld: event.Library(),
+		RefsFld:    []string{branch},
+	}
 	return nil
 }
