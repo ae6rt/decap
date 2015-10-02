@@ -186,6 +186,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 				go decap.LaunchBuild(event)
 			default:
 				w.WriteHeader(400)
+				w.Write(simpleError(fmt.Errorf("Github hook missing event type header.  See https://developer.github.com/webhooks/#delivery-headers.")))
 				return
 			}
 		default:

@@ -22,7 +22,7 @@ binaries: test
 	GOOS=darwin GOARCH=$(ARCH) godep go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH)
 	GOOS=linux GOARCH=$(ARCH) godep go build -ldflags $(LD_FLAGS) -o $(NAME)-linux-$(ARCH)
 
-container:
+container: binaries
 	docker --tlsverify=false build -t $(IMAGE) .  
 
 push: container
