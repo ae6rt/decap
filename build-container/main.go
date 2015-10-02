@@ -41,7 +41,7 @@ var awsRegion string
 var Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 var awsConfig = func() *aws.Config {
-	return aws.NewConfig().WithCredentials(credentials.NewEnvCredentials()).WithRegion(awsRegion).WithMaxRetries(3)
+	return aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(awsAccessKey, awsAccessSecret, "")).WithRegion(awsRegion).WithMaxRetries(3)
 }
 
 var BCToolCmd = &cobra.Command{
