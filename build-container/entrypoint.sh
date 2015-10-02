@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ux
+set -x
 
 env | sort
 
