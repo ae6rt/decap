@@ -71,7 +71,7 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 
 	builds := make([]Build, 0)
 	for _, v := range resp.Items {
-		buildElapsedTime, err := strconv.ParseUint(*v["build-duration"].N, 10, 64)
+		buildDuration, err := strconv.ParseUint(*v["build-duration"].N, 10, 64)
 		if err != nil {
 			Log.Printf("Error converting build-duration to ordinal value: %v\n", err)
 		}
@@ -88,7 +88,7 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 			ID:         *v["build-id"].S,
 			ProjectKey: *v["project-key"].S,
 			Branch:     *v["branch"].S,
-			Duration:   buildElapsedTime,
+			Duration:   buildDuration,
 			Result:     int(buildResult),
 			UnixTime:   buildTime,
 		}
