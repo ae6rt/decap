@@ -20,6 +20,9 @@ func TestTeamsHandler(t *testing.T) {
 		"ae6rt/p1": Project{
 			Team: "ae6rt",
 		},
+		"ae6rt/p2": Project{
+			Team: "ae6rt",
+		},
 		"wn0owp/p2": Project{
 			Team: "wn0owp",
 		},

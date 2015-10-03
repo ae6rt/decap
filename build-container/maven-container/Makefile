@@ -5,7 +5,7 @@ DOCKER_USER := ae6rt
 IMAGE := $(DOCKER_USER)/java7:latest
 
 container:
-	docker --tlsverify=false build -t $(IMAGE) .  
+	docker build -t $(IMAGE) .  
 
 push: container
-	docker --tlsverify=false push $(IMAGE)
+	docker push $(IMAGE)

@@ -50,10 +50,16 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 }
 
 func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	a := make([]Team, 0)
 	p := getProjects()
+
+	keys := make(map[string]string)
 	for _, v := range p {
-		a = append(a, Team{Name: v.Team})
+		keys[v.Team] = ""
+	}
+
+	a := make([]Team, 0)
+	for k, _ := range keys {
+		a = append(a, Team{Name: k})
 	}
 	w.Header().Set("Content-type", "application/json")
 
