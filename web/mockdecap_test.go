@@ -15,6 +15,6 @@ func (d *MockDecap) DeletePod(podName string) error {
 	return nil
 }
 
-func (d *MockDecap) DeferBuild(event UserBuildEvent) error {
+func (d *MockDecap) DeferBuild(event BuildEvent, branch string) error {
 	return nil
 }

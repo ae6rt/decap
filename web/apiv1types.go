@@ -40,8 +40,8 @@ type Build struct {
 	ID         string `json:"id"`
 	ProjectKey string `json:"project-key"`
 	Branch     string `json:"branch"`
-	Result     int    `json:"result,omitempty"`
-	Duration   uint64 `json:"duration,omitempty"`
+	Result     int    `json:"result"`
+	Duration   uint64 `json:"duration"`
 	UnixTime   uint64 `json:"start-time"`
 }
 
@@ -56,7 +56,7 @@ type Team struct {
 
 type Ref struct {
 	RefID string `json:"ref"`
-	Type string `json:"type"`
+	Type  string `json:"type"`
 }
 
 type Refs struct {

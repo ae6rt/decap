@@ -10,9 +10,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/julienschmidt/httprouter"
 )
+
+var shutdownMutex = &sync.Mutex{}
+var shutdown bool
 
 func toUint64(value string, dflt uint64) (uint64, error) {
 	if value == "" {
@@ -47,13 +51,14 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 
 func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	p := getProjects()
-	filter := make(map[string]string)
+
+	keys := make(map[string]string)
 	for _, v := range p {
-		filter[v.Team] = ""
+		keys[v.Team] = ""
 	}
 
 	a := make([]Team, 0)
-	for k, _ := range filter {
+	for k, _ := range keys {
 		a = append(a, Team{Name: k})
 	}
 
@@ -106,20 +111,29 @@ func ExecuteBuildHandler(decap Decap) httprouter.Handle {
 		library := params.ByName("library")
 
 		if _, present := projectByTeamLibrary(team, library); !present {
+			Log.Printf("Unknown project %s/%s", team, library)
 			w.WriteHeader(404)
+			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, library)))
 			return
 		}
 
 		branches := r.URL.Query()["branch"]
 		if len(branches) == 0 {
-			// todo add a message
+			Log.Println("No branches specified")
 			w.WriteHeader(400)
+			w.Write(simpleError(fmt.Errorf("No branches specified")))
 			return
 		}
 
 		event := UserBuildEvent{TeamFld: team, LibraryFld: library, RefsFld: branches}
 		go decap.LaunchBuild(event)
 	}
+}
+
+func simpleError(err error) []byte {
+	m := Meta{Error: err.Error()}
+	data, _ := json.Marshal(&m)
+	return data
 }
 
 func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) httprouter.Handle {
@@ -129,6 +143,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 		if r.Body == nil {
 			Log.Println("Expecting an HTTP entity")
 			w.WriteHeader(400)
+			w.Write(simpleError(fmt.Errorf("Expecting an HTTP entity")))
 			return
 		}
 
@@ -136,6 +151,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 		if err != nil {
 			Log.Println(err)
 			w.WriteHeader(500)
+			w.Write(simpleError(err))
 			return
 		}
 		defer func() {
@@ -150,6 +166,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 			if err != nil {
 				Log.Println(err)
 				w.WriteHeader(500)
+				w.Write(simpleError(err))
 			} else {
 				setProjects(p)
 			}
@@ -161,6 +178,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 				if err := json.Unmarshal(data, &event); err != nil {
 					Log.Println(err)
 					w.WriteHeader(500)
+					w.Write(simpleError(err))
 					return
 				}
 				go decap.LaunchBuild(event)
@@ -169,16 +187,19 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 				if err := json.Unmarshal(data, &event); err != nil {
 					Log.Println(err)
 					w.WriteHeader(500)
+					w.Write(simpleError(err))
 					return
 				}
 				go decap.LaunchBuild(event)
 			default:
 				w.WriteHeader(400)
+				w.Write(simpleError(fmt.Errorf("Github hook missing event type header.  See https://developer.github.com/webhooks/#delivery-headers.")))
 				return
 			}
 		default:
 			Log.Printf("repomanager %s not supported\n", repoManager)
 			w.WriteHeader(400)
+			w.Write(simpleError(fmt.Errorf("repomanager %s not supported", repoManager)))
 			return
 		}
 		w.WriteHeader(200)
@@ -192,6 +213,8 @@ func StopBuildHandler(decap Decap) httprouter.Handle {
 		buildID := params.ByName("id")
 		if err := decap.DeletePod(buildID); err != nil {
 			Log.Println(err)
+			w.WriteHeader(500)
+			w.Write(simpleError(err))
 		}
 	}
 }
@@ -205,6 +228,7 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 		project, present := projectByTeamLibrary(team, library)
 		if !present {
 			w.WriteHeader(404)
+			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, library)))
 			return
 		}
 
@@ -247,6 +271,7 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 		if err != nil {
 			Log.Println(err)
 			w.WriteHeader(500)
+			w.Write(simpleError(err))
 			return
 		}
 		if r.Header.Get("Accept") == "text/plain" {
@@ -255,6 +280,7 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 			if err != nil {
 				Log.Println(err)
 				w.WriteHeader(500)
+				w.Write(simpleError(err))
 				return
 			}
 			defer func() {
@@ -281,6 +307,7 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 		if err != nil {
 			Log.Println(err)
 			w.WriteHeader(500)
+			w.Write(simpleError(err))
 			return
 		}
 		if r.Header.Get("Accept") == "text/plain" {
@@ -290,6 +317,7 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 			if err != nil {
 				Log.Println(err)
 				w.WriteHeader(500)
+				w.Write(simpleError(err))
 				return
 			}
 			defer func() {
@@ -313,6 +341,7 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 				if err != nil {
 					Log.Println(err)
 					w.WriteHeader(500)
+					w.Write(simpleError(err))
 					return
 				}
 				records = fmt.Sprintf("%s\n%s", records, hdr.Name)
@@ -371,4 +400,19 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 		}
 		w.Write(data)
 	}
+}
+
+func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	state := params.ByName("state")
+	switch state {
+	case "close":
+		shutdownMutex.Lock()
+		defer shutdownMutex.Unlock()
+		shutdown = true
+	case "open":
+		shutdownMutex.Lock()
+		defer shutdownMutex.Unlock()
+		shutdown = false
+	}
+	w.WriteHeader(200)
 }

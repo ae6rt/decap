@@ -5,21 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	etcd "github.com/coreos/etcd/client"
 )
-
-type NoOpLocker struct {
-	Locker
-}
-
-func (noop NoOpLocker) Lock(key, value string) (*etcd.Response, error) {
-	return nil, nil
-}
-
-func (noop NoOpLocker) Unlock(key, value string) (*etcd.Response, error) {
-	return nil, nil
-}
 
 func TestCreatePod(t *testing.T) {
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +27,7 @@ func TestCreatePod(t *testing.T) {
 	}))
 	defer testServer.Close()
 
-	k8s := NewDefaultDecap(testServer.URL, "admin", "admin123", "key", "sekrit", "us-west-1", NoOpLocker{})
+	k8s := NewDefaultDecap(testServer.URL, "admin", "admin123", "key", "sekrit", "us-west-1", NoOpLocker{}, "repo", "repobranch")
 	err := k8s.CreatePod([]byte(""))
 	if err != nil {
 		t.Fatalf("Unexpected error: %v\n", err)
