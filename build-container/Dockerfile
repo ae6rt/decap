@@ -2,7 +2,7 @@ FROM centos:7.1.1503
 
 MAINTAINER Mark Petrovic <mspetrovic@gmail.com>
 
-RUN yum update -y && yum install -y git
+RUN yum update -y && yum install -y git tar
 RUN mkdir -p /home/decap/workspace /build-artifacts /home/decap/buildscripts
 
 COPY entrypoint.sh /usr/local/bin/

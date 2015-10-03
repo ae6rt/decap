@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -ux
 
 env | sort
 
@@ -27,13 +27,13 @@ if [ $# -eq 0 ]; then
    	tar czf /tmp/${TAR}.gz .
    popd
 
-   bctool s3put --aws-access-key-id ${AWS_ACCESS_KEY_ID} --aws-secret-access-key ${AWS_ACCESS_SECRET_ID} --aws-region ${AWS_DEFAULT_REGION} \
+   bctool s3put --aws-access-key-id ${AWS_ACCESS_KEY_ID} --aws-secret-access-key ${AWS_SECRET_ACCESS_KEY} --aws-region ${AWS_DEFAULT_REGION} \
 	--bucket-name decap-build-artifacts --build-id ${BUILD_ID} --content-type application/x-gzip --filename /tmp/${TAR}.gz 
 
-   bctool s3put --aws-access-key-id ${AWS_ACCESS_KEY_ID} --aws-secret-access-key ${AWS_ACCESS_SECRET_ID} --aws-region ${AWS_DEFAULT_REGION} \
+   bctool s3put --aws-access-key-id ${AWS_ACCESS_KEY_ID} --aws-secret-access-key ${AWS_SECRET_ACCESS_KEY} --aws-region ${AWS_DEFAULT_REGION} \
 	--bucket-name decap-console-logs  --build-id ${BUILD_ID} --content-type application/x-gzip --filename ${CONSOLE}.gz
 
-   bctool record-build-metadata  --aws-access-key-id ${AWS_ACCESS_KEY_ID} --aws-secret-access-key ${AWS_ACCESS_SECRET_ID} --aws-region ${AWS_DEFAULT_REGION} \
+   bctool record-build-metadata  --aws-access-key-id ${AWS_ACCESS_KEY_ID} --aws-secret-access-key ${AWS_SECRET_ACCESS_KEY} --aws-region ${AWS_DEFAULT_REGION} \
 	--table-name decap-build-metadata  --build-id ${BUILD_ID}  --project-key ${PROJECT_KEY} --branch ${BRANCH_TO_BUILD} \
 	--build-start-time ${START} --build-duration ${DURATION} --build-result ${BUILD_EXITCODE} 
 
