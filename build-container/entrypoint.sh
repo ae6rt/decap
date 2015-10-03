@@ -37,6 +37,8 @@ if [ $# -eq 0 ]; then
 	--table-name decap-build-metadata  --build-id ${BUILD_ID}  --project-key ${PROJECT_KEY} --branch ${BRANCH_TO_BUILD} \
 	--build-start-time ${START} --build-duration ${DURATION} --build-result ${BUILD_EXITCODE} 
 
+   bctool unlock --lockservice-base-url http://lockservice.decap-system:2379 --build-id ${BUILD_ID} --build-lock-key ${BUILD_LOCK_KEY} 
+
 else
    exec "$@"
 fi

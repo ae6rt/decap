@@ -86,8 +86,8 @@ var unlockBuildCmd = &cobra.Command{
 			return
 		}
 
-		if resp.StatusCode != 201 {
-			Log.Printf("Error reading non-201 response body: %v\n", err)
+		if resp.StatusCode != 200 {
+			Log.Printf("Error reading non-200 response body: %v\n", err)
 			Log.Println(data)
 		}
 		if debug {
