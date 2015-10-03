@@ -23,7 +23,7 @@ binaries: test
 	GOOS=linux GOARCH=$(ARCH) godep go build -ldflags $(LD_FLAGS) -o $(NAME)-linux-$(ARCH)
 
 container: binaries
-	docker --tlsverify=false build -t $(IMAGE) .  
+	docker build -t $(IMAGE) .  
 
 push: container
-	docker --tlsverify=false push $(IMAGE)
+	docker push $(IMAGE)
