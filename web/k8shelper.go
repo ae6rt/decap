@@ -31,6 +31,7 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsReg
 		caCertPool := x509.NewCertPool()
 		caCertPool.AppendCertsFromPEM(caCert)
 		tlsConfig.RootCAs = caCertPool
+		Log.Println("Kubernetes master secured with TLS")
 	}
 
 	apiClient := &http.Client{Transport: &http.Transport{
