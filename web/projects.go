@@ -113,7 +113,7 @@ func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, erro
 				continue
 			}
 			if descriptor.Image == "" {
-				Log.Printf("Skipping project % without descriptor build image: %+v\n", k, descriptor)
+				Log.Printf("Skipping project %s without descriptor build image: %+v\n", k, descriptor)
 				continue
 			}
 
@@ -232,10 +232,12 @@ func descriptorForTeamProject(file string) (AtomDescriptor, error) {
 		return AtomDescriptor{}, err
 	}
 
-	if re, err := regexp.Compile(descriptor.ManagedBranchRegexStr); err != nil {
-		Log.Printf("Error parsing managed-branch-regex for file %s: %v\n", file, err)
-	} else {
-		descriptor.ManagedBranchRegex = re
+	if descriptor.ManagedBranchRegexStr != "" {
+		if re, err := regexp.Compile(descriptor.ManagedBranchRegexStr); err != nil {
+			Log.Printf("Error parsing managed-branch-regex %s for file %s: %v\n", descriptor.ManagedBranchRegexStr, file, err)
+		} else {
+			descriptor.ManagedBranchRegex = re
+		}
 	}
 
 	return descriptor, nil

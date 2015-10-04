@@ -116,6 +116,6 @@ func TestDynamoDbGetBuilds(t *testing.T) {
 		t.Fatal("Want false")
 	}
 	if v.TableName != "decap-build-metadata" {
-		t.Fatal("Want decap-build-metadata but got %s\n", v.TableName)
+		t.Fatalf("Want decap-build-metadata but got %s\n", v.TableName)
 	}
 }

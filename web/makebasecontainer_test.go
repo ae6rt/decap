@@ -27,7 +27,7 @@ func TestMakeBaseContainer(t *testing.T) {
 		t.Fatalf("Want build-scripts but got %v\n", baseContainer.VolumeMounts[i].Name)
 	}
 	if baseContainer.VolumeMounts[i].MountPath != "/home/decap/buildscripts" {
-		t.Fatalf("Want /home/decap/buildscripts", baseContainer.VolumeMounts[i].MountPath)
+		t.Fatalf("Want /home/decap/buildscripts but got %s\n", baseContainer.VolumeMounts[i].MountPath)
 	}
 
 	i = i + 1
@@ -35,7 +35,7 @@ func TestMakeBaseContainer(t *testing.T) {
 		t.Fatalf("Want decap-credentials but got %v\n", baseContainer.VolumeMounts[i].Name)
 	}
 	if baseContainer.VolumeMounts[i].MountPath != "/etc/secrets" {
-		t.Fatalf("Want /etc/secrets", baseContainer.VolumeMounts[i].MountPath)
+		t.Fatalf("Want /etc/secrets but got %s\n", baseContainer.VolumeMounts[i].MountPath)
 	}
 
 	if len(baseContainer.Env) != 7 {
