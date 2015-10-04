@@ -12,19 +12,19 @@ type Version struct {
 	SDK     string `json:"sdk"`
 }
 
-type Projects struct {
+type Atoms struct {
 	Meta
-	Projects []Project `json:"projects"`
+	Atoms []Atom `json:"projects"`
 }
 
-type Project struct {
+type Atom struct {
 	Team       string            `json:"team"`
 	Library    string            `json:"project"`
-	Descriptor ProjectDescriptor `json:"descriptor,omitempty"`
+	Descriptor AtomDescriptor `json:"descriptor,omitempty"`
 	Sidecars   []string          `json:"sidecars,omitempty"`
 }
 
-type ProjectDescriptor struct {
+type AtomDescriptor struct {
 	Image           string `json:"build-image"`
 	RepoManager     string `json:"repo-manager"`
 	RepoURL         string `json:"repo-url"`

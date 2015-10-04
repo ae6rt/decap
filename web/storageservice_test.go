@@ -1,7 +1,7 @@
 package main
 
 type MockStorageService struct {
-	project       Project
+	project Atom
 	sinceUnixTime uint64
 	limit         uint64
 	buildID       string
@@ -10,7 +10,7 @@ type MockStorageService struct {
 	builds        []Build
 }
 
-func (s *MockStorageService) GetBuildsByProject(project Project, sinceTime uint64, limit uint64) ([]Build, error) {
+func (s *MockStorageService) GetBuildsByProject(project Atom, sinceTime uint64, limit uint64) ([]Build, error) {
 	s.project = project
 	s.sinceUnixTime = sinceTime
 	s.limit = limit

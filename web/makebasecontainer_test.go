@@ -6,8 +6,8 @@ func TestMakeBaseContainer(t *testing.T) {
 	k8s := NewDefaultDecap("url", "admin", "admin123", "key", "sekrit", "us-west-1", NoOpLocker{}, "repo", "repobranch")
 
 	buildEvent := UserBuildEvent{TeamFld: "ae6rt", LibraryFld: "somelib", RefsFld: []string{"master"}}
-	baseContainer := k8s.makeBaseContainer(buildEvent, "uuid", "master", map[string]Project{
-		"ae6rt/somelib": Project{Team: "ae6rt", Library: "somelib", Descriptor: ProjectDescriptor{Image: "magic-image"}, Sidecars: []string{}},
+	baseContainer := k8s.makeBaseContainer(buildEvent, "uuid", "master", map[string]Atom{
+		"ae6rt/somelib": Atom{Team: "ae6rt", Library: "somelib", Descriptor: AtomDescriptor{Image: "magic-image"}, Sidecars: []string{}},
 	})
 
 	if baseContainer.Name != "build-server" {

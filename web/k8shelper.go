@@ -56,7 +56,7 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsReg
 	}
 }
 
-func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, branch string, projects map[string]Project) k8stypes.Container {
+func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, branch string, projects map[string]Atom) k8stypes.Container {
 	projectKey := buildEvent.ProjectKey()
 	lockKey := decap.Locker.Key(projectKey, branch)
 	return k8stypes.Container{
@@ -117,7 +117,7 @@ func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, bran
 	}
 }
 
-func (decap DefaultDecap) makeSidecarContainers(buildEvent BuildEvent, projects map[string]Project) []k8stypes.Container {
+func (decap DefaultDecap) makeSidecarContainers(buildEvent BuildEvent, projects map[string]Atom) []k8stypes.Container {
 	projectKey := buildEvent.ProjectKey()
 	arr := make([]k8stypes.Container, len(projects[projectKey].Sidecars))
 
@@ -175,7 +175,7 @@ func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string,
 	}
 }
 
-func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch string, projects map[string]Project) []k8stypes.Container {
+func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch string, projects map[string]Atom) []k8stypes.Container {
 	baseContainer := decap.makeBaseContainer(buildEvent, buildID, branch, projects)
 	sidecars := decap.makeSidecarContainers(buildEvent, projects)
 

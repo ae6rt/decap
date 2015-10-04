@@ -22,7 +22,7 @@ func NewAWSStorageService(key, secret, region string) StorageService {
 	return AWSStorageService{aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(key, secret, "")).WithRegion(region).WithMaxRetries(3)}
 }
 
-func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, limit uint64) ([]Build, error) {
+func (c AWSStorageService) GetBuildsByProject(project Atom, since uint64, limit uint64) ([]Build, error) {
 
 	var resp *dynamodb.QueryOutput
 
