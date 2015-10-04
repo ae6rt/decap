@@ -138,6 +138,7 @@ func assembleAtomss(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, err
 	return proj, nil
 }
 
+// I'd like to find a way to manage this with channels.
 func getAtoms() map[string]Atom {
 	p := make(map[string]Atom, 0)
 	projectMutex.Lock()
@@ -148,12 +149,14 @@ func getAtoms() map[string]Atom {
 	return p
 }
 
+// I'd like to find a way to manage this with channels.
 func setAtoms(p map[string]Atom) {
 	projectMutex.Lock()
 	projects = p
 	projectMutex.Unlock()
 }
 
+// I'd like to find a way to manage this with channels.
 func atomByTeamLibrary(team, library string) (Atom, bool) {
 	pr := getAtoms()
 	key := projectKey(team, library)
