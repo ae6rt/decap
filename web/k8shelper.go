@@ -188,7 +188,7 @@ func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch 
 func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 	projectKey := buildEvent.ProjectKey()
 
-	projs := getProjects()
+	projs := getAtoms()
 
 	for _, branch := range buildEvent.Refs() {
 		key := decap.Locker.Key(projectKey, branch)

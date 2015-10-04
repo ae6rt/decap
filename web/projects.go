@@ -68,7 +68,7 @@ func filesByRegex(root, expression string) ([]string, error) {
 	return files, nil
 }
 
-func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, error) {
+func assembleAtomss(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, error) {
 	proj := make(map[string]Atom, 0)
 	work := func() error {
 		Log.Printf("Clone build-scripts repository...\n")
@@ -138,7 +138,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, e
 	return proj, nil
 }
 
-func getProjects() map[string]Atom {
+func getAtoms() map[string]Atom {
 	p := make(map[string]Atom, 0)
 	projectMutex.Lock()
 	for k, v := range projects {
@@ -148,14 +148,14 @@ func getProjects() map[string]Atom {
 	return p
 }
 
-func setProjects(p map[string]Atom) {
+func setAtoms(p map[string]Atom) {
 	projectMutex.Lock()
 	projects = p
 	projectMutex.Unlock()
 }
 
-func projectByTeamLibrary(team, library string) (Atom, bool) {
-	pr := getProjects()
+func atomByTeamLibrary(team, library string) (Atom, bool) {
+	pr := getAtoms()
 	key := projectKey(team, library)
 	p, ok := pr[key]
 	return p, ok
