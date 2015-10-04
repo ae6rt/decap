@@ -124,7 +124,7 @@ func ExecuteBuildHandler(decap Decap) httprouter.Handle {
 			return
 		}
 
-		event := UserBuildEvent{TeamFld: team, LibraryFld: library, RefsFld: branches}
+		event := UserBuildEvent{TeamFld: team, ProjectFld: library, RefsFld: branches}
 		go decap.LaunchBuild(event)
 	}
 }
@@ -235,7 +235,7 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 		case "github":
 			w.Header().Set("Content-type", "application/json")
 			repoClient := repoClients["github"]
-			nativeBranches, err := repoClient.GetRefs(atom.Team, atom.Library)
+			nativeBranches, err := repoClient.GetRefs(atom.Team, atom.Project)
 			if err != nil {
 				Log.Print(err)
 				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})
@@ -377,7 +377,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			return
 		}
 
-		buildList, err := storageService.GetBuildsByAtom(Atom{Team: team, Library: library}, since, limit)
+		buildList, err := storageService.GetBuildsByAtom(Atom{Team: team, Project: library}, since, limit)
 
 		if err != nil {
 			builds := Builds{Meta: Meta{Error: err.Error()}}

@@ -7,11 +7,11 @@ func (e UserBuildEvent) Team() string {
 }
 
 func (e UserBuildEvent) Library() string {
-	return e.LibraryFld
+	return e.ProjectFld
 }
 
 func (e UserBuildEvent) ProjectKey() string {
-	return fmt.Sprintf("%s/%s", e.TeamFld, e.LibraryFld)
+	return fmt.Sprintf("%s/%s", e.TeamFld, e.ProjectFld)
 }
 
 func (e UserBuildEvent) Refs() []string {

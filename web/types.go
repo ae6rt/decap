@@ -83,6 +83,6 @@ type Decap interface {
 // UserBuildEvent captures a user-initiated build request.
 type UserBuildEvent struct {
 	TeamFld    string
-	LibraryFld string
+	ProjectFld string
 	RefsFld    []string
 }

@@ -378,7 +378,7 @@ func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
 	// only defer the most recent project/branch.  displace old deferrals.
 	_ = UserBuildEvent{
 		TeamFld:    event.Team(),
-		LibraryFld: event.Library(),
+		ProjectFld: event.Library(),
 		RefsFld:    []string{branch},
 	}
 	return nil

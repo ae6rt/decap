@@ -26,7 +26,7 @@ func TestAssembleProjects(t *testing.T) {
 
 	foundIt := false
 	for _, v := range proj {
-		if v.Team == "ae6rt" && v.Library == "dynamodb-lab" {
+		if v.Team == "ae6rt" && v.Project == "dynamodb-lab" {
 			foundIt = true
 			if v.Descriptor.RepoManager != "github" {
 				t.Fatalf("Want github but got %s\n", v.Descriptor.RepoManager)

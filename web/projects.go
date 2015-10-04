@@ -122,7 +122,7 @@ func assembleAtomss(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, err
 			parts := strings.Split(k, "/")
 			p := Atom{
 				Team:       parts[0],
-				Library:    parts[1],
+				Project:    parts[1],
 				Descriptor: descriptor,
 				Sidecars:   sidecars,
 			}
