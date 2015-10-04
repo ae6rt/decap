@@ -1,7 +1,7 @@
 package main
 
 type MockStorageService struct {
-	project Atom
+	project       Atom
 	sinceUnixTime uint64
 	limit         uint64
 	buildID       string

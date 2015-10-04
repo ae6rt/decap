@@ -18,10 +18,10 @@ type Atoms struct {
 }
 
 type Atom struct {
-	Team       string            `json:"team"`
-	Library    string            `json:"project"`
+	Team       string         `json:"team"`
+	Library    string         `json:"project"`
 	Descriptor AtomDescriptor `json:"descriptor,omitempty"`
-	Sidecars   []string          `json:"sidecars,omitempty"`
+	Sidecars   []string       `json:"sidecars,omitempty"`
 }
 
 type AtomDescriptor struct {
