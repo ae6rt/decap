@@ -23,7 +23,7 @@ func TestBuildsHandlerSinceNotUnsigned(t *testing.T) {
 	w := httptest.NewRecorder()
 	BuildsHandler(&storageService)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -50,7 +50,7 @@ func TestBuildsHandlerLimitNotUnsigned(t *testing.T) {
 	w := httptest.NewRecorder()
 	BuildsHandler(&storageService)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -77,7 +77,7 @@ func TestBuildsHandlerWithStorageServiceError(t *testing.T) {
 	w := httptest.NewRecorder()
 	BuildsHandler(&storageService)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -116,7 +116,7 @@ func TestBuildsHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	BuildsHandler(&storageService)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 

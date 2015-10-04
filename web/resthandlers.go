@@ -107,12 +107,12 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 func ExecuteBuildHandler(decap Decap) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
-		library := params.ByName("library")
+		project := params.ByName("project")
 
-		if _, present := atomByTeamLibrary(team, library); !present {
-			Log.Printf("Unknown project %s/%s", team, library)
+		if _, present := atomByTeamProject(team, project); !present {
+			Log.Printf("Unknown project %s/%s", team, project)
 			w.WriteHeader(404)
-			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, library)))
+			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, project)))
 			return
 		}
 
@@ -124,7 +124,7 @@ func ExecuteBuildHandler(decap Decap) httprouter.Handle {
 			return
 		}
 
-		event := UserBuildEvent{TeamFld: team, ProjectFld: library, RefsFld: branches}
+		event := UserBuildEvent{TeamFld: team, ProjectFld: project, RefsFld: branches}
 		go decap.LaunchBuild(event)
 	}
 }
@@ -222,12 +222,12 @@ func StopBuildHandler(decap Decap) httprouter.Handle {
 func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
-		library := params.ByName("library")
+		project := params.ByName("project")
 
-		atom, present := atomByTeamLibrary(team, library)
+		atom, present := atomByTeamProject(team, project)
 		if !present {
 			w.WriteHeader(404)
-			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, library)))
+			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, project)))
 			return
 		}
 
@@ -357,7 +357,7 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 func BuildsHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
-		library := params.ByName("library")
+		project := params.ByName("project")
 
 		since, err := toUint64(r.URL.Query().Get("since"), 0)
 		if err != nil {
@@ -377,7 +377,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			return
 		}
 
-		buildList, err := storageService.GetBuildsByAtom(Atom{Team: team, Project: library}, since, limit)
+		buildList, err := storageService.GetBuildsByAtom(Atom{Team: team, Project: project}, since, limit)
 
 		if err != nil {
 			builds := Builds{Meta: Meta{Error: err.Error()}}

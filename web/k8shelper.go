@@ -145,7 +145,7 @@ func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string,
 			Labels: map[string]string{
 				"type":    "decap-build",
 				"team":    buildEvent.Team(),
-				"library": buildEvent.Project(),
+				"project": buildEvent.Project(),
 				"branch":  branch,
 			},
 		},

@@ -32,7 +32,7 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "nope"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -63,7 +63,7 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -94,7 +94,7 @@ func TestProjectRefsGithub(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 

@@ -157,9 +157,9 @@ func setAtoms(p map[string]Atom) {
 }
 
 // I'd like to find a way to manage this with channels.
-func atomByTeamLibrary(team, library string) (Atom, bool) {
+func atomByTeamProject(team, project string) (Atom, bool) {
 	pr := getAtoms()
-	key := projectKey(team, library)
+	key := projectKey(team, project)
 	p, ok := pr[key]
 	return p, ok
 }

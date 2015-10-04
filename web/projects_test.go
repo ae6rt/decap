@@ -38,7 +38,7 @@ func TestAssembleProjects(t *testing.T) {
 		}
 	}
 	if !foundIt {
-		t.Fatalf("Want a project ae6rt/library but did not find one\n")
+		t.Fatalf("Want a project ae6rt/dynamodb-lab but did not find one\n")
 	}
 }
 
@@ -55,11 +55,11 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, present := atomByTeamLibrary("ae6rt", "dynamodb-lab"); !present {
+	if _, present := atomByTeamProject("ae6rt", "dynamodb-lab"); !present {
 		t.Fatalf("Expecting to find ae6rt/dynamodb-lab project but did not\n")
 	}
 
-	if _, present := atomByTeamLibrary("nope", "nope"); present {
+	if _, present := atomByTeamProject("nope", "nope"); present {
 		t.Fatalf("Not expecting to find nope/nope project but did \n")
 	}
 }

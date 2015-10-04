@@ -67,8 +67,8 @@ func TestMakePod(t *testing.T) {
 	if labels["team"] != projectMap["ae6rt/somelib"].Team {
 		t.Fatalf("Want ae6rt but got %v\n", labels["team"])
 	}
-	if labels["library"] != projectMap["ae6rt/somelib"].Project {
-		t.Fatalf("Want somelib but got %v\n", labels["library"])
+	if labels["project"] != projectMap["ae6rt/somelib"].Project {
+		t.Fatalf("Want somelib but got %v\n", labels["project"])
 	}
 
 	if len(pod.Spec.Volumes) != 2 {
