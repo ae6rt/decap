@@ -19,7 +19,7 @@ type Projects struct {
 
 type Project struct {
 	Team       string            `json:"team"`
-	Library    string            `json:"library"`
+	Library    string            `json:"project"`
 	Descriptor ProjectDescriptor `json:"descriptor,omitempty"`
 	Sidecars   []string          `json:"sidecars,omitempty"`
 }
