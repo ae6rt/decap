@@ -41,7 +41,7 @@ type Terminated struct {
 type BuildEvent interface {
 	Team() string
 	Project() string
-	ProjectKey() string
+	Key() string
 	Refs() []string
 }
 

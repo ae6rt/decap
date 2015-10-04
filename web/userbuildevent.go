@@ -10,7 +10,7 @@ func (e UserBuildEvent) Project() string {
 	return e.ProjectFld
 }
 
-func (e UserBuildEvent) ProjectKey() string {
+func (e UserBuildEvent) Key() string {
 	return fmt.Sprintf("%s/%s", e.TeamFld, e.ProjectFld)
 }
 

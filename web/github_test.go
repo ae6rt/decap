@@ -27,8 +27,8 @@ func TestGithubEvent(t *testing.T) {
 	}
 
 	pushEvent := BuildEvent(event)
-	if pushEvent.ProjectKey() != "ae6rt/dynamodb-lab" {
-		t.Fatalf("Want ae6rt/dynamodb-lab", pushEvent.ProjectKey())
+	if pushEvent.Key() != "ae6rt/dynamodb-lab" {
+		t.Fatalf("Want ae6rt/dynamodb-lab", pushEvent.Key())
 	}
 	if pushEvent.Team() != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", pushEvent.Team())

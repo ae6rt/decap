@@ -27,7 +27,7 @@ func (event GithubEvent) Project() string {
 	return event.Repository.Name
 }
 
-func (event GithubEvent) ProjectKey() string {
+func (event GithubEvent) Key() string {
 	return event.Repository.FullName
 }
 

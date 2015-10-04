@@ -10,8 +10,8 @@ func TestUserEvent(t *testing.T) {
 	if event.Project() != "lib" {
 		t.Fatalf("Want lib but got %s\n", event.Project())
 	}
-	if event.ProjectKey() != "team/lib" {
-		t.Fatalf("Want team/lib but got %s\n", event.ProjectKey())
+	if event.Key() != "team/lib" {
+		t.Fatalf("Want team/lib but got %s\n", event.Key())
 	}
 
 	branches := event.Refs()
