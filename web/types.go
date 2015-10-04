@@ -40,7 +40,7 @@ type Terminated struct {
 // https://gist.githubusercontent.com/ae6rt/2be93f7d5edef8030b52/raw/29f591eb8ecc5555c55f1878b545613c1f9839b7/gh-push.json
 type BuildEvent interface {
 	Team() string
-	Library() string
+	Project() string
 	ProjectKey() string
 	Refs() []string
 }

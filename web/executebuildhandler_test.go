@@ -41,8 +41,8 @@ func TestExecuteBuild(t *testing.T) {
 	if mockDecap.event.Team() != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", mockDecap.event.Team())
 	}
-	if mockDecap.event.Library() != "p1" {
-		t.Fatalf("Want p1 but got %s\n", mockDecap.event.Library())
+	if mockDecap.event.Project() != "p1" {
+		t.Fatalf("Want p1 but got %s\n", mockDecap.event.Project())
 	}
 
 }

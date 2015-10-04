@@ -145,7 +145,7 @@ func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string,
 			Labels: map[string]string{
 				"type":    "decap-build",
 				"team":    buildEvent.Team(),
-				"library": buildEvent.Library(),
+				"library": buildEvent.Project(),
 				"branch":  branch,
 			},
 		},
@@ -378,7 +378,7 @@ func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
 	// only defer the most recent project/branch.  displace old deferrals.
 	_ = UserBuildEvent{
 		TeamFld:    event.Team(),
-		ProjectFld: event.Library(),
+		ProjectFld: event.Project(),
 		RefsFld:    []string{branch},
 	}
 	return nil

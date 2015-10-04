@@ -23,7 +23,7 @@ func (event GithubEvent) Team() string {
 	return event.Repository.Owner.Name
 }
 
-func (event GithubEvent) Library() string {
+func (event GithubEvent) Project() string {
 	return event.Repository.Name
 }
 

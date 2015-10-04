@@ -6,7 +6,7 @@ func (e UserBuildEvent) Team() string {
 	return e.TeamFld
 }
 
-func (e UserBuildEvent) Library() string {
+func (e UserBuildEvent) Project() string {
 	return e.ProjectFld
 }
 
