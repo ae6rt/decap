@@ -57,10 +57,10 @@ func main() {
 	router.ServeFiles("/decap/*filepath", http.Dir("./static"))
 	router.GET("/api/v1/version", VersionHandler)
 	router.GET("/api/v1/projects", ProjectsHandler)
-	router.GET("/api/v1/projects/:team/:library/refs", ProjectRefsHandler(scmManagers))
-	router.GET("/api/v1/builds/:team/:library", BuildsHandler(awsStorageService))
+	router.GET("/api/v1/projects/:team/:project/refs", ProjectRefsHandler(scmManagers))
+	router.GET("/api/v1/builds/:team/:project", BuildsHandler(awsStorageService))
 	router.DELETE("/api/v1/builds/:id", StopBuildHandler(k8s))
-	router.POST("/api/v1/builds/:team/:library", ExecuteBuildHandler(k8s))
+	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(k8s))
 	router.GET("/api/v1/teams", TeamsHandler)
 	router.GET("/api/v1/logs/:id", LogHandler(awsStorageService))
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
@@ -68,7 +68,7 @@ func main() {
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, k8s))
 
 	var err error
-	projects, err = assembleProjects(*buildScriptsRepo, *buildScriptsRepoBranch)
+	projects, err = assembleAtomss(*buildScriptsRepo, *buildScriptsRepoBranch)
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}

@@ -17,11 +17,11 @@ func TestProjectsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
-		"ae6rt/p1": Project{
+	projects = map[string]Atom{
+		"ae6rt/p1": Atom{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": Atom{
 			Team: "wn0owp",
 		},
 	}
@@ -29,15 +29,15 @@ func TestProjectsHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectsHandler(w, req, httprouter.Params{})
 
-	var proj Projects
+	var proj Atoms
 	err = json.Unmarshal(w.Body.Bytes(), &proj)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(proj.Projects) != 2 {
-		t.Fatalf("Want 2 but got %d\n", len(proj.Projects))
+	if len(proj.Atoms) != 2 {
+		t.Fatalf("Want 2 but got %d\n", len(proj.Atoms))
 	}
-	for _, v := range proj.Projects {
+	for _, v := range proj.Atoms {
 		if !(v.Team == "ae6rt" || v.Team == "wn0owp") {
 			t.Fatalf("Want ae6rt or wn0owp but got %d\n", v.Team)
 		}
@@ -51,11 +51,11 @@ func TestProjectsHandlerWithQuery(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
-		"ae6rt/p1": Project{
+	projects = map[string]Atom{
+		"ae6rt/p1": Atom{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": Atom{
 			Team: "wn0owp",
 		},
 	}
@@ -63,16 +63,16 @@ func TestProjectsHandlerWithQuery(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectsHandler(w, req, httprouter.Params{})
 
-	var proj Projects
+	var proj Atoms
 	err = json.Unmarshal(w.Body.Bytes(), &proj)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(proj.Projects) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(proj.Projects))
+	if len(proj.Atoms) != 1 {
+		t.Fatalf("Want 1 but got %d\n", len(proj.Atoms))
 	}
 
-	expected := proj.Projects[0]
+	expected := proj.Atoms[0]
 	if expected.Team != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %d\n", expected.Team)
 	}

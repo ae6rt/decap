@@ -23,7 +23,7 @@ func TestBuildsHandlerSinceNotUnsigned(t *testing.T) {
 	w := httptest.NewRecorder()
 	BuildsHandler(&storageService)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -50,7 +50,7 @@ func TestBuildsHandlerLimitNotUnsigned(t *testing.T) {
 	w := httptest.NewRecorder()
 	BuildsHandler(&storageService)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -77,7 +77,7 @@ func TestBuildsHandlerWithStorageServiceError(t *testing.T) {
 	w := httptest.NewRecorder()
 	BuildsHandler(&storageService)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -95,8 +95,8 @@ func TestBuildsHandlerWithStorageServiceError(t *testing.T) {
 	if storageService.project.Team != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", storageService.project.Team)
 	}
-	if storageService.project.Library != "p1" {
-		t.Fatalf("Want p1 but got %s\n", storageService.project.Library)
+	if storageService.project.Project != "p1" {
+		t.Fatalf("Want p1 but got %s\n", storageService.project.Project)
 	}
 	if storageService.sinceUnixTime != 1 {
 		t.Fatalf("Want 1 but got %d\n", storageService.sinceUnixTime)
@@ -116,7 +116,7 @@ func TestBuildsHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	BuildsHandler(&storageService)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -131,8 +131,8 @@ func TestBuildsHandler(t *testing.T) {
 	if storageService.project.Team != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", storageService.project.Team)
 	}
-	if storageService.project.Library != "p1" {
-		t.Fatalf("Want p1 but got %s\n", storageService.project.Library)
+	if storageService.project.Project != "p1" {
+		t.Fatalf("Want p1 but got %s\n", storageService.project.Project)
 	}
 	if storageService.sinceUnixTime != 1 {
 		t.Fatalf("Want 1 but got %d\n", storageService.sinceUnixTime)

@@ -13,7 +13,7 @@ func TestAssembleProjects(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proj, err := assembleProjects("file://"+dir, "master")
+	proj, err := assembleAtomss("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {
@@ -26,7 +26,7 @@ func TestAssembleProjects(t *testing.T) {
 
 	foundIt := false
 	for _, v := range proj {
-		if v.Team == "ae6rt" && v.Library == "dynamodb-lab" {
+		if v.Team == "ae6rt" && v.Project == "dynamodb-lab" {
 			foundIt = true
 			if v.Descriptor.RepoManager != "github" {
 				t.Fatalf("Want github but got %s\n", v.Descriptor.RepoManager)
@@ -38,7 +38,7 @@ func TestAssembleProjects(t *testing.T) {
 		}
 	}
 	if !foundIt {
-		t.Fatalf("Want a project ae6rt/library but did not find one\n")
+		t.Fatalf("Want a project ae6rt/dynamodb-lab but did not find one\n")
 	}
 }
 
@@ -48,18 +48,18 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projects, err = assembleProjects("file://"+dir, "master")
+	projects, err = assembleAtomss("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if _, present := projectByTeamLibrary("ae6rt", "dynamodb-lab"); !present {
+	if _, present := atomByTeamProject("ae6rt", "dynamodb-lab"); !present {
 		t.Fatalf("Expecting to find ae6rt/dynamodb-lab project but did not\n")
 	}
 
-	if _, present := projectByTeamLibrary("nope", "nope"); present {
+	if _, present := atomByTeamProject("nope", "nope"); present {
 		t.Fatalf("Not expecting to find nope/nope project but did \n")
 	}
 }

@@ -22,7 +22,7 @@ func NewAWSStorageService(key, secret, region string) StorageService {
 	return AWSStorageService{aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(key, secret, "")).WithRegion(region).WithMaxRetries(3)}
 }
 
-func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, limit uint64) ([]Build, error) {
+func (c AWSStorageService) GetBuildsByAtom(project Atom, since uint64, limit uint64) ([]Build, error) {
 
 	var resp *dynamodb.QueryOutput
 
@@ -38,7 +38,7 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 			},
 			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 				":pkey": {
-					S: aws.String(projectKey(project.Team, project.Library)),
+					S: aws.String(projectKey(project.Team, project.Project)),
 				},
 				":since": {
 					N: aws.String(fmt.Sprintf("%d", since)),

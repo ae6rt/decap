@@ -121,8 +121,8 @@ func TestHooksHandlerGithub(t *testing.T) {
 	if mockDecap.event.Team() != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", mockDecap.event.Team())
 	}
-	if mockDecap.event.Library() != "dynamodb-lab" {
-		t.Fatalf("Want dynamodb-lab but got %s\n", mockDecap.event.Library())
+	if mockDecap.event.Project() != "dynamodb-lab" {
+		t.Fatalf("Want dynamodb-lab but got %s\n", mockDecap.event.Project())
 	}
 }
 

@@ -32,11 +32,11 @@ func (stash StashEvent) Team() string {
 	return stash.Repository.Project.Key
 }
 
-func (stash StashEvent) Library() string {
+func (stash StashEvent) Project() string {
 	return stash.Repository.Slug
 }
 
-func (stash StashEvent) ProjectKey() string {
+func (stash StashEvent) Key() string {
 	return projectKey(stash.Repository.Project.Key, stash.Repository.Slug)
 }
 

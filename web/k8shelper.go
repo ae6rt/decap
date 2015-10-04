@@ -56,8 +56,8 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsReg
 	}
 }
 
-func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, branch string, projects map[string]Project) k8stypes.Container {
-	projectKey := buildEvent.ProjectKey()
+func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, branch string, projects map[string]Atom) k8stypes.Container {
+	projectKey := buildEvent.Key()
 	lockKey := decap.Locker.Key(projectKey, branch)
 	return k8stypes.Container{
 		Name:  "build-server",
@@ -117,8 +117,8 @@ func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, bran
 	}
 }
 
-func (decap DefaultDecap) makeSidecarContainers(buildEvent BuildEvent, projects map[string]Project) []k8stypes.Container {
-	projectKey := buildEvent.ProjectKey()
+func (decap DefaultDecap) makeSidecarContainers(buildEvent BuildEvent, projects map[string]Atom) []k8stypes.Container {
+	projectKey := buildEvent.Key()
 	arr := make([]k8stypes.Container, len(projects[projectKey].Sidecars))
 
 	for i, v := range projects[projectKey].Sidecars {
@@ -145,7 +145,7 @@ func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string,
 			Labels: map[string]string{
 				"type":    "decap-build",
 				"team":    buildEvent.Team(),
-				"library": buildEvent.Library(),
+				"project": buildEvent.Project(),
 				"branch":  branch,
 			},
 		},
@@ -175,7 +175,7 @@ func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string,
 	}
 }
 
-func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch string, projects map[string]Project) []k8stypes.Container {
+func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch string, projects map[string]Atom) []k8stypes.Container {
 	baseContainer := decap.makeBaseContainer(buildEvent, buildID, branch, projects)
 	sidecars := decap.makeSidecarContainers(buildEvent, projects)
 
@@ -186,9 +186,9 @@ func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch 
 }
 
 func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
-	projectKey := buildEvent.ProjectKey()
+	projectKey := buildEvent.Key()
 
-	projs := getProjects()
+	projs := getAtoms()
 
 	for _, branch := range buildEvent.Refs() {
 		key := decap.Locker.Key(projectKey, branch)
@@ -378,7 +378,7 @@ func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
 	// only defer the most recent project/branch.  displace old deferrals.
 	_ = UserBuildEvent{
 		TeamFld:    event.Team(),
-		LibraryFld: event.Library(),
+		ProjectFld: event.Project(),
 		RefsFld:    []string{branch},
 	}
 	return nil

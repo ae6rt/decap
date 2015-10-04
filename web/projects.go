@@ -19,7 +19,7 @@ const buildScriptRegex = `build\.sh`
 const projectDescriptorRegex = `project\.json`
 const sideCarRegex = `^.+-sidecar\.json`
 
-var projects map[string]Project
+var projects map[string]Atom
 var projectMutex = &sync.Mutex{}
 
 func filesByRegex(root, expression string) ([]string, error) {
@@ -68,8 +68,8 @@ func filesByRegex(root, expression string) ([]string, error) {
 	return files, nil
 }
 
-func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, error) {
-	proj := make(map[string]Project, 0)
+func assembleAtomss(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, error) {
+	proj := make(map[string]Atom, 0)
 	work := func() error {
 		Log.Printf("Clone build-scripts repository...\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
@@ -120,9 +120,9 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 			sidecars := readSidecars(sidecarMap[k])
 
 			parts := strings.Split(k, "/")
-			p := Project{
+			p := Atom{
 				Team:       parts[0],
-				Library:    parts[1],
+				Project:    parts[1],
 				Descriptor: descriptor,
 				Sidecars:   sidecars,
 			}
@@ -138,8 +138,9 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 	return proj, nil
 }
 
-func getProjects() map[string]Project {
-	p := make(map[string]Project, 0)
+// I'd like to find a way to manage this with channels.
+func getAtoms() map[string]Atom {
+	p := make(map[string]Atom, 0)
 	projectMutex.Lock()
 	for k, v := range projects {
 		p[k] = v
@@ -148,15 +149,17 @@ func getProjects() map[string]Project {
 	return p
 }
 
-func setProjects(p map[string]Project) {
+// I'd like to find a way to manage this with channels.
+func setAtoms(p map[string]Atom) {
 	projectMutex.Lock()
 	projects = p
 	projectMutex.Unlock()
 }
 
-func projectByTeamLibrary(team, library string) (Project, bool) {
-	pr := getProjects()
-	key := projectKey(team, library)
+// I'd like to find a way to manage this with channels.
+func atomByTeamProject(team, project string) (Atom, bool) {
+	pr := getAtoms()
+	key := projectKey(team, project)
 	p, ok := pr[key]
 	return p, ok
 }
@@ -219,14 +222,14 @@ func readSidecars(files []string) []string {
 	return arr
 }
 
-func descriptorForTeamProject(file string) (ProjectDescriptor, error) {
+func descriptorForTeamProject(file string) (AtomDescriptor, error) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		return ProjectDescriptor{}, err
+		return AtomDescriptor{}, err
 	}
-	var descriptor ProjectDescriptor
+	var descriptor AtomDescriptor
 	if err := json.Unmarshal(data, &descriptor); err != nil {
-		return ProjectDescriptor{}, err
+		return AtomDescriptor{}, err
 	}
 	return descriptor, nil
 }

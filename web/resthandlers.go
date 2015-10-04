@@ -50,7 +50,7 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 }
 
 func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	p := getProjects()
+	p := getAtoms()
 
 	keys := make(map[string]string)
 	for _, v := range p {
@@ -78,25 +78,25 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	team := r.URL.Query().Get("team")
-	arr := make([]Project, 0)
+	arr := make([]Atom, 0)
 	if team != "" {
-		for _, v := range getProjects() {
+		for _, v := range getAtoms() {
 			if team == v.Team {
 				arr = append(arr, v)
 			}
 		}
 	} else {
-		for _, v := range getProjects() {
+		for _, v := range getAtoms() {
 			arr = append(arr, v)
 		}
 	}
 
 	w.Header().Set("Content-type", "application/json")
 
-	p := Projects{Projects: arr}
+	p := Atoms{Atoms: arr}
 	data, err := json.Marshal(&p)
 	if err != nil {
-		p := Projects{Meta: Meta{Error: err.Error()}}
+		p := Atoms{Meta: Meta{Error: err.Error()}}
 		data, _ := json.Marshal(&p)
 		w.WriteHeader(500)
 		w.Write(data)
@@ -108,12 +108,12 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 func ExecuteBuildHandler(decap Decap) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
-		library := params.ByName("library")
+		project := params.ByName("project")
 
-		if _, present := projectByTeamLibrary(team, library); !present {
-			Log.Printf("Unknown project %s/%s", team, library)
+		if _, present := atomByTeamProject(team, project); !present {
+			Log.Printf("Unknown project %s/%s", team, project)
 			w.WriteHeader(404)
-			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, library)))
+			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, project)))
 			return
 		}
 
@@ -125,7 +125,7 @@ func ExecuteBuildHandler(decap Decap) httprouter.Handle {
 			return
 		}
 
-		event := UserBuildEvent{TeamFld: team, LibraryFld: library, RefsFld: branches}
+		event := UserBuildEvent{TeamFld: team, ProjectFld: project, RefsFld: branches}
 		go decap.LaunchBuild(event)
 	}
 }
@@ -162,13 +162,13 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 
 		switch repoManager {
 		case "buildscripts":
-			p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch)
+			p, err := assembleAtomss(buildScriptsRepo, buildScriptsBranch)
 			if err != nil {
 				Log.Println(err)
 				w.WriteHeader(500)
 				w.Write(simpleError(err))
 			} else {
-				setProjects(p)
+				setAtoms(p)
 			}
 		case "github":
 			eventType := r.Header.Get("X-Github-Event")
@@ -223,20 +223,20 @@ func StopBuildHandler(decap Decap) httprouter.Handle {
 func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
-		library := params.ByName("library")
+		project := params.ByName("project")
 
-		project, present := projectByTeamLibrary(team, library)
+		atom, present := atomByTeamProject(team, project)
 		if !present {
 			w.WriteHeader(404)
-			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, library)))
+			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, project)))
 			return
 		}
 
-		switch project.Descriptor.RepoManager {
+		switch atom.Descriptor.RepoManager {
 		case "github":
 			w.Header().Set("Content-type", "application/json")
 			repoClient := repoClients["github"]
-			nativeBranches, err := repoClient.GetRefs(project.Team, project.Library)
+			nativeBranches, err := repoClient.GetRefs(atom.Team, atom.Project)
 			if err != nil {
 				Log.Print(err)
 				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})
@@ -357,8 +357,8 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 
 func BuildsHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		project := params.ByName("team")
-		library := params.ByName("library")
+		team := params.ByName("team")
+		project := params.ByName("project")
 
 		since, err := toUint64(r.URL.Query().Get("since"), 0)
 		if err != nil {
@@ -378,7 +378,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			return
 		}
 
-		buildList, err := storageService.GetBuildsByProject(Project{Team: project, Library: library}, since, limit)
+		buildList, err := storageService.GetBuildsByAtom(Atom{Team: team, Project: project}, since, limit)
 
 		if err != nil {
 			builds := Builds{Meta: Meta{Error: err.Error()}}

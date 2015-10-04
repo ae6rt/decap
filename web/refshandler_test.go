@@ -17,12 +17,12 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
-		"ae6rt/p1": Project{
+	projects = map[string]Atom{
+		"ae6rt/p1": Atom{
 			Team:       "ae6rt",
-			Descriptor: ProjectDescriptor{RepoManager: "github"},
+			Descriptor: AtomDescriptor{RepoManager: "github"},
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": Atom{
 			Team: "wn0owp",
 		},
 	}
@@ -32,7 +32,7 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "nope"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -48,12 +48,12 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
-		"ae6rt/p1": Project{
+	projects = map[string]Atom{
+		"ae6rt/p1": Atom{
 			Team:       "ae6rt",
-			Descriptor: ProjectDescriptor{RepoManager: "subversion"},
+			Descriptor: AtomDescriptor{RepoManager: "subversion"},
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": Atom{
 			Team: "wn0owp",
 		},
 	}
@@ -63,7 +63,7 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -79,12 +79,12 @@ func TestProjectRefsGithub(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
-		"ae6rt/p1": Project{
+	projects = map[string]Atom{
+		"ae6rt/p1": Atom{
 			Team:       "ae6rt",
-			Descriptor: ProjectDescriptor{RepoManager: "github"},
+			Descriptor: AtomDescriptor{RepoManager: "github"},
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": Atom{
 			Team: "wn0owp",
 		},
 	}
@@ -94,7 +94,7 @@ func TestProjectRefsGithub(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 

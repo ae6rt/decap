@@ -8,13 +8,13 @@ import (
 
 func TestMakePod(t *testing.T) {
 	k8s := NewDefaultDecap("url", "admin", "admin123", "key", "sekrit", "us-west-1", NoOpLocker{}, "repo", "repobranch")
-	buildEvent := UserBuildEvent{TeamFld: "ae6rt", LibraryFld: "somelib", RefsFld: []string{"master"}}
+	buildEvent := UserBuildEvent{TeamFld: "ae6rt", ProjectFld: "somelib", RefsFld: []string{"master"}}
 
-	projectMap := map[string]Project{
-		"ae6rt/somelib": Project{
+	projectMap := map[string]Atom{
+		"ae6rt/somelib": Atom{
 			Team:       "ae6rt",
-			Library:    "somelib",
-			Descriptor: ProjectDescriptor{Image: "magic-image"},
+			Project:    "somelib",
+			Descriptor: AtomDescriptor{Image: "magic-image"},
 			Sidecars: []string{`
 {               
     "env": [                    
@@ -67,8 +67,8 @@ func TestMakePod(t *testing.T) {
 	if labels["team"] != projectMap["ae6rt/somelib"].Team {
 		t.Fatalf("Want ae6rt but got %v\n", labels["team"])
 	}
-	if labels["library"] != projectMap["ae6rt/somelib"].Library {
-		t.Fatalf("Want somelib but got %v\n", labels["library"])
+	if labels["project"] != projectMap["ae6rt/somelib"].Project {
+		t.Fatalf("Want somelib but got %v\n", labels["project"])
 	}
 
 	if len(pod.Spec.Volumes) != 2 {

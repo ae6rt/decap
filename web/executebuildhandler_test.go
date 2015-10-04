@@ -16,11 +16,11 @@ func TestExecuteBuild(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
-		"ae6rt/p1": Project{
+	projects = map[string]Atom{
+		"ae6rt/p1": Atom{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": Atom{
 			Team: "wn0owp",
 		},
 	}
@@ -31,7 +31,7 @@ func TestExecuteBuild(t *testing.T) {
 
 	ExecuteBuildHandler(&mockDecap)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -41,8 +41,8 @@ func TestExecuteBuild(t *testing.T) {
 	if mockDecap.event.Team() != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", mockDecap.event.Team())
 	}
-	if mockDecap.event.Library() != "p1" {
-		t.Fatalf("Want p1 but got %s\n", mockDecap.event.Library())
+	if mockDecap.event.Project() != "p1" {
+		t.Fatalf("Want p1 but got %s\n", mockDecap.event.Project())
 	}
 
 }
@@ -53,11 +53,11 @@ func TestExecuteBuildNoBranches(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
-		"ae6rt/p1": Project{
+	projects = map[string]Atom{
+		"ae6rt/p1": Atom{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": Atom{
 			Team: "wn0owp",
 		},
 	}
@@ -68,7 +68,7 @@ func TestExecuteBuildNoBranches(t *testing.T) {
 
 	ExecuteBuildHandler(&mockDecap)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 
@@ -83,11 +83,11 @@ func TestExecuteBuildNoSuchProject(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
-		"ae6rt/p1": Project{
+	projects = map[string]Atom{
+		"ae6rt/p1": Atom{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": Atom{
 			Team: "wn0owp",
 		},
 	}
@@ -98,7 +98,7 @@ func TestExecuteBuildNoSuchProject(t *testing.T) {
 
 	ExecuteBuildHandler(&mockDecap)(w, req, httprouter.Params{
 		httprouter.Param{Key: "team", Value: "blah"},
-		httprouter.Param{Key: "library", Value: "p1"},
+		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
 

@@ -92,7 +92,7 @@ func TestDynamoDbGetBuilds(t *testing.T) {
 	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials("key", "secret", "")).WithRegion("region").WithMaxRetries(3).WithEndpoint(testServer.URL)
 	c := AWSStorageService{config}
 
-	_, err := c.GetBuildsByProject(Project{Team: "ae6rt", Library: "somelib"}, 0, 1)
+	_, err := c.GetBuildsByAtom(Atom{Team: "ae6rt", Project: "somelib"}, 0, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
