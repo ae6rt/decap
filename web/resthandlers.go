@@ -161,7 +161,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 
 		switch repoManager {
 		case "buildscripts":
-			p, err := assembleAtomss(buildScriptsRepo, buildScriptsBranch)
+			p, err := assembleAtoms(buildScriptsRepo, buildScriptsBranch)
 			if err != nil {
 				Log.Println(err)
 				w.WriteHeader(500)

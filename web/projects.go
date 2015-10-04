@@ -19,8 +19,8 @@ const buildScriptRegex = `build\.sh`
 const projectDescriptorRegex = `project\.json`
 const sideCarRegex = `^.+-sidecar\.json`
 
-var projects map[string]Atom
-var projectMutex = &sync.Mutex{}
+var atoms map[string]Atom
+var atomMutex = &sync.Mutex{}
 
 func filesByRegex(root, expression string) ([]string, error) {
 	if !strings.HasPrefix(root, "/") {
@@ -68,7 +68,7 @@ func filesByRegex(root, expression string) ([]string, error) {
 	return files, nil
 }
 
-func assembleAtomss(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, error) {
+func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, error) {
 	proj := make(map[string]Atom, 0)
 	work := func() error {
 		Log.Printf("Clone build-scripts repository...\n")
@@ -141,19 +141,19 @@ func assembleAtomss(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, err
 // I'd like to find a way to manage this with channels.
 func getAtoms() map[string]Atom {
 	p := make(map[string]Atom, 0)
-	projectMutex.Lock()
-	for k, v := range projects {
+	atomMutex.Lock()
+	for k, v := range atoms {
 		p[k] = v
 	}
-	projectMutex.Unlock()
+	atomMutex.Unlock()
 	return p
 }
 
 // I'd like to find a way to manage this with channels.
 func setAtoms(p map[string]Atom) {
-	projectMutex.Lock()
-	projects = p
-	projectMutex.Unlock()
+	atomMutex.Lock()
+	atoms = p
+	atomMutex.Unlock()
 }
 
 // I'd like to find a way to manage this with channels.
@@ -231,5 +231,12 @@ func descriptorForTeamProject(file string) (AtomDescriptor, error) {
 	if err := json.Unmarshal(data, &descriptor); err != nil {
 		return AtomDescriptor{}, err
 	}
+
+	if re, err := regexp.Compile(descriptor.ManagedBranchRegexStr); err != nil {
+		Log.Printf("Error parsing managed-branch-regex for file %s: %v\n", file, err)
+	} else {
+		descriptor.ManagedBranchRegex = re
+	}
+
 	return descriptor, nil
 }

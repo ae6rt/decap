@@ -13,7 +13,7 @@ func TestAssembleProjects(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proj, err := assembleAtomss("file://"+dir, "master")
+	proj, err := assembleAtoms("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {
@@ -48,7 +48,7 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projects, err = assembleAtomss("file://"+dir, "master")
+	atoms, err = assembleAtoms("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {

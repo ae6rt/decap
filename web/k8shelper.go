@@ -186,17 +186,26 @@ func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch 
 }
 
 func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
-	projectKey := buildEvent.Key()
+	atomKey := buildEvent.Key()
 
-	projs := getAtoms()
+	atoms := getAtoms()
 
-	for _, branch := range buildEvent.Refs() {
-		key := decap.Locker.Key(projectKey, branch)
+	atom := atoms[atomKey]
+
+	for _, ref := range buildEvent.Refs() {
+
+		// if there is a managed-branch-regex, do not launch a build unless this ref matches it
+		managedBranchRegex := atom.Descriptor.ManagedBranchRegex
+		if managedBranchRegex != nil && !managedBranchRegex.MatchString(ref) {
+			continue
+		}
+
+		key := decap.Locker.Key(atomKey, ref)
 		buildID := uuid.NewRandom().String()
 
-		containers := decap.makeContainers(buildEvent, buildID, branch, projs)
+		containers := decap.makeContainers(buildEvent, buildID, ref, atoms)
 
-		pod := decap.makePod(buildEvent, buildID, branch, containers)
+		pod := decap.makePod(buildEvent, buildID, ref, containers)
 
 		podBytes, err := json.Marshal(&pod)
 		if err != nil {
@@ -207,7 +216,7 @@ func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 		resp, err := decap.Locker.Lock(key, buildID)
 		if err != nil {
 			Log.Printf("Failed to acquire lock %s on build %s: %v\n", key, buildID, err)
-			if err := decap.DeferBuild(buildEvent, branch); err != nil {
+			if err := decap.DeferBuild(buildEvent, ref); err != nil {
 				Log.Printf("Failed to defer build: %+v\n", buildID)
 			} else {
 				Log.Printf("Deferred build: %+v\n", buildID)
