@@ -235,9 +235,9 @@ func descriptorForTeamProject(data []byte) (AtomDescriptor, error) {
 		return AtomDescriptor{}, err
 	}
 
-	if descriptor.ManagedBranchRegexStr != "" {
-		if re, err := regexp.Compile(descriptor.ManagedBranchRegexStr); err != nil {
-			Log.Printf("Error parsing managed-branch-regex %s for descriptor %+v: %v\n", descriptor.ManagedBranchRegexStr, data, err)
+	if descriptor.ManagedRefRegexStr != "" {
+		if re, err := regexp.Compile(descriptor.ManagedRefRegexStr); err != nil {
+			Log.Printf("Error parsing managed-branch-regex %s for descriptor %+v: %v\n", descriptor.ManagedRefRegexStr, data, err)
 		} else {
 			descriptor.regex = re
 		}

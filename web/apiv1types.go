@@ -27,12 +27,12 @@ type Atom struct {
 }
 
 type AtomDescriptor struct {
-	Image                 string `json:"build-image"`
-	RepoManager           string `json:"repo-manager"`
-	RepoURL               string `json:"repo-url"`
-	RepoDescription       string `json:"repo-description"`
-	ManagedBranchRegexStr string `json:"managed-branch-regex"`
-	regex                 *regexp.Regexp
+	Image              string `json:"build-image"`
+	RepoManager        string `json:"repo-manager"`
+	RepoURL            string `json:"repo-url"`
+	RepoDescription    string `json:"repo-description"`
+	ManagedRefRegexStr string `json:"managed-ref-regex"`
+	regex              *regexp.Regexp
 }
 
 func (d AtomDescriptor) isRefManaged(ref string) bool {

@@ -10,7 +10,7 @@ func TestDescriptorRegex(t *testing.T) {
 	// regex matches all branches
 	descriptor, _ = descriptorForTeamProject([]byte(`{
      "build-image": "ae6rt/java7:latest",
-     "managed-branch-regex": ".*",
+     "managed-ref-regex": ".*",
      "repo-manager": "github",
      "repo-url": "https://github.com/ae6rt/hello-world-java.git",
      "repo-description": "Hello world in Java"}`))
@@ -34,7 +34,7 @@ func TestDescriptorRegex(t *testing.T) {
 	descriptor, _ = descriptorForTeamProject([]byte(`{
      "build-image": "ae6rt/java7:latest",
      "repo-manager": "github",
-     "managed-branch-regex": "issue/.*",
+     "managed-ref-regex": "issue/.*",
      "repo-url": "https://github.com/ae6rt/hello-world-java.git",
      "repo-description": "Hello world in Java"}`))
 
@@ -46,7 +46,7 @@ func TestDescriptorRegex(t *testing.T) {
 	descriptor, _ = descriptorForTeamProject([]byte(`{
      "build-image": "ae6rt/java7:latest",
      "repo-manager": "github",
-     "managed-branch-regex": "feature/.*",
+     "managed-ref-regex": "feature/.*",
      "repo-url": "https://github.com/ae6rt/hello-world-java.git",
      "repo-description": "Hello world in Java"}`))
 
