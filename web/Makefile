@@ -14,7 +14,11 @@ IMAGE=$(DOCKER_USER)/decap:latest
 
 all: clean binaries 
 
-test:
+lint: 
+	go fmt
+	go vet
+
+test: lint
 	godep go test -v
 
 osx: test

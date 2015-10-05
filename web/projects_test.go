@@ -13,7 +13,7 @@ func TestAssembleProjects(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proj, err := assembleAtomss("file://"+dir, "master")
+	proj, err := assembleAtoms("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {
@@ -48,7 +48,7 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projects, err = assembleAtomss("file://"+dir, "master")
+	atoms, err = assembleAtoms("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {
@@ -201,17 +201,17 @@ func TestIndexFilesByTeamProject(t *testing.T) {
 
 	key := "c/d"
 	if m[key] != "/a/b/c/d/build.sh" {
-		t.Fatalf("Want /a/b/c/d/build.sh but got %s and %s\n", m[key])
+		t.Fatalf("Want /a/b/c/d/build.sh but got %s\n", m[key])
 	}
 
 	key = "3/4"
 	if m[key] != "/1/2/3/4/build.sh" {
-		t.Fatalf("Want /1/2/3/4/build.sh but got %s and %s\n", m[key])
+		t.Fatalf("Want /1/2/3/4/build.sh but got %s\n", m[key])
 	}
 
 	key = "7/8"
 	if m[key] != "/5/6/7/8/build.sh" {
-		t.Fatalf("Want /5/6/7/8/build.sh but got %s and %s\n", m[key])
+		t.Fatalf("Want /5/6/7/8/build.sh but got %s\n", m[key])
 	}
 }
 
@@ -247,6 +247,6 @@ func TestIndexSidecarsByTeamProject(t *testing.T) {
 		t.Fatalf("Want 1 but got %d\n", len(arr))
 	}
 	if arr[0] != "/e/f/g/h/redis-sidecar.json" {
-		t.Fatalf("Want /e/f/g/h/redis-sidecar.json but got %d\n", arr[0])
+		t.Fatalf("Want /e/f/g/h/redis-sidecar.json but got %s\n", arr[0])
 	}
 }

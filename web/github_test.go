@@ -28,13 +28,13 @@ func TestGithubEvent(t *testing.T) {
 
 	pushEvent := BuildEvent(event)
 	if pushEvent.Key() != "ae6rt/dynamodb-lab" {
-		t.Fatalf("Want ae6rt/dynamodb-lab", pushEvent.Key())
+		t.Fatalf("Want ae6rt/dynamodb-lab but got %s\n", pushEvent.Key())
 	}
 	if pushEvent.Team() != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", pushEvent.Team())
 	}
 	if pushEvent.Project() != "dynamodb-lab" {
-		t.Fatalf("Want dynamodb-lab", pushEvent.Project())
+		t.Fatalf("Want dynamodb-lab but got %s\n", pushEvent.Project())
 	}
 
 	branches := pushEvent.Refs()

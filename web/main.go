@@ -18,7 +18,7 @@ var (
 	awsRegion              = flag.String("aws-region", "us-west-1", "Default decap AWS region.  /etc/secrets/aws-region in the cluster overrides this.")
 	githubClientID         = flag.String("github-client-id", "", "Default Github ClientID for quering Github repos.  /etc/secrets/github-client-id in the cluster overrides this.")
 	githubClientSecret     = flag.String("github-client-secret", "", "Default Github Client Secret for quering Github repos.  /etc/secrets/github-client-secret in the cluster overrides this.")
-	buildScriptsRepo       = flag.String("build-scripts-repo", "git@github.com:ae6rt/decap-build-scripts.git", "Git repo where userland build scripts are held.")
+	buildScriptsRepo       = flag.String("build-scripts-repo", "https://github.com/ae6rt/decap-build-scripts.git", "Git repo where userland build scripts are held.")
 	buildScriptsRepoBranch = flag.String("build-scripts-repo-branch", "master", "Branch or revision to use on git repo where userland build scripts are held.")
 	noWebsocket            = flag.Bool("no-websocket", false, "Do not start websocket client that watches pods.")
 	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
@@ -68,11 +68,11 @@ func main() {
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, k8s))
 
 	var err error
-	projects, err = assembleAtomss(*buildScriptsRepo, *buildScriptsRepoBranch)
+	atoms, err = assembleAtoms(*buildScriptsRepo, *buildScriptsRepoBranch)
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
-	for _, v := range projects {
+	for _, v := range atoms {
 		Log.Printf("Project: %+v\n", v)
 	}
 

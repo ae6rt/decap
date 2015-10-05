@@ -16,7 +16,7 @@ func TestTeamsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Atom{
+	atoms = map[string]Atom{
 		"ae6rt/p1": Atom{
 			Team: "ae6rt",
 		},
@@ -41,7 +41,7 @@ func TestTeamsHandler(t *testing.T) {
 	}
 	for _, v := range teams.Teams {
 		if !(v.Name == "ae6rt" || v.Name == "wn0owp") {
-			t.Fatalf("Want ae6rt or wn0owp but got %d\n", v.Name)
+			t.Fatalf("Want ae6rt or wn0owp but got %s\n", v.Name)
 		}
 	}
 }

@@ -19,8 +19,8 @@ const buildScriptRegex = `build\.sh`
 const projectDescriptorRegex = `project\.json`
 const sideCarRegex = `^.+-sidecar\.json`
 
-var projects map[string]Atom
-var projectMutex = &sync.Mutex{}
+var atoms map[string]Atom
+var atomMutex = &sync.Mutex{}
 
 func filesByRegex(root, expression string) ([]string, error) {
 	if !strings.HasPrefix(root, "/") {
@@ -68,8 +68,8 @@ func filesByRegex(root, expression string) ([]string, error) {
 	return files, nil
 }
 
-func assembleAtomss(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, error) {
-	proj := make(map[string]Atom, 0)
+func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, error) {
+	atoms := make(map[string]Atom, 0)
 	work := func() error {
 		Log.Printf("Clone build-scripts repository...\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
@@ -107,13 +107,20 @@ func assembleAtomss(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, err
 				Log.Printf("Skipping project without a descriptor: %s\n", k)
 				continue
 			}
-			descriptor, err := descriptorForTeamProject(descriptorMap[k])
+
+			descriptorData, err := ioutil.ReadFile(descriptorMap[k])
+			if err != nil {
+				Log.Println(err)
+				continue
+			}
+
+			descriptor, err := descriptorForTeamProject(descriptorData)
 			if err != nil {
 				Log.Println(err)
 				continue
 			}
 			if descriptor.Image == "" {
-				Log.Printf("Skipping project % without descriptor build image: %+v\n", k, descriptor)
+				Log.Printf("Skipping project %s without descriptor build image: %+v\n", k, descriptor)
 				continue
 			}
 
@@ -126,7 +133,7 @@ func assembleAtomss(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, err
 				Descriptor: descriptor,
 				Sidecars:   sidecars,
 			}
-			proj[k] = p
+			atoms[k] = p
 		}
 		return nil
 	}
@@ -135,25 +142,25 @@ func assembleAtomss(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, err
 	if err != nil {
 		return nil, err
 	}
-	return proj, nil
+	return atoms, nil
 }
 
 // I'd like to find a way to manage this with channels.
 func getAtoms() map[string]Atom {
 	p := make(map[string]Atom, 0)
-	projectMutex.Lock()
-	for k, v := range projects {
+	atomMutex.Lock()
+	for k, v := range atoms {
 		p[k] = v
 	}
-	projectMutex.Unlock()
+	atomMutex.Unlock()
 	return p
 }
 
 // I'd like to find a way to manage this with channels.
 func setAtoms(p map[string]Atom) {
-	projectMutex.Lock()
-	projects = p
-	projectMutex.Unlock()
+	atomMutex.Lock()
+	atoms = p
+	atomMutex.Unlock()
 }
 
 // I'd like to find a way to manage this with channels.
@@ -222,14 +229,19 @@ func readSidecars(files []string) []string {
 	return arr
 }
 
-func descriptorForTeamProject(file string) (AtomDescriptor, error) {
-	data, err := ioutil.ReadFile(file)
-	if err != nil {
-		return AtomDescriptor{}, err
-	}
+func descriptorForTeamProject(data []byte) (AtomDescriptor, error) {
 	var descriptor AtomDescriptor
 	if err := json.Unmarshal(data, &descriptor); err != nil {
 		return AtomDescriptor{}, err
 	}
+
+	if descriptor.ManagedRefRegexStr != "" {
+		if re, err := regexp.Compile(descriptor.ManagedRefRegexStr); err != nil {
+			Log.Printf("Error parsing managed-branch-regex %s for descriptor %+v: %v\n", descriptor.ManagedRefRegexStr, data, err)
+		} else {
+			descriptor.regex = re
+		}
+	}
+
 	return descriptor, nil
 }

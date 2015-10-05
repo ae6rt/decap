@@ -1,5 +1,7 @@
 package main
 
+import "regexp"
+
 type Meta struct {
 	Error string `json:"error,omitempty"`
 }
@@ -25,10 +27,16 @@ type Atom struct {
 }
 
 type AtomDescriptor struct {
-	Image           string `json:"build-image"`
-	RepoManager     string `json:"repo-manager"`
-	RepoURL         string `json:"repo-url"`
-	RepoDescription string `json:"repo-description"`
+	Image              string `json:"build-image"`
+	RepoManager        string `json:"repo-manager"`
+	RepoURL            string `json:"repo-url"`
+	RepoDescription    string `json:"repo-description"`
+	ManagedRefRegexStr string `json:"managed-ref-regex"`
+	regex              *regexp.Regexp
+}
+
+func (d AtomDescriptor) isRefManaged(ref string) bool {
+	return d.regex == nil || d.regex.MatchString(ref)
 }
 
 type Builds struct {

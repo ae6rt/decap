@@ -17,7 +17,7 @@ func TestProjectsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Atom{
+	atoms = map[string]Atom{
 		"ae6rt/p1": Atom{
 			Team: "ae6rt",
 		},
@@ -39,7 +39,7 @@ func TestProjectsHandler(t *testing.T) {
 	}
 	for _, v := range proj.Atoms {
 		if !(v.Team == "ae6rt" || v.Team == "wn0owp") {
-			t.Fatalf("Want ae6rt or wn0owp but got %d\n", v.Team)
+			t.Fatalf("Want ae6rt or wn0owp but got %s\n", v.Team)
 		}
 	}
 }
@@ -51,7 +51,7 @@ func TestProjectsHandlerWithQuery(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Atom{
+	atoms = map[string]Atom{
 		"ae6rt/p1": Atom{
 			Team: "ae6rt",
 		},
@@ -74,6 +74,6 @@ func TestProjectsHandlerWithQuery(t *testing.T) {
 
 	expected := proj.Atoms[0]
 	if expected.Team != "ae6rt" {
-		t.Fatalf("Want ae6rt but got %d\n", expected.Team)
+		t.Fatalf("Want ae6rt but got %s\n", expected.Team)
 	}
 }
