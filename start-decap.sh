@@ -3,6 +3,7 @@
 set -ux
 
 kubectl create -f k8s-resources/decap-namespaces.yaml
-kubectl --namespace=decap create -f k8s-resources/decap-secrets.yaml
-kubectl --namespace=decap-system create -f k8s-resources/decap-secrets.yaml
+for i in decap decap-system; do
+	kubectl --namespace=$i create -f k8s-resources/decap-secrets.yaml
+done
 kubectl create -f k8s-resources/decap.yaml 
