@@ -195,6 +195,7 @@ func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 	for _, ref := range buildEvent.Refs() {
 
 		if !atom.Descriptor.isRefManaged(ref) {
+			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", ref, atomKey)
 			continue
 		}
 
