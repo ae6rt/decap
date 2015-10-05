@@ -168,6 +168,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 				w.Write(simpleError(err))
 			} else {
 				setAtoms(p)
+				Log.Println("Build scripts refreshed via post commit hook")
 			}
 		case "github":
 			eventType := r.Header.Get("X-Github-Event")
