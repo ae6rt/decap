@@ -194,9 +194,7 @@ func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 
 	for _, ref := range buildEvent.Refs() {
 
-		// if there is a managed-branch-regex, do not launch a build unless this ref matches it
-		managedBranchRegex := atom.Descriptor.ManagedBranchRegex
-		if managedBranchRegex != nil && !managedBranchRegex.MatchString(ref) {
+		if !atom.Descriptor.isManagedBranch(ref) {
 			continue
 		}
 

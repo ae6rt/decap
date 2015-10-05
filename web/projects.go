@@ -69,7 +69,7 @@ func filesByRegex(root, expression string) ([]string, error) {
 }
 
 func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, error) {
-	proj := make(map[string]Atom, 0)
+	atoms := make(map[string]Atom, 0)
 	work := func() error {
 		Log.Printf("Clone build-scripts repository...\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
@@ -107,7 +107,14 @@ func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, erro
 				Log.Printf("Skipping project without a descriptor: %s\n", k)
 				continue
 			}
-			descriptor, err := descriptorForTeamProject(descriptorMap[k])
+
+			descriptorData, err := ioutil.ReadFile(descriptorMap[k])
+			if err != nil {
+				Log.Println(err)
+				continue
+			}
+
+			descriptor, err := descriptorForTeamProject(descriptorData)
 			if err != nil {
 				Log.Println(err)
 				continue
@@ -126,7 +133,7 @@ func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, erro
 				Descriptor: descriptor,
 				Sidecars:   sidecars,
 			}
-			proj[k] = p
+			atoms[k] = p
 		}
 		return nil
 	}
@@ -135,7 +142,7 @@ func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, erro
 	if err != nil {
 		return nil, err
 	}
-	return proj, nil
+	return atoms, nil
 }
 
 // I'd like to find a way to manage this with channels.
@@ -222,11 +229,7 @@ func readSidecars(files []string) []string {
 	return arr
 }
 
-func descriptorForTeamProject(file string) (AtomDescriptor, error) {
-	data, err := ioutil.ReadFile(file)
-	if err != nil {
-		return AtomDescriptor{}, err
-	}
+func descriptorForTeamProject(data []byte) (AtomDescriptor, error) {
 	var descriptor AtomDescriptor
 	if err := json.Unmarshal(data, &descriptor); err != nil {
 		return AtomDescriptor{}, err
@@ -234,9 +237,9 @@ func descriptorForTeamProject(file string) (AtomDescriptor, error) {
 
 	if descriptor.ManagedBranchRegexStr != "" {
 		if re, err := regexp.Compile(descriptor.ManagedBranchRegexStr); err != nil {
-			Log.Printf("Error parsing managed-branch-regex %s for file %s: %v\n", descriptor.ManagedBranchRegexStr, file, err)
+			Log.Printf("Error parsing managed-branch-regex %s for descriptor %+v: %v\n", descriptor.ManagedBranchRegexStr, data, err)
 		} else {
-			descriptor.ManagedBranchRegex = re
+			descriptor.regex = re
 		}
 	}
 

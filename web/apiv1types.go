@@ -32,7 +32,11 @@ type AtomDescriptor struct {
 	RepoURL               string `json:"repo-url"`
 	RepoDescription       string `json:"repo-description"`
 	ManagedBranchRegexStr string `json:"managed-branch-regex"`
-	ManagedBranchRegex    *regexp.Regexp
+	regex                 *regexp.Regexp
+}
+
+func (d AtomDescriptor) isManagedBranch(ref string) bool {
+	return d.regex == nil || d.regex.MatchString(ref)
 }
 
 type Builds struct {
