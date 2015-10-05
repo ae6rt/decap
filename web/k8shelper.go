@@ -194,7 +194,7 @@ func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 
 	for _, ref := range buildEvent.Refs() {
 
-		if !atom.Descriptor.isManagedBranch(ref) {
+		if !atom.Descriptor.isRefManaged(ref) {
 			continue
 		}
 

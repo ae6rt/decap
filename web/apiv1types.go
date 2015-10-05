@@ -35,7 +35,7 @@ type AtomDescriptor struct {
 	regex                 *regexp.Regexp
 }
 
-func (d AtomDescriptor) isManagedBranch(ref string) bool {
+func (d AtomDescriptor) isRefManaged(ref string) bool {
 	return d.regex == nil || d.regex.MatchString(ref)
 }
 
