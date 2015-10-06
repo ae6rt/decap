@@ -216,7 +216,12 @@ func (decap DefaultDecap) createOrDefer(data []byte, buildEvent BuildEvent, buil
 		}
 		return podError
 	}
-	decap.ClearDeferBuild(buildEvent, ref)
+
+	// todo devise a way to clear deferrals selectively.  at this point we have a lock on the build and may have cleared
+	// another thread's just-arrived deferral.  Maybe bake some other sort of key/value whereby we can clear a specific deferral.  Dunno.
+	if err := decap.ClearDeferBuild(buildEvent, ref); err != nil {
+		Log.Printf("Warning clearing deferral on build event %v, ref %s: %v\n", buildEvent, ref, err)
+	}
 	return nil
 }
 
@@ -229,7 +234,6 @@ func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 	atom := atoms[atomKey]
 
 	for _, ref := range buildEvent.Refs() {
-
 		if !atom.Descriptor.isRefManaged(ref) {
 			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", ref, atomKey)
 			continue
