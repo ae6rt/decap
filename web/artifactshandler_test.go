@@ -25,7 +25,7 @@ func TestArtifactsHandler(t *testing.T) {
 	storageService := MockStorageService{data: data}
 
 	w := httptest.NewRecorder()
-	ArtifactsHandler(&storageService)(w, req, httprouter.Params{
+	ArtifactsHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "id", Value: "the-build-id"},
 	},
 	)
@@ -57,7 +57,7 @@ func TestArtifactsHandlerManifestOnly(t *testing.T) {
 	storageService := MockStorageService{data: data}
 
 	w := httptest.NewRecorder()
-	ArtifactsHandler(&storageService)(w, req, httprouter.Params{
+	ArtifactsHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "id", Value: "the-build-id"},
 	},
 	)
@@ -84,7 +84,7 @@ func TestArtifactsHandlerWithError(t *testing.T) {
 	storageService := MockStorageService{err: fmt.Errorf("boom")}
 
 	w := httptest.NewRecorder()
-	ArtifactsHandler(&storageService)(w, req, httprouter.Params{
+	ArtifactsHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "id", Value: "the-build-id"},
 	},
 	)

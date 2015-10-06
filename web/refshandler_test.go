@@ -30,7 +30,7 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 	githubClient := MockScmClient{}
 	scmClients := map[string]SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
-	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
+	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "nope"},
 		httprouter.Param{Key: "project", Value: "p1"},
 	},
@@ -61,7 +61,7 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 	githubClient := MockScmClient{}
 	scmClients := map[string]SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
-	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
+	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
 		httprouter.Param{Key: "project", Value: "p1"},
 	},
@@ -92,7 +92,7 @@ func TestProjectRefsGithub(t *testing.T) {
 	githubClient := MockScmClient{branches: []Ref{Ref{RefID: "refs/heads/master"}}}
 	scmClients := map[string]SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
-	ProjectRefsHandler(scmClients)(w, req, httprouter.Params{
+	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
 		httprouter.Param{Key: "project", Value: "p1"},
 	},

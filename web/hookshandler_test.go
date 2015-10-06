@@ -31,7 +31,7 @@ func TestHooksHandlerNoRepoManager(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockDecap := MockDecap{}
-	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, httprouter.Params{
+	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "repomanager", Value: "nosuchmanager"},
 	},
 	)
@@ -60,7 +60,7 @@ func TestHooksHandlerBuildScripts(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockDecap := MockDecap{}
-	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, httprouter.Params{
+	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "repomanager", Value: "buildscripts"},
 	},
 	)
@@ -105,7 +105,7 @@ func TestHooksHandlerGithub(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockDecap := MockDecap{}
-	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, httprouter.Params{
+	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "repomanager", Value: "github"},
 	},
 	)
@@ -159,7 +159,7 @@ func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockDecap := MockDecap{}
-	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, httprouter.Params{
+	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "repomanager", Value: "github"},
 	},
 	)
