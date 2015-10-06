@@ -21,7 +21,7 @@ func TestLogHandler(t *testing.T) {
 	storageService := MockStorageService{data: []byte("foo")}
 
 	w := httptest.NewRecorder()
-	LogHandler(&storageService)(w, req, httprouter.Params{
+	LogHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "id", Value: "the-build-id"},
 	},
 	)
@@ -48,7 +48,7 @@ func TestLogHandlerWithError(t *testing.T) {
 	storageService := MockStorageService{err: fmt.Errorf("boom")}
 
 	w := httptest.NewRecorder()
-	LogHandler(&storageService)(w, req, httprouter.Params{
+	LogHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "id", Value: "the-build-id"},
 	},
 	)
@@ -77,7 +77,7 @@ func TestLogHandlerUncompressed(t *testing.T) {
 	storageService := MockStorageService{data: data}
 
 	w := httptest.NewRecorder()
-	LogHandler(&storageService)(w, req, httprouter.Params{
+	LogHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "id", Value: "the-build-id"},
 	},
 	)

@@ -242,26 +242,31 @@ build metadata to S3 and DynamoDb.
 
 ### Project metadata files and branch information
 
-An optional _project.json_ file may be placed on par with a project's
-build.sh script.  project.json has the following example format
+Each project must have a _project.json_ file placed on par with a
+project's build.sh script.  Projects omitting the file will be
+ignored by Decap.  project.json has the following format
 
 ```
 {
+     "build-image": "ae6rt/decap-build-base:latest",
      "repo-manager": "github",
+     "managed-ref-regex": "master|develop|issue/.*",
      "repo-url": "https://github.com/ae6rt/dynamodb-lab.git",
      "repo-description": "AWS DynamoDb lab"
 }
 ```
 
-If this file exists, Decap will query the repository manager for
-branches on the project.  Knowing the branches, the Decap web UI
-can offer to let the user build a particular branch on a project.
-Github is currently the only supported repository manager, but Stash
-and Bitbucket managers are planned.
+Knowing the repository manager and repository URL, Decap can query
+the repository manager for branches and tags on the project.  Knowing
+the branches, the Decap web UI can offer to let the user build a
+particular branch on a project.  Github is currently the only
+supported repository manager.
 
-If the project.json file is absent, Decap will lack information
-about your project that allows it to query your project repository
-for branch information.
+The project json descriptor contains an optional field _managed-ref-regex_.
+If this field is present, only branches and tags that match the
+regex will be built as a result of post-commit hook handling of a
+project git-push.  If this field is omitted, all refs are eligible
+to be built in the event of a  post-commit push on the project.
 
 ### Sidecar build containers
 

@@ -21,7 +21,7 @@ func TestBuildsHandlerSinceNotUnsigned(t *testing.T) {
 	storageService := MockStorageService{}
 
 	w := httptest.NewRecorder()
-	BuildsHandler(&storageService)(w, req, httprouter.Params{
+	BuildsHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
 		httprouter.Param{Key: "project", Value: "p1"},
 	},
@@ -48,7 +48,7 @@ func TestBuildsHandlerLimitNotUnsigned(t *testing.T) {
 
 	storageService := MockStorageService{}
 	w := httptest.NewRecorder()
-	BuildsHandler(&storageService)(w, req, httprouter.Params{
+	BuildsHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
 		httprouter.Param{Key: "project", Value: "p1"},
 	},
@@ -75,7 +75,7 @@ func TestBuildsHandlerWithStorageServiceError(t *testing.T) {
 
 	storageService := MockStorageService{err: fmt.Errorf("boom")}
 	w := httptest.NewRecorder()
-	BuildsHandler(&storageService)(w, req, httprouter.Params{
+	BuildsHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
 		httprouter.Param{Key: "project", Value: "p1"},
 	},
@@ -114,7 +114,7 @@ func TestBuildsHandler(t *testing.T) {
 
 	storageService := MockStorageService{builds: []Build{Build{ID: "the-id"}}}
 	w := httptest.NewRecorder()
-	BuildsHandler(&storageService)(w, req, httprouter.Params{
+	BuildsHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
 		httprouter.Param{Key: "project", Value: "p1"},
 	},

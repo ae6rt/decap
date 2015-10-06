@@ -185,6 +185,47 @@ func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch 
 	return containers
 }
 
+// Attempt to lock a build.  If that fails, defer it.
+func (decap DefaultDecap) lockOrDefer(buildEvent BuildEvent, ref, buildID, key string) error {
+	resp, err := decap.Locker.Lock(key, buildID)
+	if err != nil {
+		Log.Printf("%+v - Failed to acquire lock %s on build %s: %v\n", resp, key, buildID, err)
+		if err = decap.DeferBuild(buildEvent, ref); err != nil {
+			Log.Printf("Failed to defer build: %+v\n", buildID)
+		} else {
+			Log.Printf("Deferred build: %+v\n", buildID)
+		}
+		return err
+	}
+	return nil
+}
+
+// Attempt to create a build pod on the cluster.  If that fails, clear the lock and defer it.  If it succeeds, clear
+// any deferrals.
+func (decap DefaultDecap) createOrDefer(data []byte, buildEvent BuildEvent, buildID, ref, key string) error {
+	if podError := decap.CreatePod(data); podError != nil {
+		Log.Println(podError)
+		if _, err := decap.Locker.Unlock(key, buildID); err != nil {
+			Log.Println(err)
+			if err = decap.DeferBuild(buildEvent, ref); err != nil {
+				Log.Printf("Failed deferring build %+v for ref %s after pod creation attempt: %+v\n", buildEvent, ref, err)
+			}
+			return err
+		} else {
+			Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, key, podError)
+		}
+		return podError
+	}
+
+	// todo devise a way to clear deferrals selectively.  at this point we have a lock on the build and may have cleared
+	// another thread's just-arrived deferral.  Maybe bake some other sort of key/value whereby we can clear a specific deferral.  Dunno.
+	if err := decap.ClearDeferBuild(buildEvent, ref); err != nil {
+		Log.Printf("Warning clearing deferral on build event %v, ref %s: %v\n", buildEvent, ref, err)
+	}
+	return nil
+}
+
+// Form the build pod and launch it in the cluster.
 func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 	atomKey := buildEvent.Key()
 
@@ -193,7 +234,6 @@ func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 	atom := atoms[atomKey]
 
 	for _, ref := range buildEvent.Refs() {
-
 		if !atom.Descriptor.isRefManaged(ref) {
 			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", ref, atomKey)
 			continue
@@ -212,30 +252,16 @@ func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 			continue
 		}
 
-		resp, err := decap.Locker.Lock(key, buildID)
-		if err != nil {
-			Log.Printf("Failed to acquire lock %s on build %s: %v\n", key, buildID, err)
-			if err := decap.DeferBuild(buildEvent, ref); err != nil {
-				Log.Printf("Failed to defer build: %+v\n", buildID)
-			} else {
-				Log.Printf("Deferred build: %+v\n", buildID)
-			}
+		if err := decap.lockOrDefer(buildEvent, ref, buildID, key); err != nil {
+			Log.Println(err)
 			continue
 		}
+		Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
 
-		if resp.Node.Value == buildID {
-			Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
-			if podError := decap.CreatePod(podBytes); podError != nil {
-				Log.Println(podError)
-				if _, err := decap.Locker.Unlock(key, buildID); err != nil {
-					Log.Println(err)
-				} else {
-					Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, key, podError)
-				}
-			}
-			Log.Printf("Created pod=%s\n", buildID)
+		if err := decap.createOrDefer(podBytes, buildEvent, buildID, ref, key); err != nil {
+			Log.Println(err)
 		} else {
-			Log.Printf("Failed to acquire lock %s on build %s\n", key, buildID)
+			Log.Printf("Created pod=%s\n", buildID)
 		}
 	}
 	return nil
@@ -384,6 +410,16 @@ func (decap DefaultDecap) Websock() {
 
 func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
 	// only defer the most recent project/branch.  displace old deferrals.
+	_ = UserBuildEvent{
+		TeamFld:    event.Team(),
+		ProjectFld: event.Project(),
+		RefsFld:    []string{branch},
+	}
+	return nil
+}
+
+func (decap DefaultDecap) ClearDeferBuild(event BuildEvent, branch string) error {
+	// clear a build that was or might have been deferred
 	_ = UserBuildEvent{
 		TeamFld:    event.Team(),
 		ProjectFld: event.Project(),

@@ -15,7 +15,11 @@ IMAGE := $(DOCKER_USER)/decap-build-base:latest
 
 all: binaries
 
-test: 
+lint: 
+	go vet 
+	go fmt
+
+test:  lint
 	godep go test -v ./...
 
 binaries: test

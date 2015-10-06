@@ -18,7 +18,7 @@ func TestStopBuildHandler(t *testing.T) {
 	decap := MockDecap{}
 
 	w := httptest.NewRecorder()
-	StopBuildHandler(&decap)(w, req, httprouter.Params{
+	StopBuildHandler(&decap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "id", Value: "the-build-id"},
 	},
 	)
