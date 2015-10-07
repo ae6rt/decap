@@ -45,6 +45,16 @@ func init() {
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 }
 
+func writeCorsHeaders(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:9000")
+	w.Header().Set("Access-Control-Allow-Headers", "DECAP-APP-NAME, DECAP-API-TOKEN, Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
+}
+
+func handleOptions(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	writeCorsHeaders(w)
+}
+
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
 	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
@@ -66,6 +76,7 @@ func main() {
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
 	router.POST("/api/v1/shutdown/:state", ShutdownHandler)
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, k8s))
+	router.Handle("OPTIONS", "/api/v1/*filepath", handleOptions)
 
 	var err error
 	atoms, err = assembleAtoms(*buildScriptsRepo, *buildScriptsRepoBranch)
@@ -82,8 +93,7 @@ func main() {
 
 	corsWrapper := func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("X-Foo", "bar")
-			w.Header().Set("X-Goo", "far")
+			writeCorsHeaders(w)
 			handler.ServeHTTP(w, r)
 		})
 	}
