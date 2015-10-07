@@ -80,6 +80,14 @@ func main() {
 		go k8s.Websock()
 	}
 
+	corsWrapper := func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("X-Foo", "bar")
+			w.Header().Set("X-Goo", "far")
+			handler.ServeHTTP(w, r)
+		})
+	}
+
 	Log.Println("decap ready on port 9090...")
-	http.ListenAndServe(":9090", router)
+	http.ListenAndServe(":9090", corsWrapper(router))
 }
