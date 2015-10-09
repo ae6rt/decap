@@ -57,7 +57,7 @@ func handleOptions(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
-	k8s := NewDefaultDecap(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
+	k8s := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
 	awsStorageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]SCMClient{
 		"github": NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),

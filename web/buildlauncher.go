@@ -20,7 +20,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker Locker, buildScriptsRepo, buildScriptsRepoBranch string) DefaultBuilder {
+func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker Locker, buildScriptsRepo, buildScriptsRepoBranch string) DefaultBuilder {
 
 	tlsConfig := tls.Config{}
 	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
