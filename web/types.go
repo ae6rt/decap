@@ -78,7 +78,7 @@ type Decap interface {
 	LaunchBuild(buildEvent BuildEvent) error
 	DeletePod(podName string) error
 	DeferBuild(event BuildEvent, ref string) error
-	ClearDeferBuild(event BuildEvent, ref string) error
+	ClearDeferredBuild(event BuildEvent, ref string) error
 }
 
 // UserBuildEvent captures a user-initiated build request.

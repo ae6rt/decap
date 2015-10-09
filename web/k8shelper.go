@@ -219,7 +219,7 @@ func (decap DefaultDecap) createOrDefer(data []byte, buildEvent BuildEvent, buil
 
 	// todo devise a way to clear deferrals selectively.  at this point we have a lock on the build and may have cleared
 	// another thread's just-arrived deferral.  Maybe bake some other sort of key/value whereby we can clear a specific deferral.  Dunno.
-	if err := decap.ClearDeferBuild(buildEvent, ref); err != nil {
+	if err := decap.ClearDeferredBuild(buildEvent, ref); err != nil {
 		Log.Printf("Warning clearing deferral on build event %v, ref %s: %v\n", buildEvent, ref, err)
 	}
 	return nil
@@ -409,16 +409,17 @@ func (decap DefaultDecap) Websock() {
 }
 
 func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
-	// only defer the most recent project/branch.  displace old deferrals.
-	_ = UserBuildEvent{
+	ube := UserBuildEvent{
 		TeamFld:    event.Team(),
 		ProjectFld: event.Project(),
 		RefsFld:    []string{branch},
 	}
-	return nil
+	data, _ := json.Marshal(&ube)
+	_, err := decap.Locker.Defer(data)
+	return err
 }
 
-func (decap DefaultDecap) ClearDeferBuild(event BuildEvent, branch string) error {
+func (decap DefaultDecap) ClearDeferredBuild(event BuildEvent, branch string) error {
 	// clear a build that was or might have been deferred
 	_ = UserBuildEvent{
 		TeamFld:    event.Team(),

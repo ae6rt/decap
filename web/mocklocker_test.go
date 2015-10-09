@@ -13,6 +13,10 @@ func (noop NoOpLocker) Unlock(key, value string) (*etcd.Response, error) {
 	return nil, nil
 }
 
+func (noop NoOpLocker) Defer(data []byte) (*etcd.Response, error) {
+	return nil, nil
+}
+
 func (noop NoOpLocker) Key(projectKey, branch string) string {
 	return "opaquekey"
 }

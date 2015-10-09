@@ -19,6 +19,6 @@ func (d *MockDecap) DeferBuild(event BuildEvent, branch string) error {
 	return nil
 }
 
-func (d *MockDecap) ClearDeferBuild(event BuildEvent, branch string) error {
+func (d *MockDecap) ClearDeferredBuild(event BuildEvent, branch string) error {
 	return nil
 }
