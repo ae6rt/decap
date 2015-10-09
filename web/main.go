@@ -57,7 +57,7 @@ func handleOptions(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
-	k8s := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
+	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
 	awsStorageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]SCMClient{
 		"github": NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
@@ -69,13 +69,13 @@ func main() {
 	router.GET("/api/v1/projects", ProjectsHandler)
 	router.GET("/api/v1/projects/:team/:project/refs", ProjectRefsHandler(scmManagers))
 	router.GET("/api/v1/builds/:team/:project", BuildsHandler(awsStorageService))
-	router.DELETE("/api/v1/builds/:id", StopBuildHandler(k8s))
-	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(k8s))
+	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildLauncher))
+	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildLauncher))
 	router.GET("/api/v1/teams", TeamsHandler)
 	router.GET("/api/v1/logs/:id", LogHandler(awsStorageService))
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
 	router.POST("/api/v1/shutdown/:state", ShutdownHandler)
-	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, k8s))
+	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, buildLauncher))
 	router.Handle("OPTIONS", "/api/v1/*filepath", handleOptions)
 
 	var err error
@@ -88,8 +88,10 @@ func main() {
 	}
 
 	if !*noWebsocket {
-		go k8s.Websock()
+		go buildLauncher.Websock()
 	}
+
+	go buildLauncher.LaunchDeferred()
 
 	corsWrapper := func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
