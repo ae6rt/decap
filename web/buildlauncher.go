@@ -438,6 +438,7 @@ func (builder DefaultBuilder) LaunchDeferred() {
 		deferredBuild := UserBuildEvent{
 		// todo get materialized build from storage, setting the DeferralID to enable downstream clear-deferral
 		}
+		// todo consider checking whether the build is still locked before cranking out a relaunch of the build
 		if err := builder.LaunchBuild(deferredBuild); err != nil {
 			Log.Println(err)
 		}
