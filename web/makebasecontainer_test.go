@@ -5,7 +5,7 @@ import "testing"
 func TestMakeBaseContainer(t *testing.T) {
 	k8s := NewDefaultDecap("url", "admin", "admin123", "key", "sekrit", "us-west-1", NoOpLocker{}, "repo", "repobranch")
 
-	buildEvent := UserBuildEvent{TeamFld: "ae6rt", ProjectFld: "somelib", RefsFld: []string{"master"}}
+	buildEvent := UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 	baseContainer := k8s.makeBaseContainer(buildEvent, "uuid", "master", map[string]Atom{
 		"ae6rt/somelib": Atom{Team: "ae6rt", Project: "somelib", Descriptor: AtomDescriptor{Image: "magic-image"}, Sidecars: []string{}},
 	})

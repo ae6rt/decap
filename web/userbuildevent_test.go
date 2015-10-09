@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestUserEvent(t *testing.T) {
-	event := UserBuildEvent{TeamFld: "team", ProjectFld: "lib", RefsFld: []string{"master"}}
+	event := UserBuildEvent{Team_: "team", Project_: "lib", Refs_: []string{"master"}}
 	if event.Team() != "team" {
 		t.Fatalf("Want team but got %s\n", event.Team())
 	}

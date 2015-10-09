@@ -48,6 +48,10 @@ func (stash StashEvent) Refs() []string {
 	return branches
 }
 
+func (event StashEvent) DeferralID() string {
+	return ""
+}
+
 type StashHandler struct {
 	decap Decap
 }

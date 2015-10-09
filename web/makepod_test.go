@@ -8,7 +8,7 @@ import (
 
 func TestMakePod(t *testing.T) {
 	k8s := NewDefaultDecap("url", "admin", "admin123", "key", "sekrit", "us-west-1", NoOpLocker{}, "repo", "repobranch")
-	buildEvent := UserBuildEvent{TeamFld: "ae6rt", ProjectFld: "somelib", RefsFld: []string{"master"}}
+	buildEvent := UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 
 	projectMap := map[string]Atom{
 		"ae6rt/somelib": Atom{

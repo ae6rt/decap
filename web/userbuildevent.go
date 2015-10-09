@@ -3,17 +3,21 @@ package main
 import "fmt"
 
 func (e UserBuildEvent) Team() string {
-	return e.TeamFld
+	return e.Team_
 }
 
 func (e UserBuildEvent) Project() string {
-	return e.ProjectFld
+	return e.Project_
 }
 
 func (e UserBuildEvent) Key() string {
-	return fmt.Sprintf("%s/%s", e.TeamFld, e.ProjectFld)
+	return fmt.Sprintf("%s/%s", e.Team_, e.Project_)
 }
 
 func (e UserBuildEvent) Refs() []string {
-	return e.RefsFld
+	return e.Refs_
+}
+
+func (e UserBuildEvent) DeferralID() string {
+	return e.DeferralID_
 }

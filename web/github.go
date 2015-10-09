@@ -41,3 +41,7 @@ func (event GithubEvent) Refs() []string {
 		return []string{strings.ToLower(strings.Replace(event.Ref, "refs/heads/", "", -1))}
 	}
 }
+
+func (event GithubEvent) DeferralID() string {
+	return ""
+}

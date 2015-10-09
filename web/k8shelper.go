@@ -410,9 +410,9 @@ func (decap DefaultDecap) Websock() {
 
 func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
 	ube := UserBuildEvent{
-		TeamFld:    event.Team(),
-		ProjectFld: event.Project(),
-		RefsFld:    []string{branch},
+		Team_:    event.Team(),
+		Project_: event.Project(),
+		Refs_:    []string{branch},
 	}
 	data, _ := json.Marshal(&ube)
 	_, err := decap.Locker.Defer(data)
@@ -422,9 +422,9 @@ func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
 func (decap DefaultDecap) ClearDeferredBuild(event BuildEvent, branch string) error {
 	// clear a build that was or might have been deferred
 	_ = UserBuildEvent{
-		TeamFld:    event.Team(),
-		ProjectFld: event.Project(),
-		RefsFld:    []string{branch},
+		Team_:    event.Team(),
+		Project_: event.Project(),
+		Refs_:    []string{branch},
 	}
 	return nil
 }

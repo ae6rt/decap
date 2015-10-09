@@ -43,6 +43,7 @@ type BuildEvent interface {
 	Project() string
 	Key() string
 	Refs() []string
+	DeferralID() string
 }
 
 type DefaultDecap struct {
@@ -83,7 +84,8 @@ type Decap interface {
 
 // UserBuildEvent captures a user-initiated build request.
 type UserBuildEvent struct {
-	TeamFld    string
-	ProjectFld string
-	RefsFld    []string
+	Team_       string
+	Project_    string
+	Refs_       []string
+	DeferralID_ string // when this object is unmarshaled from storage, set this field
 }
