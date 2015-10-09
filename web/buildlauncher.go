@@ -435,14 +435,13 @@ func (builder DefaultBuilder) ClearDeferredBuild(event BuildEvent) error {
 func (builder DefaultBuilder) LaunchDeferred() {
 	c := time.Tick(1 * time.Minute)
 	for _ = range c {
-		builds, err := builder.Locker.DeferredBuilds()
-		if err != nil {
+		if builds, err := builder.Locker.DeferredBuilds(); err != nil {
 			Log.Println(err)
-			continue
-		}
-		for _, build := range builds {
-			if err := builder.LaunchBuild(build); err != nil {
-				Log.Println(err)
+		} else {
+			for _, build := range builds {
+				if err := builder.LaunchBuild(build); err != nil {
+					Log.Println(err)
+				}
 			}
 		}
 	}
