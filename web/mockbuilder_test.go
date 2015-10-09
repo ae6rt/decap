@@ -19,6 +19,6 @@ func (d *MockBuilder) DeferBuild(event BuildEvent, branch string) error {
 	return nil
 }
 
-func (d *MockBuilder) ClearDeferredBuild(event BuildEvent, branch string) error {
+func (d *MockBuilder) ClearDeferredBuild(event BuildEvent) error {
 	return nil
 }

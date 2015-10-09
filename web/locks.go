@@ -17,6 +17,7 @@ type Locker interface {
 	Lock(key, value string) (*etcd.Response, error)
 	Unlock(key, value string) (*etcd.Response, error)
 	Defer(buildEvent []byte) (*etcd.Response, error)
+	ClearDeferred(deferredID string) (*etcd.Response, error)
 	Key(projectKey, branch string) string
 }
 
@@ -46,6 +47,10 @@ func (d DefaultLock) Defer(buildEvent []byte) (*etcd.Response, error) {
 		return nil, err
 	}
 	return etcd.NewKeysAPI(c).CreateInOrder(context.Background(), "/deferred", string(buildEvent), nil)
+}
+
+func (d DefaultLock) ClearDeferred(deferredID string) (*etcd.Response, error) {
+	return nil, nil
 }
 
 func NewDefaultLock(machines []string) DefaultLock {

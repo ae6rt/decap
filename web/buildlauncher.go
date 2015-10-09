@@ -219,7 +219,7 @@ func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, 
 
 	// todo devise a way to clear deferrals selectively.  at this point we have a lock on the build and may have cleared
 	// another thread's just-arrived deferral.  Maybe bake some other sort of key/value whereby we can clear a specific deferral.  Dunno.
-	if err := builder.ClearDeferredBuild(buildEvent, ref); err != nil {
+	if err := builder.ClearDeferredBuild(buildEvent); err != nil {
 		Log.Printf("Warning clearing deferral on build event %v, ref %s: %v\n", buildEvent, ref, err)
 	}
 	return nil
@@ -419,14 +419,29 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 	return err
 }
 
-func (builder DefaultBuilder) ClearDeferredBuild(event BuildEvent, branch string) error {
-	// clear a build that was or might have been deferred
-	_ = UserBuildEvent{
-		Team_:    event.Team(),
-		Project_: event.Project(),
-		Refs_:    []string{branch},
+func (builder DefaultBuilder) ClearDeferredBuild(event BuildEvent) error {
+	if event.DeferralID() != "" {
+		resp, err := builder.Locker.ClearDeferred(event.DeferralID())
+		if err != nil {
+			Log.Println(resp)
+			Log.Println(err)
+		}
+		return err
 	}
 	return nil
+}
+
+// run as a goroutine.  Read deferred builds from storage and attempts a relaunch
+func (builder DefaultBuilder) LaunchDeferred() {
+	for {
+		time.Sleep(1 * time.Minute)
+		deferredBuild := UserBuildEvent{
+		// todo get materialized build from storage, setting the DeferralID to enable downstream clear-deferral
+		}
+		if err := builder.LaunchBuild(deferredBuild); err != nil {
+			Log.Println(err)
+		}
+	}
 }
 
 func kubeSecret(file string, defaultValue string) string {

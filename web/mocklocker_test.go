@@ -17,6 +17,10 @@ func (noop NoOpLocker) Defer(data []byte) (*etcd.Response, error) {
 	return nil, nil
 }
 
+func (noop NoOpLocker) ClearDeferred(deferralID string) (*etcd.Response, error) {
+	return nil, nil
+}
+
 func (noop NoOpLocker) Key(projectKey, branch string) string {
 	return "opaquekey"
 }
