@@ -21,6 +21,10 @@ func (noop NoOpLocker) ClearDeferred(deferralID string) (*etcd.Response, error) 
 	return nil, nil
 }
 
+func (noop NoOpLocker) DeferredBuilds() ([]UserBuildEvent, error) {
+	return nil, nil
+}
+
 func (noop NoOpLocker) Key(projectKey, branch string) string {
 	return "opaquekey"
 }

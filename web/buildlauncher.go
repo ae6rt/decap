@@ -435,12 +435,15 @@ func (builder DefaultBuilder) ClearDeferredBuild(event BuildEvent) error {
 func (builder DefaultBuilder) LaunchDeferred() {
 	c := time.Tick(1 * time.Minute)
 	for _ = range c {
-		deferredBuild := UserBuildEvent{
-		// todo get materialized build from storage, setting the DeferralID to enable downstream clear-deferral
-		}
-		// todo consider checking whether the build is still locked before cranking out a relaunch of the build
-		if err := builder.LaunchBuild(deferredBuild); err != nil {
+		builds, err := builder.Locker.DeferredBuilds()
+		if err != nil {
 			Log.Println(err)
+			continue
+		}
+		for _, build := range builds {
+			if err := builder.LaunchBuild(build); err != nil {
+				Log.Println(err)
+			}
 		}
 	}
 }
