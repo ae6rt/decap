@@ -27,7 +27,7 @@ func TestExecuteBuild(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	mockDecap := MockDecap{}
+	mockDecap := MockBuilder{}
 
 	ExecuteBuildHandler(&mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
@@ -64,7 +64,7 @@ func TestExecuteBuildNoBranches(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	mockDecap := MockDecap{}
+	mockDecap := MockBuilder{}
 
 	ExecuteBuildHandler(&mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
@@ -94,7 +94,7 @@ func TestExecuteBuildNoSuchProject(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	mockDecap := MockDecap{}
+	mockDecap := MockBuilder{}
 
 	ExecuteBuildHandler(&mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "blah"},

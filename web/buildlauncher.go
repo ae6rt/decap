@@ -20,7 +20,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker Locker, buildScriptsRepo, buildScriptsRepoBranch string) DefaultDecap {
+func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker Locker, buildScriptsRepo, buildScriptsRepoBranch string) DefaultBuilder {
 
 	tlsConfig := tls.Config{}
 	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
@@ -40,7 +40,7 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsReg
 
 	data, _ := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 
-	return DefaultDecap{
+	return DefaultBuilder{
 		MasterURL:              apiServerURL,
 		apiToken:               string(data),
 		UserName:               username,
@@ -56,9 +56,9 @@ func NewDefaultDecap(apiServerURL, username, password, awsKey, awsSecret, awsReg
 	}
 }
 
-func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, branch string, projects map[string]Atom) k8stypes.Container {
+func (builder DefaultBuilder) makeBaseContainer(buildEvent BuildEvent, buildID, branch string, projects map[string]Atom) k8stypes.Container {
 	projectKey := buildEvent.Key()
-	lockKey := decap.Locker.Key(projectKey, branch)
+	lockKey := builder.Locker.Key(projectKey, branch)
 	return k8stypes.Container{
 		Name:  "build-server",
 		Image: projects[projectKey].Descriptor.Image,
@@ -91,15 +91,15 @@ func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, bran
 			},
 			k8stypes.EnvVar{
 				Name:  "AWS_ACCESS_KEY_ID",
-				Value: decap.AWSAccessKeyID,
+				Value: builder.AWSAccessKeyID,
 			},
 			k8stypes.EnvVar{
 				Name:  "AWS_SECRET_ACCESS_KEY",
-				Value: decap.AWSAccessSecret,
+				Value: builder.AWSAccessSecret,
 			},
 			k8stypes.EnvVar{
 				Name:  "AWS_DEFAULT_REGION",
-				Value: decap.AWSRegion,
+				Value: builder.AWSRegion,
 			},
 		},
 		Lifecycle: &k8stypes.Lifecycle{
@@ -117,7 +117,7 @@ func (decap DefaultDecap) makeBaseContainer(buildEvent BuildEvent, buildID, bran
 	}
 }
 
-func (decap DefaultDecap) makeSidecarContainers(buildEvent BuildEvent, projects map[string]Atom) []k8stypes.Container {
+func (builder DefaultBuilder) makeSidecarContainers(buildEvent BuildEvent, projects map[string]Atom) []k8stypes.Container {
 	projectKey := buildEvent.Key()
 	arr := make([]k8stypes.Container, len(projects[projectKey].Sidecars))
 
@@ -133,7 +133,7 @@ func (decap DefaultDecap) makeSidecarContainers(buildEvent BuildEvent, projects 
 	return arr
 }
 
-func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string, containers []k8stypes.Container) k8stypes.Pod {
+func (builder DefaultBuilder) makePod(buildEvent BuildEvent, buildID, branch string, containers []k8stypes.Container) k8stypes.Pod {
 	return k8stypes.Pod{
 		TypeMeta: k8stypes.TypeMeta{
 			Kind:       "Pod",
@@ -155,8 +155,8 @@ func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string,
 					Name: "build-scripts",
 					VolumeSource: k8stypes.VolumeSource{
 						GitRepo: &k8stypes.GitRepoVolumeSource{
-							Repository: decap.buildScriptsRepo,
-							Revision:   decap.buildScriptsRepoBranch,
+							Repository: builder.buildScriptsRepo,
+							Revision:   builder.buildScriptsRepoBranch,
 						},
 					},
 				},
@@ -175,9 +175,9 @@ func (decap DefaultDecap) makePod(buildEvent BuildEvent, buildID, branch string,
 	}
 }
 
-func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch string, projects map[string]Atom) []k8stypes.Container {
-	baseContainer := decap.makeBaseContainer(buildEvent, buildID, branch, projects)
-	sidecars := decap.makeSidecarContainers(buildEvent, projects)
+func (builder DefaultBuilder) makeContainers(buildEvent BuildEvent, buildID, branch string, projects map[string]Atom) []k8stypes.Container {
+	baseContainer := builder.makeBaseContainer(buildEvent, buildID, branch, projects)
+	sidecars := builder.makeSidecarContainers(buildEvent, projects)
 
 	containers := make([]k8stypes.Container, 0)
 	containers = append(containers, baseContainer)
@@ -186,11 +186,11 @@ func (decap DefaultDecap) makeContainers(buildEvent BuildEvent, buildID, branch 
 }
 
 // Attempt to lock a build.  If that fails, defer it.
-func (decap DefaultDecap) lockOrDefer(buildEvent BuildEvent, ref, buildID, key string) error {
-	resp, err := decap.Locker.Lock(key, buildID)
+func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, key string) error {
+	resp, err := builder.Locker.Lock(key, buildID)
 	if err != nil {
 		Log.Printf("%+v - Failed to acquire lock %s on build %s: %v\n", resp, key, buildID, err)
-		if err = decap.DeferBuild(buildEvent, ref); err != nil {
+		if err = builder.DeferBuild(buildEvent, ref); err != nil {
 			Log.Printf("Failed to defer build: %+v\n", buildID)
 		} else {
 			Log.Printf("Deferred build: %+v\n", buildID)
@@ -202,12 +202,12 @@ func (decap DefaultDecap) lockOrDefer(buildEvent BuildEvent, ref, buildID, key s
 
 // Attempt to create a build pod on the cluster.  If that fails, clear the lock and defer it.  If it succeeds, clear
 // any deferrals.
-func (decap DefaultDecap) createOrDefer(data []byte, buildEvent BuildEvent, buildID, ref, key string) error {
-	if podError := decap.CreatePod(data); podError != nil {
+func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, buildID, ref, key string) error {
+	if podError := builder.CreatePod(data); podError != nil {
 		Log.Println(podError)
-		if _, err := decap.Locker.Unlock(key, buildID); err != nil {
+		if _, err := builder.Locker.Unlock(key, buildID); err != nil {
 			Log.Println(err)
-			if err = decap.DeferBuild(buildEvent, ref); err != nil {
+			if err = builder.DeferBuild(buildEvent, ref); err != nil {
 				Log.Printf("Failed deferring build %+v for ref %s after pod creation attempt: %+v\n", buildEvent, ref, err)
 			}
 			return err
@@ -219,14 +219,14 @@ func (decap DefaultDecap) createOrDefer(data []byte, buildEvent BuildEvent, buil
 
 	// todo devise a way to clear deferrals selectively.  at this point we have a lock on the build and may have cleared
 	// another thread's just-arrived deferral.  Maybe bake some other sort of key/value whereby we can clear a specific deferral.  Dunno.
-	if err := decap.ClearDeferredBuild(buildEvent, ref); err != nil {
+	if err := builder.ClearDeferredBuild(buildEvent, ref); err != nil {
 		Log.Printf("Warning clearing deferral on build event %v, ref %s: %v\n", buildEvent, ref, err)
 	}
 	return nil
 }
 
 // Form the build pod and launch it in the cluster.
-func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
+func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 	atomKey := buildEvent.Key()
 
 	atoms := getAtoms()
@@ -239,12 +239,12 @@ func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 			continue
 		}
 
-		key := decap.Locker.Key(atomKey, ref)
+		key := builder.Locker.Key(atomKey, ref)
 		buildID := uuid.NewRandom().String()
 
-		containers := decap.makeContainers(buildEvent, buildID, ref, atoms)
+		containers := builder.makeContainers(buildEvent, buildID, ref, atoms)
 
-		pod := decap.makePod(buildEvent, buildID, ref, containers)
+		pod := builder.makePod(buildEvent, buildID, ref, containers)
 
 		podBytes, err := json.Marshal(&pod)
 		if err != nil {
@@ -252,13 +252,13 @@ func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 			continue
 		}
 
-		if err := decap.lockOrDefer(buildEvent, ref, buildID, key); err != nil {
+		if err := builder.lockOrDefer(buildEvent, ref, buildID, key); err != nil {
 			Log.Println(err)
 			continue
 		}
 		Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
 
-		if err := decap.createOrDefer(podBytes, buildEvent, buildID, ref, key); err != nil {
+		if err := builder.createOrDefer(podBytes, buildEvent, buildID, ref, key); err != nil {
 			Log.Println(err)
 		} else {
 			Log.Printf("Created pod=%s\n", buildID)
@@ -267,20 +267,20 @@ func (decap DefaultDecap) LaunchBuild(buildEvent BuildEvent) error {
 	return nil
 }
 
-func (decap DefaultDecap) CreatePod(pod []byte) error {
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/namespaces/decap/pods", decap.MasterURL), bytes.NewReader(pod))
+func (builder DefaultBuilder) CreatePod(pod []byte) error {
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/namespaces/decap/pods", builder.MasterURL), bytes.NewReader(pod))
 	if err != nil {
 		Log.Println(err)
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if decap.apiToken != "" {
-		req.Header.Set("Authorization", "Bearer "+decap.apiToken)
+	if builder.apiToken != "" {
+		req.Header.Set("Authorization", "Bearer "+builder.apiToken)
 	} else {
-		req.SetBasicAuth(decap.UserName, decap.Password)
+		req.SetBasicAuth(builder.UserName, builder.Password)
 	}
 
-	resp, err := decap.apiClient.Do(req)
+	resp, err := builder.apiClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -300,19 +300,19 @@ func (decap DefaultDecap) CreatePod(pod []byte) error {
 	return nil
 }
 
-func (decap DefaultDecap) DeletePod(podName string) error {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/namespaces/decap/pods/%s", decap.MasterURL, podName), nil)
+func (builder DefaultBuilder) DeletePod(podName string) error {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/namespaces/decap/pods/%s", builder.MasterURL, podName), nil)
 	if err != nil {
 		Log.Println(err)
 		return err
 	}
-	if decap.apiToken != "" {
-		req.Header.Set("Authorization", "Bearer "+decap.apiToken)
+	if builder.apiToken != "" {
+		req.Header.Set("Authorization", "Bearer "+builder.apiToken)
 	} else {
-		req.SetBasicAuth(decap.UserName, decap.Password)
+		req.SetBasicAuth(builder.UserName, builder.Password)
 	}
 
-	resp, err := decap.apiClient.Do(req)
+	resp, err := builder.apiClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -332,12 +332,12 @@ func (decap DefaultDecap) DeletePod(podName string) error {
 	return nil
 }
 
-func (decap DefaultDecap) Websock() {
+func (builder DefaultBuilder) Websock() {
 
 	var conn *websocket.Conn
 
 	work := func() error {
-		originURL, err := url.Parse(decap.MasterURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
+		originURL, err := url.Parse(builder.MasterURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
 		if err != nil {
 			return err
 		}
@@ -347,10 +347,10 @@ func (decap DefaultDecap) Websock() {
 		}
 
 		var hdrs http.Header
-		if decap.apiToken != "" {
-			hdrs = map[string][]string{"Authorization": []string{"Bearer " + decap.apiToken}}
+		if builder.apiToken != "" {
+			hdrs = map[string][]string{"Authorization": []string{"Bearer " + builder.apiToken}}
 		} else {
-			hdrs = map[string][]string{"Authorization": []string{"Basic " + base64.StdEncoding.EncodeToString([]byte(decap.UserName+":"+decap.Password))}}
+			hdrs = map[string][]string{"Authorization": []string{"Basic " + base64.StdEncoding.EncodeToString([]byte(builder.UserName+":"+builder.Password))}}
 		}
 
 		cfg := websocket.Config{
@@ -396,9 +396,9 @@ func (decap DefaultDecap) Websock() {
 			}
 		}
 		if deletePod {
-			_, err := decap.Locker.Lock("/pods/"+pod.Object.Meta.Name, "anyvalue")
+			_, err := builder.Locker.Lock("/pods/"+pod.Object.Meta.Name, "anyvalue")
 			if err == nil {
-				if err := decap.DeletePod(pod.Object.Meta.Name); err != nil {
+				if err := builder.DeletePod(pod.Object.Meta.Name); err != nil {
 					Log.Print(err)
 				} else {
 					Log.Printf("Pod deleted: %s\n", pod.Object.Meta.Name)
@@ -408,18 +408,18 @@ func (decap DefaultDecap) Websock() {
 	}
 }
 
-func (decap DefaultDecap) DeferBuild(event BuildEvent, branch string) error {
+func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error {
 	ube := UserBuildEvent{
 		Team_:    event.Team(),
 		Project_: event.Project(),
 		Refs_:    []string{branch},
 	}
 	data, _ := json.Marshal(&ube)
-	_, err := decap.Locker.Defer(data)
+	_, err := builder.Locker.Defer(data)
 	return err
 }
 
-func (decap DefaultDecap) ClearDeferredBuild(event BuildEvent, branch string) error {
+func (builder DefaultBuilder) ClearDeferredBuild(event BuildEvent, branch string) error {
 	// clear a build that was or might have been deferred
 	_ = UserBuildEvent{
 		Team_:    event.Team(),

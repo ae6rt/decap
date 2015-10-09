@@ -1,24 +1,24 @@
 package main
 
-type MockDecap struct {
+type MockBuilder struct {
 	event   BuildEvent
 	buildID string
 }
 
-func (d *MockDecap) LaunchBuild(p BuildEvent) error {
+func (d *MockBuilder) LaunchBuild(p BuildEvent) error {
 	d.event = p
 	return nil
 }
 
-func (d *MockDecap) DeletePod(podName string) error {
+func (d *MockBuilder) DeletePod(podName string) error {
 	d.buildID = podName
 	return nil
 }
 
-func (d *MockDecap) DeferBuild(event BuildEvent, branch string) error {
+func (d *MockBuilder) DeferBuild(event BuildEvent, branch string) error {
 	return nil
 }
 
-func (d *MockDecap) ClearDeferredBuild(event BuildEvent, branch string) error {
+func (d *MockBuilder) ClearDeferredBuild(event BuildEvent, branch string) error {
 	return nil
 }

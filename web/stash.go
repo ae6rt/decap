@@ -53,7 +53,7 @@ func (event StashEvent) DeferralID() string {
 }
 
 type StashHandler struct {
-	decap Decap
+	decap Builder
 }
 
 func (handler StashHandler) handle(w http.ResponseWriter, r *http.Request) {

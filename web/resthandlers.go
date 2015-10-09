@@ -105,7 +105,7 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	w.Write(data)
 }
 
-func ExecuteBuildHandler(decap Decap) httprouter.Handle {
+func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		project := params.ByName("project")
@@ -136,7 +136,7 @@ func simpleError(err error) []byte {
 	return data
 }
 
-func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) httprouter.Handle {
+func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
 
@@ -209,7 +209,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Decap) http
 
 // todo Cleanup with PreStop might help explain to the world the state of the container immediately before termination.
 // See https://godoc.org/github.com/kubernetes/kubernetes/pkg/api/v1#Lifecycle
-func StopBuildHandler(decap Decap) httprouter.Handle {
+func StopBuildHandler(decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
 		if err := decap.DeletePod(buildID); err != nil {

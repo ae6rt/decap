@@ -46,7 +46,7 @@ type BuildEvent interface {
 	DeferralID() string
 }
 
-type DefaultDecap struct {
+type DefaultBuilder struct {
 	MasterURL       string
 	UserName        string
 	Password        string
@@ -75,7 +75,7 @@ type StorageService interface {
 	GetConsoleLog(buildID string) ([]byte, error)
 }
 
-type Decap interface {
+type Builder interface {
 	LaunchBuild(buildEvent BuildEvent) error
 	DeletePod(podName string) error
 	DeferBuild(event BuildEvent, ref string) error
