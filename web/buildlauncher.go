@@ -433,8 +433,8 @@ func (builder DefaultBuilder) ClearDeferredBuild(event BuildEvent) error {
 
 // run as a goroutine.  Read deferred builds from storage and attempts a relaunch
 func (builder DefaultBuilder) LaunchDeferred() {
-	for {
-		time.Sleep(1 * time.Minute)
+	c := time.Tick(1 * time.Minute)
+	for _ = range c {
 		deferredBuild := UserBuildEvent{
 		// todo get materialized build from storage, setting the DeferralID to enable downstream clear-deferral
 		}
