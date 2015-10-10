@@ -76,13 +76,19 @@ func (h handlerStruct) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func TestRouterAPI(t *testing.T) {
-	var get, post, put, patch, delete, handler, handlerFunc bool
+	var get, head, options, post, put, patch, delete, handler, handlerFunc bool
 
 	httpHandler := handlerStruct{&handler}
 
 	router := New()
 	router.GET("/GET", func(w http.ResponseWriter, r *http.Request, _ Params) {
 		get = true
+	})
+	router.HEAD("/GET", func(w http.ResponseWriter, r *http.Request, _ Params) {
+		head = true
+	})
+	router.OPTIONS("/GET", func(w http.ResponseWriter, r *http.Request, _ Params) {
+		options = true
 	})
 	router.POST("/POST", func(w http.ResponseWriter, r *http.Request, _ Params) {
 		post = true
@@ -107,6 +113,18 @@ func TestRouterAPI(t *testing.T) {
 	router.ServeHTTP(w, r)
 	if !get {
 		t.Error("routing GET failed")
+	}
+
+	r, _ = http.NewRequest("HEAD", "/GET", nil)
+	router.ServeHTTP(w, r)
+	if !head {
+		t.Error("routing HEAD failed")
+	}
+
+	r, _ = http.NewRequest("OPTIONS", "/GET", nil)
+	router.ServeHTTP(w, r)
+	if !options {
+		t.Error("routing OPTIONS failed")
 	}
 
 	r, _ = http.NewRequest("POST", "/POST", nil)
@@ -156,12 +174,84 @@ func TestRouterRoot(t *testing.T) {
 	}
 }
 
+func TestRouterChaining(t *testing.T) {
+	router1 := New()
+	router2 := New()
+	router1.NotFound = router2
+
+	fooHit := false
+	router1.POST("/foo", func(w http.ResponseWriter, req *http.Request, _ Params) {
+		fooHit = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	barHit := false
+	router2.POST("/bar", func(w http.ResponseWriter, req *http.Request, _ Params) {
+		barHit = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	r, _ := http.NewRequest("POST", "/foo", nil)
+	w := httptest.NewRecorder()
+	router1.ServeHTTP(w, r)
+	if !(w.Code == http.StatusOK && fooHit) {
+		t.Errorf("Regular routing failed with router chaining.")
+		t.FailNow()
+	}
+
+	r, _ = http.NewRequest("POST", "/bar", nil)
+	w = httptest.NewRecorder()
+	router1.ServeHTTP(w, r)
+	if !(w.Code == http.StatusOK && barHit) {
+		t.Errorf("Chained routing failed with router chaining.")
+		t.FailNow()
+	}
+
+	r, _ = http.NewRequest("POST", "/qax", nil)
+	w = httptest.NewRecorder()
+	router1.ServeHTTP(w, r)
+	if !(w.Code == http.StatusNotFound) {
+		t.Errorf("NotFound behavior failed with router chaining.")
+		t.FailNow()
+	}
+}
+
+func TestRouterNotAllowed(t *testing.T) {
+	handlerFunc := func(_ http.ResponseWriter, _ *http.Request, _ Params) {}
+
+	router := New()
+	router.POST("/path", handlerFunc)
+
+	// Test not allowed
+	r, _ := http.NewRequest("GET", "/path", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, r)
+	if !(w.Code == http.StatusMethodNotAllowed) {
+		t.Errorf("NotAllowed handling failed: Code=%d, Header=%v", w.Code, w.Header())
+	}
+
+	w = httptest.NewRecorder()
+	responseText := "custom method"
+	router.MethodNotAllowed = http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		w.WriteHeader(http.StatusTeapot)
+		w.Write([]byte(responseText))
+	})
+	router.ServeHTTP(w, r)
+	if got := w.Body.String(); !(got == responseText) {
+		t.Errorf("unexpected response got %q want %q", got, responseText)
+	}
+	if w.Code != http.StatusTeapot {
+		t.Errorf("unexpected response code %d want %d", w.Code, http.StatusTeapot)
+	}
+}
+
 func TestRouterNotFound(t *testing.T) {
 	handlerFunc := func(_ http.ResponseWriter, _ *http.Request, _ Params) {}
 
 	router := New()
 	router.GET("/path", handlerFunc)
 	router.GET("/dir/", handlerFunc)
+	router.GET("/", handlerFunc)
 
 	testRoutes := []struct {
 		route  string
@@ -170,6 +260,7 @@ func TestRouterNotFound(t *testing.T) {
 	}{
 		{"/path/", 301, "map[Location:[/path]]"},   // TSR -/
 		{"/dir", 301, "map[Location:[/dir/]]"},     // TSR +/
+		{"", 301, "map[Location:[/]]"},             // TSR +/
 		{"/PATH", 301, "map[Location:[/path]]"},    // Fixed Case
 		{"/DIR/", 301, "map[Location:[/dir/]]"},    // Fixed Case
 		{"/PATH/", 301, "map[Location:[/path]]"},   // Fixed Case -/
@@ -188,10 +279,10 @@ func TestRouterNotFound(t *testing.T) {
 
 	// Test custom not found handler
 	var notFound bool
-	router.NotFound = func(rw http.ResponseWriter, r *http.Request) {
+	router.NotFound = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(404)
 		notFound = true
-	}
+	})
 	r, _ := http.NewRequest("GET", "/nope", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, r)

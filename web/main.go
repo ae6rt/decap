@@ -76,7 +76,7 @@ func main() {
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
 	router.POST("/api/v1/shutdown/:state", ShutdownHandler)
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, buildLauncher))
-	router.Handle("OPTIONS", "/api/v1/*filepath", handleOptions)
+	router.OPTIONS("/api/v1/*filepath", handleOptions)
 
 	var err error
 	atoms, err = assembleAtoms(*buildScriptsRepo, *buildScriptsRepoBranch)

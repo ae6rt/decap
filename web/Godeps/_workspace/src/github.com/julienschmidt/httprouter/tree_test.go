@@ -89,7 +89,7 @@ func checkMaxParams(t *testing.T, n *node) uint8 {
 			maxParams = params
 		}
 	}
-	if n.nType != static && !n.wildChild {
+	if n.nType > root && !n.wildChild {
 		maxParams++
 	}
 
@@ -125,6 +125,8 @@ func TestTreeAddAndGet(t *testing.T) {
 		"/doc/",
 		"/doc/go_faq.html",
 		"/doc/go1.html",
+		"/α",
+		"/β",
 	}
 	for _, route := range routes {
 		tree.addRoute(route, fakeHandler(route))
@@ -142,6 +144,8 @@ func TestTreeAddAndGet(t *testing.T) {
 		{"/cona", true, "", nil}, // key mismatch
 		{"/no", true, "", nil},   // no matching child
 		{"/ab", false, "/ab", nil},
+		{"/α", false, "/α", nil},
+		{"/β", false, "/β", nil},
 	})
 
 	checkPriorities(t, tree)
@@ -339,6 +343,27 @@ func TestTreeCatchAllConflictRoot(t *testing.T) {
 	testRoutes(t, routes)
 }
 
+func TestTreeDoubleWildcard(t *testing.T) {
+	const panicMsg = "only one wildcard per path segment is allowed"
+
+	routes := [...]string{
+		"/:foo:bar",
+		"/:foo:bar/",
+		"/:foo*bar",
+	}
+
+	for _, route := range routes {
+		tree := &node{}
+		recv := catchPanic(func() {
+			tree.addRoute(route, nil)
+		})
+
+		if rs, ok := recv.(string); !ok || !strings.HasPrefix(rs, panicMsg) {
+			t.Fatalf(`"Expected panic "%s" for route '%s', got "%v"`, panicMsg, route, recv)
+		}
+	}
+}
+
 /*func TestTreeDuplicateWildcard(t *testing.T) {
 	tree := &node{}
 
@@ -369,6 +394,9 @@ func TestTreeTrailingSlashRedirect(t *testing.T) {
 		"/1/:id/2",
 		"/aa",
 		"/a/",
+		"/admin",
+		"/admin/:category",
+		"/admin/:category/:page",
 		"/doc",
 		"/doc/go_faq.html",
 		"/doc/go1.html",
@@ -398,6 +426,9 @@ func TestTreeTrailingSlashRedirect(t *testing.T) {
 		"/0/go/",
 		"/1/go",
 		"/a",
+		"/admin/",
+		"/admin/config/",
+		"/admin/config/permissions/",
 		"/doc/",
 	}
 	for _, route := range tsrRoutes {
@@ -424,6 +455,24 @@ func TestTreeTrailingSlashRedirect(t *testing.T) {
 		} else if tsr {
 			t.Errorf("expected no TSR recommendation for route '%s'", route)
 		}
+	}
+}
+
+func TestTreeRootTrailingSlashRedirect(t *testing.T) {
+	tree := &node{}
+
+	recv := catchPanic(func() {
+		tree.addRoute("/:test", fakeHandler("/:test"))
+	})
+	if recv != nil {
+		t.Fatalf("panic inserting test route: %v", recv)
+	}
+
+	handler, _, tsr := tree.getValue("/")
+	if handler != nil {
+		t.Fatalf("non-nil handler")
+	} else if tsr {
+		t.Errorf("expected no TSR recommendation")
 	}
 }
 
@@ -555,5 +604,32 @@ func TestTreeFindCaseInsensitivePath(t *testing.T) {
 				return
 			}
 		}
+	}
+}
+
+func TestTreeInvalidNodeType(t *testing.T) {
+	const panicMsg = "invalid node type"
+
+	tree := &node{}
+	tree.addRoute("/", fakeHandler("/"))
+	tree.addRoute("/:page", fakeHandler("/:page"))
+
+	// set invalid node type
+	tree.children[0].nType = 42
+
+	// normal lookup
+	recv := catchPanic(func() {
+		tree.getValue("/test")
+	})
+	if rs, ok := recv.(string); !ok || rs != panicMsg {
+		t.Fatalf("Expected panic '"+panicMsg+"', got '%v'", recv)
+	}
+
+	// case-insensitive lookup
+	recv = catchPanic(func() {
+		tree.findCaseInsensitivePath("/test", true)
+	})
+	if rs, ok := recv.(string); !ok || rs != panicMsg {
+		t.Fatalf("Expected panic '"+panicMsg+"', got '%v'", recv)
 	}
 }

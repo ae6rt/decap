@@ -86,7 +86,8 @@
 		},
 		{
 			"ImportPath": "github.com/julienschmidt/httprouter",
-			"Rev": "46807412fe50aaceb73bb57061c2230fd26a1640"
+			"Comment": "v1.1-9-g2ba0f3d",
+			"Rev": "2ba0f3d499bb3c8d1f47107eb55a597b6619d388"
 		},
 		{
 			"ImportPath": "github.com/pborman/uuid",
