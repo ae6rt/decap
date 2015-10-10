@@ -79,7 +79,7 @@ func main() {
 	router.OPTIONS("/api/v1/*filepath", handleOptions)
 
 	var err error
-	atoms, err = assembleAtoms(*buildScriptsRepo, *buildScriptsRepoBranch)
+	atoms, err = assembleProjects(*buildScriptsRepo, *buildScriptsRepoBranch)
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}

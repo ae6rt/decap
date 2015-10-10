@@ -10,7 +10,7 @@ type MockStorageService struct {
 	builds        []Build
 }
 
-func (s *MockStorageService) GetBuildsByAtom(project Project, sinceTime uint64, limit uint64) ([]Build, error) {
+func (s *MockStorageService) GetBuildsByProject(project Project, sinceTime uint64, limit uint64) ([]Build, error) {
 	s.project = project
 	s.sinceUnixTime = sinceTime
 	s.limit = limit

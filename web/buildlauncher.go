@@ -229,7 +229,7 @@ func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, 
 func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 	atomKey := buildEvent.Key()
 
-	atoms := getAtoms()
+	atoms := getProjects()
 
 	atom := atoms[atomKey]
 

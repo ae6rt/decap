@@ -34,10 +34,10 @@ func TestProjectsHandler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(proj.Atoms) != 2 {
-		t.Fatalf("Want 2 but got %d\n", len(proj.Atoms))
+	if len(proj.Projects) != 2 {
+		t.Fatalf("Want 2 but got %d\n", len(proj.Projects))
 	}
-	for _, v := range proj.Atoms {
+	for _, v := range proj.Projects {
 		if !(v.Team == "ae6rt" || v.Team == "wn0owp") {
 			t.Fatalf("Want ae6rt or wn0owp but got %s\n", v.Team)
 		}
@@ -68,11 +68,11 @@ func TestProjectsHandlerWithQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(proj.Atoms) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(proj.Atoms))
+	if len(proj.Projects) != 1 {
+		t.Fatalf("Want 1 but got %d\n", len(proj.Projects))
 	}
 
-	expected := proj.Atoms[0]
+	expected := proj.Projects[0]
 	if expected.Team != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", expected.Team)
 	}

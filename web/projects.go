@@ -68,8 +68,8 @@ func filesByRegex(root, expression string) ([]string, error) {
 	return files, nil
 }
 
-func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Project, error) {
-	atoms := make(map[string]Project, 0)
+func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, error) {
+	projects := make(map[string]Project, 0)
 	work := func() error {
 		Log.Printf("Clone build-scripts repository...\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
@@ -133,7 +133,7 @@ func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Project, e
 				Descriptor:  descriptor,
 				Sidecars:    sidecars,
 			}
-			atoms[k] = p
+			projects[k] = p
 		}
 		return nil
 	}
@@ -142,11 +142,11 @@ func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Project, e
 	if err != nil {
 		return nil, err
 	}
-	return atoms, nil
+	return projects, nil
 }
 
 // I'd like to find a way to manage this with channels.
-func getAtoms() map[string]Project {
+func getProjects() map[string]Project {
 	p := make(map[string]Project, 0)
 	atomMutex.Lock()
 	for k, v := range atoms {
@@ -157,15 +157,15 @@ func getAtoms() map[string]Project {
 }
 
 // I'd like to find a way to manage this with channels.
-func setAtoms(p map[string]Project) {
+func setProjects(p map[string]Project) {
 	atomMutex.Lock()
 	atoms = p
 	atomMutex.Unlock()
 }
 
 // I'd like to find a way to manage this with channels.
-func atomByTeamProject(team, project string) (Project, bool) {
-	pr := getAtoms()
+func projectByTeamName(team, project string) (Project, bool) {
+	pr := getProjects()
 	key := projectKey(team, project)
 	p, ok := pr[key]
 	return p, ok

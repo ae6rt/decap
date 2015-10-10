@@ -50,7 +50,7 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 }
 
 func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	p := getAtoms()
+	p := getProjects()
 
 	keys := make(map[string]string)
 	for _, v := range p {
@@ -80,20 +80,20 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	team := r.URL.Query().Get("team")
 	arr := make([]Project, 0)
 	if team != "" {
-		for _, v := range getAtoms() {
+		for _, v := range getProjects() {
 			if team == v.Team {
 				arr = append(arr, v)
 			}
 		}
 	} else {
-		for _, v := range getAtoms() {
+		for _, v := range getProjects() {
 			arr = append(arr, v)
 		}
 	}
 
 	w.Header().Set("Content-type", "application/json")
 
-	p := Projects{Atoms: arr}
+	p := Projects{Projects: arr}
 	data, err := json.Marshal(&p)
 	if err != nil {
 		p := Projects{Meta: Meta{Error: err.Error()}}
@@ -110,7 +110,7 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 		team := params.ByName("team")
 		project := params.ByName("project")
 
-		if _, present := atomByTeamProject(team, project); !present {
+		if _, present := projectByTeamName(team, project); !present {
 			Log.Printf("Unknown project %s/%s", team, project)
 			w.WriteHeader(404)
 			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, project)))
@@ -162,13 +162,13 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 
 		switch repoManager {
 		case "buildscripts":
-			p, err := assembleAtoms(buildScriptsRepo, buildScriptsBranch)
+			p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch)
 			if err != nil {
 				Log.Printf("@@@: %v", err)
 				w.WriteHeader(500)
 				w.Write(simpleError(err))
 			} else {
-				setAtoms(p)
+				setProjects(p)
 				Log.Println("Build scripts refreshed via post commit hook")
 			}
 		case "github":
@@ -224,20 +224,20 @@ func StopBuildHandler(decap Builder) httprouter.Handle {
 func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
-		project := params.ByName("project")
+		projectName := params.ByName("project")
 
-		atom, present := atomByTeamProject(team, project)
+		project, present := projectByTeamName(team, projectName)
 		if !present {
 			w.WriteHeader(404)
-			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, project)))
+			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, projectName)))
 			return
 		}
 
-		switch atom.Descriptor.RepoManager {
+		switch project.Descriptor.RepoManager {
 		case "github":
 			w.Header().Set("Content-type", "application/json")
 			repoClient := repoClients["github"]
-			nativeBranches, err := repoClient.GetRefs(atom.Team, atom.ProjectName)
+			nativeBranches, err := repoClient.GetRefs(project.Team, project.ProjectName)
 			if err != nil {
 				Log.Print(err)
 				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})
@@ -379,7 +379,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			return
 		}
 
-		buildList, err := storageService.GetBuildsByAtom(Project{Team: team, ProjectName: project}, since, limit)
+		buildList, err := storageService.GetBuildsByProject(Project{Team: team, ProjectName: project}, since, limit)
 
 		if err != nil {
 			builds := Builds{Meta: Meta{Error: err.Error()}}

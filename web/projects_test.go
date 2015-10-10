@@ -13,7 +13,7 @@ func TestAssembleProjects(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proj, err := assembleAtoms("file://"+dir, "master")
+	proj, err := assembleProjects("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {
@@ -48,18 +48,18 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	atoms, err = assembleAtoms("file://"+dir, "master")
+	atoms, err = assembleProjects("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if _, present := atomByTeamProject("ae6rt", "dynamodb-lab"); !present {
+	if _, present := projectByTeamName("ae6rt", "dynamodb-lab"); !present {
 		t.Fatalf("Expecting to find ae6rt/dynamodb-lab project but did not\n")
 	}
 
-	if _, present := atomByTeamProject("nope", "nope"); present {
+	if _, present := projectByTeamName("nope", "nope"); present {
 		t.Fatalf("Not expecting to find nope/nope project but did \n")
 	}
 }
