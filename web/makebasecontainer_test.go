@@ -7,7 +7,7 @@ func TestMakeBaseContainer(t *testing.T) {
 
 	buildEvent := UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 	baseContainer := k8s.makeBaseContainer(buildEvent, "uuid", "master", map[string]Project{
-		"ae6rt/somelib": Project{Team: "ae6rt", Project: "somelib", Descriptor: ProjectDescriptor{Image: "magic-image"}, Sidecars: []string{}},
+		"ae6rt/somelib": Project{Team: "ae6rt", ProjectName: "somelib", Descriptor: ProjectDescriptor{Image: "magic-image"}, Sidecars: []string{}},
 	})
 
 	if baseContainer.Name != "build-server" {

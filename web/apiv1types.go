@@ -20,10 +20,10 @@ type Projects struct {
 }
 
 type Project struct {
-	Team       string            `json:"team"`
-	Project    string            `json:"project"`
-	Descriptor ProjectDescriptor `json:"descriptor,omitempty"`
-	Sidecars   []string          `json:"sidecars,omitempty"`
+	Team        string            `json:"team"`
+	ProjectName string            `json:"project"`
+	Descriptor  ProjectDescriptor `json:"descriptor,omitempty"`
+	Sidecars    []string          `json:"sidecars,omitempty"`
 }
 
 type ProjectDescriptor struct {

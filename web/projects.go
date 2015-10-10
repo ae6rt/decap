@@ -128,10 +128,10 @@ func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Project, e
 
 			parts := strings.Split(k, "/")
 			p := Project{
-				Team:       parts[0],
-				Project:    parts[1],
-				Descriptor: descriptor,
-				Sidecars:   sidecars,
+				Team:        parts[0],
+				ProjectName: parts[1],
+				Descriptor:  descriptor,
+				Sidecars:    sidecars,
 			}
 			atoms[k] = p
 		}

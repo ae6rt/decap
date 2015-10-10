@@ -12,9 +12,9 @@ func TestMakePod(t *testing.T) {
 
 	projectMap := map[string]Project{
 		"ae6rt/somelib": Project{
-			Team:       "ae6rt",
-			Project:    "somelib",
-			Descriptor: ProjectDescriptor{Image: "magic-image"},
+			Team:        "ae6rt",
+			ProjectName: "somelib",
+			Descriptor:  ProjectDescriptor{Image: "magic-image"},
 			Sidecars: []string{`
 {               
     "env": [                    
@@ -67,7 +67,7 @@ func TestMakePod(t *testing.T) {
 	if labels["team"] != projectMap["ae6rt/somelib"].Team {
 		t.Fatalf("Want ae6rt but got %v\n", labels["team"])
 	}
-	if labels["project"] != projectMap["ae6rt/somelib"].Project {
+	if labels["project"] != projectMap["ae6rt/somelib"].ProjectName {
 		t.Fatalf("Want somelib but got %v\n", labels["project"])
 	}
 

@@ -8,9 +8,9 @@ func TestMakeSidecars(t *testing.T) {
 
 	sidecars := k8s.makeSidecarContainers(buildEvent, map[string]Project{
 		"ae6rt/somelib": Project{
-			Team:       "ae6rt",
-			Project:    "somelib",
-			Descriptor: ProjectDescriptor{Image: "magic-image"},
+			Team:        "ae6rt",
+			ProjectName: "somelib",
+			Descriptor:  ProjectDescriptor{Image: "magic-image"},
 			Sidecars: []string{`
 {
     "env": [

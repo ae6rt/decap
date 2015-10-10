@@ -38,7 +38,7 @@ func (c AWSStorageService) GetBuildsByAtom(project Project, since uint64, limit 
 			},
 			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 				":pkey": {
-					S: aws.String(projectKey(project.Team, project.Project)),
+					S: aws.String(projectKey(project.Team, project.ProjectName)),
 				},
 				":since": {
 					N: aws.String(fmt.Sprintf("%d", since)),

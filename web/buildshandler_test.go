@@ -95,8 +95,8 @@ func TestBuildsHandlerWithStorageServiceError(t *testing.T) {
 	if storageService.project.Team != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", storageService.project.Team)
 	}
-	if storageService.project.Project != "p1" {
-		t.Fatalf("Want p1 but got %s\n", storageService.project.Project)
+	if storageService.project.ProjectName != "p1" {
+		t.Fatalf("Want p1 but got %s\n", storageService.project.ProjectName)
 	}
 	if storageService.sinceUnixTime != 1 {
 		t.Fatalf("Want 1 but got %d\n", storageService.sinceUnixTime)
@@ -131,8 +131,8 @@ func TestBuildsHandler(t *testing.T) {
 	if storageService.project.Team != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", storageService.project.Team)
 	}
-	if storageService.project.Project != "p1" {
-		t.Fatalf("Want p1 but got %s\n", storageService.project.Project)
+	if storageService.project.ProjectName != "p1" {
+		t.Fatalf("Want p1 but got %s\n", storageService.project.ProjectName)
 	}
 	if storageService.sinceUnixTime != 1 {
 		t.Fatalf("Want 1 but got %d\n", storageService.sinceUnixTime)

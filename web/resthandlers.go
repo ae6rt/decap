@@ -237,7 +237,7 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 		case "github":
 			w.Header().Set("Content-type", "application/json")
 			repoClient := repoClients["github"]
-			nativeBranches, err := repoClient.GetRefs(atom.Team, atom.Project)
+			nativeBranches, err := repoClient.GetRefs(atom.Team, atom.ProjectName)
 			if err != nil {
 				Log.Print(err)
 				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})
@@ -379,7 +379,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			return
 		}
 
-		buildList, err := storageService.GetBuildsByAtom(Project{Team: team, Project: project}, since, limit)
+		buildList, err := storageService.GetBuildsByAtom(Project{Team: team, ProjectName: project}, since, limit)
 
 		if err != nil {
 			builds := Builds{Meta: Meta{Error: err.Error()}}
