@@ -417,7 +417,3 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 	}
 	w.WriteHeader(200)
 }
-
-func HandleOptions(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	writeCorsHeaders(w)
-}
