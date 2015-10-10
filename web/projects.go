@@ -20,7 +20,7 @@ const projectDescriptorRegex = `project\.json`
 const sideCarRegex = `^.+-sidecar\.json`
 
 var projects map[string]Project
-var atomMutex = &sync.Mutex{}
+var projectMutex = &sync.Mutex{}
 
 func filesByRegex(root, expression string) ([]string, error) {
 	if !strings.HasPrefix(root, "/") {
@@ -148,19 +148,19 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 // I'd like to find a way to manage this with channels.
 func getProjects() map[string]Project {
 	p := make(map[string]Project, 0)
-	atomMutex.Lock()
+	projectMutex.Lock()
 	for k, v := range projects {
 		p[k] = v
 	}
-	atomMutex.Unlock()
+	projectMutex.Unlock()
 	return p
 }
 
 // I'd like to find a way to manage this with channels.
 func setProjects(p map[string]Project) {
-	atomMutex.Lock()
+	projectMutex.Lock()
 	projects = p
-	atomMutex.Unlock()
+	projectMutex.Unlock()
 }
 
 // I'd like to find a way to manage this with channels.
