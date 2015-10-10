@@ -50,7 +50,7 @@ type Build struct {
 	Branch     string `json:"branch"`
 	Result     int    `json:"result"`
 	Duration   uint64 `json:"duration"`
-	UnixTime   uint64 `json:"start-time"`
+	UnixTime   uint64 `json:"startTime"`
 }
 
 type Teams struct {
