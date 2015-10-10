@@ -19,7 +19,7 @@ const buildScriptRegex = `build\.sh`
 const projectDescriptorRegex = `project\.json`
 const sideCarRegex = `^.+-sidecar\.json`
 
-var atoms map[string]Project
+var projects map[string]Project
 var atomMutex = &sync.Mutex{}
 
 func filesByRegex(root, expression string) ([]string, error) {
@@ -149,7 +149,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 func getProjects() map[string]Project {
 	p := make(map[string]Project, 0)
 	atomMutex.Lock()
-	for k, v := range atoms {
+	for k, v := range projects {
 		p[k] = v
 	}
 	atomMutex.Unlock()
@@ -159,7 +159,7 @@ func getProjects() map[string]Project {
 // I'd like to find a way to manage this with channels.
 func setProjects(p map[string]Project) {
 	atomMutex.Lock()
-	atoms = p
+	projects = p
 	atomMutex.Unlock()
 }
 

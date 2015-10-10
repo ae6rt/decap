@@ -227,22 +227,22 @@ func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, 
 
 // Form the build pod and launch it in the cluster.
 func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
-	atomKey := buildEvent.Key()
+	projectKey := buildEvent.Key()
 
-	atoms := getProjects()
+	projects := getProjects()
 
-	atom := atoms[atomKey]
+	project := projects[projectKey]
 
 	for _, ref := range buildEvent.Refs() {
-		if !atom.Descriptor.isRefManaged(ref) {
-			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", ref, atomKey)
+		if !project.Descriptor.isRefManaged(ref) {
+			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", ref, projectKey)
 			continue
 		}
 
-		key := builder.Locker.Key(atomKey, ref)
+		key := builder.Locker.Key(projectKey, ref)
 		buildID := uuid.NewRandom().String()
 
-		containers := builder.makeContainers(buildEvent, buildID, ref, atoms)
+		containers := builder.makeContainers(buildEvent, buildID, ref, projects)
 
 		pod := builder.makePod(buildEvent, buildID, ref, containers)
 

@@ -48,7 +48,7 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	atoms, err = assembleProjects("file://"+dir, "master")
+	projects, err = assembleProjects("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {
