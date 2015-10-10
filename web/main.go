@@ -45,10 +45,14 @@ func init() {
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 }
 
-func handleOptions(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func writeCorsHeaders(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:9000")
 	w.Header().Set("Access-Control-Allow-Headers", "DECAP-APP-NAME, DECAP-API-TOKEN, Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
+}
+
+func handleOptions(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	writeCorsHeaders(w)
 }
 
 func main() {
@@ -89,6 +93,13 @@ func main() {
 
 	go buildLauncher.LaunchDeferred()
 
+	corsWrapper := func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			writeCorsHeaders(w)
+			handler.ServeHTTP(w, r)
+		})
+	}
+
 	Log.Println("decap ready on port 9090...")
-	http.ListenAndServe(":9090", router)
+	http.ListenAndServe(":9090", corsWrapper(router))
 }
