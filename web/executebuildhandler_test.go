@@ -16,7 +16,8 @@ func TestExecuteBuild(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
+	go thingUpdater()
+	setThing <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team: "ae6rt",
 		},
@@ -53,7 +54,8 @@ func TestExecuteBuildNoBranches(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
+	go thingUpdater()
+	setThing <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team: "ae6rt",
 		},
@@ -83,7 +85,8 @@ func TestExecuteBuildNoSuchProject(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
+	go thingUpdater()
+	setThing <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team: "ae6rt",
 		},

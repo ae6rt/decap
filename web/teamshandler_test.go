@@ -16,7 +16,8 @@ func TestTeamsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
+	go thingUpdater()
+	setThing <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team: "ae6rt",
 		},

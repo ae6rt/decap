@@ -233,7 +233,8 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 			return
 		}
 
-		switch project.Descriptor.RepoManager {
+		repositoryManager := project.Descriptor.RepoManager
+		switch repositoryManager {
 		case "github":
 			w.Header().Set("Content-type", "application/json")
 			repoClient := repoClients["github"]
@@ -260,6 +261,7 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 			return
 		default:
 			w.WriteHeader(400)
+			w.Write(simpleError(fmt.Errorf("repomanager not supported", repositoryManager)))
 		}
 	}
 }

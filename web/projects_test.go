@@ -48,7 +48,7 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projects, err = assembleProjects("file://"+dir, "master")
+	_, err = assembleProjects("file://"+dir, "master")
 	os.RemoveAll(dir)
 
 	if err != nil {

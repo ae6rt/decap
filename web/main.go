@@ -45,6 +45,17 @@ func init() {
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 }
 
+func thingUpdater() {
+	var t map[string]Project
+	log.Print("thingUpdater: running")
+	for {
+		select {
+		case t = <-setThing:
+		case getThing <- t:
+		}
+	}
+}
+
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
 	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
@@ -68,14 +79,16 @@ func main() {
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, buildLauncher))
 	router.OPTIONS("/api/v1/*filepath", HandleOptions)
 
-	var err error
-	projects, err = assembleProjects(*buildScriptsRepo, *buildScriptsRepoBranch)
+	projects, err := assembleProjects(*buildScriptsRepo, *buildScriptsRepoBranch)
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
 	for _, v := range projects {
 		Log.Printf("Project: %+v\n", v)
 	}
+
+	go thingUpdater()
+	setThing <- projects
 
 	if !*noWebsocket {
 		go buildLauncher.Websock()

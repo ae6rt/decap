@@ -17,10 +17,12 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
+	go thingUpdater()
+	setThing <- map[string]Project{
 		"ae6rt/p1": Project{
-			Team:       "ae6rt",
-			Descriptor: ProjectDescriptor{RepoManager: "github"},
+			Team:        "ae6rt",
+			ProjectName: "p1",
+			Descriptor:  ProjectDescriptor{RepoManager: "github"},
 		},
 		"wn0owp/p2": Project{
 			Team: "wn0owp",
@@ -48,13 +50,16 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
+	go thingUpdater()
+	setThing <- map[string]Project{
 		"ae6rt/p1": Project{
-			Team:       "ae6rt",
-			Descriptor: ProjectDescriptor{RepoManager: "subversion"},
+			Team:        "ae6rt",
+			ProjectName: "p1",
+			Descriptor:  ProjectDescriptor{RepoManager: "subversion"},
 		},
 		"wn0owp/p2": Project{
-			Team: "wn0owp",
+			Team:        "wn0owp",
+			ProjectName: "p2",
 		},
 	}
 
@@ -79,13 +84,18 @@ func TestProjectRefsGithub(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projects = map[string]Project{
+	go thingUpdater()
+	setThing <- map[string]Project{
 		"ae6rt/p1": Project{
-			Team:       "ae6rt",
-			Descriptor: ProjectDescriptor{RepoManager: "github"},
+			Team:        "ae6rt",
+			ProjectName: "p1",
+			Descriptor: ProjectDescriptor{
+				RepoManager: "github",
+			},
 		},
 		"wn0owp/p2": Project{
-			Team: "wn0owp",
+			Team:        "wn0owp",
+			ProjectName: "p2",
 		},
 	}
 
