@@ -18,9 +18,6 @@ const buildScriptRegex = `build\.sh`
 const projectDescriptorRegex = `project\.json`
 const sideCarRegex = `^.+-sidecar\.json`
 
-//var projects map[string]Project
-//var projectMutex = &sync.Mutex{}
-
 var setThing = make(chan map[string]Project)
 var getThing = make(chan map[string]Project)
 
@@ -140,7 +137,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 		return nil
 	}
 
-	err := retry.New(5 * time.Second, 60, retry.DefaultBackoffFunc).Try(work)
+	err := retry.New(5*time.Second, 60, retry.DefaultBackoffFunc).Try(work)
 	if err != nil {
 		return nil, err
 	}
@@ -149,6 +146,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 
 func getProjects() map[string]Project {
 	p := <-getThing
+	fmt.Printf("@@@ getProjects getThing: %+v\n", p)
 	pm := make(map[string]Project, len(p))
 	for k, v := range p {
 		pm[k] = v
@@ -166,6 +164,7 @@ func projectByTeamName(team, project string) (Project, bool) {
 	key := projectKey(team, project)
 	fmt.Printf("@@ key: %s\n", key)
 	p, ok := projects[key]
+	fmt.Printf("@@@ low project, ok: %+v, %v\n", p, ok)
 	return p, ok
 }
 
@@ -178,7 +177,7 @@ func teamProject(file string) (string, string, error) {
 	if len(parts) < 3 {
 		return "", "", fmt.Errorf("Path does not contain minimum depth of 3: %s", file)
 	}
-	return parts[len(parts) - 3], parts[len(parts) - 2], nil
+	return parts[len(parts)-3], parts[len(parts)-2], nil
 }
 
 func indexFilesByTeamProject(files []string) map[string]string {

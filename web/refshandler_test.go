@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"fmt"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -17,8 +18,8 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	go thingUpdater()
-	setThing <- map[string]Project{
+	getThing = make(chan map[string]Project, 1)
+	getThing <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
@@ -28,15 +29,17 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 			Team: "wn0owp",
 		},
 	}
+	fmt.Println("@@@ here test A1")
 
-	githubClient := MockScmClient{}
-	scmClients := map[string]SCMClient{"github": &githubClient}
+	scmClients := map[string]SCMClient{"github": &MockScmClient{}}
+
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "nope"},
 		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
+	fmt.Println("@@@ here test A2")
 
 	if w.Code != 404 {
 		t.Fatalf("Want 404 but got %d\n", w.Code)
@@ -50,18 +53,21 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	go thingUpdater()
-	setThing <- map[string]Project{
+	getThing = make(chan map[string]Project, 1)
+	getThing <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
-			Descriptor:  ProjectDescriptor{RepoManager: "subversion"},
+			Descriptor: ProjectDescriptor{
+				RepoManager: "subversion",
+			},
 		},
 		"wn0owp/p2": Project{
 			Team:        "wn0owp",
 			ProjectName: "p2",
 		},
 	}
+	fmt.Println("@@@ here test B")
 
 	githubClient := MockScmClient{}
 	scmClients := map[string]SCMClient{"github": &githubClient}
@@ -84,8 +90,8 @@ func TestProjectRefsGithub(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	go thingUpdater()
-	setThing <- map[string]Project{
+	getThing = make(chan map[string]Project, 1)
+	getThing <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
@@ -98,6 +104,7 @@ func TestProjectRefsGithub(t *testing.T) {
 			ProjectName: "p2",
 		},
 	}
+	fmt.Println("@@@ here test C")
 
 	githubClient := MockScmClient{branches: []Ref{Ref{RefID: "refs/heads/master"}}}
 	scmClients := map[string]SCMClient{"github": &githubClient}

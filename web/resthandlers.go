@@ -261,7 +261,7 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 			return
 		default:
 			w.WriteHeader(400)
-			w.Write(simpleError(fmt.Errorf("repomanager not supported", repositoryManager)))
+			w.Write(simpleError(fmt.Errorf("repomanager not supported: %s", repositoryManager)))
 		}
 	}
 }

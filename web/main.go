@@ -45,8 +45,8 @@ func init() {
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 }
 
-func thingUpdater() {
-	var t map[string]Project
+func thingUpdater(initialValue map[string]Project) {
+	t := initialValue
 	log.Print("thingUpdater: running")
 	for {
 		select {
@@ -87,8 +87,7 @@ func main() {
 		Log.Printf("Project: %+v\n", v)
 	}
 
-	go thingUpdater()
-	setThing <- projects
+	go thingUpdater(projects)
 
 	if !*noWebsocket {
 		go buildLauncher.Websock()

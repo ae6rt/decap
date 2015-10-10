@@ -59,6 +59,8 @@ func TestHooksHandlerBuildScripts(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
+	setThing = make(chan map[string]Project, 1)
+
 	mockDecap := MockBuilder{}
 	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "repomanager", Value: "buildscripts"},
