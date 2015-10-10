@@ -145,7 +145,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 	return projects, nil
 }
 
-// I'd like to find a way to manage this with channels.
+// I'd like to find a way to manage this with channels.  See https://play.golang.org/p/MR2V8J5lyB
 func getProjects() map[string]Project {
 	p := make(map[string]Project, 0)
 	projectMutex.Lock()
@@ -156,14 +156,14 @@ func getProjects() map[string]Project {
 	return p
 }
 
-// I'd like to find a way to manage this with channels.
+// I'd like to find a way to manage this with channels.  https://play.golang.org/p/MR2V8J5lyB
 func setProjects(p map[string]Project) {
 	projectMutex.Lock()
 	projects = p
 	projectMutex.Unlock()
 }
 
-// I'd like to find a way to manage this with channels.
+// I'd like to find a way to manage this with channels.  https://play.golang.org/p/MR2V8J5lyB
 func projectByTeamName(team, project string) (Project, bool) {
 	pr := getProjects()
 	key := projectKey(team, project)
