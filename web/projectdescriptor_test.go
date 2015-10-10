@@ -9,11 +9,11 @@ func TestDescriptorRegex(t *testing.T) {
 
 	// regex matches all branches
 	descriptor, _ = descriptorForTeamProject([]byte(`{
-     "build-image": "ae6rt/java7:latest",
-     "managed-ref-regex": ".*",
-     "repo-manager": "github",
-     "repo-url": "https://github.com/ae6rt/hello-world-java.git",
-     "repo-description": "Hello world in Java"}`))
+     "buildImage": "ae6rt/java7:latest",
+     "managedRefRegex": ".*",
+     "repoManager": "github",
+     "repoUrl": "https://github.com/ae6rt/hello-world-java.git",
+     "repoDescription": "Hello world in Java"}`))
 
 	if !descriptor.isRefManaged("master") {
 		t.Fatalf("Want true")
@@ -21,10 +21,10 @@ func TestDescriptorRegex(t *testing.T) {
 
 	// no regex matches all branches
 	descriptor, _ = descriptorForTeamProject([]byte(`{
-     "build-image": "ae6rt/java7:latest",
-     "repo-manager": "github",
-     "repo-url": "https://github.com/ae6rt/hello-world-java.git",
-     "repo-description": "Hello world in Java"}`))
+     "buildImage": "ae6rt/java7:latest",
+     "repoManager": "github",
+     "repoUrl": "https://github.com/ae6rt/hello-world-java.git",
+     "repoDescription": "Hello world in Java"}`))
 
 	if !descriptor.isRefManaged("master") {
 		t.Fatalf("Want true")
@@ -32,11 +32,11 @@ func TestDescriptorRegex(t *testing.T) {
 
 	// match only issue/.*
 	descriptor, _ = descriptorForTeamProject([]byte(`{
-     "build-image": "ae6rt/java7:latest",
-     "repo-manager": "github",
-     "managed-ref-regex": "issue/.*",
-     "repo-url": "https://github.com/ae6rt/hello-world-java.git",
-     "repo-description": "Hello world in Java"}`))
+     "buildImage": "ae6rt/java7:latest",
+     "repoManager": "github",
+     "managedRefRegex": "issue/.*",
+     "repoUrl": "https://github.com/ae6rt/hello-world-java.git",
+     "repoDescription": "Hello world in Java"}`))
 
 	if descriptor.isRefManaged("master") {
 		t.Fatalf("Want false")
@@ -44,11 +44,11 @@ func TestDescriptorRegex(t *testing.T) {
 
 	// match only feature/.*
 	descriptor, _ = descriptorForTeamProject([]byte(`{
-     "build-image": "ae6rt/java7:latest",
-     "repo-manager": "github",
-     "managed-ref-regex": "feature/.*",
-     "repo-url": "https://github.com/ae6rt/hello-world-java.git",
-     "repo-description": "Hello world in Java"}`))
+     "buildImage": "ae6rt/java7:latest",
+     "repoManager": "github",
+     "managedRefRegex": "feature/.*",
+     "repoUrl": "https://github.com/ae6rt/hello-world-java.git",
+     "repoDescription": "Hello world in Java"}`))
 
 	if !descriptor.isRefManaged("feature/PLAT-99") {
 		t.Fatalf("Want true")

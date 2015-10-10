@@ -27,11 +27,11 @@ type Project struct {
 }
 
 type ProjectDescriptor struct {
-	Image              string `json:"build-image"`
-	RepoManager        string `json:"repo-manager"`
-	RepoURL            string `json:"repo-url"`
-	RepoDescription    string `json:"repo-description"`
-	ManagedRefRegexStr string `json:"managed-ref-regex"`
+	Image              string `json:"buildImage"`
+	RepoManager        string `json:"repoManager"`
+	RepoURL            string `json:"repoUrl"`
+	RepoDescription    string `json:"repoDescription"`
+	ManagedRefRegexStr string `json:"managedRefRegex"`
 	regex              *regexp.Regexp
 }
 
@@ -46,7 +46,7 @@ type Builds struct {
 
 type Build struct {
 	ID         string `json:"id"`
-	ProjectKey string `json:"project-key"`
+	ProjectKey string `json:"projectKey"`
 	Branch     string `json:"branch"`
 	Result     int    `json:"result"`
 	Duration   uint64 `json:"duration"`

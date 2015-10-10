@@ -164,7 +164,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 		case "buildscripts":
 			p, err := assembleAtoms(buildScriptsRepo, buildScriptsBranch)
 			if err != nil {
-				Log.Println(err)
+				Log.Printf("@@@: %v", err)
 				w.WriteHeader(500)
 				w.Write(simpleError(err))
 			} else {
