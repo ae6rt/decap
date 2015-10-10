@@ -16,14 +16,14 @@ func TestTeamsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	atoms = map[string]Atom{
-		"ae6rt/p1": Atom{
+	atoms = map[string]Project{
+		"ae6rt/p1": Project{
 			Team: "ae6rt",
 		},
-		"ae6rt/p2": Atom{
+		"ae6rt/p2": Project{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Atom{
+		"wn0owp/p2": Project{
 			Team: "wn0owp",
 		},
 	}

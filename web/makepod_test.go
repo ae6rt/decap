@@ -10,11 +10,11 @@ func TestMakePod(t *testing.T) {
 	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", NoOpLocker{}, "repo", "repobranch")
 	buildEvent := UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 
-	projectMap := map[string]Atom{
-		"ae6rt/somelib": Atom{
+	projectMap := map[string]Project{
+		"ae6rt/somelib": Project{
 			Team:       "ae6rt",
 			Project:    "somelib",
-			Descriptor: AtomDescriptor{Image: "magic-image"},
+			Descriptor: ProjectDescriptor{Image: "magic-image"},
 			Sidecars: []string{`
 {               
     "env": [                    

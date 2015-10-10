@@ -17,11 +17,11 @@ func TestProjectsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	atoms = map[string]Atom{
-		"ae6rt/p1": Atom{
+	atoms = map[string]Project{
+		"ae6rt/p1": Project{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Atom{
+		"wn0owp/p2": Project{
 			Team: "wn0owp",
 		},
 	}
@@ -29,7 +29,7 @@ func TestProjectsHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectsHandler(w, req, httprouter.Params{})
 
-	var proj Atoms
+	var proj Projects
 	err = json.Unmarshal(w.Body.Bytes(), &proj)
 	if err != nil {
 		t.Fatal(err)
@@ -51,11 +51,11 @@ func TestProjectsHandlerWithQuery(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	atoms = map[string]Atom{
-		"ae6rt/p1": Atom{
+	atoms = map[string]Project{
+		"ae6rt/p1": Project{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Atom{
+		"wn0owp/p2": Project{
 			Team: "wn0owp",
 		},
 	}
@@ -63,7 +63,7 @@ func TestProjectsHandlerWithQuery(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectsHandler(w, req, httprouter.Params{})
 
-	var proj Atoms
+	var proj Projects
 	err = json.Unmarshal(w.Body.Bytes(), &proj)
 	if err != nil {
 		t.Fatal(err)

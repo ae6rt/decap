@@ -6,11 +6,11 @@ func TestMakeSidecars(t *testing.T) {
 	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", NoOpLocker{}, "repo", "repobranch")
 	buildEvent := UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 
-	sidecars := k8s.makeSidecarContainers(buildEvent, map[string]Atom{
-		"ae6rt/somelib": Atom{
+	sidecars := k8s.makeSidecarContainers(buildEvent, map[string]Project{
+		"ae6rt/somelib": Project{
 			Team:       "ae6rt",
 			Project:    "somelib",
-			Descriptor: AtomDescriptor{Image: "magic-image"},
+			Descriptor: ProjectDescriptor{Image: "magic-image"},
 			Sidecars: []string{`
 {
     "env": [

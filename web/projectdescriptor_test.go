@@ -5,7 +5,7 @@ import (
 )
 
 func TestDescriptorRegex(t *testing.T) {
-	var descriptor AtomDescriptor
+	var descriptor ProjectDescriptor
 
 	// regex matches all branches
 	descriptor, _ = descriptorForTeamProject([]byte(`{

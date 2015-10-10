@@ -78,7 +78,7 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	team := r.URL.Query().Get("team")
-	arr := make([]Atom, 0)
+	arr := make([]Project, 0)
 	if team != "" {
 		for _, v := range getAtoms() {
 			if team == v.Team {
@@ -93,10 +93,10 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 
 	w.Header().Set("Content-type", "application/json")
 
-	p := Atoms{Atoms: arr}
+	p := Projects{Atoms: arr}
 	data, err := json.Marshal(&p)
 	if err != nil {
-		p := Atoms{Meta: Meta{Error: err.Error()}}
+		p := Projects{Meta: Meta{Error: err.Error()}}
 		data, _ := json.Marshal(&p)
 		w.WriteHeader(500)
 		w.Write(data)
@@ -379,7 +379,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			return
 		}
 
-		buildList, err := storageService.GetBuildsByAtom(Atom{Team: team, Project: project}, since, limit)
+		buildList, err := storageService.GetBuildsByAtom(Project{Team: team, Project: project}, since, limit)
 
 		if err != nil {
 			builds := Builds{Meta: Meta{Error: err.Error()}}

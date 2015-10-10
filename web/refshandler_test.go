@@ -17,12 +17,12 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	atoms = map[string]Atom{
-		"ae6rt/p1": Atom{
+	atoms = map[string]Project{
+		"ae6rt/p1": Project{
 			Team:       "ae6rt",
-			Descriptor: AtomDescriptor{RepoManager: "github"},
+			Descriptor: ProjectDescriptor{RepoManager: "github"},
 		},
-		"wn0owp/p2": Atom{
+		"wn0owp/p2": Project{
 			Team: "wn0owp",
 		},
 	}
@@ -48,12 +48,12 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	atoms = map[string]Atom{
-		"ae6rt/p1": Atom{
+	atoms = map[string]Project{
+		"ae6rt/p1": Project{
 			Team:       "ae6rt",
-			Descriptor: AtomDescriptor{RepoManager: "subversion"},
+			Descriptor: ProjectDescriptor{RepoManager: "subversion"},
 		},
-		"wn0owp/p2": Atom{
+		"wn0owp/p2": Project{
 			Team: "wn0owp",
 		},
 	}
@@ -79,12 +79,12 @@ func TestProjectRefsGithub(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	atoms = map[string]Atom{
-		"ae6rt/p1": Atom{
+	atoms = map[string]Project{
+		"ae6rt/p1": Project{
 			Team:       "ae6rt",
-			Descriptor: AtomDescriptor{RepoManager: "github"},
+			Descriptor: ProjectDescriptor{RepoManager: "github"},
 		},
-		"wn0owp/p2": Atom{
+		"wn0owp/p2": Project{
 			Team: "wn0owp",
 		},
 	}

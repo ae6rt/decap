@@ -19,7 +19,7 @@ const buildScriptRegex = `build\.sh`
 const projectDescriptorRegex = `project\.json`
 const sideCarRegex = `^.+-sidecar\.json`
 
-var atoms map[string]Atom
+var atoms map[string]Project
 var atomMutex = &sync.Mutex{}
 
 func filesByRegex(root, expression string) ([]string, error) {
@@ -68,8 +68,8 @@ func filesByRegex(root, expression string) ([]string, error) {
 	return files, nil
 }
 
-func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, error) {
-	atoms := make(map[string]Atom, 0)
+func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Project, error) {
+	atoms := make(map[string]Project, 0)
 	work := func() error {
 		Log.Printf("Clone build-scripts repository...\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
@@ -127,7 +127,7 @@ func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, erro
 			sidecars := readSidecars(sidecarMap[k])
 
 			parts := strings.Split(k, "/")
-			p := Atom{
+			p := Project{
 				Team:       parts[0],
 				Project:    parts[1],
 				Descriptor: descriptor,
@@ -146,8 +146,8 @@ func assembleAtoms(scriptsRepo, scriptsRepoBranch string) (map[string]Atom, erro
 }
 
 // I'd like to find a way to manage this with channels.
-func getAtoms() map[string]Atom {
-	p := make(map[string]Atom, 0)
+func getAtoms() map[string]Project {
+	p := make(map[string]Project, 0)
 	atomMutex.Lock()
 	for k, v := range atoms {
 		p[k] = v
@@ -157,14 +157,14 @@ func getAtoms() map[string]Atom {
 }
 
 // I'd like to find a way to manage this with channels.
-func setAtoms(p map[string]Atom) {
+func setAtoms(p map[string]Project) {
 	atomMutex.Lock()
 	atoms = p
 	atomMutex.Unlock()
 }
 
 // I'd like to find a way to manage this with channels.
-func atomByTeamProject(team, project string) (Atom, bool) {
+func atomByTeamProject(team, project string) (Project, bool) {
 	pr := getAtoms()
 	key := projectKey(team, project)
 	p, ok := pr[key]
@@ -229,10 +229,10 @@ func readSidecars(files []string) []string {
 	return arr
 }
 
-func descriptorForTeamProject(data []byte) (AtomDescriptor, error) {
-	var descriptor AtomDescriptor
+func descriptorForTeamProject(data []byte) (ProjectDescriptor, error) {
+	var descriptor ProjectDescriptor
 	if err := json.Unmarshal(data, &descriptor); err != nil {
-		return AtomDescriptor{}, err
+		return ProjectDescriptor{}, err
 	}
 
 	if descriptor.ManagedRefRegexStr != "" {

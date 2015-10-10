@@ -14,19 +14,19 @@ type Version struct {
 	SDK     string `json:"sdk"`
 }
 
-type Atoms struct {
+type Projects struct {
 	Meta
-	Atoms []Atom `json:"projects"`
+	Atoms []Project `json:"projects"`
 }
 
-type Atom struct {
-	Team       string         `json:"team"`
-	Project    string         `json:"project"`
-	Descriptor AtomDescriptor `json:"descriptor,omitempty"`
-	Sidecars   []string       `json:"sidecars,omitempty"`
+type Project struct {
+	Team       string            `json:"team"`
+	Project    string            `json:"project"`
+	Descriptor ProjectDescriptor `json:"descriptor,omitempty"`
+	Sidecars   []string          `json:"sidecars,omitempty"`
 }
 
-type AtomDescriptor struct {
+type ProjectDescriptor struct {
 	Image              string `json:"build-image"`
 	RepoManager        string `json:"repo-manager"`
 	RepoURL            string `json:"repo-url"`
@@ -35,7 +35,7 @@ type AtomDescriptor struct {
 	regex              *regexp.Regexp
 }
 
-func (d AtomDescriptor) isRefManaged(ref string) bool {
+func (d ProjectDescriptor) isRefManaged(ref string) bool {
 	return d.regex == nil || d.regex.MatchString(ref)
 }
 
