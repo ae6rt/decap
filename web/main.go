@@ -45,16 +45,6 @@ func init() {
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 }
 
-func writeCorsHeaders(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:9000")
-	w.Header().Set("Access-Control-Allow-Headers", "DECAP-APP-NAME, DECAP-API-TOKEN, Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
-}
-
-func handleOptions(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	writeCorsHeaders(w)
-}
-
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
 	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
@@ -76,7 +66,7 @@ func main() {
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
 	router.POST("/api/v1/shutdown/:state", ShutdownHandler)
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, buildLauncher))
-	router.OPTIONS("/api/v1/*filepath", handleOptions)
+	router.OPTIONS("/api/v1/*filepath", HandleOptions)
 
 	var err error
 	projects, err = assembleProjects(*buildScriptsRepo, *buildScriptsRepoBranch)
@@ -92,13 +82,6 @@ func main() {
 	}
 
 	go buildLauncher.LaunchDeferred()
-
-	corsWrapper := func(handler http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			writeCorsHeaders(w)
-			handler.ServeHTTP(w, r)
-		})
-	}
 
 	Log.Println("decap ready on port 9090...")
 	http.ListenAndServe(":9090", corsWrapper(router))
