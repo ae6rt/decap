@@ -6,8 +6,8 @@ var setShutdownChan = make(chan Shutdown)
 var getShutdownChan = make(chan Shutdown)
 
 const (
-	OPEN  Shutdown = "open"
-	CLOSE Shutdown = "close"
+	BUILD_QUEUE_OPEN  Shutdown = "open"
+	BUILD_QUEUE_CLOSE Shutdown = "close"
 )
 
 func shutdownMux(initialValue Shutdown) {

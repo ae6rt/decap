@@ -229,7 +229,7 @@ func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, 
 func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 
 	switch <-getShutdownChan {
-	case CLOSE:
+	case BUILD_QUEUE_CLOSE:
 		Log.Printf("Build queue closed: %+v\n", buildEvent)
 		return nil
 	}

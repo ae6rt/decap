@@ -406,13 +406,13 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 
 		shutdownState := Shutdown(state)
 		switch shutdownState {
-		case CLOSE:
-			if <-getShutdownChan == OPEN {
+		case BUILD_QUEUE_CLOSE:
+			if <-getShutdownChan == BUILD_QUEUE_OPEN {
 				Log.Printf("Shutdown state changed to %s\n", state)
 			}
 			setShutdownChan <- shutdownState
-		case OPEN:
-			if <-getShutdownChan == CLOSE {
+		case BUILD_QUEUE_OPEN:
+			if <-getShutdownChan == BUILD_QUEUE_CLOSE {
 				Log.Printf("Shutdown state changed to %s\n", state)
 			}
 			setShutdownChan <- shutdownState
