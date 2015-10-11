@@ -162,9 +162,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 
 		switch repoManager {
 		case "buildscripts":
-			p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch)
-			if err != nil {
-				Log.Printf("@@@: %v", err)
+			if p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch); err != nil {
 				w.WriteHeader(500)
 				w.Write(simpleError(err))
 			} else {

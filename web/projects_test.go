@@ -51,18 +51,18 @@ func TestProject(t *testing.T) {
 	projects, err := assembleProjects("file://"+dir, "master")
 	os.RemoveAll(dir)
 
-	getThing = make(chan map[string]Project, 2)
-
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	getThing <- projects
+	projectGetChan = make(chan map[string]Project, 1)
+	projectGetChan <- projects
 	if _, present := projectByTeamName("ae6rt", "dynamodb-lab"); !present {
 		t.Fatalf("Expecting to find ae6rt/dynamodb-lab project but did not\n")
 	}
 
-	getThing <- projects
+	projectGetChan = make(chan map[string]Project, 1)
+	projectGetChan <- projects
 	if _, present := projectByTeamName("nope", "nope"); present {
 		t.Fatalf("Not expecting to find nope/nope project but did \n")
 	}

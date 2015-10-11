@@ -45,17 +45,6 @@ func init() {
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 }
 
-func thingUpdater(initialValue map[string]Project) {
-	t := initialValue
-	log.Print("thingUpdater: running")
-	for {
-		select {
-		case t = <-setThing:
-		case getThing <- t:
-		}
-	}
-}
-
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
 	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
@@ -87,7 +76,7 @@ func main() {
 		Log.Printf("Project: %+v\n", v)
 	}
 
-	go thingUpdater(projects)
+	go projectMux(projects)
 
 	if !*noWebsocket {
 		go buildLauncher.Websock()

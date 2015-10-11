@@ -17,8 +17,8 @@ func TestProjectsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	getThing = make(chan map[string]Project, 1)
-	getThing <- map[string]Project{
+	projectGetChan = make(chan map[string]Project, 1)
+	projectGetChan <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team: "ae6rt",
 		},
@@ -52,8 +52,8 @@ func TestProjectsHandlerWithQuery(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	getThing = make(chan map[string]Project, 1)
-	getThing <- map[string]Project{
+	projectGetChan = make(chan map[string]Project, 1)
+	projectGetChan <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team: "ae6rt",
 		},

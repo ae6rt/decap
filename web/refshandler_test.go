@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -18,8 +17,8 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	getThing = make(chan map[string]Project, 1)
-	getThing <- map[string]Project{
+	projectGetChan = make(chan map[string]Project, 1)
+	projectGetChan <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
@@ -29,7 +28,6 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 			Team: "wn0owp",
 		},
 	}
-	fmt.Println("@@@ here test A1")
 
 	scmClients := map[string]SCMClient{"github": &MockScmClient{}}
 
@@ -39,7 +37,6 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 		httprouter.Param{Key: "project", Value: "p1"},
 	},
 	)
-	fmt.Println("@@@ here test A2")
 
 	if w.Code != 404 {
 		t.Fatalf("Want 404 but got %d\n", w.Code)
@@ -53,8 +50,8 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	getThing = make(chan map[string]Project, 1)
-	getThing <- map[string]Project{
+	projectGetChan = make(chan map[string]Project, 1)
+	projectGetChan <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
@@ -67,7 +64,6 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 			ProjectName: "p2",
 		},
 	}
-	fmt.Println("@@@ here test B")
 
 	githubClient := MockScmClient{}
 	scmClients := map[string]SCMClient{"github": &githubClient}
@@ -90,8 +86,8 @@ func TestProjectRefsGithub(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	getThing = make(chan map[string]Project, 1)
-	getThing <- map[string]Project{
+	projectGetChan = make(chan map[string]Project, 1)
+	projectGetChan <- map[string]Project{
 		"ae6rt/p1": Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
@@ -104,7 +100,6 @@ func TestProjectRefsGithub(t *testing.T) {
 			ProjectName: "p2",
 		},
 	}
-	fmt.Println("@@@ here test C")
 
 	githubClient := MockScmClient{branches: []Ref{Ref{RefID: "refs/heads/master"}}}
 	scmClients := map[string]SCMClient{"github": &githubClient}

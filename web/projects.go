@@ -12,14 +12,26 @@ import (
 
 	"github.com/ae6rt/gittools"
 	"github.com/ae6rt/retry"
+	"log"
 )
 
 const buildScriptRegex = `build\.sh`
 const projectDescriptorRegex = `project\.json`
 const sideCarRegex = `^.+-sidecar\.json`
 
-var setThing = make(chan map[string]Project)
-var getThing = make(chan map[string]Project)
+var projectSetChan = make(chan map[string]Project)
+var projectGetChan = make(chan map[string]Project)
+
+func projectMux(initialValue map[string]Project) {
+	t := initialValue
+	log.Print("Project channel mux running")
+	for {
+		select {
+		case t = <-projectSetChan:
+		case projectGetChan <- t:
+		}
+	}
+}
 
 func filesByRegex(root, expression string) ([]string, error) {
 	if !strings.HasPrefix(root, "/") {
@@ -145,8 +157,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 }
 
 func getProjects() map[string]Project {
-	p := <-getThing
-	fmt.Printf("@@@ getProjects getThing: %+v\n", p)
+	p := <-projectGetChan
 	pm := make(map[string]Project, len(p))
 	for k, v := range p {
 		pm[k] = v
@@ -155,16 +166,14 @@ func getProjects() map[string]Project {
 }
 
 func setProjects(p map[string]Project) {
-	setThing <- p
+	projectSetChan <- p
 }
 
 func projectByTeamName(team, project string) (Project, bool) {
 	projects := getProjects()
 	fmt.Printf("projects: %+v\n", projects)
 	key := projectKey(team, project)
-	fmt.Printf("@@ key: %s\n", key)
 	p, ok := projects[key]
-	fmt.Printf("@@@ low project, ok: %+v, %v\n", p, ok)
 	return p, ok
 }
 
