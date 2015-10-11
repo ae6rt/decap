@@ -418,9 +418,9 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 		w.WriteHeader(200)
 		return
 	case "GET":
-		fmt.Fprintf(w, "%s", <-getShutdownChan)
+		var data []byte
+		data, _ = json.Marshal(&ShutdownState{State: <-getShutdownChan})
+		w.Write(data)
 		return
-	default:
-		w.WriteHeader(400)
 	}
 }

@@ -71,3 +71,8 @@ type Ref struct {
 	RefID string `json:"ref"`
 	Type  string `json:"type"`
 }
+
+type ShutdownState struct {
+	Meta
+	State Shutdown `json:"state"`
+}
