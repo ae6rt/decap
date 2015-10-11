@@ -36,6 +36,10 @@ The _/hooks/buildscripts_ endpoint is a special endpoint that
 post-commit hooks on the build-scripts repository should hit.  It
 forces a reload of the managed Projects.
 
+### REST API
+
+Read more about the Decap [REST API](https://github.com/ae6rt/decap/wiki/API).
+
 ### More information
 
 See the [Developer Getting Started Guide for more information](https://github.com/ae6rt/decap/wiki/Developing)
