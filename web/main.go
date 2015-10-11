@@ -48,7 +48,7 @@ func init() {
 func main() {
 	locker := NewDefaultLock([]string{"http://localhost:2379"})
 	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
-	awsStorageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
+	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]SCMClient{
 		"github": NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
 	}
@@ -58,12 +58,12 @@ func main() {
 	router.GET("/api/v1/version", VersionHandler)
 	router.GET("/api/v1/projects", ProjectsHandler)
 	router.GET("/api/v1/projects/:team/:project/refs", ProjectRefsHandler(scmManagers))
-	router.GET("/api/v1/builds/:team/:project", BuildsHandler(awsStorageService))
+	router.GET("/api/v1/builds/:team/:project", BuildsHandler(storageService))
 	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildLauncher))
 	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildLauncher))
 	router.GET("/api/v1/teams", TeamsHandler)
-	router.GET("/api/v1/logs/:id", LogHandler(awsStorageService))
-	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(awsStorageService))
+	router.GET("/api/v1/logs/:id", LogHandler(storageService))
+	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(storageService))
 	router.GET("/api/v1/shutdown", ShutdownHandler)
 	router.POST("/api/v1/shutdown/:state", ShutdownHandler)
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, buildLauncher))
