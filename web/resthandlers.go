@@ -400,18 +400,27 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 }
 
 func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	state := params.ByName("state")
-	Log.Printf("Request change in Shutdown state: %s\n", state)
+	switch r.Method {
+	case "POST":
+		state := params.ByName("state")
+		Log.Printf("Request change in Shutdown state: %s\n", state)
 
-	shutdownState := Shutdown(state)
-	switch shutdownState {
-	case CLOSE:
-		setShutdownChan <- shutdownState
-	case OPEN:
-		setShutdownChan <- shutdownState
+		shutdownState := Shutdown(state)
+		switch shutdownState {
+		case CLOSE:
+			setShutdownChan <- shutdownState
+		case OPEN:
+			setShutdownChan <- shutdownState
+		default:
+			w.WriteHeader(400)
+			return
+		}
+		w.WriteHeader(200)
+		return
+	case "GET":
+		fmt.Fprintf(w, "%s", <-getShutdownChan)
+		return
 	default:
 		w.WriteHeader(400)
-		return
 	}
-	w.WriteHeader(200)
 }
