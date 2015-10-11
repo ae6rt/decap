@@ -23,7 +23,15 @@ HTTP endpoints for various source code management systems
         <td>Github</td>
         <td>/hooks/github</td>
     </tr>
+    <tr>
+        <td>buildscripts</td>
+        <td>/hooks/buildscripts</td>
+    </tr>
 </table>
+
+The _/hooks/buildscripts_ endpoint is a special endpoint that
+post-commit hooks on the build-scripts should hit.  It forces a
+reload of the managed Projects.
 
 ### More information
 
