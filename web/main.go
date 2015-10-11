@@ -72,9 +72,6 @@ func main() {
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
-	for _, v := range projects {
-		Log.Printf("Project: %+v\n", v)
-	}
 
 	go projectMux(projects)
 

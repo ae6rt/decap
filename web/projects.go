@@ -12,7 +12,6 @@ import (
 
 	"github.com/ae6rt/gittools"
 	"github.com/ae6rt/retry"
-	"log"
 )
 
 const buildScriptRegex = `build\.sh`
@@ -24,7 +23,7 @@ var projectGetChan = make(chan map[string]Project)
 
 func projectMux(initialValue map[string]Project) {
 	t := initialValue
-	log.Print("Project channel mux running")
+	Log.Print("Project channel mux running")
 	for {
 		select {
 		case t = <-projectSetChan:
