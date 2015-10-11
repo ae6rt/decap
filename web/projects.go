@@ -170,7 +170,6 @@ func setProjects(p map[string]Project) {
 
 func projectByTeamName(team, project string) (Project, bool) {
 	projects := getProjects()
-	fmt.Printf("projects: %+v\n", projects)
 	key := projectKey(team, project)
 	p, ok := projects[key]
 	return p, ok
