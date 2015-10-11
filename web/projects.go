@@ -148,7 +148,14 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 		return nil
 	}
 
-	err := retry.New(5*time.Second, 60, retry.DefaultBackoffFunc).Try(work)
+	err := retry.New(32*time.Second, 5, func(attempts uint) {
+		if attempts == 0 {
+			return
+		}
+		Log.Printf("Wait for clone-repository with-backoff try %d\n", attempts+1)
+		time.Sleep((1 << attempts) * time.Second)
+	}).Try(work)
+
 	if err != nil {
 		return nil, err
 	}
