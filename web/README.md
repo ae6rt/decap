@@ -24,10 +24,13 @@ HTTP endpoints for various source code management systems
         <td>/hooks/github</td>
     </tr>
     <tr>
-        <td>buildscripts</td>
+        <td>Build scripts repository reload</td>
         <td>/hooks/buildscripts</td>
     </tr>
 </table>
+
+Github post-commit hooks should be pointed at _/hooks/github_.
+Decap will parse the payload and launch a build accordingly.
 
 The _/hooks/buildscripts_ endpoint is a special endpoint that
 post-commit hooks on the build-scripts should hit.  It forces a
