@@ -248,13 +248,16 @@ ignored by Decap.  project.json has the following format
 
 ```
 {
-     "build-image": "ae6rt/decap-build-base:latest",
-     "repo-manager": "github",
-     "managed-ref-regex": "master|develop|issue/.*",
-     "repo-url": "https://github.com/ae6rt/dynamodb-lab.git",
-     "repo-description": "AWS DynamoDb lab"
+     "buildImage": "ae6rt/decap-build-base:latest",
+     "repoManager": "github",
+     "managedRefRegex": "master|develop|issue/.*",
+     "repoUrl": "https://github.com/ae6rt/dynamodb-lab.git",
+     "repoDescription": "AWS DynamoDb lab"
 }
 ```
+
+All project.json files must have a _buildImage_ field.  Without it,
+decap cannot pull the container image in which to execute the build.
 
 Knowing the repository manager and repository URL, Decap can query
 the repository manager for branches and tags on the project.  Knowing
@@ -262,11 +265,13 @@ the branches, the Decap web UI can offer to let the user build a
 particular branch on a project.  Github is currently the only
 supported repository manager.
 
-The project json descriptor contains an optional field _managed-ref-regex_.
+The project json descriptor contains an optional field _managedRefRegex_.
 If this field is present, only branches and tags that match the
 regex will be built as a result of post-commit hook handling of a
 project git-push.  If this field is omitted, all refs are eligible
 to be built in the event of a  post-commit push on the project.
+The managedRefRegex does not affect which branches can be built
+manually through the Decap web UI.
 
 ### Sidecar build containers
 
