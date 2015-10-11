@@ -25,6 +25,6 @@ HTTP endpoints for various source code management systems
     </tr>
 </table>
 
-### Manually Launching Builds
+### More information
 
-TBD
+See the [Developer Getting Started Guide for more information](https://github.com/ae6rt/decap/wiki/Developing)
