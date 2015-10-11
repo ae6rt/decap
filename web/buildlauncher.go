@@ -227,10 +227,15 @@ func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, 
 
 // Form the build pod and launch it in the cluster.
 func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
+
+	switch <-getShutdownChan {
+	case CLOSE:
+		Log.Printf("Build queue closed: %+v\n", buildEvent)
+		return nil
+	}
+
 	projectKey := buildEvent.Key()
-
 	projects := getProjects()
-
 	project := projects[projectKey]
 
 	for _, ref := range buildEvent.Refs() {

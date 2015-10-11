@@ -74,12 +74,11 @@ func main() {
 	}
 
 	go projectMux(projects)
-
+	go buildLauncher.LaunchDeferred()
+	go shutdownMux(OPEN)
 	if !*noWebsocket {
 		go buildLauncher.Websock()
 	}
-
-	go buildLauncher.LaunchDeferred()
 
 	Log.Println("decap ready on port 9090...")
 	http.ListenAndServe(":9090", corsWrapper(router))

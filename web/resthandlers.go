@@ -10,13 +10,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
-	"sync"
 
 	"github.com/julienschmidt/httprouter"
 )
-
-var shutdownMutex = &sync.Mutex{}
-var shutdown bool
 
 func toUint64(value string, dflt uint64) (uint64, error) {
 	if value == "" {
@@ -405,15 +401,17 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 
 func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	state := params.ByName("state")
-	switch state {
-	case "close":
-		shutdownMutex.Lock()
-		defer shutdownMutex.Unlock()
-		shutdown = true
-	case "open":
-		shutdownMutex.Lock()
-		defer shutdownMutex.Unlock()
-		shutdown = false
+	Log.Printf("Request change in Shutdown state: %s\n", state)
+
+	shutdownState := Shutdown(state)
+	switch shutdownState {
+	case CLOSE:
+		setShutdownChan <- shutdownState
+	case OPEN:
+		setShutdownChan <- shutdownState
+	default:
+		w.WriteHeader(400)
+		return
 	}
 	w.WriteHeader(200)
 }
