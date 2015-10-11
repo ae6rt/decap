@@ -403,16 +403,22 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 	switch r.Method {
 	case "POST":
 		state := params.ByName("state")
-		Log.Printf("Request change in Shutdown state: %s\n", state)
 
 		shutdownState := Shutdown(state)
 		switch shutdownState {
 		case CLOSE:
+			if <-getShutdownChan == OPEN {
+				Log.Printf("Shutdown state changed to %s\n", state)
+			}
 			setShutdownChan <- shutdownState
 		case OPEN:
+			if <-getShutdownChan == CLOSE {
+				Log.Printf("Shutdown state changed to %s\n", state)
+			}
 			setShutdownChan <- shutdownState
 		default:
 			w.WriteHeader(400)
+			w.Write(simpleError(fmt.Errorf("Unsupported shutdown state: %v", shutdownState)))
 			return
 		}
 		w.WriteHeader(200)
