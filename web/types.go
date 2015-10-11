@@ -2,38 +2,6 @@ package main
 
 import "net/http"
 
-type PodWatch struct {
-	Object Object `json:"object"`
-}
-
-type Object struct {
-	Meta   Metadata `json:"metadata"`
-	Status Status   `json:"status"`
-}
-
-type Metadata struct {
-	Name string `json:"name"`
-}
-
-type Status struct {
-	Statuses []XContainerStatus `json:"containerStatuses"`
-}
-
-type XContainerStatus struct {
-	Name  string `json:"name"`
-	Ready bool   `json:"ready"`
-	State State  `json:"state"`
-}
-
-type State struct {
-	Terminated Terminated `json:"terminated"`
-}
-
-type Terminated struct {
-	ContainerID string `json:"containerID"`
-	ExitCode    int    `json:"exitCode"`
-}
-
 // TODO distinguish between pushes and branch creation.  Github has a header value that allows these to be differentiated.
 // https://developer.github.com/webhooks/#delivery-headers
 // https://gist.githubusercontent.com/ae6rt/53a25e726ac00b4cb535/raw/e3f412f6e7f408a56d0d691a1ec8b7658a495124/gh-create.json

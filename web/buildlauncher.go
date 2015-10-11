@@ -336,6 +336,14 @@ func (builder DefaultBuilder) Websock() {
 
 	var conn *websocket.Conn
 
+	type PodWatch struct {
+		Object struct {
+			Meta       k8stypes.TypeMeta   `json:",inline"`
+			ObjectMeta k8stypes.ObjectMeta `json:"metadata,omitempty"`
+			Status     k8stypes.PodStatus  `json:"status"`
+		} `json:"object"`
+	}
+
 	work := func() error {
 		originURL, err := url.Parse(builder.MasterURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
 		if err != nil {
@@ -389,19 +397,19 @@ func (builder DefaultBuilder) Websock() {
 			continue
 		}
 		var deletePod bool
-		for _, status := range pod.Object.Status.Statuses {
+		for _, status := range pod.Object.Status.ContainerStatuses {
 			if status.Name == "build-server" && status.State.Terminated.ContainerID != "" {
 				deletePod = true
 				break
 			}
 		}
 		if deletePod {
-			_, err := builder.Locker.Lock("/pods/"+pod.Object.Meta.Name, "anyvalue")
+			_, err := builder.Locker.Lock("/pods/"+pod.Object.ObjectMeta.Name, "anyvalue")
 			if err == nil {
-				if err := builder.DeletePod(pod.Object.Meta.Name); err != nil {
+				if err := builder.DeletePod(pod.Object.ObjectMeta.Name); err != nil {
 					Log.Print(err)
 				} else {
-					Log.Printf("Pod deleted: %s\n", pod.Object.Meta.Name)
+					Log.Printf("Pod deleted: %s\n", pod.Object.ObjectMeta.Name)
 				}
 			}
 		}
