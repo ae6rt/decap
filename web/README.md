@@ -33,8 +33,8 @@ Github post-commit hooks should be pointed at _/hooks/github_.
 Decap will parse the payload and launch a build accordingly.
 
 The _/hooks/buildscripts_ endpoint is a special endpoint that
-post-commit hooks on the build-scripts should hit.  It forces a
-reload of the managed Projects.
+post-commit hooks on the build-scripts repository should hit.  It
+forces a reload of the managed Projects.
 
 ### More information
 
