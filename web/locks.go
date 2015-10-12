@@ -11,7 +11,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-type DefaultLock struct {
+type EtcdLocker struct {
 	Config etcd.Config
 }
 
@@ -24,7 +24,7 @@ type Locker interface {
 	Key(projectKey, branch string) string
 }
 
-func (d DefaultLock) Lock(key, value string) (*etcd.Response, error) {
+func (d EtcdLocker) Lock(key, value string) (*etcd.Response, error) {
 	c, err := etcd.New(d.Config)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (d DefaultLock) Lock(key, value string) (*etcd.Response, error) {
 	return etcd.NewKeysAPI(c).Set(context.Background(), "/buildlocks/"+key, value, &etcd.SetOptions{PrevExist: etcd.PrevNoExist})
 }
 
-func (d DefaultLock) Unlock(key, value string) (*etcd.Response, error) {
+func (d EtcdLocker) Unlock(key, value string) (*etcd.Response, error) {
 	c, err := etcd.New(d.Config)
 	if err != nil {
 		return nil, err
@@ -40,11 +40,11 @@ func (d DefaultLock) Unlock(key, value string) (*etcd.Response, error) {
 	return etcd.NewKeysAPI(c).Delete(context.Background(), "/buildlocks/"+key, &etcd.DeleteOptions{PrevValue: value})
 }
 
-func (d DefaultLock) Key(projectKey, branch string) string {
+func (d EtcdLocker) Key(projectKey, branch string) string {
 	return hex.EncodeToString([]byte(fmt.Sprintf("%s/%s", projectKey, branch)))
 }
 
-func (d DefaultLock) Defer(buildEvent []byte) (*etcd.Response, error) {
+func (d EtcdLocker) Defer(buildEvent []byte) (*etcd.Response, error) {
 	c, err := etcd.New(d.Config)
 	if err != nil {
 		return nil, err
@@ -54,11 +54,11 @@ func (d DefaultLock) Defer(buildEvent []byte) (*etcd.Response, error) {
 	return etcd.NewKeysAPI(c).CreateInOrder(context.Background(), "/deferred", string(buildEvent), nil)
 }
 
-func (d DefaultLock) ClearDeferred(deferredID string) (*etcd.Response, error) {
+func (d EtcdLocker) ClearDeferred(deferredID string) (*etcd.Response, error) {
 	return nil, nil
 }
 
-func (d DefaultLock) DeferredBuilds() ([]UserBuildEvent, error) {
+func (d EtcdLocker) DeferredBuilds() ([]UserBuildEvent, error) {
 	c, err := etcd.New(d.Config)
 	if err != nil {
 		return nil, err
@@ -82,8 +82,8 @@ func (d DefaultLock) DeferredBuilds() ([]UserBuildEvent, error) {
 	return events, nil
 }
 
-func NewDefaultLock(machines []string) DefaultLock {
-	return DefaultLock{Config: etcd.Config{
+func NewDefaultLock(machines []string) EtcdLocker {
+	return EtcdLocker{Config: etcd.Config{
 		Endpoints: machines,
 		Transport: etcd.DefaultTransport,
 		// set timeout per request to fail fast when the target endpoint is unavailable
