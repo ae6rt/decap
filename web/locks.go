@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	etcd "github.com/coreos/etcd/client"
@@ -47,6 +49,8 @@ func (d DefaultLock) Defer(buildEvent []byte) (*etcd.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// See Atomically Creating In-Order Keys at https://coreos.com/etcd/docs/0.4.7/etcd-api/
 	return etcd.NewKeysAPI(c).CreateInOrder(context.Background(), "/deferred", string(buildEvent), nil)
 }
 
@@ -55,7 +59,27 @@ func (d DefaultLock) ClearDeferred(deferredID string) (*etcd.Response, error) {
 }
 
 func (d DefaultLock) DeferredBuilds() ([]UserBuildEvent, error) {
-	return nil, nil
+	c, err := etcd.New(d.Config)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := etcd.NewKeysAPI(c).Get(context.Background(), "/deferred", &etcd.GetOptions{Recursive: true})
+	if err != nil {
+		return nil, err
+	}
+
+	// See Atomically Creating In-Order Keys at https://coreos.com/etcd/docs/0.4.7/etcd-api/
+	events := make([]UserBuildEvent, 0)
+	for _, v := range resp.Node.Nodes {
+		var o UserBuildEvent
+		err := json.Unmarshal([]byte(v.Value), &o)
+		if err != nil {
+			log.Printf("Error deserializing build event %s: %v\n", v.Key, err)
+			continue
+		}
+		events = append(events, o)
+	}
+	return events, nil
 }
 
 func NewDefaultLock(machines []string) DefaultLock {
