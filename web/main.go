@@ -46,7 +46,7 @@ func init() {
 }
 
 func main() {
-	locker := NewDefaultLock([]string{"http://localhost:2379"})
+	locker := NewEtcdLocker([]string{"http://localhost:2379"})
 	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]SCMClient{

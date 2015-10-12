@@ -82,7 +82,7 @@ func (d EtcdLocker) DeferredBuilds() ([]UserBuildEvent, error) {
 	return events, nil
 }
 
-func NewDefaultLock(machines []string) EtcdLocker {
+func NewEtcdLocker(machines []string) EtcdLocker {
 	return EtcdLocker{Config: etcd.Config{
 		Endpoints: machines,
 		Transport: etcd.DefaultTransport,
