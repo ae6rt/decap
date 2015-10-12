@@ -409,16 +409,14 @@ func (builder DefaultBuilder) Websock() {
 			}
 		}
 		if deletePod {
-			// for now just report on what we would have done vs doing it
-			if true {
-				Log.Printf("Would have deleted pod: %s\n", pod.Object.ObjectMeta.Name)
-				continue
-			}
-
-			// todo why are we doing this?
+			// Mark the pod as deleted in etcd so subsequent events don't drive a 2nd deletion attempt
 			_, err := builder.Locker.Lock("/pods/"+pod.Object.ObjectMeta.Name, "anyvalue")
 
 			if err == nil {
+				// for now just report on what we would have done vs doing it
+				Log.Printf("Would have deleted pod: %s\n", pod.Object.ObjectMeta.Name)
+				continue
+
 				if err := builder.DeletePod(pod.Object.ObjectMeta.Name); err != nil {
 					Log.Print(err)
 				} else {
