@@ -415,7 +415,9 @@ func (builder DefaultBuilder) Websock() {
 			if err == nil {
 				// for now just report on what we would have done vs doing it
 				Log.Printf("Would have deleted pod: %s\n", pod.Object.ObjectMeta.Name)
-				continue
+				if true {
+					continue
+				}
 
 				if err := builder.DeletePod(pod.Object.ObjectMeta.Name); err != nil {
 					Log.Print(err)
