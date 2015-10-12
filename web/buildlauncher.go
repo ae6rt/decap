@@ -409,7 +409,15 @@ func (builder DefaultBuilder) Websock() {
 			}
 		}
 		if deletePod {
+			// for now just report on what we would have done vs doing it
+			if true {
+				Log.Printf("Would have deleted pod: %s\n", pod.Object.ObjectMeta.Name)
+				continue
+			}
+
+			// todo why are we doing this?
 			_, err := builder.Locker.Lock("/pods/"+pod.Object.ObjectMeta.Name, "anyvalue")
+
 			if err == nil {
 				if err := builder.DeletePod(pod.Object.ObjectMeta.Name); err != nil {
 					Log.Print(err)

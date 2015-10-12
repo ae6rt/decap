@@ -65,8 +65,8 @@
           - 
             image: "ae6rt/decap:latest"
             name: "decap"
-            args: 
-              - "-no-websocket"
+            # args: 
+            # - "-no-websocket"
             volumeMounts:
               -
                 name: "decap-credentials"
