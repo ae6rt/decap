@@ -25,6 +25,10 @@ func (noop NoOpLocker) DeferredBuilds() ([]UserBuildEvent, error) {
 	return nil, nil
 }
 
+func (noop NoOpLocker) InitDeferred() error {
+	return nil
+}
+
 func (noop NoOpLocker) Key(projectKey, branch string) string {
 	return "opaquekey"
 }

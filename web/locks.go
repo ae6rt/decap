@@ -21,6 +21,7 @@ type Locker interface {
 	Defer(buildEvent []byte) (*etcd.Response, error)
 	ClearDeferred(deferredID string) (*etcd.Response, error)
 	DeferredBuilds() ([]UserBuildEvent, error)
+	InitDeferred() error
 	Key(projectKey, branch string) string
 }
 
@@ -82,7 +83,17 @@ func (d EtcdLocker) DeferredBuilds() ([]UserBuildEvent, error) {
 	return events, nil
 }
 
-func NewEtcdLocker(machines []string) EtcdLocker {
+// Create the deferred directory in etcd
+func (d EtcdLocker) InitDeferred() error {
+	c, err := etcd.New(d.Config)
+	if err != nil {
+		return err
+	}
+	_, err = etcd.NewKeysAPI(c).Set(context.Background(), "/deferred", "", &etcd.SetOptions{Dir: true})
+	return err
+}
+
+func NewEtcdLocker(machines []string) Locker {
 	return EtcdLocker{Config: etcd.Config{
 		Endpoints: machines,
 		Transport: etcd.DefaultTransport,
