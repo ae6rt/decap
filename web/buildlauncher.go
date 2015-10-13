@@ -186,7 +186,7 @@ func (builder DefaultBuilder) makeContainers(buildEvent BuildEvent, buildID, bra
 }
 
 // Attempt to lock a build.  If that fails, defer it.
-func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, key string) error {
+func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, key string) (bool, error) {
 	resp, err := builder.Locker.Lock(key, buildID)
 	if err != nil {
 		Log.Printf("%+v - Failed to acquire lock %s on build %s: %v\n", resp, key, buildID, err)
@@ -195,9 +195,9 @@ func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, k
 		} else {
 			Log.Printf("Deferred build: %+v\n", buildID)
 		}
-		return err
+		return false, err
 	}
-	return nil
+	return true, nil
 }
 
 // Attempt to create a build pod on the cluster.  If that fails, clear the lock and defer it.  If it succeeds, clear
@@ -251,10 +251,16 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 			continue
 		}
 
-		if err := builder.lockOrDefer(buildEvent, ref, buildID, key); err != nil {
+		locked, err := builder.lockOrDefer(buildEvent, ref, buildID, key)
+		if err != nil {
 			Log.Println(err)
 			continue
 		}
+
+		if !locked {
+			continue
+		}
+
 		Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
 
 		if err := builder.createOrDefer(podBytes, buildEvent, buildID, ref, key); err != nil {

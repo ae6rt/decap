@@ -84,7 +84,6 @@ func (d EtcdLocker) DeferredBuilds() ([]UserBuildEvent, error) {
 			continue
 		}
 		o.DeferralID_ = v.Key
-		Log.Printf("@@@ Deferred build: %+v\n", o)
 		events = append(events, o)
 	}
 	return events, nil
