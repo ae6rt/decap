@@ -6,8 +6,8 @@ var setLogLevelChan = make(chan LogLevel)
 var getLogLevelChan = make(chan LogLevel)
 
 const (
-	DEFAULT LogLevel = "default"
-	DEBUG   LogLevel = "debug"
+	LOG_DEFAULT LogLevel = "default"
+	LOG_DEBUG   LogLevel = "debug"
 )
 
 func logLevelMux(initialValue LogLevel) {

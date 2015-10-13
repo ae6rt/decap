@@ -433,13 +433,13 @@ func LogLevelHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 
 		logLevel := LogLevel(level)
 		switch logLevel {
-		case DEFAULT:
-			if <-getLogLevelChan == DEBUG {
+		case LOG_DEFAULT:
+			if <-getLogLevelChan == LOG_DEBUG {
 				Log.Printf("Log level changed to %s\n", level)
 			}
 			setLogLevelChan <- logLevel
-		case DEBUG:
-			if <-getLogLevelChan == DEFAULT {
+		case LOG_DEBUG:
+			if <-getLogLevelChan == LOG_DEFAULT {
 				Log.Printf("Shutdown state changed to %s\n", level)
 			}
 			setLogLevelChan <- logLevel

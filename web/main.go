@@ -77,7 +77,7 @@ func main() {
 
 	go buildLauncher.LaunchDeferred()
 	go projectMux(projects)
-	go logLevelMux(DEFAULT)
+	go logLevelMux(LOG_DEFAULT)
 	go shutdownMux(BUILD_QUEUE_OPEN)
 	if !*noWebsocket {
 		go buildLauncher.Websock()
