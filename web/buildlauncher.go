@@ -467,11 +467,10 @@ func (builder DefaultBuilder) LaunchDeferred() {
 			Log.Println(err)
 		} else {
 			for _, build := range builds {
-				Log.Printf("Would have launched deferred build: %+v\n", build)
-				if true {
-					// don't actually launch the build - for now just report it
-					continue
-				}
+				//				Log.Printf("Would have launched deferred build: %+v\n", build)
+				//				if true {
+				//					continue
+				//				}
 				builder.ClearDeferredBuild(build)
 				if err := builder.LaunchBuild(build); err != nil {
 					Log.Println(err)

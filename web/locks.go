@@ -60,7 +60,6 @@ func (d EtcdLocker) ClearDeferred(deferredID string) (*etcd.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	Log.Printf("@@@ clear deferred build: %s\n", deferredID)
 	return etcd.NewKeysAPI(c).Delete(context.Background(), deferredID, nil)
 }
 
