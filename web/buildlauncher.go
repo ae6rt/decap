@@ -202,7 +202,7 @@ func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, k
 
 // Attempt to create a build pod on the cluster.  If that fails, clear the lock and defer it.  If it succeeds, clear
 // any deferrals.
-func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, buildID, ref, key string) error {
+func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, buildID, ref, key string) (bool, error) {
 	if podError := builder.CreatePod(data); podError != nil {
 		Log.Println(podError)
 		if _, err := builder.Locker.Unlock(key, buildID); err != nil {
@@ -210,13 +210,13 @@ func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, 
 			if err = builder.DeferBuild(buildEvent, ref); err != nil {
 				Log.Printf("Failed deferring build %+v for ref %s after pod creation attempt: %+v\n", buildEvent, ref, err)
 			}
-			return err
+			return false, err
 		} else {
 			Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, key, podError)
 		}
-		return podError
+		return false, podError
 	}
-	return nil
+	return true, nil
 }
 
 // Form the build pod and launch it in the cluster.
@@ -263,9 +263,13 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 
 		Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
 
-		if err := builder.createOrDefer(podBytes, buildEvent, buildID, ref, key); err != nil {
+		created, err := builder.createOrDefer(podBytes, buildEvent, buildID, ref, key)
+		if err != nil {
 			Log.Println(err)
-		} else {
+			continue
+		}
+
+		if created {
 			Log.Printf("Created pod=%s\n", buildID)
 		}
 	}
