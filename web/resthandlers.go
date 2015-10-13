@@ -154,8 +154,6 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 			r.Body.Close()
 		}()
 
-		Log.Printf("%s hook received: %s\n", repoManager, data)
-
 		switch repoManager {
 		case "buildscripts":
 			if p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch); err != nil {

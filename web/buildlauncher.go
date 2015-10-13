@@ -187,9 +187,9 @@ func (builder DefaultBuilder) makeContainers(buildEvent BuildEvent, buildID, bra
 
 // Attempt to lock a build.  If that fails, defer it.
 func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, key string) (bool, error) {
-	resp, err := builder.Locker.Lock(key, buildID)
+	_, err := builder.Locker.Lock(key, buildID)
 	if err != nil {
-		Log.Printf("%+v - Failed to acquire lock %s on build %s: %v\n", resp, key, buildID, err)
+		Log.Printf("Failed to acquire lock %s on build %s (%+v): %v\n", key, buildID, buildEvent, err)
 		if err = builder.DeferBuild(buildEvent, ref); err != nil {
 			Log.Printf("Failed to defer build: %+v\n", buildID)
 		} else {
@@ -467,10 +467,6 @@ func (builder DefaultBuilder) LaunchDeferred() {
 			Log.Println(err)
 		} else {
 			for _, build := range builds {
-				//				Log.Printf("Would have launched deferred build: %+v\n", build)
-				//				if true {
-				//					continue
-				//				}
 				builder.ClearDeferredBuild(build)
 				if err := builder.LaunchBuild(build); err != nil {
 					Log.Println(err)
