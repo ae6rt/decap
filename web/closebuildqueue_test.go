@@ -8,17 +8,14 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func TestOpenBuildQueue(t *testing.T) {
+func TestShutdownBuildQueueOpen(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
-
-	w := httptest.NewRecorder()
 
 	getShutdownChan = make(chan Shutdown, 1)
 	setShutdownChan = make(chan Shutdown, 1)
+	getShutdownChan <- "any incumbent value will do to avoid blocking on the channel read"
 
-	// any incumbent value will do to avoid blocking on the channel read
-	getShutdownChan <- "anyvalue"
-
+	w := httptest.NewRecorder()
 	ShutdownHandler(w, req, []httprouter.Param{
 		httprouter.Param{Key: "state", Value: string(BUILD_QUEUE_OPEN)},
 	},
@@ -34,17 +31,14 @@ func TestOpenBuildQueue(t *testing.T) {
 	}
 }
 
-func TestCloseBuildQueue(t *testing.T) {
+func TestShutdownBuildQueueClose(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
-
-	w := httptest.NewRecorder()
 
 	getShutdownChan = make(chan Shutdown, 1)
 	setShutdownChan = make(chan Shutdown, 1)
+	getShutdownChan <- "any incumbent value will do to avoid blocking on the channel read"
 
-	// any incumbent value will do to avoid blocking on the channel read
-	getShutdownChan <- "anyvalue"
-
+	w := httptest.NewRecorder()
 	ShutdownHandler(w, req, []httprouter.Param{
 		httprouter.Param{Key: "state", Value: string(BUILD_QUEUE_CLOSE)},
 	},
@@ -60,17 +54,14 @@ func TestCloseBuildQueue(t *testing.T) {
 	}
 }
 
-func TestInvalidShutdownBuildQueue(t *testing.T) {
+func TestShutdownBuildQueueInvalid(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
-
-	w := httptest.NewRecorder()
 
 	getShutdownChan = make(chan Shutdown, 1)
 	setShutdownChan = make(chan Shutdown, 1)
+	getShutdownChan <- "any incumbent value will do to avoid blocking on the channel read"
 
-	// any incumbent value will do to avoid blocking on the channel read
-	getShutdownChan <- "anyvalue"
-
+	w := httptest.NewRecorder()
 	ShutdownHandler(w, req, []httprouter.Param{
 		httprouter.Param{Key: "state", Value: string("nope")},
 	},
