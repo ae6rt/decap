@@ -56,7 +56,12 @@ func (d EtcdLocker) Defer(buildEvent []byte) (*etcd.Response, error) {
 }
 
 func (d EtcdLocker) ClearDeferred(deferredID string) (*etcd.Response, error) {
-	return nil, nil
+	c, err := etcd.New(d.Config)
+	if err != nil {
+		return nil, err
+	}
+	Log.Printf("@@@ clear deferred build: %s\n", deferredID)
+	return etcd.NewKeysAPI(c).Delete(context.Background(), deferredID, nil)
 }
 
 func (d EtcdLocker) DeferredBuilds() ([]UserBuildEvent, error) {
@@ -64,7 +69,7 @@ func (d EtcdLocker) DeferredBuilds() ([]UserBuildEvent, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := etcd.NewKeysAPI(c).Get(context.Background(), "/deferred", &etcd.GetOptions{Recursive: true})
+	resp, err := etcd.NewKeysAPI(c).Get(context.Background(), "/deferred", &etcd.GetOptions{Recursive: true, Sort: true})
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +83,8 @@ func (d EtcdLocker) DeferredBuilds() ([]UserBuildEvent, error) {
 			log.Printf("Error deserializing build event %s: %v\n", v.Key, err)
 			continue
 		}
+		o.DeferralID_ = v.Key
+		Log.Printf("@@@ Deferred build: %+v\n", o)
 		events = append(events, o)
 	}
 	return events, nil
