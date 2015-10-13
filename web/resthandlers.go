@@ -419,13 +419,10 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 			w.Write(simpleError(fmt.Errorf("Unsupported shutdown state: %v", shutdownState)))
 			return
 		}
-		w.WriteHeader(200)
-		return
 	case "GET":
 		var data []byte
 		data, _ = json.Marshal(&ShutdownState{State: <-getShutdownChan})
 		w.Write(data)
-		return
 	}
 }
 
