@@ -397,7 +397,7 @@ func (builder DefaultBuilder) Websock() {
 		}
 		var deletePod bool
 		for _, status := range pod.Object.Status.ContainerStatuses {
-			if status.Name == "build-server" && status.State.Terminated.ContainerID != "" {
+			if status.Name == "build-server" && status.State.Terminated != nil && status.State.Terminated.ContainerID != "" {
 				deletePod = true
 				break
 			}
