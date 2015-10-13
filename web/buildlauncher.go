@@ -193,7 +193,9 @@ func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, k
 		if err = builder.DeferBuild(buildEvent, ref); err != nil {
 			Log.Printf("Failed to defer build: %+v\n", buildID)
 		} else {
-			Log.Printf("Deferred build: %+v\n", buildID)
+			if <-getLogLevelChan == DEBUG {
+				Log.Printf("Deferred build: %+v\n", buildID)
+			}
 		}
 		return false, err
 	}
@@ -234,7 +236,9 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 
 	for _, ref := range buildEvent.Refs() {
 		if !project.Descriptor.isRefManaged(ref) {
-			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", ref, projectKey)
+			if <-getLogLevelChan == DEBUG {
+				Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", ref, projectKey)
+			}
 			continue
 		}
 
@@ -261,7 +265,9 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 			continue
 		}
 
-		Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
+		if <-getLogLevelChan == DEBUG {
+			Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
+		}
 
 		created, err := builder.createOrDefer(podBytes, buildEvent, buildID, ref, key)
 		if err != nil {
@@ -472,7 +478,9 @@ func (builder DefaultBuilder) LaunchDeferred() {
 					Log.Println(err)
 					continue
 				}
-				Log.Printf("Launched deferred build: %+v\n", build)
+				if <-getLogLevelChan == DEBUG {
+					Log.Printf("Launched deferred build: %+v\n", build)
+				}
 			}
 		}
 	}

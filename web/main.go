@@ -66,6 +66,7 @@ func main() {
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(storageService))
 	router.GET("/api/v1/shutdown", ShutdownHandler)
 	router.POST("/api/v1/shutdown/:state", ShutdownHandler)
+	router.POST("/api/v1/loglevel/:level", LogLevelHandler)
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, buildLauncher))
 	router.OPTIONS("/api/v1/*filepath", HandleOptions)
 
@@ -74,8 +75,9 @@ func main() {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
 
-	go projectMux(projects)
 	go buildLauncher.LaunchDeferred()
+	go projectMux(projects)
+	go logLevelMux(DEFAULT)
 	go shutdownMux(BUILD_QUEUE_OPEN)
 	if !*noWebsocket {
 		go buildLauncher.Websock()

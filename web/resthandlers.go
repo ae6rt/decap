@@ -428,3 +428,30 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 		return
 	}
 }
+
+func LogLevelHandler(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	switch r.Method {
+	case "POST":
+		level := params.ByName("level")
+
+		logLevel := LogLevel(level)
+		switch logLevel {
+		case DEFAULT:
+			if <-getLogLevelChan == DEBUG {
+				Log.Printf("Log level changed to %s\n", level)
+			}
+			setLogLevelChan <- logLevel
+		case DEBUG:
+			if <-getLogLevelChan == DEFAULT {
+				Log.Printf("Shutdown state changed to %s\n", level)
+			}
+			setLogLevelChan <- logLevel
+		default:
+			w.WriteHeader(400)
+			w.Write(simpleError(fmt.Errorf("Unsupported log level: %v", logLevel)))
+			return
+		}
+		w.WriteHeader(200)
+		return
+	}
+}
