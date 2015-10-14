@@ -187,11 +187,10 @@ func (builder DefaultBuilder) makeContainers(buildEvent BuildEvent, buildID, bra
 
 // Attempt to lock a build.  If that fails, defer it.
 func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, key string) (bool, error) {
-	_, err := builder.Locker.Lock(key, buildID)
-	if err != nil {
+	if _, err := builder.Locker.Lock(key, buildID); err != nil {
 		Log.Printf("Failed to acquire lock %s on build %s (%+v): %v\n", key, buildID, buildEvent, err)
 		if err = builder.DeferBuild(buildEvent, ref); err != nil {
-			Log.Printf("Failed to defer build: %+v\n", buildID)
+			Log.Printf("Failed to defer build %s after failing to acquire a lock on it: %+v\n", buildID, err)
 		} else {
 			if <-getLogLevelChan == LOG_DEBUG {
 				Log.Printf("Deferred build: %+v\n", buildID)
@@ -206,11 +205,11 @@ func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, k
 // any deferrals.
 func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, buildID, ref, key string) (bool, error) {
 	if podError := builder.CreatePod(data); podError != nil {
-		Log.Println(podError)
+		Log.Printf("Failed creating pod: %v\n", podError)
 		if _, err := builder.Locker.Unlock(key, buildID); err != nil {
-			Log.Println(err)
+			Log.Printf("Failed unlocking build %s after pod creation failed: %v\n", buildID, err)
 			if err = builder.DeferBuild(buildEvent, ref); err != nil {
-				Log.Printf("Failed deferring build %+v for ref %s after pod creation attempt: %+v\n", buildEvent, ref, err)
+				Log.Printf("Failed deferring build %+v for ref %s after failed unlocking after pod creation attempt: %+v\n", buildEvent, ref, err)
 			}
 			return false, err
 		} else {
