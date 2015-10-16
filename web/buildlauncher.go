@@ -450,8 +450,21 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 	return err
 }
 
-func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []locks.Deferral {
-	return deferrals
+func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []UserBuildEvent {
+	squashed := make([]UserBuildEvent, 0)
+	for _, deferral := range deferrals {
+		var ube UserBuildEvent
+		if err := json.Unmarshal([]byte(deferral.Data), &ube); err != nil {
+			Log.Printf("Error deserializing build event %s: %v\n", deferral.Data, err)
+			continue
+		}
+		ube.Deferral.Key = deferral.Key
+		ube.Deferral.Index = deferral.Index
+
+		// filter here
+		squashed = append(squashed, ube)
+	}
+	return squashed
 }
 
 // LaunchDeferred is wrapped in a goroutine, and reads deferred builds from storage and attempts a relaunch of each.
@@ -460,20 +473,12 @@ func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 		if builds, err := builder.Locker.DeferredBuilds(); err != nil {
 			Log.Println(err)
 		} else {
-
 			latest := builder.SquashDeferred(builds)
-
 			for _, build := range latest {
-				var ube UserBuildEvent
-				if err := json.Unmarshal([]byte(build.Data), &ube); err != nil {
-					Log.Printf("Error deserializing build event: %v\n", err)
-					continue
-				}
-
-				if _, err := builder.Locker.ClearDeferred(ube.Deferral.Key); err != nil {
-					Log.Printf("Failed to clear deferred build, will not launch: %+v: %v\n", ube, err)
+				if _, err := builder.Locker.ClearDeferred(build.Deferral.Key); err != nil {
+					Log.Printf("Failed to clear deferred build, will not launch: %+v: %v\n", build, err)
 				} else {
-					if err := builder.LaunchBuild(ube); err != nil {
+					if err := builder.LaunchBuild(build); err != nil {
 						Log.Printf("Error launching deferred build: %+v\n", err)
 					} else if <-getLogLevelChan == LOG_DEBUG {
 						Log.Printf("Launched deferred build: %+v\n", build)
