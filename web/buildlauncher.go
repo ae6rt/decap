@@ -451,8 +451,7 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 }
 
 func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []locks.Deferral {
-	t := make([]locks.Deferral, 0)
-	return t
+	return deferrals
 }
 
 // LaunchDeferred is wrapped in a goroutine, and reads deferred builds from storage and attempts a relaunch of each.
