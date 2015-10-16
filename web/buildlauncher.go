@@ -450,7 +450,7 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 	return err
 }
 
-// run as a goroutine.  Read deferred builds from storage and attempts a relaunch
+// LaunchDeferred is wrapped in a goroutine, and reads deferred builds from storage and attempts a relaunch of each.
 func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 	for _ = range ticker {
 		if builds, err := builder.Locker.DeferredBuilds(); err != nil {
