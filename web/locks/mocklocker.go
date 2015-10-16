@@ -1,4 +1,4 @@
-package main
+package locks
 
 import etcd "github.com/coreos/etcd/client"
 

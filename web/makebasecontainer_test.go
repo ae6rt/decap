@@ -1,9 +1,13 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/ae6rt/decap/web/locks"
+)
 
 func TestMakeBaseContainer(t *testing.T) {
-	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", NoOpLocker{}, "repo", "repobranch")
+	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", locks.NoOpLocker{}, "repo", "repobranch")
 
 	buildEvent := UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 	baseContainer := k8s.makeBaseContainer(buildEvent, "uuid", "master", map[string]Project{
