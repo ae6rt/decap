@@ -15,7 +15,7 @@ const DEFERRED = "/deferred"
 type Locker interface {
 	Lock(key, value string) (*etcd.Response, error)
 	Unlock(key, value string) (*etcd.Response, error)
-	Defer(key string, buildEvent []byte) (*etcd.Response, error)
+	Defer(buildEvent []byte) (*etcd.Response, error)
 	ClearDeferred(deferredID string) (*etcd.Response, error)
 	DeferredBuilds() ([]Deferral, error)
 	InitDeferred() error
@@ -52,7 +52,7 @@ func (d EtcdLocker) Key(projectKey, branch string) string {
 	return hex.EncodeToString([]byte(fmt.Sprintf("%s/%s", projectKey, branch)))
 }
 
-func (d EtcdLocker) Defer(deferralID string, buildEvent []byte) (*etcd.Response, error) {
+func (d EtcdLocker) Defer(buildEvent []byte) (*etcd.Response, error) {
 	c, err := etcd.New(d.Config)
 	if err != nil {
 		return nil, err

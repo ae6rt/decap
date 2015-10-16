@@ -15,7 +15,6 @@ type BuildEvent interface {
 	Project() string
 	Key() string
 	Refs() []string
-	DeferralID() string
 }
 
 type DefaultBuilder struct {
@@ -55,10 +54,9 @@ type Builder interface {
 
 // UserBuildEvent captures a user-initiated build request.
 type UserBuildEvent struct {
-	Team_       string
-	Project_    string
-	Refs_       []string
-	DeferralID_ string // when this object is unmarshaled from storage, set this field
+	Team_    string
+	Project_ string
+	Refs_    []string
 	Deferral
 }
 

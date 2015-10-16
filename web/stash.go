@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -13,8 +11,6 @@ import (
 type StashEvent struct {
 	Repository StashRepository  `json:"repository"`
 	RefChanges []StashRefChange `json:"refChanges"`
-
-	BuildEvent
 }
 
 type StashRepository struct {
@@ -48,11 +44,6 @@ func (stash StashEvent) Refs() []string {
 		branches = append(branches, strings.ToLower(strings.Replace(v.RefID, "refs/heads/", "", -1)))
 	}
 	return branches
-}
-
-func (event StashEvent) DeferralID() string {
-	s := fmt.Sprintf("%s/%s", event.Key(), strings.Join(event.Refs(), "/"))
-	return hex.EncodeToString([]byte(s))
 }
 
 type StashHandler struct {
