@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"testing"
 )
@@ -31,11 +32,14 @@ func TestStashEvent(t *testing.T) {
 	if pushEvent.Key() != "project/somelib" {
 		t.Fatalf("Want project/somelib but got %s\n", pushEvent.Key())
 	}
-
 	branches := pushEvent.Refs()
 	if len(branches) != 1 {
 		t.Fatalf("Want 1 but got %d\n", len(branches))
 	}
+	if pushEvent.DeferralID() != hex.EncodeToString([]byte("project/somelib/master")) {
+		t.Fatalf("Want %s but got %s\n", hex.EncodeToString([]byte("project/somelib/master")), pushEvent.DeferralID())
+	}
+
 	if branches[0] != "master" {
 		t.Fatalf("Want master but got %s\n", branches[0])
 	}

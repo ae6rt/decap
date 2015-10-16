@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"encoding/hex"
+	"testing"
+)
 
 func TestUserEvent(t *testing.T) {
 	event := UserBuildEvent{Team_: "team", Project_: "lib", Refs_: []string{"master"}}
@@ -12,6 +15,10 @@ func TestUserEvent(t *testing.T) {
 	}
 	if event.Key() != "team/lib" {
 		t.Fatalf("Want team/lib but got %s\n", event.Key())
+	}
+
+	if event.DeferralID() != hex.EncodeToString([]byte("team/lib/master")) {
+		t.Fatalf("Want %s but got %s\n", hex.EncodeToString([]byte("team/lib/master")), event.DeferralID())
 	}
 
 	branches := event.Refs()

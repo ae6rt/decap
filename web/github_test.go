@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"testing"
 )
@@ -35,6 +36,9 @@ func TestGithubEvent(t *testing.T) {
 	}
 	if pushEvent.Project() != "dynamodb-lab" {
 		t.Fatalf("Want dynamodb-lab but got %s\n", pushEvent.Project())
+	}
+	if pushEvent.DeferralID() != hex.EncodeToString([]byte("ae6rt/dynamodb-lab/master")) {
+		t.Fatalf("Want %s but got %s\n", hex.EncodeToString([]byte("ae6rt/dynamodb-lab/master")), pushEvent.DeferralID())
 	}
 
 	branches := pushEvent.Refs()
