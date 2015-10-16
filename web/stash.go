@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -49,7 +51,8 @@ func (stash StashEvent) Refs() []string {
 }
 
 func (event StashEvent) DeferralID() string {
-	return ""
+	s := fmt.Sprintf("%s/%s", event.Key(), strings.Join(event.Refs(), "/"))
+	return hex.EncodeToString([]byte(s))
 }
 
 type StashHandler struct {

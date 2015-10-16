@@ -13,7 +13,7 @@ func (noop NoOpLocker) Unlock(key, value string) (*etcd.Response, error) {
 	return nil, nil
 }
 
-func (noop NoOpLocker) Defer(data []byte) (*etcd.Response, error) {
+func (noop NoOpLocker) Defer(key string, data []byte) (*etcd.Response, error) {
 	return nil, nil
 }
 

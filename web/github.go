@@ -1,6 +1,10 @@
 package main
 
-import "strings"
+import (
+	"encoding/hex"
+	"fmt"
+	"strings"
+)
 
 // Captures a github post commit hook payload
 type GithubEvent struct {
@@ -43,5 +47,6 @@ func (event GithubEvent) Refs() []string {
 }
 
 func (event GithubEvent) DeferralID() string {
-	return ""
+	s := fmt.Sprintf("%s/%s", event.Key(), strings.Join(event.Refs(), "/"))
+	return hex.EncodeToString([]byte(s))
 }

@@ -445,7 +445,7 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 		Refs_:    []string{branch},
 	}
 	data, _ := json.Marshal(&ube)
-	_, err := builder.Locker.Defer(data)
+	_, err := builder.Locker.Defer(ube.DeferralID(), data)
 	return err
 }
 

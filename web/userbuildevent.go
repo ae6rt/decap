@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"encoding/hex"
+	"fmt"
+	"strings"
+)
 
 func (e UserBuildEvent) Team() string {
 	return e.Team_
@@ -19,5 +23,6 @@ func (e UserBuildEvent) Refs() []string {
 }
 
 func (e UserBuildEvent) DeferralID() string {
-	return e.DeferralID_
+	s := fmt.Sprintf("%s/%s", e.Key(), strings.Join(e.Refs_, "/"))
+	return hex.EncodeToString([]byte(s))
 }
