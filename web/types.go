@@ -59,4 +59,10 @@ type UserBuildEvent struct {
 	Project_    string
 	Refs_       []string
 	DeferralID_ string // when this object is unmarshaled from storage, set this field
+	Deferral
+}
+
+type Deferral struct {
+	Key   string
+	Index uint64
 }

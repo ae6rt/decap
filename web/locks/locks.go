@@ -17,9 +17,15 @@ type Locker interface {
 	Unlock(key, value string) (*etcd.Response, error)
 	Defer(key string, buildEvent []byte) (*etcd.Response, error)
 	ClearDeferred(deferredID string) (*etcd.Response, error)
-	DeferredBuilds() ([]string, error)
+	DeferredBuilds() ([]Deferral, error)
 	InitDeferred() error
 	Key(projectKey, branch string) string
+}
+
+type Deferral struct {
+	Data  string
+	Key   string
+	Index uint64
 }
 
 type EtcdLocker struct {
@@ -51,7 +57,7 @@ func (d EtcdLocker) Defer(deferralID string, buildEvent []byte) (*etcd.Response,
 	if err != nil {
 		return nil, err
 	}
-	return etcd.NewKeysAPI(c).Set(context.Background(), DEFERRED+"/"+deferralID, string(buildEvent), nil)
+	return etcd.NewKeysAPI(c).CreateInOrder(context.Background(), DEFERRED, string(buildEvent), nil)
 }
 
 func (d EtcdLocker) ClearDeferred(deferralID string) (*etcd.Response, error) {
@@ -62,7 +68,7 @@ func (d EtcdLocker) ClearDeferred(deferralID string) (*etcd.Response, error) {
 	return etcd.NewKeysAPI(c).Delete(context.Background(), deferralID, nil)
 }
 
-func (d EtcdLocker) DeferredBuilds() ([]string, error) {
+func (d EtcdLocker) DeferredBuilds() ([]Deferral, error) {
 	c, err := etcd.New(d.Config)
 	if err != nil {
 		return nil, err
@@ -72,9 +78,10 @@ func (d EtcdLocker) DeferredBuilds() ([]string, error) {
 		return nil, err
 	}
 
-	events := make([]string, 0)
+	events := make([]Deferral, 0)
 	for _, v := range resp.Node.Nodes {
-		events = append(events, v.Value)
+		d := Deferral{Data: v.Value, Key: v.Key, Index: v.CreatedIndex}
+		events = append(events, d)
 	}
 	return events, nil
 }

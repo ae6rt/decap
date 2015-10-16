@@ -21,7 +21,7 @@ func (noop NoOpLocker) ClearDeferred(deferralID string) (*etcd.Response, error) 
 	return nil, nil
 }
 
-func (noop NoOpLocker) DeferredBuilds() ([]string, error) {
+func (noop NoOpLocker) DeferredBuilds() ([]Deferral, error) {
 	return nil, nil
 }
 
