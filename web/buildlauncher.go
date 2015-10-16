@@ -15,12 +15,13 @@ import (
 	"net/url"
 
 	"github.com/ae6rt/decap/web/k8stypes"
+	"github.com/ae6rt/decap/web/locks"
 	"github.com/ae6rt/retry"
 	"github.com/pborman/uuid"
 	"golang.org/x/net/websocket"
 )
 
-func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker Locker, buildScriptsRepo, buildScriptsRepoBranch string) DefaultBuilder {
+func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker locks.Locker, buildScriptsRepo, buildScriptsRepoBranch string) DefaultBuilder {
 
 	tlsConfig := tls.Config{}
 	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/ae6rt/decap/web/locks"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -46,7 +47,7 @@ func init() {
 }
 
 func main() {
-	locker := NewEtcdLocker([]string{"http://localhost:2379"})
+	locker := locks.NewEtcdLocker([]string{"http://localhost:2379"})
 	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]SCMClient{

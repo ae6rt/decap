@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/ae6rt/decap/web/locks"
+)
 
 // TODO distinguish between pushes and branch creation.  Github has a header value that allows these to be differentiated.
 // https://developer.github.com/webhooks/#delivery-headers
@@ -21,7 +25,7 @@ type DefaultBuilder struct {
 	AWSAccessKeyID  string
 	AWSAccessSecret string
 	AWSRegion       string
-	Locker          Locker
+	Locker          locks.Locker
 
 	apiToken  string
 	apiClient *http.Client
