@@ -2,9 +2,7 @@ package main
 
 import (
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	etcd "github.com/coreos/etcd/client"
@@ -19,7 +17,7 @@ type Locker interface {
 	Unlock(key, value string) (*etcd.Response, error)
 	Defer(key string, buildEvent []byte) (*etcd.Response, error)
 	ClearDeferred(deferredID string) (*etcd.Response, error)
-	DeferredBuilds() ([]UserBuildEvent, error)
+	DeferredBuilds() ([]string, error)
 	InitDeferred() error
 	Key(projectKey, branch string) string
 }
@@ -64,25 +62,19 @@ func (d EtcdLocker) ClearDeferred(deferralID string) (*etcd.Response, error) {
 	return etcd.NewKeysAPI(c).Delete(context.Background(), deferralID, nil)
 }
 
-func (d EtcdLocker) DeferredBuilds() ([]UserBuildEvent, error) {
+func (d EtcdLocker) DeferredBuilds() ([]string, error) {
 	c, err := etcd.New(d.Config)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := etcd.NewKeysAPI(c).Get(context.Background(), DEFERRED, &etcd.GetOptions{Recursive: true, Sort: true})
+	resp, err := etcd.NewKeysAPI(c).Get(context.Background(), DEFERRED, &etcd.GetOptions{Recursive: true})
 	if err != nil {
 		return nil, err
 	}
 
-	events := make([]UserBuildEvent, 0)
+	events := make([]string, 0)
 	for _, v := range resp.Node.Nodes {
-		var o UserBuildEvent
-		err := json.Unmarshal([]byte(v.Value), &o)
-		if err != nil {
-			log.Printf("Error deserializing build event %s: %v\n", v.Key, err)
-			continue
-		}
-		events = append(events, o)
+		events = append(events, v.Value)
 	}
 	return events, nil
 }

@@ -18,7 +18,3 @@ func (d *MockBuilder) DeletePod(podName string) error {
 func (d *MockBuilder) DeferBuild(event BuildEvent, branch string) error {
 	return nil
 }
-
-func (d *MockBuilder) ClearDeferredBuild(event BuildEvent) error {
-	return nil
-}
