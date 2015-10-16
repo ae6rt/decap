@@ -451,12 +451,8 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 }
 
 // run as a goroutine.  Read deferred builds from storage and attempts a relaunch
-func (builder DefaultBuilder) LaunchDeferred() {
-	if err := builder.Locker.InitDeferred(); err != nil {
-		Log.Printf("Cannot init deferred: %v.  Processing of deferred builds cannot proceed.\n", err)
-	}
-	c := time.Tick(1 * time.Minute)
-	for _ = range c {
+func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
+	for _ = range ticker {
 		if builds, err := builder.Locker.DeferredBuilds(); err != nil {
 			Log.Println(err)
 		} else {

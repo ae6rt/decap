@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/ae6rt/decap/web/locks"
 	"github.com/julienschmidt/httprouter"
@@ -76,7 +77,15 @@ func main() {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
 
-	go buildLauncher.LaunchDeferred()
+	// Wrap the deferred launcher like this so we can more easily test LaunchDeferred(c) method.
+	go func() {
+		if err := buildLauncher.Locker.InitDeferred(); err != nil {
+			Log.Printf("Cannot init deferred: %v.  Processing of deferred builds cannot proceed.\n", err)
+		} else {
+			c := time.Tick(1 * time.Minute)
+			buildLauncher.LaunchDeferred(c)
+		}
+	}()
 	go projectMux(projects)
 	go logLevelMux(LOG_DEFAULT)
 	go shutdownMux(BUILD_QUEUE_OPEN)
