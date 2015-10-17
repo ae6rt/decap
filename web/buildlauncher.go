@@ -464,11 +464,10 @@ func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []UserB
 			continue
 		}
 		ube.Deferral.Key = deferral.Key
-
 		events = append(events, ube)
 	}
 
-	// h{n} are hashes, c{n} are in-create-order indexes
+	// h{n} are hashes, c{n} are in-created-order indexes
 	// h1:c1
 	// h2:c2
 	// h1:c3  < remove

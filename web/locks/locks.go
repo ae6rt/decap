@@ -72,7 +72,7 @@ func (d EtcdLocker) DeferredBuilds() ([]Deferral, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := etcd.NewKeysAPI(c).Get(context.Background(), DEFERRED, &etcd.GetOptions{Recursive: true})
+	resp, err := etcd.NewKeysAPI(c).Get(context.Background(), DEFERRED, &etcd.GetOptions{Recursive: true, Sort: true})
 	if err != nil {
 		return nil, err
 	}

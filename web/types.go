@@ -55,8 +55,8 @@ type Builder interface {
 
 // UserBuildEvent captures a user-initiated build request.
 type UserBuildEvent struct {
-	Team_    string
-	Project_ string
-	Refs_    []string
+	Team_    string   `json:"team"`
+	Project_ string   `json:"project"`
+	Refs_    []string `json:"refs"`
 	locks.Deferral
 }
