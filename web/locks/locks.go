@@ -23,9 +23,8 @@ type Locker interface {
 }
 
 type Deferral struct {
-	Data  string
-	Key   string
-	Index uint64
+	Data string
+	Key  string
 }
 
 type EtcdLocker struct {
@@ -80,7 +79,7 @@ func (d EtcdLocker) DeferredBuilds() ([]Deferral, error) {
 
 	events := make([]Deferral, 0)
 	for _, v := range resp.Node.Nodes {
-		d := Deferral{Data: v.Value, Key: v.Key, Index: v.CreatedIndex}
+		d := Deferral{Data: v.Value, Key: v.Key}
 		events = append(events, d)
 	}
 	return events, nil

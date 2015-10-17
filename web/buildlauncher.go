@@ -451,6 +451,8 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 	return err
 }
 
+// SquashDeferred takes a in-created-order list of deferred builds and filters out duplicate
+// team + project + branch deferrals, returning the first in the list of each unique build event.
 func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []UserBuildEvent {
 	events := make([]UserBuildEvent, 0)
 
@@ -462,12 +464,11 @@ func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []UserB
 			continue
 		}
 		ube.Deferral.Key = deferral.Key
-		ube.Deferral.Index = deferral.Index
 
 		events = append(events, ube)
 	}
 
-	// h{n} are hashes, c{n} are create-order
+	// h{n} are hashes, c{n} are in-create-order indexes
 	// h1:c1
 	// h2:c2
 	// h1:c3  < remove
@@ -517,8 +518,8 @@ func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 		if builds, err := builder.Locker.DeferredBuilds(); err != nil {
 			Log.Println(err)
 		} else {
-			latest := builder.SquashDeferred(builds)
-			for _, build := range latest {
+			squashed := builder.SquashDeferred(builds)
+			for _, build := range squashed {
 				if _, err := builder.Locker.ClearDeferred(build.Deferral.Key); err != nil {
 					Log.Printf("Failed to clear deferred build, will not launch: %+v: %v\n", build, err)
 				} else {

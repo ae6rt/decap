@@ -58,10 +58,5 @@ type UserBuildEvent struct {
 	Team_    string
 	Project_ string
 	Refs_    []string
-	Deferral
-}
-
-type Deferral struct {
-	Key   string
-	Index uint64
+	locks.Deferral
 }
