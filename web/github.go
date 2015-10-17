@@ -1,6 +1,9 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // Captures a github post commit hook payload
 type GithubEvent struct {
@@ -40,4 +43,8 @@ func (event GithubEvent) Refs() []string {
 	default:
 		return []string{strings.ToLower(strings.Replace(event.Ref, "refs/heads/", "", -1))}
 	}
+}
+
+func (e GithubEvent) Hash() string {
+	return fmt.Sprintf("%s/%s", e.Key(), strings.Join(e.Refs(), "/"))
 }

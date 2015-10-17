@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"time"
 
 	"encoding/base64"
@@ -451,7 +452,9 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 }
 
 func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []UserBuildEvent {
-	squashed := make([]UserBuildEvent, 0)
+	events := make([]UserBuildEvent, 0)
+
+	// These deferrals are assumed sorted in create-order.
 	for _, deferral := range deferrals {
 		var ube UserBuildEvent
 		if err := json.Unmarshal([]byte(deferral.Data), &ube); err != nil {
@@ -461,8 +464,49 @@ func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []UserB
 		ube.Deferral.Key = deferral.Key
 		ube.Deferral.Index = deferral.Index
 
-		// filter here
-		squashed = append(squashed, ube)
+		events = append(events, ube)
+	}
+
+	// h{n} are hashes, c{n} are create-order
+	// h1:c1
+	// h2:c2
+	// h1:c3  < remove
+	// h2:c4  < remove
+	// h3:c5
+
+	// find hash sets: Hash() method == Key() + Join(refs)
+	// record first position of each hash
+	// sort all first-positions in ascending order and extract the event in-order at each slot
+
+	hashes := make(map[string]string)
+	for _, v := range events {
+		hashes[v.Hash()] = ""
+	}
+
+	positions := make(map[string]int)
+	// iterate over the hashes, recording the first occurrence of a hash in the time-ordered events
+	for k, _ := range hashes {
+		for i, j := range events {
+			if k == j.Hash() {
+				positions[k] = i
+				break
+			}
+		}
+	}
+
+	// extract the integer position values of the positions map and sort
+	slots := make([]int, len(positions))
+	i := 0
+	for _, v := range positions {
+		slots[i] = v
+		i += 1
+	}
+	sort.Ints(slots)
+
+	// extract from events the object at each slot
+	squashed := make([]UserBuildEvent, len(slots))
+	for i, j := range slots {
+		squashed[i] = events[j]
 	}
 	return squashed
 }

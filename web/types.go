@@ -15,6 +15,7 @@ type BuildEvent interface {
 	Project() string
 	Key() string
 	Refs() []string
+	Hash() string
 }
 
 type DefaultBuilder struct {

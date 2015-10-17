@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -44,6 +45,10 @@ func (stash StashEvent) Refs() []string {
 		branches = append(branches, strings.ToLower(strings.Replace(v.RefID, "refs/heads/", "", -1)))
 	}
 	return branches
+}
+
+func (e StashEvent) Hash() string {
+	return fmt.Sprintf("%s/%s", e.Key(), strings.Join(e.Refs(), "/"))
 }
 
 type StashHandler struct {

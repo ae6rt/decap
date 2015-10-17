@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func (e UserBuildEvent) Team() string {
 	return e.Team_
@@ -16,4 +19,8 @@ func (e UserBuildEvent) Key() string {
 
 func (e UserBuildEvent) Refs() []string {
 	return e.Refs_
+}
+
+func (e UserBuildEvent) Hash() string {
+	return fmt.Sprintf("%s/%s", e.Key(), strings.Join(e.Refs(), "/"))
 }
