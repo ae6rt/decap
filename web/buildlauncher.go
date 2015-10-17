@@ -454,37 +454,33 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 // SquashDeferred takes a in-created-order list of deferred builds and filters out duplicate
 // team + project + branch deferrals, returning the first in the list of each unique build event.
 func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []UserBuildEvent {
-	events := make([]UserBuildEvent, 0)
 
-	// These deferrals are assumed sorted in create-order.
-	for _, deferral := range deferrals {
+	events := make([]UserBuildEvent, len(deferrals))
+	for i, deferral := range deferrals {
 		var ube UserBuildEvent
 		if err := json.Unmarshal([]byte(deferral.Data), &ube); err != nil {
 			Log.Printf("Error deserializing build event %s: %v\n", deferral.Data, err)
 			continue
 		}
 		ube.Deferral.Key = deferral.Key
-		events = append(events, ube)
+		events[i] = ube
 	}
 
-	// h{n} are hashes, c{n} are in-created-order indexes
-	// h1:c1
-	// h2:c2
-	// h1:c3  < remove
-	// h2:c4  < remove
-	// h3:c5
+	// h{n} are hashes, c{n} are in-created-order keys
+	// h1:c1  < keep
+	// h2:c2  < keep
+	// h1:c3  < omit
+	// h2:c4  < omit
+	// h3:c5  < keep
 
-	// find hash sets: Hash() method == Key() + Join(refs)
-	// record first position of each hash
-	// sort all first-positions in ascending order and extract the event in-order at each slot
-
+	// find the event hashes
 	hashes := make(map[string]string)
 	for _, v := range events {
 		hashes[v.Hash()] = ""
 	}
 
+	// record the position of the first occurrence of a hash in the time-ordered events
 	positions := make(map[string]int)
-	// iterate over the hashes, recording the first occurrence of a hash in the time-ordered events
 	for k, _ := range hashes {
 		for i, j := range events {
 			if k == j.Hash() {
@@ -494,7 +490,7 @@ func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []UserB
 		}
 	}
 
-	// extract the integer position values of the positions map and sort
+	// extract the hash positions and sort ascending to preserve time ordering
 	slots := make([]int, len(positions))
 	i := 0
 	for _, v := range positions {
