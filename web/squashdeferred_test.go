@@ -44,28 +44,16 @@ func TestSquashDeferred(t *testing.T) {
 		t.Fatalf("Want 5 but got %d\n", len(squashed))
 	}
 
-	i := 0
-	if squashed[i].Deferral.Key != "/1" {
-		t.Fatalf("Want /1 but got %d\n", squashed[i].Deferral.Key)
+	expected := map[int]string{
+		0: "/1",
+		1: "/3",
+		2: "/4",
+		3: "/6",
+		4: "/7",
 	}
-
-	i += 1
-	if squashed[i].Deferral.Key != "/3" {
-		t.Fatalf("Want /3 but got %d\n", squashed[i].Deferral.Key)
-	}
-
-	i += 1
-	if squashed[i].Deferral.Key != "/4" {
-		t.Fatalf("Want /4 but got %d\n", squashed[i].Deferral.Key)
-	}
-
-	i += 1
-	if squashed[i].Deferral.Key != "/6" {
-		t.Fatalf("Want /6 but got %d\n", squashed[i].Deferral.Key)
-	}
-
-	i += 1
-	if squashed[i].Deferral.Key != "/7" {
-		t.Fatalf("Want /7 but got %d\n", squashed[i].Deferral.Key)
+	for k, v := range expected {
+		if squashed[k].Deferral.Key != v {
+			t.Fatalf("Want %s but got %s\n", v, squashed[k].Deferral.Key)
+		}
 	}
 }
