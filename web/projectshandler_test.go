@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -17,12 +18,12 @@ func TestProjectsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projectGetChan = make(chan map[string]Project, 1)
-	projectGetChan <- map[string]Project{
-		"ae6rt/p1": Project{
+	projectGetChan = make(chan map[string]v1.Project, 1)
+	projectGetChan <- map[string]v1.Project{
+		"ae6rt/p1": v1.Project{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": v1.Project{
 			Team: "wn0owp",
 		},
 	}
@@ -30,7 +31,7 @@ func TestProjectsHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectsHandler(w, req, httprouter.Params{})
 
-	var proj Projects
+	var proj v1.Projects
 	err = json.Unmarshal(w.Body.Bytes(), &proj)
 	if err != nil {
 		t.Fatal(err)
@@ -52,12 +53,12 @@ func TestProjectsHandlerWithQuery(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projectGetChan = make(chan map[string]Project, 1)
-	projectGetChan <- map[string]Project{
-		"ae6rt/p1": Project{
+	projectGetChan = make(chan map[string]v1.Project, 1)
+	projectGetChan <- map[string]v1.Project{
+		"ae6rt/p1": v1.Project{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": v1.Project{
 			Team: "wn0owp",
 		},
 	}
@@ -65,7 +66,7 @@ func TestProjectsHandlerWithQuery(t *testing.T) {
 	w := httptest.NewRecorder()
 	ProjectsHandler(w, req, httprouter.Params{})
 
-	var proj Projects
+	var proj v1.Projects
 	err = json.Unmarshal(w.Body.Bytes(), &proj)
 	if err != nil {
 		t.Fatal(err)

@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/locks"
 )
 
@@ -42,7 +43,7 @@ type RepoManagerCredential struct {
 }
 
 type StorageService interface {
-	GetBuildsByProject(project Project, sinceUnixTime uint64, limit uint64) ([]Build, error)
+	GetBuildsByProject(project v1.Project, sinceUnixTime uint64, limit uint64) ([]v1.Build, error)
 	GetArtifacts(buildID string) ([]byte, error)
 	GetConsoleLog(buildID string) ([]byte, error)
 }

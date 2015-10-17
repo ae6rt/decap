@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/retry"
 )
 
@@ -49,14 +50,14 @@ type StashBranch struct {
 }
 
 type SCMClient interface {
-	GetRefs(team, repository string) ([]Ref, error)
+	GetRefs(team, repository string) ([]v1.Ref, error)
 }
 
 func NewGithubClient(baseURL, clientID, clientSecret string) SCMClient {
 	return GithubClient{SCMCoordinates{BaseURL: baseURL, Username: clientID, Password: clientSecret, httpClient: &http.Client{}}}
 }
 
-func (gh GithubClient) GetRefs(owner, repository string) ([]Ref, error) {
+func (gh GithubClient) GetRefs(owner, repository string) ([]v1.Ref, error) {
 
 	refs := make([]GithubRef, 0)
 	var data []byte
@@ -106,7 +107,7 @@ func (gh GithubClient) GetRefs(owner, repository string) ([]Ref, error) {
 		morePages = url != ""
 	}
 
-	genericRefs := make([]Ref, len(refs))
+	genericRefs := make([]v1.Ref, len(refs))
 	for i, v := range refs {
 		var refType string
 		switch v.Object.Type {
@@ -117,7 +118,7 @@ func (gh GithubClient) GetRefs(owner, repository string) ([]Ref, error) {
 		default:
 			refType = "__unsupported"
 		}
-		b := Ref{RefID: v.Ref, Type: refType}
+		b := v1.Ref{RefID: v.Ref, Type: refType}
 		genericRefs[i] = b
 	}
 

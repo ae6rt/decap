@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/retry"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -22,7 +23,7 @@ func NewAWSStorageService(key, secret, region string) StorageService {
 	return AWSStorageService{aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(key, secret, "")).WithRegion(region).WithMaxRetries(3)}
 }
 
-func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, limit uint64) ([]Build, error) {
+func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, limit uint64) ([]v1.Build, error) {
 
 	var resp *dynamodb.QueryOutput
 
@@ -69,7 +70,7 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 		return nil, err
 	}
 
-	builds := make([]Build, 0)
+	builds := make([]v1.Build, 0)
 	for _, v := range resp.Items {
 		buildDuration, err := strconv.ParseUint(*v["build-duration"].N, 10, 64)
 		if err != nil {
@@ -84,7 +85,7 @@ func (c AWSStorageService) GetBuildsByProject(project Project, since uint64, lim
 			Log.Printf("Error converting build-start-time to ordinal value: %v\n", err)
 		}
 
-		build := Build{
+		build := v1.Build{
 			ID:         *v["build-id"].S,
 			ProjectKey: *v["project-key"].S,
 			Branch:     *v["branch"].S,

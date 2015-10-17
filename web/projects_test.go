@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/ziptools"
 )
 
@@ -55,13 +56,13 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projectGetChan = make(chan map[string]Project, 1)
+	projectGetChan = make(chan map[string]v1.Project, 1)
 	projectGetChan <- projects
 	if _, present := projectByTeamName("ae6rt", "dynamodb-lab"); !present {
 		t.Fatalf("Expecting to find ae6rt/dynamodb-lab project but did not\n")
 	}
 
-	projectGetChan = make(chan map[string]Project, 1)
+	projectGetChan = make(chan map[string]v1.Project, 1)
 	projectGetChan <- projects
 	if _, present := projectByTeamName("nope", "nope"); present {
 		t.Fatalf("Not expecting to find nope/nope project but did \n")

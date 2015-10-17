@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -17,14 +18,14 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projectGetChan = make(chan map[string]Project, 1)
-	projectGetChan <- map[string]Project{
-		"ae6rt/p1": Project{
+	projectGetChan = make(chan map[string]v1.Project, 1)
+	projectGetChan <- map[string]v1.Project{
+		"ae6rt/p1": v1.Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
-			Descriptor:  ProjectDescriptor{RepoManager: "github"},
+			Descriptor:  v1.ProjectDescriptor{RepoManager: "github"},
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": v1.Project{
 			Team: "wn0owp",
 		},
 	}
@@ -50,16 +51,16 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projectGetChan = make(chan map[string]Project, 1)
-	projectGetChan <- map[string]Project{
-		"ae6rt/p1": Project{
+	projectGetChan = make(chan map[string]v1.Project, 1)
+	projectGetChan <- map[string]v1.Project{
+		"ae6rt/p1": v1.Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
-			Descriptor: ProjectDescriptor{
+			Descriptor: v1.ProjectDescriptor{
 				RepoManager: "subversion",
 			},
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": v1.Project{
 			Team:        "wn0owp",
 			ProjectName: "p2",
 		},
@@ -86,22 +87,22 @@ func TestProjectRefsGithub(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projectGetChan = make(chan map[string]Project, 1)
-	projectGetChan <- map[string]Project{
-		"ae6rt/p1": Project{
+	projectGetChan = make(chan map[string]v1.Project, 1)
+	projectGetChan <- map[string]v1.Project{
+		"ae6rt/p1": v1.Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
-			Descriptor: ProjectDescriptor{
+			Descriptor: v1.ProjectDescriptor{
 				RepoManager: "github",
 			},
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": v1.Project{
 			Team:        "wn0owp",
 			ProjectName: "p2",
 		},
 	}
 
-	githubClient := MockScmClient{branches: []Ref{Ref{RefID: "refs/heads/master"}}}
+	githubClient := MockScmClient{branches: []v1.Ref{v1.Ref{RefID: "refs/heads/master"}}}
 	scmClients := map[string]SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
@@ -116,7 +117,7 @@ func TestProjectRefsGithub(t *testing.T) {
 
 	data := w.Body.Bytes()
 
-	var b Refs
+	var b v1.Refs
 	json.Unmarshal(data, &b)
 	if len(b.Refs) != 1 {
 		t.Fatalf("Want 1 but got %d\n", len(b.Refs))

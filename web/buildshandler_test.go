@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -27,7 +28,7 @@ func TestBuildsHandlerSinceNotUnsigned(t *testing.T) {
 	},
 	)
 
-	var b Builds
+	var b v1.Builds
 	err = json.Unmarshal(w.Body.Bytes(), &b)
 	if err != nil {
 		t.Fatal(err)
@@ -54,7 +55,7 @@ func TestBuildsHandlerLimitNotUnsigned(t *testing.T) {
 	},
 	)
 
-	var b Builds
+	var b v1.Builds
 	err = json.Unmarshal(w.Body.Bytes(), &b)
 	if err != nil {
 		t.Fatal(err)
@@ -81,7 +82,7 @@ func TestBuildsHandlerWithStorageServiceError(t *testing.T) {
 	},
 	)
 
-	var b Builds
+	var b v1.Builds
 	err = json.Unmarshal(w.Body.Bytes(), &b)
 	if err != nil {
 		t.Fatal(err)
@@ -112,7 +113,7 @@ func TestBuildsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	storageService := MockStorageService{builds: []Build{Build{ID: "the-id"}}}
+	storageService := MockStorageService{builds: []v1.Build{v1.Build{ID: "the-id"}}}
 	w := httptest.NewRecorder()
 	BuildsHandler(&storageService)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
@@ -120,7 +121,7 @@ func TestBuildsHandler(t *testing.T) {
 	},
 	)
 
-	var b Builds
+	var b v1.Builds
 	err = json.Unmarshal(w.Body.Bytes(), &b)
 	if err != nil {
 		t.Fatal(err)

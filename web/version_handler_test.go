@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -24,7 +25,7 @@ func TestVersionHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	VersionHandler(w, req, httprouter.Params{})
 
-	var version Version
+	var version v1.Version
 	err = json.Unmarshal(w.Body.Bytes(), &version)
 	if err != nil {
 		t.Fatal(err)

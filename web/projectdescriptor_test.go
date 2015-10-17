@@ -2,10 +2,12 @@ package main
 
 import (
 	"testing"
+
+	"github.com/ae6rt/decap/web/api/v1"
 )
 
 func TestDescriptorRegex(t *testing.T) {
-	var descriptor ProjectDescriptor
+	var descriptor v1.ProjectDescriptor
 
 	// regex matches all branches
 	descriptor, _ = descriptorForTeamProject([]byte(`{
@@ -15,7 +17,7 @@ func TestDescriptorRegex(t *testing.T) {
      "repoUrl": "https://github.com/ae6rt/hello-world-java.git",
      "repoDescription": "Hello world in Java"}`))
 
-	if !descriptor.isRefManaged("master") {
+	if !descriptor.IsRefManaged("master") {
 		t.Fatalf("Want true")
 	}
 
@@ -26,7 +28,7 @@ func TestDescriptorRegex(t *testing.T) {
      "repoUrl": "https://github.com/ae6rt/hello-world-java.git",
      "repoDescription": "Hello world in Java"}`))
 
-	if !descriptor.isRefManaged("master") {
+	if !descriptor.IsRefManaged("master") {
 		t.Fatalf("Want true")
 	}
 
@@ -38,7 +40,7 @@ func TestDescriptorRegex(t *testing.T) {
      "repoUrl": "https://github.com/ae6rt/hello-world-java.git",
      "repoDescription": "Hello world in Java"}`))
 
-	if descriptor.isRefManaged("master") {
+	if descriptor.IsRefManaged("master") {
 		t.Fatalf("Want false")
 	}
 
@@ -50,7 +52,7 @@ func TestDescriptorRegex(t *testing.T) {
      "repoUrl": "https://github.com/ae6rt/hello-world-java.git",
      "repoDescription": "Hello world in Java"}`))
 
-	if !descriptor.isRefManaged("feature/PLAT-99") {
+	if !descriptor.IsRefManaged("feature/PLAT-99") {
 		t.Fatalf("Want true")
 	}
 }

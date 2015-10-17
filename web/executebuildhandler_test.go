@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -16,12 +17,12 @@ func TestExecuteBuild(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projectGetChan = make(chan map[string]Project, 1)
-	projectGetChan <- map[string]Project{
-		"ae6rt/p1": Project{
+	projectGetChan = make(chan map[string]v1.Project, 1)
+	projectGetChan <- map[string]v1.Project{
+		"ae6rt/p1": v1.Project{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": v1.Project{
 			Team: "wn0owp",
 		},
 	}
@@ -54,12 +55,12 @@ func TestExecuteBuildNoBranches(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projectGetChan = make(chan map[string]Project, 1)
-	projectGetChan <- map[string]Project{
-		"ae6rt/p1": Project{
+	projectGetChan = make(chan map[string]v1.Project, 1)
+	projectGetChan <- map[string]v1.Project{
+		"ae6rt/p1": v1.Project{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": v1.Project{
 			Team: "wn0owp",
 		},
 	}
@@ -85,12 +86,12 @@ func TestExecuteBuildNoSuchProject(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	projectGetChan = make(chan map[string]Project, 1)
-	projectGetChan <- map[string]Project{
-		"ae6rt/p1": Project{
+	projectGetChan = make(chan map[string]v1.Project, 1)
+	projectGetChan <- map[string]v1.Project{
+		"ae6rt/p1": v1.Project{
 			Team: "ae6rt",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": v1.Project{
 			Team: "wn0owp",
 		},
 	}

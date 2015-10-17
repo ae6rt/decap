@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/ziptools"
 	"github.com/julienschmidt/httprouter"
 )
@@ -59,7 +60,7 @@ func TestHooksHandlerBuildScripts(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	projectSetChan = make(chan map[string]Project, 1)
+	projectSetChan = make(chan map[string]v1.Project, 1)
 
 	mockDecap := MockBuilder{}
 	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{

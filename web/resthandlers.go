@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -26,7 +27,7 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 }
 
 func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	version := Version{
+	version := v1.Version{
 		Version: buildVersion,
 		Commit:  buildCommit,
 		Date:    buildDate,
@@ -36,7 +37,7 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 
 	data, err := json.Marshal(&version)
 	if err != nil {
-		version = Version{Meta: Meta{Error: err.Error()}}
+		version = v1.Version{Meta: v1.Meta{Error: err.Error()}}
 		data, _ := json.Marshal(&version)
 		w.WriteHeader(500)
 		w.Write(data)
@@ -53,17 +54,17 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		keys[v.Team] = ""
 	}
 
-	a := make([]Team, 0)
+	a := make([]v1.Team, 0)
 	for k, _ := range keys {
-		a = append(a, Team{Name: k})
+		a = append(a, v1.Team{Name: k})
 	}
 
 	w.Header().Set("Content-type", "application/json")
 
-	teams := Teams{Teams: a}
+	teams := v1.Teams{Teams: a}
 	data, err := json.Marshal(&teams)
 	if err != nil {
-		teams := Teams{Meta: Meta{Error: err.Error()}}
+		teams := v1.Teams{Meta: v1.Meta{Error: err.Error()}}
 		data, _ := json.Marshal(&teams)
 		w.WriteHeader(500)
 		w.Write(data)
@@ -74,7 +75,7 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	team := r.URL.Query().Get("team")
-	arr := make([]Project, 0)
+	arr := make([]v1.Project, 0)
 	if team != "" {
 		for _, v := range getProjects() {
 			if team == v.Team {
@@ -89,10 +90,10 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 
 	w.Header().Set("Content-type", "application/json")
 
-	p := Projects{Projects: arr}
+	p := v1.Projects{Projects: arr}
 	data, err := json.Marshal(&p)
 	if err != nil {
-		p := Projects{Meta: Meta{Error: err.Error()}}
+		p := v1.Projects{Meta: v1.Meta{Error: err.Error()}}
 		data, _ := json.Marshal(&p)
 		w.WriteHeader(500)
 		w.Write(data)
@@ -127,7 +128,7 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 }
 
 func simpleError(err error) []byte {
-	m := Meta{Error: err.Error()}
+	m := v1.Meta{Error: err.Error()}
 	data, _ := json.Marshal(&m)
 	return data
 }
@@ -233,17 +234,17 @@ func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
 			nativeBranches, err := repoClient.GetRefs(project.Team, project.ProjectName)
 			if err != nil {
 				Log.Print(err)
-				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})
+				data, _ := json.Marshal(&v1.Refs{Meta: v1.Meta{Error: err.Error()}})
 				w.WriteHeader(500)
 				w.Write(data)
 				return
 			}
 
-			branches := Refs{Refs: nativeBranches}
+			branches := v1.Refs{Refs: nativeBranches}
 			data, err := json.Marshal(&branches)
 			if err != nil {
 				Log.Print(err)
-				data, _ := json.Marshal(&Refs{Meta: Meta{Error: err.Error()}})
+				data, _ := json.Marshal(&v1.Refs{Meta: v1.Meta{Error: err.Error()}})
 				w.WriteHeader(500)
 				w.Write(data)
 				return
@@ -357,7 +358,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 
 		since, err := toUint64(r.URL.Query().Get("since"), 0)
 		if err != nil {
-			builds := Builds{Meta: Meta{Error: err.Error()}}
+			builds := v1.Builds{Meta: v1.Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
 			w.WriteHeader(400)
 			w.Write(data)
@@ -366,27 +367,27 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 
 		limit, err := toUint64(r.URL.Query().Get("limit"), 100)
 		if err != nil {
-			builds := Builds{Meta: Meta{Error: err.Error()}}
+			builds := v1.Builds{Meta: v1.Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
 			w.WriteHeader(400)
 			w.Write(data)
 			return
 		}
 
-		buildList, err := storageService.GetBuildsByProject(Project{Team: team, ProjectName: project}, since, limit)
+		buildList, err := storageService.GetBuildsByProject(v1.Project{Team: team, ProjectName: project}, since, limit)
 
 		if err != nil {
-			builds := Builds{Meta: Meta{Error: err.Error()}}
+			builds := v1.Builds{Meta: v1.Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
 			w.WriteHeader(502)
 			w.Write(data)
 			return
 		}
 
-		builds := Builds{Builds: buildList}
+		builds := v1.Builds{Builds: buildList}
 		data, err := json.Marshal(&builds)
 		if err != nil {
-			builds := Builds{Meta: Meta{Error: err.Error()}}
+			builds := v1.Builds{Meta: v1.Meta{Error: err.Error()}}
 			builds.Meta.Error = err.Error()
 			data, _ := json.Marshal(&builds)
 			w.WriteHeader(500)
@@ -402,7 +403,7 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 	case "POST":
 		state := params.ByName("state")
 
-		shutdownState := Shutdown(state)
+		shutdownState := v1.Shutdown(state)
 		switch shutdownState {
 		case BUILD_QUEUE_CLOSE:
 			if <-getShutdownChan == BUILD_QUEUE_OPEN {
@@ -421,7 +422,7 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 		}
 	case "GET":
 		var data []byte
-		data, _ = json.Marshal(&ShutdownState{State: <-getShutdownChan})
+		data, _ = json.Marshal(&v1.ShutdownState{State: <-getShutdownChan})
 		w.Write(data)
 	}
 }

@@ -1,16 +1,20 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/ae6rt/decap/web/api/v1"
+)
 
 func TestGetProjectMap(t *testing.T) {
-	projectGetChan = make(chan map[string]Project, 1)
+	projectGetChan = make(chan map[string]v1.Project, 1)
 
-	reference := map[string]Project{
-		"ae6rt/p1": Project{
+	reference := map[string]v1.Project{
+		"ae6rt/p1": v1.Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
 		},
-		"wn0owp/p2": Project{
+		"wn0owp/p2": v1.Project{
 			Team:        "wn0owp",
 			ProjectName: "p2",
 		},

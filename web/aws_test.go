@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
@@ -92,7 +93,7 @@ func TestDynamoDbGetBuilds(t *testing.T) {
 	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials("key", "secret", "")).WithRegion("region").WithMaxRetries(3).WithEndpoint(testServer.URL)
 	c := AWSStorageService{config}
 
-	_, err := c.GetBuildsByProject(Project{Team: "ae6rt", ProjectName: "somelib"}, 0, 1)
+	_, err := c.GetBuildsByProject(v1.Project{Team: "ae6rt", ProjectName: "somelib"}, 0, 1)
 	if err != nil {
 		t.Fatal(err)
 	}

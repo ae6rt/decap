@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/gittools"
 	"github.com/ae6rt/retry"
 )
@@ -18,10 +19,10 @@ const buildScriptRegex = `build\.sh`
 const projectDescriptorRegex = `project\.json`
 const sideCarRegex = `^.+-sidecar\.json`
 
-var projectSetChan = make(chan map[string]Project)
-var projectGetChan = make(chan map[string]Project)
+var projectSetChan = make(chan map[string]v1.Project)
+var projectGetChan = make(chan map[string]v1.Project)
 
-func projectMux(initialValue map[string]Project) {
+func projectMux(initialValue map[string]v1.Project) {
 	t := initialValue
 	Log.Print("Project channel mux running")
 	for {
@@ -78,8 +79,8 @@ func filesByRegex(root, expression string) ([]string, error) {
 	return files, nil
 }
 
-func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project, error) {
-	projects := make(map[string]Project, 0)
+func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]v1.Project, error) {
+	projects := make(map[string]v1.Project, 0)
 	work := func() error {
 		Log.Printf("Clone build-scripts repository...\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
@@ -137,7 +138,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 			sidecars := readSidecars(sidecarMap[k])
 
 			parts := strings.Split(k, "/")
-			p := Project{
+			p := v1.Project{
 				Team:        parts[0],
 				ProjectName: parts[1],
 				Descriptor:  descriptor,
@@ -162,20 +163,20 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]Project
 	return projects, nil
 }
 
-func getProjects() map[string]Project {
+func getProjects() map[string]v1.Project {
 	p := <-projectGetChan
-	pm := make(map[string]Project, len(p))
+	pm := make(map[string]v1.Project, len(p))
 	for k, v := range p {
 		pm[k] = v
 	}
 	return pm
 }
 
-func setProjects(p map[string]Project) {
+func setProjects(p map[string]v1.Project) {
 	projectSetChan <- p
 }
 
-func projectByTeamName(team, project string) (Project, bool) {
+func projectByTeamName(team, project string) (v1.Project, bool) {
 	projects := getProjects()
 	key := projectKey(team, project)
 	p, ok := projects[key]
@@ -240,17 +241,17 @@ func readSidecars(files []string) []string {
 	return arr
 }
 
-func descriptorForTeamProject(data []byte) (ProjectDescriptor, error) {
-	var descriptor ProjectDescriptor
+func descriptorForTeamProject(data []byte) (v1.ProjectDescriptor, error) {
+	var descriptor v1.ProjectDescriptor
 	if err := json.Unmarshal(data, &descriptor); err != nil {
-		return ProjectDescriptor{}, err
+		return v1.ProjectDescriptor{}, err
 	}
 
 	if descriptor.ManagedRefRegexStr != "" {
 		if re, err := regexp.Compile(descriptor.ManagedRefRegexStr); err != nil {
 			Log.Printf("Error parsing managed-branch-regex %s for descriptor %+v: %v\n", descriptor.ManagedRefRegexStr, data, err)
 		} else {
-			descriptor.regex = re
+			descriptor.Regex = re
 		}
 	}
 

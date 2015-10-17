@@ -1,6 +1,8 @@
-package main
+package v1
 
 import "regexp"
+
+type Shutdown string
 
 type Meta struct {
 	Error string `json:"error,omitempty"`
@@ -32,11 +34,11 @@ type ProjectDescriptor struct {
 	RepoURL            string `json:"repoUrl"`
 	RepoDescription    string `json:"repoDescription"`
 	ManagedRefRegexStr string `json:"managedRefRegex"`
-	regex              *regexp.Regexp
+	Regex              *regexp.Regexp
 }
 
-func (d ProjectDescriptor) isRefManaged(ref string) bool {
-	return d.regex == nil || d.regex.MatchString(ref)
+func (d ProjectDescriptor) IsRefManaged(ref string) bool {
+	return d.Regex == nil || d.Regex.MatchString(ref)
 }
 
 type Builds struct {

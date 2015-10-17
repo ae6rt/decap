@@ -5,14 +5,15 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/julienschmidt/httprouter"
 )
 
 func TestShutdownBuildQueueOpen(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
 
-	getShutdownChan = make(chan Shutdown, 1)
-	setShutdownChan = make(chan Shutdown, 1)
+	getShutdownChan = make(chan v1.Shutdown, 1)
+	setShutdownChan = make(chan v1.Shutdown, 1)
 	getShutdownChan <- "any incumbent value will do to avoid blocking on the channel read"
 
 	w := httptest.NewRecorder()
@@ -34,8 +35,8 @@ func TestShutdownBuildQueueOpen(t *testing.T) {
 func TestShutdownBuildQueueClose(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
 
-	getShutdownChan = make(chan Shutdown, 1)
-	setShutdownChan = make(chan Shutdown, 1)
+	getShutdownChan = make(chan v1.Shutdown, 1)
+	setShutdownChan = make(chan v1.Shutdown, 1)
 	getShutdownChan <- "any incumbent value will do to avoid blocking on the channel read"
 
 	w := httptest.NewRecorder()
@@ -57,8 +58,8 @@ func TestShutdownBuildQueueClose(t *testing.T) {
 func TestShutdownBuildQueueInvalid(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
 
-	getShutdownChan = make(chan Shutdown, 1)
-	setShutdownChan = make(chan Shutdown, 1)
+	getShutdownChan = make(chan v1.Shutdown, 1)
+	setShutdownChan = make(chan v1.Shutdown, 1)
 	getShutdownChan <- "any incumbent value will do to avoid blocking on the channel read"
 
 	w := httptest.NewRecorder()

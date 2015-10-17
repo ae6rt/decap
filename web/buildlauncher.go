@@ -15,6 +15,7 @@ import (
 	"io"
 	"net/url"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/k8stypes"
 	"github.com/ae6rt/decap/web/locks"
 	"github.com/ae6rt/retry"
@@ -58,7 +59,7 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 	}
 }
 
-func (builder DefaultBuilder) makeBaseContainer(buildEvent BuildEvent, buildID, branch string, projects map[string]Project) k8stypes.Container {
+func (builder DefaultBuilder) makeBaseContainer(buildEvent BuildEvent, buildID, branch string, projects map[string]v1.Project) k8stypes.Container {
 	projectKey := buildEvent.Key()
 	lockKey := builder.Locker.Key(projectKey, branch)
 	return k8stypes.Container{
@@ -119,7 +120,7 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent BuildEvent, buildID, 
 	}
 }
 
-func (builder DefaultBuilder) makeSidecarContainers(buildEvent BuildEvent, projects map[string]Project) []k8stypes.Container {
+func (builder DefaultBuilder) makeSidecarContainers(buildEvent BuildEvent, projects map[string]v1.Project) []k8stypes.Container {
 	projectKey := buildEvent.Key()
 	arr := make([]k8stypes.Container, len(projects[projectKey].Sidecars))
 
@@ -177,7 +178,7 @@ func (builder DefaultBuilder) makePod(buildEvent BuildEvent, buildID, branch str
 	}
 }
 
-func (builder DefaultBuilder) makeContainers(buildEvent BuildEvent, buildID, branch string, projects map[string]Project) []k8stypes.Container {
+func (builder DefaultBuilder) makeContainers(buildEvent BuildEvent, buildID, branch string, projects map[string]v1.Project) []k8stypes.Container {
 	baseContainer := builder.makeBaseContainer(buildEvent, buildID, branch, projects)
 	sidecars := builder.makeSidecarContainers(buildEvent, projects)
 
@@ -236,7 +237,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 	project := projects[projectKey]
 
 	for _, ref := range buildEvent.Refs() {
-		if !project.Descriptor.isRefManaged(ref) {
+		if !project.Descriptor.IsRefManaged(ref) {
 			if <-getLogLevelChan == LOG_DEBUG {
 				Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", ref, projectKey)
 			}

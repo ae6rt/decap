@@ -1,23 +1,25 @@
 package main
 
+import "github.com/ae6rt/decap/web/api/v1"
+
 type MockStorageService struct {
-	project       Project
+	project       v1.Project
 	sinceUnixTime uint64
 	limit         uint64
 	buildID       string
 	data          []byte
 	err           error
-	builds        []Build
+	builds        []v1.Build
 }
 
-func (s *MockStorageService) GetBuildsByProject(project Project, sinceTime uint64, limit uint64) ([]Build, error) {
+func (s *MockStorageService) GetBuildsByProject(project v1.Project, sinceTime uint64, limit uint64) ([]v1.Build, error) {
 	s.project = project
 	s.sinceUnixTime = sinceTime
 	s.limit = limit
 	return s.builds, s.err
 }
 
-func (s *MockStorageService) GetBuildsBuildling() ([]Build, error) {
+func (s *MockStorageService) GetBuildsBuildling() ([]v1.Build, error) {
 	return s.builds, s.err
 }
 

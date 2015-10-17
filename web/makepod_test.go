@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/k8stypes"
 	"github.com/ae6rt/decap/web/locks"
 )
@@ -11,11 +12,11 @@ func TestMakePod(t *testing.T) {
 	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", locks.NoOpLocker{}, "repo", "repobranch")
 	buildEvent := UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 
-	projectMap := map[string]Project{
-		"ae6rt/somelib": Project{
+	projectMap := map[string]v1.Project{
+		"ae6rt/somelib": v1.Project{
 			Team:        "ae6rt",
 			ProjectName: "somelib",
-			Descriptor:  ProjectDescriptor{Image: "magic-image"},
+			Descriptor:  v1.ProjectDescriptor{Image: "magic-image"},
 			Sidecars: []string{`
 {               
     "env": [                    
