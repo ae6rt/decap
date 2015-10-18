@@ -9,7 +9,7 @@ import (
 )
 
 func TestMakePod(t *testing.T) {
-	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", locks.NoOpLocker{}, "repo", "repobranch")
+	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", &locks.NoOpLocker{}, "repo", "repobranch")
 	buildEvent := UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 
 	projectMap := map[string]v1.Project{

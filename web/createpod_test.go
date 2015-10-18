@@ -29,7 +29,7 @@ func TestCreatePod(t *testing.T) {
 	}))
 	defer testServer.Close()
 
-	k8s := NewBuilder(testServer.URL, "admin", "admin123", "key", "sekrit", "us-west-1", locks.NoOpLocker{}, "repo", "repobranch")
+	k8s := NewBuilder(testServer.URL, "admin", "admin123", "key", "sekrit", "us-west-1", &locks.NoOpLocker{}, "repo", "repobranch")
 	err := k8s.CreatePod([]byte(""))
 	if err != nil {
 		t.Fatalf("Unexpected error: %v\n", err)
