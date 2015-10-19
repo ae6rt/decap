@@ -102,6 +102,39 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	w.Write(data)
 }
 
+func DeferredBuildsHandler(builder Builder) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		switch r.Method {
+		case "GET":
+			deferred, err := builder.DeferredBuilds()
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write(simpleError(err))
+				return
+			}
+			squashed, _ := builder.SquashDeferred(deferred)
+			var v v1.Deferred
+			v.DeferredEvents = squashed
+			data, err := json.Marshal(&v)
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write(simpleError(err))
+				return
+			}
+			w.Write(data)
+		case "POST":
+			// todo implement delete deferred build
+			w.WriteHeader(400)
+			w.Write(simpleError(fmt.Errorf("Unsupported method: %s", r.Method)))
+			return
+		default:
+			w.WriteHeader(400)
+			w.Write(simpleError(fmt.Errorf("Unsupported method: %s", r.Method)))
+			return
+		}
+	}
+}
+
 func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")

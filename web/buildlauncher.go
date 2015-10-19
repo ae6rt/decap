@@ -442,7 +442,7 @@ func (builder DefaultBuilder) Websock() {
 }
 
 func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error {
-	ube := UserBuildEvent{
+	ube := v1.UserBuildEvent{
 		Team_:    event.Team(),
 		Project_: event.Project(),
 		Refs_:    []string{branch},
@@ -523,10 +523,14 @@ func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) ([]v1.U
 	return squashed, excluded
 }
 
+func (builder DefaultBuilder) DeferredBuilds() ([]locks.Deferral, error) {
+	return builder.Locker.DeferredBuilds()
+}
+
 // LaunchDeferred is wrapped in a goroutine, and reads deferred builds from storage and attempts a relaunch of each.
 func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 	for _ = range ticker {
-		if builds, err := builder.Locker.DeferredBuilds(); err != nil {
+		if builds, err := builder.DeferredBuilds(); err != nil {
 			Log.Println(err)
 		} else {
 			squashed, excluded := builder.SquashDeferred(builds)

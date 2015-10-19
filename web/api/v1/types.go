@@ -89,3 +89,8 @@ type UserBuildEvent struct {
 	Refs_    []string `json:"refs"`
 	locks.Deferral
 }
+
+type Deferred struct {
+	Meta
+	DeferredEvents []UserBuildEvent `json:"deferred"`
+}

@@ -64,6 +64,8 @@ func main() {
 	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildLauncher))
 	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildLauncher))
 	router.GET("/api/v1/teams", TeamsHandler)
+	router.GET("/api/v1/deferred", DeferredBuildsHandler(buildLauncher))
+	router.POST("/api/v1/deferred/:key", DeferredBuildsHandler(buildLauncher))
 	router.GET("/api/v1/logs/:id", LogHandler(storageService))
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(storageService))
 	router.GET("/api/v1/shutdown", ShutdownHandler)

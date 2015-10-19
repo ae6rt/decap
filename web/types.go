@@ -52,12 +52,7 @@ type Builder interface {
 	LaunchBuild(buildEvent BuildEvent) error
 	DeletePod(podName string) error
 	DeferBuild(event BuildEvent, ref string) error
-}
-
-// UserBuildEvent captures a user-initiated build request.
-type UserBuildEvent struct {
-	Team_    string   `json:"team"`
-	Project_ string   `json:"project"`
-	Refs_    []string `json:"refs"`
-	locks.Deferral
+	//	ClearDeferredBuild(key string) error
+	DeferredBuilds() ([]locks.Deferral, error)
+	SquashDeferred([]locks.Deferral) ([]v1.UserBuildEvent, []string)
 }

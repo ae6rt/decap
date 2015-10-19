@@ -23,8 +23,8 @@ type Locker interface {
 }
 
 type Deferral struct {
-	Data string
-	Key  string
+	Data string `json:"data"`
+	Key  string `json:"key"`
 }
 
 type EtcdLocker struct {
