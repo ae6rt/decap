@@ -52,7 +52,7 @@ type Builder interface {
 	LaunchBuild(buildEvent BuildEvent) error
 	DeletePod(podName string) error
 	DeferBuild(event BuildEvent, ref string) error
-	//	ClearDeferredBuild(key string) error
+	ClearDeferredBuild(key string) error
 	DeferredBuilds() ([]locks.Deferral, error)
 	SquashDeferred([]locks.Deferral) ([]v1.UserBuildEvent, []string)
 }

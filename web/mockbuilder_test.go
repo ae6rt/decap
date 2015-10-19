@@ -31,3 +31,7 @@ func (d *MockBuilder) DeferredBuilds() ([]locks.Deferral, error) {
 func (d *MockBuilder) SquashDeferred([]locks.Deferral) ([]v1.UserBuildEvent, []string) {
 	return nil, nil
 }
+
+func (d *MockBuilder) ClearDeferredBuild(key string) error {
+	return nil
+}

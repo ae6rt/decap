@@ -527,6 +527,11 @@ func (builder DefaultBuilder) DeferredBuilds() ([]locks.Deferral, error) {
 	return builder.Locker.DeferredBuilds()
 }
 
+func (builder DefaultBuilder) ClearDeferredBuild(key string) error {
+	_, err := builder.Locker.ClearDeferred(key)
+	return err
+}
+
 // LaunchDeferred is wrapped in a goroutine, and reads deferred builds from storage and attempts a relaunch of each.
 func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 	for _ = range ticker {
@@ -535,12 +540,12 @@ func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 		} else {
 			squashed, excluded := builder.SquashDeferred(builds)
 			for _, v := range excluded {
-				if _, err := builder.Locker.ClearDeferred(v); err != nil {
+				if err := builder.ClearDeferredBuild(v); err != nil {
 					Log.Printf("Failed to clear deferred build for omitted event %+v: %+v\n", v, err)
 				}
 			}
 			for _, build := range squashed {
-				if _, err := builder.Locker.ClearDeferred(build.Deferral.Key); err != nil {
+				if err := builder.ClearDeferredBuild(build.Deferral.Key); err != nil {
 					Log.Printf("Failed to clear deferred build, will not launch: %+v: %v\n", build, err)
 				} else {
 					if err := builder.LaunchBuild(build); err != nil {
