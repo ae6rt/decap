@@ -454,11 +454,11 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 
 // SquashDeferred takes a in-created-order list of deferred builds and filters out duplicate
 // team + project + branch deferrals, returning the first in the list of each unique build event.
-func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) ([]UserBuildEvent, []string) {
+func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) ([]v1.UserBuildEvent, []string) {
 
-	events := make([]UserBuildEvent, len(deferrals))
+	events := make([]v1.UserBuildEvent, len(deferrals))
 	for i, deferral := range deferrals {
-		var ube UserBuildEvent
+		var ube v1.UserBuildEvent
 		if err := json.Unmarshal([]byte(deferral.Data), &ube); err != nil {
 			Log.Printf("Error deserializing build event %s: %v\n", deferral.Data, err)
 			continue
@@ -501,7 +501,7 @@ func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) ([]User
 	sort.Ints(slots)
 
 	// extract from events the object at each slot
-	squashed := make([]UserBuildEvent, len(slots))
+	squashed := make([]v1.UserBuildEvent, len(slots))
 	for i, j := range slots {
 		squashed[i] = events[j]
 	}
@@ -510,7 +510,7 @@ func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) ([]User
 	excluded := make([]string, 0)
 	for i, k := range deferrals {
 		foundIt := false
-		for j, _ := range slots {
+		for _, j := range slots {
 			if i == j {
 				foundIt = true
 				break

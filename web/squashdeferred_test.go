@@ -42,9 +42,9 @@ func TestSquashDeferred(t *testing.T) {
 	if len(excluded) != 2 {
 		t.Fatalf("Want 2 but got %d\n", len(excluded))
 	}
-	for k, v := range map[int]string{0: "/2", 4: "/5"} {
+	for k, v := range map[int]string{0: "/2", 1: "/5"} {
 		if excluded[k] != v {
-			t.Fatalf("Want % but got %s\n", v, excluded[k])
+			t.Fatalf("Want %s but got %s\n", v, excluded[k])
 		}
 	}
 

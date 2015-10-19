@@ -1,6 +1,10 @@
 package v1
 
-import "regexp"
+import (
+	"regexp"
+
+	"github.com/ae6rt/decap/web/locks"
+)
 
 type Shutdown string
 
@@ -77,4 +81,11 @@ type Ref struct {
 type ShutdownState struct {
 	Meta
 	State Shutdown `json:"state"`
+}
+
+type UserBuildEvent struct {
+	Team_    string   `json:"team"`
+	Project_ string   `json:"project"`
+	Refs_    []string `json:"refs"`
+	locks.Deferral
 }

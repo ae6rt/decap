@@ -122,7 +122,7 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 			return
 		}
 
-		event := UserBuildEvent{Team_: team, Project_: project, Refs_: branches}
+		event := v1.UserBuildEvent{Team_: team, Project_: project, Refs_: branches}
 		go decap.LaunchBuild(event)
 	}
 }

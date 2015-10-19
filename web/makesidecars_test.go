@@ -9,7 +9,7 @@ import (
 
 func TestMakeSidecars(t *testing.T) {
 	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", &locks.NoOpLocker{}, "repo", "repobranch")
-	buildEvent := UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
+	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 
 	sidecars := k8s.makeSidecarContainers(buildEvent, map[string]v1.Project{
 		"ae6rt/somelib": v1.Project{
