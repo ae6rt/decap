@@ -454,7 +454,7 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 
 // SquashDeferred takes a in-created-order list of deferred builds and filters out duplicate
 // team + project + branch deferrals, returning the first in the list of each unique build event.
-func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []UserBuildEvent {
+func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) ([]UserBuildEvent, []string) {
 
 	events := make([]UserBuildEvent, len(deferrals))
 	for i, deferral := range deferrals {
@@ -505,7 +505,22 @@ func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) []UserB
 	for i, j := range slots {
 		squashed[i] = events[j]
 	}
-	return squashed
+
+	// record the deferral key for the omitted events so they can be deleted
+	excluded := make([]string, 0)
+	for i, k := range deferrals {
+		foundIt := false
+		for j, _ := range slots {
+			if i == j {
+				foundIt = true
+				break
+			}
+		}
+		if !foundIt {
+			excluded = append(excluded, k.Key)
+		}
+	}
+	return squashed, excluded
 }
 
 // LaunchDeferred is wrapped in a goroutine, and reads deferred builds from storage and attempts a relaunch of each.
@@ -514,7 +529,12 @@ func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 		if builds, err := builder.Locker.DeferredBuilds(); err != nil {
 			Log.Println(err)
 		} else {
-			squashed := builder.SquashDeferred(builds)
+			squashed, excluded := builder.SquashDeferred(builds)
+			for _, v := range excluded {
+				if _, err := builder.Locker.ClearDeferred(v); err != nil {
+					Log.Printf("Failed to clear deferred build for omitted event %+v: %+v\n", v, err)
+				}
+			}
 			for _, build := range squashed {
 				if _, err := builder.Locker.ClearDeferred(build.Deferral.Key); err != nil {
 					Log.Printf("Failed to clear deferred build, will not launch: %+v: %v\n", build, err)

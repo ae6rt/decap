@@ -38,20 +38,26 @@ func TestSquashDeferred(t *testing.T) {
 		},
 	}
 
-	squashed := DefaultBuilder{}.SquashDeferred(deferrals)
+	squashed, excluded := DefaultBuilder{}.SquashDeferred(deferrals)
+	if len(excluded) != 2 {
+		t.Fatalf("Want 2 but got %d\n", len(excluded))
+	}
+	for k, v := range map[int]string{0: "/2", 4: "/5"} {
+		if excluded[k] != v {
+			t.Fatalf("Want % but got %s\n", v, excluded[k])
+		}
+	}
 
 	if len(squashed) != 5 {
 		t.Fatalf("Want 5 but got %d\n", len(squashed))
 	}
-
-	expected := map[int]string{
+	for k, v := range map[int]string{
 		0: "/1",
 		1: "/3",
 		2: "/4",
 		3: "/6",
 		4: "/7",
-	}
-	for k, v := range expected {
+	} {
 		if squashed[k].Deferral.Key != v {
 			t.Fatalf("Want %s but got %s\n", v, squashed[k].Deferral.Key)
 		}
