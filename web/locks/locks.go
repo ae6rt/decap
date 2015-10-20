@@ -23,7 +23,7 @@ type Locker interface {
 }
 
 type Deferral struct {
-	Data string `json:"data"`
+	Data string `json:"-"`
 	Key  string `json:"key"`
 }
 

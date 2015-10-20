@@ -82,10 +82,10 @@ type ShutdownState struct {
 }
 
 type UserBuildEvent struct {
-	Team_    string   `json:"team"`
-	Project_ string   `json:"project"`
-	Refs_    []string `json:"refs"`
-	locks.Deferral
+	Team_    string         `json:"team"`
+	Project_ string         `json:"project"`
+	Refs_    []string       `json:"refs"`
+	Deferral locks.Deferral `json:"deferral"`
 }
 
 type Deferred struct {
