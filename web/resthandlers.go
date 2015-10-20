@@ -123,10 +123,16 @@ func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 			}
 			w.Write(data)
 		case "POST":
-			// todo implement delete deferred build
-			w.WriteHeader(400)
-			w.Write(simpleError(fmt.Errorf("Unsupported method: %s", r.Method)))
-			return
+			key := r.URL.Query().Get("key")
+			if key == "" {
+				w.WriteHeader(400)
+				w.Write(simpleError(fmt.Errorf("Missing or empty key parameter in clear deferred build")))
+				return
+			}
+			if err := builder.ClearDeferredBuild(key); err != nil {
+				w.WriteHeader(500)
+				w.Write(simpleError(err))
+			}
 		default:
 			w.WriteHeader(400)
 			w.Write(simpleError(fmt.Errorf("Unsupported method: %s", r.Method)))

@@ -6,9 +6,11 @@ import (
 )
 
 type MockBuilder struct {
-	deferred []locks.Deferral
-	event    BuildEvent
-	buildID  string
+	deferred    []locks.Deferral
+	event       BuildEvent
+	buildID     string
+	deferralKey string
+	err         error
 }
 
 func (d *MockBuilder) LaunchBuild(p BuildEvent) error {
@@ -34,5 +36,6 @@ func (d *MockBuilder) SquashDeferred([]locks.Deferral) ([]v1.UserBuildEvent, []s
 }
 
 func (d *MockBuilder) ClearDeferredBuild(key string) error {
-	return nil
+	d.deferralKey = key
+	return d.err
 }
