@@ -23,18 +23,16 @@ func TestGetDeferredBuilds(t *testing.T) {
 			Key:  "/2",
 		},
 	}
-	locker := locks.NoOpLocker{Deferrals: deferrals}
-
-	mockBuilder := DefaultBuilder{Locker: &locker}
-
+	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "http://example.com/deferred", nil)
 
-	w := httptest.NewRecorder()
+	locker := locks.NoOpLocker{Deferrals: deferrals}
+	builder := DefaultBuilder{Locker: &locker}
+	DeferredBuildsHandler(&builder)(w, req, []httprouter.Param{})
 	if w.Code != 200 {
 		t.Fatalf("Want 200 but got %d\n", w.Code)
 	}
 
-	DeferredBuildsHandler(&mockBuilder)(w, req, []httprouter.Param{})
 	data, _ := ioutil.ReadAll(w.Body)
 	var d v1.Deferred
 	if err := json.Unmarshal(data, &d); err != nil {
@@ -46,5 +44,26 @@ func TestGetDeferredBuilds(t *testing.T) {
 	}
 	if d.DeferredEvents[0].Hash() != "t1/p1/master" {
 		t.Fatalf("Want t1/p1/master but got %d\n", d.DeferredEvents[0].Hash())
+	}
+}
+
+func TestGetDeferredBuildsUnsupportedMethod(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("PUT", "http://example.com/deferred", nil)
+
+	mockBuilder := MockBuilder{}
+	DeferredBuildsHandler(&mockBuilder)(w, req, []httprouter.Param{})
+	if w.Code != 400 {
+		t.Fatalf("Want 400 but got %d\n", w.Code)
+	}
+	data, _ := ioutil.ReadAll(w.Body)
+	var d v1.Deferred
+	if err := json.Unmarshal(data, &d); err != nil {
+		t.Fatalf("Unexpected error: %v\n", err)
+	}
+
+	msg := d.Meta.Error
+	if msg != "Unsupported method: PUT" {
+		t.Fatalf("Expected Unsupported method: PUT but got %s\n", msg)
 	}
 }
