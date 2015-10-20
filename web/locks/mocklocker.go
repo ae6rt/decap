@@ -3,8 +3,9 @@ package locks
 import etcd "github.com/coreos/etcd/client"
 
 type NoOpLocker struct {
-	Data  []byte
-	Error error
+	Data      []byte
+	Error     error
+	Deferrals []Deferral
 }
 
 func (noop *NoOpLocker) Lock(key, value string) (*etcd.Response, error) {
@@ -17,7 +18,6 @@ func (noop *NoOpLocker) Unlock(key, value string) (*etcd.Response, error) {
 
 func (noop *NoOpLocker) Defer(data []byte) (*etcd.Response, error) {
 	noop.Data = data
-	//	fmt.Printf("internal: %+v\n", noop)
 	return nil, noop.Error
 }
 
@@ -26,7 +26,7 @@ func (noop *NoOpLocker) ClearDeferred(deferralID string) (*etcd.Response, error)
 }
 
 func (noop *NoOpLocker) DeferredBuilds() ([]Deferral, error) {
-	return nil, noop.Error
+	return noop.Deferrals, noop.Error
 }
 
 func (noop *NoOpLocker) InitDeferred() error {
