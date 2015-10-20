@@ -6,8 +6,6 @@ import (
 	"github.com/ae6rt/decap/web/locks"
 )
 
-type Shutdown string
-
 type Meta struct {
 	Error string `json:"error,omitempty"`
 }
@@ -80,7 +78,7 @@ type Ref struct {
 
 type ShutdownState struct {
 	Meta
-	State Shutdown `json:"state"`
+	State string `json:"state"`
 }
 
 type UserBuildEvent struct {

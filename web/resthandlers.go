@@ -434,18 +434,16 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	switch r.Method {
 	case "POST":
-		state := params.ByName("state")
-
-		shutdownState := v1.Shutdown(state)
+		shutdownState := params.ByName("state")
 		switch shutdownState {
 		case BUILD_QUEUE_CLOSE:
 			if <-getShutdownChan == BUILD_QUEUE_OPEN {
-				Log.Printf("Shutdown state changed to %s\n", state)
+				Log.Printf("Shutdown state changed to %s\n", shutdownState)
 			}
 			setShutdownChan <- shutdownState
 		case BUILD_QUEUE_OPEN:
 			if <-getShutdownChan == BUILD_QUEUE_CLOSE {
-				Log.Printf("Shutdown state changed to %s\n", state)
+				Log.Printf("Shutdown state changed to %s\n", shutdownState)
 			}
 			setShutdownChan <- shutdownState
 		default:

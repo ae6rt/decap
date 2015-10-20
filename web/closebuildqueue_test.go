@@ -5,20 +5,19 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/julienschmidt/httprouter"
 )
 
 func TestShutdownBuildQueueOpen(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
 
-	getShutdownChan = make(chan v1.Shutdown, 1)
-	setShutdownChan = make(chan v1.Shutdown, 1)
+	getShutdownChan = make(chan string, 1)
+	setShutdownChan = make(chan string, 1)
 	getShutdownChan <- "any incumbent value will do to avoid blocking on the channel read"
 
 	w := httptest.NewRecorder()
 	ShutdownHandler(w, req, []httprouter.Param{
-		httprouter.Param{Key: "state", Value: string(BUILD_QUEUE_OPEN)},
+		httprouter.Param{Key: "state", Value: BUILD_QUEUE_OPEN},
 	},
 	)
 
@@ -35,13 +34,13 @@ func TestShutdownBuildQueueOpen(t *testing.T) {
 func TestShutdownBuildQueueClose(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
 
-	getShutdownChan = make(chan v1.Shutdown, 1)
-	setShutdownChan = make(chan v1.Shutdown, 1)
+	getShutdownChan = make(chan string, 1)
+	setShutdownChan = make(chan string, 1)
 	getShutdownChan <- "any incumbent value will do to avoid blocking on the channel read"
 
 	w := httptest.NewRecorder()
 	ShutdownHandler(w, req, []httprouter.Param{
-		httprouter.Param{Key: "state", Value: string(BUILD_QUEUE_CLOSE)},
+		httprouter.Param{Key: "state", Value: BUILD_QUEUE_CLOSE},
 	},
 	)
 
@@ -58,8 +57,8 @@ func TestShutdownBuildQueueClose(t *testing.T) {
 func TestShutdownBuildQueueInvalid(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
 
-	getShutdownChan = make(chan v1.Shutdown, 1)
-	setShutdownChan = make(chan v1.Shutdown, 1)
+	getShutdownChan = make(chan string, 1)
+	setShutdownChan = make(chan string, 1)
 	getShutdownChan <- "any incumbent value will do to avoid blocking on the channel read"
 
 	w := httptest.NewRecorder()

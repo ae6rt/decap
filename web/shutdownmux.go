@@ -1,16 +1,14 @@
 package main
 
-import "github.com/ae6rt/decap/web/api/v1"
-
-var setShutdownChan = make(chan v1.Shutdown)
-var getShutdownChan = make(chan v1.Shutdown)
+var setShutdownChan = make(chan string)
+var getShutdownChan = make(chan string)
 
 const (
-	BUILD_QUEUE_OPEN  v1.Shutdown = "open"
-	BUILD_QUEUE_CLOSE v1.Shutdown = "close"
+	BUILD_QUEUE_OPEN  = "open"
+	BUILD_QUEUE_CLOSE = "close"
 )
 
-func shutdownMux(initialValue v1.Shutdown) {
+func shutdownMux(initialValue string) {
 	t := initialValue
 	Log.Print("Shutdown channel mux running")
 	for {
