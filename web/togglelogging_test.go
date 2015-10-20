@@ -11,13 +11,13 @@ import (
 func TestLogDefault(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
 
-	getLogLevelChan = make(chan LogLevel, 1)
-	setLogLevelChan = make(chan LogLevel, 1)
+	getLogLevelChan = make(chan string, 1)
+	setLogLevelChan = make(chan string, 1)
 	getLogLevelChan <- "any incumbent value will do to avoid blocking on the channel read"
 
 	w := httptest.NewRecorder()
 	LogLevelHandler(w, req, []httprouter.Param{
-		httprouter.Param{Key: "level", Value: string(LOG_DEFAULT)},
+		httprouter.Param{Key: "level", Value: LOG_DEFAULT},
 	},
 	)
 
@@ -34,13 +34,13 @@ func TestLogDefault(t *testing.T) {
 func TestLogDebug(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
 
-	getLogLevelChan = make(chan LogLevel, 1)
-	setLogLevelChan = make(chan LogLevel, 1)
+	getLogLevelChan = make(chan string, 1)
+	setLogLevelChan = make(chan string, 1)
 	getLogLevelChan <- "any incumbent value will do to avoid blocking on the channel read"
 
 	w := httptest.NewRecorder()
 	LogLevelHandler(w, req, []httprouter.Param{
-		httprouter.Param{Key: "level", Value: string(LOG_DEBUG)},
+		httprouter.Param{Key: "level", Value: LOG_DEBUG},
 	},
 	)
 
@@ -57,13 +57,13 @@ func TestLogDebug(t *testing.T) {
 func TestInvalidLogLevel(t *testing.T) {
 	req, _ := http.NewRequest("POST", "http://example.com", nil)
 
-	getLogLevelChan = make(chan LogLevel, 1)
-	setLogLevelChan = make(chan LogLevel, 1)
+	getLogLevelChan = make(chan string, 1)
+	setLogLevelChan = make(chan string, 1)
 	getLogLevelChan <- "any incumbent value will do to avoid blocking on the channel read"
 
 	w := httptest.NewRecorder()
 	LogLevelHandler(w, req, []httprouter.Param{
-		httprouter.Param{Key: "level", Value: string("nope")},
+		httprouter.Param{Key: "level", Value: "nope"},
 	},
 	)
 

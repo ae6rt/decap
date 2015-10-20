@@ -1,16 +1,14 @@
 package main
 
-type LogLevel string
-
-var setLogLevelChan = make(chan LogLevel)
-var getLogLevelChan = make(chan LogLevel)
+var setLogLevelChan = make(chan string)
+var getLogLevelChan = make(chan string)
 
 const (
-	LOG_DEFAULT LogLevel = "default"
-	LOG_DEBUG   LogLevel = "debug"
+	LOG_DEFAULT = "default"
+	LOG_DEBUG   = "debug"
 )
 
-func logLevelMux(initialValue LogLevel) {
+func logLevelMux(initialValue string) {
 	t := initialValue
 	Log.Print("LogLevel channel mux running")
 	for {

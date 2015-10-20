@@ -461,18 +461,16 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 func LogLevelHandler(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	switch r.Method {
 	case "POST":
-		level := params.ByName("level")
-
-		logLevel := LogLevel(level)
+		logLevel := params.ByName("level")
 		switch logLevel {
 		case LOG_DEFAULT:
 			if <-getLogLevelChan == LOG_DEBUG {
-				Log.Printf("Log level changed to %s\n", level)
+				Log.Printf("Log level changed to %s\n", logLevel)
 			}
 			setLogLevelChan <- logLevel
 		case LOG_DEBUG:
 			if <-getLogLevelChan == LOG_DEFAULT {
-				Log.Printf("Shutdown state changed to %s\n", level)
+				Log.Printf("Shutdown state changed to %s\n", logLevel)
 			}
 			setLogLevelChan <- logLevel
 		default:
