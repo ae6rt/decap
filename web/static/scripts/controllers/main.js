@@ -1,0 +1,1 @@
+"use strict";angular.module("decapApp").controller("MainCtrl",function($scope,$position){});

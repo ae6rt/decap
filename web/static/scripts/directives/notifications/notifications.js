@@ -1,0 +1,1 @@
+"use strict";angular.module("decapApp").directive("notifications",function(){return{templateUrl:"scripts/directives/notifications/notifications.html",restrict:"E",replace:!0}});

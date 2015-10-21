@@ -1,0 +1,1 @@
+"use strict";angular.module("decapApp").controller("TeamsController",["$scope","DecapService",function($scope,DecapService){DecapService.getTeams().then(function(teams){$scope.teams=teams},function(message){console.log("error getting projects list: "+message)})}]);
