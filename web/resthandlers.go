@@ -131,12 +131,9 @@ func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 			}
 			if err := builder.ClearDeferredBuild(key); err != nil {
 				w.WriteHeader(500)
-				w.Write(simpleError(err))
+				data, _ := json.Marshal(&v1.Deferred{Meta: v1.Meta{Error: err.Error()}})
+				w.Write(data)
 			}
-		default:
-			w.WriteHeader(400)
-			w.Write(simpleError(fmt.Errorf("Unsupported method: %s", r.Method)))
-			return
 		}
 	}
 }

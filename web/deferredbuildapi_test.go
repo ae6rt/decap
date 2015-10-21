@@ -48,27 +48,6 @@ func TestGetDeferredBuilds(t *testing.T) {
 	}
 }
 
-func TestGetDeferredBuildsUnsupportedMethod(t *testing.T) {
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "http://example.com/deferred", nil)
-
-	mockBuilder := MockBuilder{}
-	DeferredBuildsHandler(&mockBuilder)(w, req, []httprouter.Param{})
-	if w.Code != 400 {
-		t.Fatalf("Want 400 but got %d\n", w.Code)
-	}
-	data, _ := ioutil.ReadAll(w.Body)
-	var d v1.Deferred
-	if err := json.Unmarshal(data, &d); err != nil {
-		t.Fatalf("Unexpected error: %v\n", err)
-	}
-
-	msg := d.Meta.Error
-	if msg != "Unsupported method: PUT" {
-		t.Fatalf("Expected Unsupported method: PUT but got %s\n", msg)
-	}
-}
-
 func TestClearDeferredBuild(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "http://example.com/deferred?key=/1", nil)
