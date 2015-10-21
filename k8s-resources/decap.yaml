@@ -15,6 +15,7 @@
 ---
   kind: "Service"
   spec: 
+    type: "NodePort"
     ports: 
       - 
         protocol: "TCP"
