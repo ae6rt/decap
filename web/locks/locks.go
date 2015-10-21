@@ -85,13 +85,17 @@ func (d EtcdLocker) DeferredBuilds() ([]Deferral, error) {
 	return events, nil
 }
 
-// Create the deferred directory in etcd
+// Create the deferred directory in etcd.  Check whether a listing is available; if one is, do not create the directory again.
 func (d EtcdLocker) InitDeferred() error {
-	c, err := etcd.New(d.Config)
+	_, err := d.DeferredBuilds()
 	if err != nil {
-		return err
+		var c etcd.Client
+		c, err = etcd.New(d.Config)
+		if err != nil {
+			return err
+		}
+		_, err = etcd.NewKeysAPI(c).Set(context.Background(), DEFERRED, "", &etcd.SetOptions{Dir: true})
 	}
-	_, err = etcd.NewKeysAPI(c).Set(context.Background(), DEFERRED, "", &etcd.SetOptions{Dir: true})
 	return err
 }
 
