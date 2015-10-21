@@ -195,9 +195,7 @@ func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, k
 		if err = builder.DeferBuild(buildEvent, ref); err != nil {
 			Log.Printf("Failed to defer build %s after failing to acquire a lock on it: %+v\n", buildID, err)
 		} else {
-			if <-getLogLevelChan == LOG_DEBUG {
-				Log.Printf("Deferred build: %+v\n", buildID)
-			}
+			Log.Printf("Deferred build: %+v\n", buildID)
 		}
 		return false, err
 	}
@@ -545,14 +543,19 @@ func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 				}
 			}
 			for _, build := range squashed {
-				if err := builder.ClearDeferredBuild(build.Deferral.Key); err != nil {
+				var err error
+				err = builder.ClearDeferredBuild(build.Deferral.Key)
+				if err != nil {
 					Log.Printf("Failed to clear deferred build, will not launch: %+v: %v\n", build, err)
+					continue
+				}
+				Log.Printf("Cleared deferred build at key %s\n", build.Deferral.Key)
+
+				err = builder.LaunchBuild(build)
+				if err != nil {
+					Log.Printf("Error launching deferred build: %+v\n", err)
 				} else {
-					if err := builder.LaunchBuild(build); err != nil {
-						Log.Printf("Error launching deferred build: %+v\n", err)
-					} else if <-getLogLevelChan == LOG_DEBUG {
-						Log.Printf("Launched deferred build: %+v\n", build)
-					}
+					Log.Printf("Launched deferred build: %+v\n", build)
 				}
 			}
 		}
