@@ -48,7 +48,7 @@ func (stash StashEvent) Refs() []string {
 }
 
 func (stash StashEvent) Hash() string {
-	return fmt.Sprintf("%s/%s", e.Key(), strings.Join(e.Refs(), "/"))
+	return fmt.Sprintf("%s/%s", stash.Key(), strings.Join(stash.Refs(), "/"))
 }
 
 type StashHandler struct {
