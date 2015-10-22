@@ -15,14 +15,17 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
+// AWSStorageService is a container for holding AWS configuration
 type AWSStorageService struct {
 	Config *aws.Config
 }
 
+// NewAWSStorageService returns a StorageService implemented on top of AWS
 func NewAWSStorageService(key, secret, region string) StorageService {
 	return AWSStorageService{aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(key, secret, "")).WithRegion(region).WithMaxRetries(3)}
 }
 
+// GetBuildsByProject returns logical builds by team / project.
 func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, limit uint64) ([]v1.Build, error) {
 
 	var resp *dynamodb.QueryOutput
@@ -70,7 +73,7 @@ func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, 
 		return nil, err
 	}
 
-	builds := make([]v1.Build, 0)
+	var builds []v1.Build
 	for _, v := range resp.Items {
 		buildDuration, err := strconv.ParseUint(*v["build-duration"].N, 10, 64)
 		if err != nil {
@@ -98,10 +101,14 @@ func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, 
 	return builds, nil
 }
 
+// GetArtifacts returns the file manifest of artifacts tar file if the Accept: text/plain header
+// is set.  Otherwise returns the build artifacts as a gzipped tar file.
 func (c AWSStorageService) GetArtifacts(buildID string) ([]byte, error) {
 	return c.bytesFromBucket("decap-build-artifacts", buildID)
 }
 
+// GetConsoleLog returns console logs in plain text if the Accept: text/plain header
+// is set.  Otherwise returns the console log as a gzipped archive.
 func (c AWSStorageService) GetConsoleLog(buildID string) ([]byte, error) {
 	return c.bytesFromBucket("decap-console-logs", buildID)
 }

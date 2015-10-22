@@ -23,6 +23,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+// NewBuilder is the constructor for a new default Builder instance.
 func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker locks.Locker, buildScriptsRepo, buildScriptsRepoBranch string) DefaultBuilder {
 
 	tlsConfig := tls.Config{}
@@ -182,7 +183,7 @@ func (builder DefaultBuilder) makeContainers(buildEvent BuildEvent, buildID, bra
 	baseContainer := builder.makeBaseContainer(buildEvent, buildID, branch, projects)
 	sidecars := builder.makeSidecarContainers(buildEvent, projects)
 
-	containers := make([]k8stypes.Container, 0)
+	var containers []k8stypes.Container
 	containers = append(containers, baseContainer)
 	containers = append(containers, sidecars...)
 	return containers
@@ -213,15 +214,15 @@ func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, 
 				Log.Printf("Failed deferring build %+v for ref %s after failed unlocking after pod creation attempt: %+v\n", buildEvent, ref, err)
 			}
 			return false, err
-		} else {
-			Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, key, podError)
 		}
+		Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, key, podError)
 		return false, podError
 	}
 	return true, nil
 }
 
-// Form the build pod and launch it in the cluster.
+// LaunchBuild assembles the pod definition, including the base container and sidecars, and calls
+// for the pod creation in the cluster.
 func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 
 	switch <-getShutdownChan {
@@ -282,6 +283,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 	return nil
 }
 
+// CreatePod creates a pod in the Kubernetes cluster
 func (builder DefaultBuilder) CreatePod(pod []byte) error {
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/namespaces/decap/pods", builder.MasterURL), bytes.NewReader(pod))
 	if err != nil {
@@ -315,6 +317,7 @@ func (builder DefaultBuilder) CreatePod(pod []byte) error {
 	return nil
 }
 
+// DeletePod removes the Pod from the Kubernetes cluster
 func (builder DefaultBuilder) DeletePod(podName string) error {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/namespaces/decap/pods/%s", builder.MasterURL, podName), nil)
 	if err != nil {

@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/julienschmidt/httprouter"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 var corsWrapper = func(handler http.Handler) http.Handler {
@@ -18,6 +19,7 @@ func writeCorsHeaders(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
 }
 
+// HandleOptions is the httprouter CORS handler.
 func HandleOptions(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	writeCorsHeaders(w)
 }

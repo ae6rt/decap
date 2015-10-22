@@ -25,7 +25,8 @@ var (
 	noWebsocket            = flag.Bool("no-websocket", false, "Do not start websocket client that watches pods.")
 	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
 
-	Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+	// Log is the logger for package main
+	Log = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 	buildVersion string
 	buildCommit  string
