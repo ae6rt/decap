@@ -15,8 +15,8 @@ IMAGE=$(DOCKER_USER)/decap:latest
 all: clean binaries 
 
 lint: 
-	go fmt
-	go vet
+	go fmt ./...
+	go vet ./...
 
 test: lint
 	godep go test -v
