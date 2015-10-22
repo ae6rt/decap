@@ -12,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -250,7 +251,7 @@ func StopBuildHandler(decap Builder) httprouter.Handle {
 }
 
 // Handle requests for branches and tags on a project
-func ProjectRefsHandler(repoClients map[string]SCMClient) httprouter.Handle {
+func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		projectName := params.ByName("project")

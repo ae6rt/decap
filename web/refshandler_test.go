@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -30,7 +31,7 @@ func TestProjectRefsNoSuchProject(t *testing.T) {
 		},
 	}
 
-	scmClients := map[string]SCMClient{"github": &MockScmClient{}}
+	scmClients := map[string]scmclients.SCMClient{"github": &scmclients.MockScmClient{}}
 
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
@@ -66,8 +67,8 @@ func TestProjectRefsNoRepManager(t *testing.T) {
 		},
 	}
 
-	githubClient := MockScmClient{}
-	scmClients := map[string]SCMClient{"github": &githubClient}
+	githubClient := scmclients.MockScmClient{}
+	scmClients := map[string]scmclients.SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},
@@ -102,8 +103,8 @@ func TestProjectRefsGithub(t *testing.T) {
 		},
 	}
 
-	githubClient := MockScmClient{branches: []v1.Ref{v1.Ref{RefID: "refs/heads/master"}}}
-	scmClients := map[string]SCMClient{"github": &githubClient}
+	githubClient := scmclients.MockScmClient{Branches: []v1.Ref{v1.Ref{RefID: "refs/heads/master"}}}
+	scmClients := map[string]scmclients.SCMClient{"github": &githubClient}
 	w := httptest.NewRecorder()
 	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "team", Value: "ae6rt"},

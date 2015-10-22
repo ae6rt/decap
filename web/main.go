@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ae6rt/decap/web/locks"
+	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -52,8 +53,8 @@ func main() {
 	locker := locks.NewEtcdLocker([]string{"http://localhost:2379"})
 	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
-	scmManagers := map[string]SCMClient{
-		"github": NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
+	scmManagers := map[string]scmclients.SCMClient{
+		"github": scmclients.NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
 	}
 
 	router := httprouter.New()
