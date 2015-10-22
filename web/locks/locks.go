@@ -58,6 +58,8 @@ func (d EtcdLocker) Key(projectKey, branch string) string {
 	return hex.EncodeToString([]byte(fmt.Sprintf("%s/%s", projectKey, branch)))
 }
 
+// Defer defers a build by saving it to a locker service provided key.  See Atomically Creating In-Order Keys
+// at https://coreos.com/etcd/docs/0.4.7/etcd-api/.
 func (d EtcdLocker) Defer(buildEvent []byte) (*etcd.Response, error) {
 	c, err := etcd.New(d.Config)
 	if err != nil {
@@ -86,7 +88,7 @@ func (d EtcdLocker) DeferredBuilds() ([]Deferral, error) {
 		return nil, err
 	}
 
-	events := make([]Deferral, 0)
+	var events []Deferral
 	for _, v := range resp.Node.Nodes {
 		d := Deferral{Data: v.Value, Key: v.Key}
 		events = append(events, d)

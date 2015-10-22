@@ -19,7 +19,7 @@ lint:
 	go vet ./...
 
 test: lint
-	godep go test -v
+	godep go test -v ./...
 
 osx: test
 	CGO_ENABLED=0 godep go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
