@@ -17,7 +17,7 @@ func TestShutdownBuildQueueOpen(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	ShutdownHandler(w, req, []httprouter.Param{
-		httprouter.Param{Key: "state", Value: BUILD_QUEUE_OPEN},
+		httprouter.Param{Key: "state", Value: BuildQueueOpen},
 	},
 	)
 
@@ -26,7 +26,7 @@ func TestShutdownBuildQueueOpen(t *testing.T) {
 	}
 
 	state := <-setShutdownChan
-	if state != BUILD_QUEUE_OPEN {
+	if state != BuildQueueOpen {
 		t.Fatalf("Want open but got %s\n", state)
 	}
 }
@@ -40,7 +40,7 @@ func TestShutdownBuildQueueClose(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	ShutdownHandler(w, req, []httprouter.Param{
-		httprouter.Param{Key: "state", Value: BUILD_QUEUE_CLOSE},
+		httprouter.Param{Key: "state", Value: BuildQueueClose},
 	},
 	)
 
@@ -49,7 +49,7 @@ func TestShutdownBuildQueueClose(t *testing.T) {
 	}
 
 	state := <-setShutdownChan
-	if state != BUILD_QUEUE_CLOSE {
+	if state != BuildQueueClose {
 		t.Fatalf("Want open but got %s\n", state)
 	}
 }

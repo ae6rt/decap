@@ -226,7 +226,7 @@ func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, 
 func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 
 	switch <-getShutdownChan {
-	case BUILD_QUEUE_CLOSE:
+	case BuildQueueClose:
 		Log.Printf("Build queue closed: %+v\n", buildEvent)
 		return nil
 	}
@@ -237,7 +237,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 
 	for _, ref := range buildEvent.Refs() {
 		if !project.Descriptor.IsRefManaged(ref) {
-			if <-getLogLevelChan == LOG_DEBUG {
+			if <-getLogLevelChan == LogDebug {
 				Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", ref, projectKey)
 			}
 			continue
@@ -266,7 +266,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 			continue
 		}
 
-		if <-getLogLevelChan == LOG_DEBUG {
+		if <-getLogLevelChan == LogDebug {
 			Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
 		}
 

@@ -17,7 +17,7 @@ func TestLogDefault(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	LogLevelHandler(w, req, []httprouter.Param{
-		httprouter.Param{Key: "level", Value: LOG_DEFAULT},
+		httprouter.Param{Key: "level", Value: LogDefault},
 	},
 	)
 
@@ -26,7 +26,7 @@ func TestLogDefault(t *testing.T) {
 	}
 
 	state := <-setLogLevelChan
-	if state != LOG_DEFAULT {
+	if state != LogDefault {
 		t.Fatalf("Want default but got %s\n", state)
 	}
 }
@@ -40,7 +40,7 @@ func TestLogDebug(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	LogLevelHandler(w, req, []httprouter.Param{
-		httprouter.Param{Key: "level", Value: LOG_DEBUG},
+		httprouter.Param{Key: "level", Value: LogDebug},
 	},
 	)
 
@@ -49,7 +49,7 @@ func TestLogDebug(t *testing.T) {
 	}
 
 	state := <-setLogLevelChan
-	if state != LOG_DEBUG {
+	if state != LogDebug {
 		t.Fatalf("Want debug but got %s\n", state)
 	}
 }

@@ -439,13 +439,13 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 	case "POST":
 		shutdownState := params.ByName("state")
 		switch shutdownState {
-		case BUILD_QUEUE_CLOSE:
-			if <-getShutdownChan == BUILD_QUEUE_OPEN {
+		case BuildQueueClose:
+			if <-getShutdownChan == BuildQueueOpen {
 				Log.Printf("Shutdown state changed to %s\n", shutdownState)
 			}
 			setShutdownChan <- shutdownState
-		case BUILD_QUEUE_OPEN:
-			if <-getShutdownChan == BUILD_QUEUE_CLOSE {
+		case BuildQueueOpen:
+			if <-getShutdownChan == BuildQueueClose {
 				Log.Printf("Shutdown state changed to %s\n", shutdownState)
 			}
 			setShutdownChan <- shutdownState
@@ -466,13 +466,13 @@ func LogLevelHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 	case "POST":
 		logLevel := params.ByName("level")
 		switch logLevel {
-		case LOG_DEFAULT:
-			if <-getLogLevelChan == LOG_DEBUG {
+		case LogDefault:
+			if <-getLogLevelChan == LogDebug {
 				Log.Printf("Log level changed to %s\n", logLevel)
 			}
 			setLogLevelChan <- logLevel
-		case LOG_DEBUG:
-			if <-getLogLevelChan == LOG_DEFAULT {
+		case LogDebug:
+			if <-getLogLevelChan == LogDefault {
 				Log.Printf("Shutdown state changed to %s\n", logLevel)
 			}
 			setLogLevelChan <- logLevel

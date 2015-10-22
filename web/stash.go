@@ -47,7 +47,7 @@ func (stash StashEvent) Refs() []string {
 	return branches
 }
 
-func (e StashEvent) Hash() string {
+func (stash StashEvent) Hash() string {
 	return fmt.Sprintf("%s/%s", e.Key(), strings.Join(e.Refs(), "/"))
 }
 

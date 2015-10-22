@@ -4,8 +4,8 @@ var setShutdownChan = make(chan string)
 var getShutdownChan = make(chan string)
 
 const (
-	BUILD_QUEUE_OPEN  = "open"
-	BUILD_QUEUE_CLOSE = "close"
+	BuildQueueOpen  = "open"
+	BuildQueueClose = "close"
 )
 
 func shutdownMux(initialValue string) {

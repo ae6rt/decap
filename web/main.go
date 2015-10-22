@@ -90,8 +90,8 @@ func main() {
 		}
 	}()
 	go projectMux(projects)
-	go logLevelMux(LOG_DEFAULT)
-	go shutdownMux(BUILD_QUEUE_OPEN)
+	go logLevelMux(LogDefault)
+	go shutdownMux(BuildQueueOpen)
 	if !*noWebsocket {
 		go buildLauncher.Websock()
 	}
