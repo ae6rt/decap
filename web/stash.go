@@ -40,7 +40,7 @@ func (stash StashEvent) Key() string {
 }
 
 func (stash StashEvent) Refs() []string {
-	branches := make([]string, 0)
+	var branches []string
 	for _, v := range stash.RefChanges {
 		branches = append(branches, strings.ToLower(strings.Replace(v.RefID, "refs/heads/", "", -1)))
 	}

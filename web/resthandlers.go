@@ -54,7 +54,7 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		keys[v.Team] = ""
 	}
 
-	a := make([]v1.Team, 0)
+	var a []v1.Team
 	for k, _ := range keys {
 		a = append(a, v1.Team{Name: k})
 	}
@@ -75,7 +75,7 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	team := r.URL.Query().Get("team")
-	arr := make([]v1.Project, 0)
+	var arr []v1.Project
 	if team != "" {
 		for _, v := range getProjects() {
 			if team == v.Team {

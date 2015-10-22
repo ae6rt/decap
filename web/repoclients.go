@@ -59,7 +59,7 @@ func NewGithubClient(baseURL, clientID, clientSecret string) SCMClient {
 
 func (gh GithubClient) GetRefs(owner, repository string) ([]v1.Ref, error) {
 
-	refs := make([]GithubRef, 0)
+	var refs []GithubRef
 	var data []byte
 	url := fmt.Sprintf("%s/repos/%s/%s/git/refs?client_id=%s&client_secret=%s&page=1", gh.BaseURL, owner, repository, gh.Username, gh.Password)
 	var response *http.Response

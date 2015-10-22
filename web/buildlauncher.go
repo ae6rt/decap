@@ -508,7 +508,7 @@ func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) ([]v1.U
 	}
 
 	// record the deferral key for the omitted events so they can be deleted
-	excluded := make([]string, 0)
+	var excluded []string
 	for i, k := range deferrals {
 		foundIt := false
 		for _, j := range slots {

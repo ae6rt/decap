@@ -49,7 +49,7 @@ func TestMakePod(t *testing.T) {
 	baseContainer := k8s.makeBaseContainer(buildEvent, "uuid", "master", projectMap)
 	sidecars := k8s.makeSidecarContainers(buildEvent, projectMap)
 
-	arr := make([]k8stypes.Container, 0)
+	var arr []k8stypes.Container
 	arr = append(arr, baseContainer)
 	arr = append(arr, sidecars...)
 

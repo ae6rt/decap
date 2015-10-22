@@ -49,7 +49,7 @@ func filesByRegex(root, expression string) ([]string, error) {
 	// files of interest reside at a fixed depth of 3 below root
 	slashOffset := strings.Count(root, "/") + 3
 
-	files := make([]string, 0)
+	var files []string
 	markFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
