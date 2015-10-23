@@ -4,7 +4,9 @@ var setShutdownChan = make(chan string)
 var getShutdownChan = make(chan string)
 
 const (
-	BuildQueueOpen  = "open"
+	// The verb POSTed to open the build queue
+	BuildQueueOpen = "open"
+	// The verb POSTed to close the build queue
 	BuildQueueClose = "close"
 )
 

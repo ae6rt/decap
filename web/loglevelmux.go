@@ -4,8 +4,10 @@ var setLogLevelChan = make(chan string)
 var getLogLevelChan = make(chan string)
 
 const (
+	// The verb POSTed to set logging to the default level.
 	LogDefault = "default"
-	LogDebug   = "debug"
+	// The verb POSTed to set logging to debug level.
+	LogDebug = "debug"
 )
 
 func logLevelMux(initialValue string) {
