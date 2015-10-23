@@ -19,6 +19,8 @@ type BuildEvent interface {
 	Hash() string
 }
 
+// DefaultBuilder models the main interface between Decap and Kubernetes.  This is the location where creating and deleting pods
+// and locking or deferring builds takes place.
 type DefaultBuilder struct {
 	MasterURL       string
 	UserName        string
@@ -37,17 +39,22 @@ type DefaultBuilder struct {
 	buildScriptsRepoBranch string
 }
 
+// RepoManagerCredential models the username and password for supported source code repository managers, such as Github or Atlassian Stash.
+// For Github, the User is the OAuth2 access key and Password is the application's OAuth2 token.
 type RepoManagerCredential struct {
 	User     string
 	Password string
 }
 
+// StorageService models the interaction between Decap and the persistent storage engine that stores build console logs, artifacts, and specific
+// build metadata.
 type StorageService interface {
 	GetBuildsByProject(project v1.Project, sinceUnixTime uint64, limit uint64) ([]v1.Build, error)
 	GetArtifacts(buildID string) ([]byte, error)
 	GetConsoleLog(buildID string) ([]byte, error)
 }
 
+// Builder models the interaction between Decap and Kubernetes and the locking service that locks and defers builds.
 type Builder interface {
 	LaunchBuild(buildEvent BuildEvent) error
 	DeletePod(podName string) error
