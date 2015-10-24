@@ -14,24 +14,34 @@ const deferred = "/deferred"
 
 // Locker defines the interface the build locker and build deferral instance makes available.
 type Locker interface {
+	// Lock sets a lock in the lock service to prevent concurrent builds of a given branch
 	Lock(key, value string) (*etcd.Response, error)
+	// Unlock clears a lock on a build
 	Unlock(key, value string) (*etcd.Response, error)
+	// Defer creates an entry in the lock service that marks a build as deferred.
 	Defer(buildEvent []byte) (*etcd.Response, error)
+	// Clears the entry for a deferred build
 	ClearDeferred(deferredID string) (*etcd.Response, error)
+	// Returns the current list of deferred builds in created order
 	DeferredBuilds() ([]Deferral, error)
+	// Initialize the deferred build system if necessary
 	InitDeferred() error
+	// Form the opaque key for a given branch on a project
 	Key(projectKey, branch string) string
 }
 
 // Deferral models a deferred build.  Data is the serialized build event, while key is the identifier assigned to this deferred
 // build by the locker service.
 type Deferral struct {
+	// The underlying opaque build event.
 	Data string `json:"-"`
-	Key  string `json:"key"`
+	// The key under which the deferred build is stored.
+	Key string `json:"key"`
 }
 
 // EtcdLocker is the Locker implementation on top of etcd.
 type EtcdLocker struct {
+	// Config is the underlying etcd cluster configuration
 	Config etcd.Config
 }
 
