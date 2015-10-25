@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
-	"github.com/ae6rt/decap/web/locks"
 )
 
 func TestMakeSidecars(t *testing.T) {
-	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", &locks.NoOpLocker{}, "repo", "repobranch")
+	//	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", &locks.NoOpLocker{}, "repo", "repobranch")
+	k8s := DefaultBuilder{}
 	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 
 	sidecars := k8s.makeSidecarContainers(buildEvent, map[string]v1.Project{

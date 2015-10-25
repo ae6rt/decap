@@ -83,8 +83,8 @@ func main() {
 
 	// Wrap the deferred launcher like this so we can more easily test LaunchDeferred(c) method.
 	go func() {
-		if err := buildLauncher.Locker.InitDeferred(); err != nil {
-			Log.Printf("Cannot init deferred: %v.  Processing of deferred builds cannot proceed.\n", err)
+		if err := buildLauncher.Init(); err != nil {
+			Log.Printf("Cannot init builder: %v.  Processing of deferred builds cannot proceed.\n", err)
 		} else {
 			c := time.Tick(1 * time.Minute)
 			buildLauncher.LaunchDeferred(c)
@@ -94,7 +94,7 @@ func main() {
 	go logLevelMux(LogDefault)
 	go shutdownMux(BuildQueueOpen)
 	if !*noWebsocket {
-		go buildLauncher.Websock()
+		go buildLauncher.PodWatcher()
 	}
 
 	Log.Println("decap ready on port 9090...")

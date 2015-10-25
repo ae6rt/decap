@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/locks"
@@ -56,10 +57,14 @@ type StorageService interface {
 
 // Builder models the interaction between Decap and Kubernetes and the locking service that locks and defers builds.
 type Builder interface {
+	Init() error
 	LaunchBuild(buildEvent BuildEvent) error
+	CreatePod([]byte) error
 	DeletePod(podName string) error
 	DeferBuild(event BuildEvent, ref string) error
+	LaunchDeferred(ticker <-chan time.Time)
 	ClearDeferredBuild(key string) error
 	DeferredBuilds() ([]locks.Deferral, error)
+	PodWatcher()
 	SquashDeferred([]locks.Deferral) ([]v1.UserBuildEvent, []string)
 }

@@ -8,7 +8,12 @@ import (
 )
 
 func TestMakeBaseContainer(t *testing.T) {
-	k8s := NewBuilder("url", "admin", "admin123", "key", "sekrit", "us-west-1", &locks.NoOpLocker{}, "repo", "repobranch")
+	k8s := DefaultBuilder{
+		AWSAccessKeyID:  "key",
+		AWSAccessSecret: "sekrit",
+		AWSRegion:       "us-west-1",
+		Locker:          &locks.NoOpLocker{},
+	}
 
 	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
 	baseContainer := k8s.makeBaseContainer(buildEvent, "uuid", "master", map[string]v1.Project{

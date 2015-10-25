@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/locks"
 )
@@ -33,6 +35,20 @@ func (d *MockBuilder) DeferredBuilds() ([]locks.Deferral, error) {
 
 func (d *MockBuilder) SquashDeferred([]locks.Deferral) ([]v1.UserBuildEvent, []string) {
 	return nil, nil
+}
+
+func (d *MockBuilder) CreatePod(data []byte) error {
+	return nil
+}
+
+func (d *MockBuilder) Init() error {
+	return nil
+}
+
+func (d *MockBuilder) PodWatcher() {
+}
+
+func (d *MockBuilder) LaunchDeferred(ticker <-chan time.Time) {
 }
 
 func (d *MockBuilder) ClearDeferredBuild(key string) error {

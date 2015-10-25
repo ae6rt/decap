@@ -24,7 +24,7 @@ import (
 )
 
 // NewBuilder is the constructor for a new default Builder instance.
-func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker locks.Locker, buildScriptsRepo, buildScriptsRepoBranch string) DefaultBuilder {
+func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker locks.Locker, buildScriptsRepo, buildScriptsRepoBranch string) Builder {
 
 	tlsConfig := tls.Config{}
 	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
@@ -350,7 +350,7 @@ func (builder DefaultBuilder) DeletePod(podName string) error {
 	return nil
 }
 
-func (builder DefaultBuilder) Websock() {
+func (builder DefaultBuilder) PodWatcher() {
 
 	var conn *websocket.Conn
 
@@ -563,6 +563,10 @@ func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 			}
 		}
 	}
+}
+
+func (builder DefaultBuilder) Init() error {
+	return builder.Locker.InitDeferred()
 }
 
 func kubeSecret(file string, defaultValue string) string {
