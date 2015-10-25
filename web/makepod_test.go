@@ -9,7 +9,7 @@ import (
 )
 
 func TestMakePod(t *testing.T) {
-	k8s := DefaultBuilder{
+	builder := DefaultBuilder{
 		Locker:                 &locks.NoOpLocker{},
 		buildScriptsRepo:       "repo",
 		buildScriptsRepoBranch: "repobranch",
@@ -50,14 +50,14 @@ func TestMakePod(t *testing.T) {
 		},
 	}
 
-	baseContainer := k8s.makeBaseContainer(buildEvent, "uuid", "master", projectMap)
-	sidecars := k8s.makeSidecarContainers(buildEvent, projectMap)
+	baseContainer := builder.makeBaseContainer(buildEvent, "uuid", "master", projectMap)
+	sidecars := builder.makeSidecarContainers(buildEvent, projectMap)
 
 	var arr []k8stypes.Container
 	arr = append(arr, baseContainer)
 	arr = append(arr, sidecars...)
 
-	pod := k8s.makePod(buildEvent, "uuid", "master", arr)
+	pod := builder.makePod(buildEvent, "uuid", "master", arr)
 
 	if pod.ObjectMeta.Name != "uuid" {
 		t.Fatalf("Want uuid but got %v\n", pod.ObjectMeta.Name)

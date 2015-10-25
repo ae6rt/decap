@@ -8,7 +8,7 @@ import (
 )
 
 func TestMakeBaseContainer(t *testing.T) {
-	k8s := DefaultBuilder{
+	builder := DefaultBuilder{
 		AWSAccessKeyID:  "key",
 		AWSAccessSecret: "sekrit",
 		AWSRegion:       "us-west-1",
@@ -16,7 +16,7 @@ func TestMakeBaseContainer(t *testing.T) {
 	}
 
 	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
-	baseContainer := k8s.makeBaseContainer(buildEvent, "uuid", "master", map[string]v1.Project{
+	baseContainer := builder.makeBaseContainer(buildEvent, "uuid", "master", map[string]v1.Project{
 		"ae6rt/somelib": v1.Project{Team: "ae6rt", ProjectName: "somelib", Descriptor: v1.ProjectDescriptor{Image: "magic-image"}, Sidecars: []string{}},
 	})
 
