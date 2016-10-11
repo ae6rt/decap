@@ -19,14 +19,14 @@ lint:
 	go vet ./...
 
 test: lint
-	godep go test -v ./...
+	go test -v ./...
 
 osx: test
-	CGO_ENABLED=0 godep go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
+	CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
 
 binaries: test 
-	CGO_ENABLED=0 godep go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
-	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 godep go build -ldflags $(LD_FLAGS) -o $(NAME)-linux-$(ARCH) 
+	CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
+	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-linux-$(ARCH) 
 
 container: binaries
 	docker build -t $(IMAGE) .
@@ -35,4 +35,4 @@ push: container
 	docker push  $(IMAGE)
 
 clean: 
-	godep go clean
+	go clean

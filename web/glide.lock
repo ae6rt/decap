@@ -1,0 +1,51 @@
+hash: 5971c072b24714f47bf6bfb5b06c14a2ec407660a2a43c75bf51d7f3d7ba54ab
+updated: 2016-10-11T07:16:12.316291343-07:00
+imports:
+- name: github.com/ae6rt/gittools
+  version: 449f4673f8af9903fbdc4eac5e37a669ea55a10f
+- name: github.com/ae6rt/retry
+  version: 1a40fd118c4c589e39abd065d7e94145c45133a6
+- name: github.com/aws/aws-sdk-go
+  version: 8aa49b7df483d06102fd8b61bf02268e7697d51c
+  subpackages:
+  - aws
+  - aws/awserr
+  - aws/credentials
+  - service/dynamodb
+  - service/s3
+  - aws/awsutil
+  - aws/defaults
+  - aws/service
+  - internal/protocol/jsonrpc
+  - internal/signer/v4
+  - internal/protocol/restxml
+  - aws/credentials/ec2rolecreds
+  - internal/endpoints
+  - internal/protocol/json/jsonutil
+  - internal/protocol/rest
+  - internal/protocol/query
+  - internal/protocol/xml/xmlutil
+  - aws/ec2metadata
+  - internal/protocol/query/queryutil
+- name: github.com/coreos/etcd
+  version: fca98c9071f2d7fc2ece35b68d2322b2c0ed440e
+  subpackages:
+  - client
+  - pkg/pathutil
+  - pkg/types
+- name: github.com/julienschmidt/httprouter
+  version: 2ba0f3d499bb3c8d1f47107eb55a597b6619d388
+- name: github.com/twinj/uuid
+  version: 7bbe408d339787c56ec15568c947c0959db1b275
+- name: github.com/vaughan0/go-ini
+  version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
+- name: golang.org/x/net
+  version: cf4effbb9db1f3ef07f7e1891402991b6afbb276
+  subpackages:
+  - context
+  - websocket
+- name: gopkg.in/inf.v0
+  version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
+testImports:
+- name: github.com/ae6rt/ziptools
+  version: 0e733d9cea2914f8d26004bc575530048d92d063

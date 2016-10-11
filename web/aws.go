@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
-	"time"
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/retry"
@@ -68,7 +67,7 @@ func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, 
 		}
 		return nil
 	}
-	err := retry.New(5*time.Second, 3, retry.DefaultBackoffFunc).Try(work)
+	err := retry.New(3, retry.DefaultBackoffFunc).Try(work)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +132,7 @@ func (c AWSStorageService) bytesFromBucket(bucketName, objectKey string) ([]byte
 		return nil
 	}
 
-	if err := retry.New(5*time.Second, 3, retry.DefaultBackoffFunc).Try(work); err != nil {
+	if err := retry.New(3, retry.DefaultBackoffFunc).Try(work); err != nil {
 		return nil, err
 	}
 

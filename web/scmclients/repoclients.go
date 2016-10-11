@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/retry"
@@ -94,7 +93,7 @@ func (gh GithubClient) GetRefs(owner, repository string) ([]v1.Ref, error) {
 			return nil
 		}
 
-		if err := retry.New(3*time.Second, 3, retry.DefaultBackoffFunc).Try(work); err != nil {
+		if err := retry.New(3, retry.DefaultBackoffFunc).Try(work); err != nil {
 			return nil, err
 		}
 

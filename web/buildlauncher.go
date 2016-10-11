@@ -18,8 +18,8 @@ import (
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/k8stypes"
 	"github.com/ae6rt/decap/web/locks"
+	"github.com/ae6rt/decap/web/uuid"
 	"github.com/ae6rt/retry"
-	"github.com/pborman/uuid"
 	"golang.org/x/net/websocket"
 )
 
@@ -244,8 +244,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 		}
 
 		key := builder.Locker.Key(projectKey, ref)
-		buildID := uuid.NewRandom().String()
-
+		buildID := uuid.Uuid()
 		containers := builder.makeContainers(buildEvent, buildID, ref, projects)
 
 		pod := builder.makePod(buildEvent, buildID, ref, containers)
@@ -393,7 +392,7 @@ func (builder DefaultBuilder) PodWatcher() {
 		return nil
 	}
 
-	err := retry.New(5*time.Second, 60, retry.DefaultBackoffFunc).Try(work)
+	err := retry.New(60, retry.DefaultBackoffFunc).Try(work)
 	if err != nil {
 		Log.Printf("Error opening websocket connection.  Will be unable to reap exited pods.: %v\n", err)
 		return

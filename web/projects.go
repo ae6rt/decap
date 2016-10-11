@@ -149,12 +149,12 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]v1.Proj
 		return nil
 	}
 
-	err := retry.New(32*time.Second, 5, func(attempts uint) {
+	err := retry.New(5, func(attempts int) {
 		if attempts == 0 {
 			return
 		}
 		Log.Printf("Wait for clone-repository with-backoff try %d\n", attempts+1)
-		time.Sleep((1 << attempts) * time.Second)
+		time.Sleep((1 << uint(attempts)) * time.Second)
 	}).Try(work)
 
 	if err != nil {
