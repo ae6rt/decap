@@ -83,7 +83,7 @@ func TestHooksHandlerGithub(t *testing.T) {
 		os.RemoveAll(dir)
 	}()
 
-	req, err := http.NewRequest("POST}", "http://example.com/hooks/xxx", bytes.NewBufferString(`
+	req, err := http.NewRequest("POST", "http://example.com/hooks/xxx", bytes.NewBufferString(`
 {
   "ref": "refs/heads/master",
   "repository": {
@@ -138,7 +138,7 @@ func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
 		os.RemoveAll(dir)
 	}()
 
-	req, err := http.NewRequest("POST}", "http://example.com/hooks/xxx", bytes.NewBufferString(`
+	req, err := http.NewRequest("POST", "http://example.com/hooks/xxx", bytes.NewBufferString(`
 {
   "ref": "refs/heads/master",
   "repository": {
