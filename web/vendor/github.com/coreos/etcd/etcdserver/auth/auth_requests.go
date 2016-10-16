@@ -1,4 +1,4 @@
-// Copyright 2015 CoreOS, Inc.
+// Copyright 2015 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -85,15 +85,10 @@ func (s *store) detectAuth() bool {
 	if s.server == nil {
 		return false
 	}
-	if s.enabled != nil {
-		return *s.enabled
-	}
 	value, err := s.requestResource("/enabled", false)
 	if err != nil {
 		if e, ok := err.(*etcderr.Error); ok {
 			if e.ErrorCode == etcderr.EcodeKeyNotFound {
-				b := false
-				s.enabled = &b
 				return false
 			}
 		}
@@ -107,7 +102,6 @@ func (s *store) detectAuth() bool {
 		plog.Errorf("internal bookkeeping value for enabled isn't valid JSON (%v)", err)
 		return false
 	}
-	s.enabled = &u
 	return u
 }
 

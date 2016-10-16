@@ -1,4 +1,4 @@
-// Copyright 2015 CoreOS, Inc.
+// Copyright 2015 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package auth implements etcd authentication.
 package auth
 
 import (
@@ -45,15 +46,15 @@ const (
 )
 
 var (
-	plog = capnslog.NewPackageLogger("github.com/coreos/etcd/etcdserver", "auth")
+	plog = capnslog.NewPackageLogger("github.com/coreos/etcd", "etcdserver/auth")
 )
 
 var rootRole = Role{
 	Role: RootRoleName,
 	Permissions: Permissions{
 		KV: RWPermission{
-			Read:  []string{"*"},
-			Write: []string{"*"},
+			Read:  []string{"/*"},
+			Write: []string{"/*"},
 		},
 	},
 }
@@ -62,8 +63,8 @@ var guestRole = Role{
 	Role: GuestRoleName,
 	Permissions: Permissions{
 		KV: RWPermission{
-			Read:  []string{"*"},
-			Write: []string{"*"},
+			Read:  []string{"/*"},
+			Write: []string{"/*"},
 		},
 	},
 }
@@ -87,13 +88,20 @@ type Store interface {
 	AuthEnabled() bool
 	EnableAuth() error
 	DisableAuth() error
+	PasswordStore
+}
+
+type PasswordStore interface {
+	CheckPassword(user User, password string) bool
+	HashPassword(password string) (string, error)
 }
 
 type store struct {
 	server      doer
 	timeout     time.Duration
 	ensuredOnce bool
-	enabled     *bool
+
+	PasswordStore
 }
 
 type User struct {
@@ -138,10 +146,24 @@ func authErr(hs int, s string, v ...interface{}) Error {
 
 func NewStore(server doer, timeout time.Duration) Store {
 	s := &store{
-		server:  server,
-		timeout: timeout,
+		server:        server,
+		timeout:       timeout,
+		PasswordStore: passwordStore{},
 	}
 	return s
+}
+
+// passwordStore implements PasswordStore using bcrypt to hash user passwords
+type passwordStore struct{}
+
+func (_ passwordStore) CheckPassword(user User, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	return err == nil
+}
+
+func (_ passwordStore) HashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hash), err
 }
 
 func (s *store) AllUsers() ([]string, error) {
@@ -214,11 +236,11 @@ func (s *store) createUserInternal(user User) (User, error) {
 	if user.Password == "" {
 		return user, authErr(http.StatusBadRequest, "Cannot create user %s with an empty password", user.User)
 	}
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hash, err := s.HashPassword(user.Password)
 	if err != nil {
 		return user, err
 	}
-	user.Password = string(hash)
+	user.Password = hash
 
 	_, err = s.createResource("/users/"+user.User, user)
 	if err != nil {
@@ -258,7 +280,8 @@ func (s *store) UpdateUser(user User) (User, error) {
 		}
 		return old, err
 	}
-	newUser, err := old.merge(user)
+
+	newUser, err := old.merge(user, s.PasswordStore)
 	if err != nil {
 		return old, err
 	}
@@ -306,11 +329,7 @@ func (s *store) GetRole(name string) (Role, error) {
 	}
 	var r Role
 	err = json.Unmarshal([]byte(*resp.Event.Node.Value), &r)
-	if err != nil {
-		return r, err
-	}
-
-	return r, nil
+	return r, err
 }
 
 func (s *store) CreateRole(role Role) error {
@@ -384,38 +403,34 @@ func (s *store) EnableAuth() error {
 	if s.AuthEnabled() {
 		return authErr(http.StatusConflict, "already enabled")
 	}
-	_, err := s.GetUser("root")
-	if err != nil {
+
+	if _, err := s.GetUser("root"); err != nil {
 		return authErr(http.StatusConflict, "No root user available, please create one")
 	}
-	_, err = s.GetRole(GuestRoleName)
-	if err != nil {
+	if _, err := s.GetRole(GuestRoleName); err != nil {
 		plog.Printf("no guest role access found, creating default")
-		err := s.CreateRole(guestRole)
-		if err != nil {
+		if err := s.CreateRole(guestRole); err != nil {
 			plog.Errorf("error creating guest role. aborting auth enable.")
 			return err
 		}
 	}
-	err = s.enableAuth()
-	if err == nil {
-		b := true
-		s.enabled = &b
-		plog.Noticef("auth: enabled auth")
-	} else {
+
+	if err := s.enableAuth(); err != nil {
 		plog.Errorf("error enabling auth (%v)", err)
+		return err
 	}
-	return err
+
+	plog.Noticef("auth: enabled auth")
+	return nil
 }
 
 func (s *store) DisableAuth() error {
 	if !s.AuthEnabled() {
 		return authErr(http.StatusConflict, "already disabled")
 	}
+
 	err := s.disableAuth()
 	if err == nil {
-		b := false
-		s.enabled = &b
 		plog.Noticef("auth: disabled auth")
 	} else {
 		plog.Errorf("error disabling auth (%v)", err)
@@ -427,44 +442,39 @@ func (s *store) DisableAuth() error {
 // is called and returns a new User with these modifications applied. Think of
 // all Users as immutable sets of data. Merge allows you to perform the set
 // operations (desired grants and revokes) atomically
-func (u User) merge(n User) (User, error) {
+func (ou User) merge(nu User, s PasswordStore) (User, error) {
 	var out User
-	if u.User != n.User {
-		return out, authErr(http.StatusConflict, "Merging user data with conflicting usernames: %s %s", u.User, n.User)
+	if ou.User != nu.User {
+		return out, authErr(http.StatusConflict, "Merging user data with conflicting usernames: %s %s", ou.User, nu.User)
 	}
-	out.User = u.User
-	if n.Password != "" {
-		hash, err := bcrypt.GenerateFromPassword([]byte(n.Password), bcrypt.DefaultCost)
+	out.User = ou.User
+	if nu.Password != "" {
+		hash, err := s.HashPassword(nu.Password)
 		if err != nil {
-			return User{}, err
+			return ou, err
 		}
-		out.Password = string(hash)
+		out.Password = hash
 	} else {
-		out.Password = u.Password
+		out.Password = ou.Password
 	}
-	currentRoles := types.NewUnsafeSet(u.Roles...)
-	for _, g := range n.Grant {
+	currentRoles := types.NewUnsafeSet(ou.Roles...)
+	for _, g := range nu.Grant {
 		if currentRoles.Contains(g) {
-			plog.Noticef("granting duplicate role %s for user %s", g, n.User)
-			return User{}, authErr(http.StatusConflict, fmt.Sprintf("Granting duplicate role %s for user %s", g, n.User))
+			plog.Noticef("granting duplicate role %s for user %s", g, nu.User)
+			return User{}, authErr(http.StatusConflict, fmt.Sprintf("Granting duplicate role %s for user %s", g, nu.User))
 		}
 		currentRoles.Add(g)
 	}
-	for _, r := range n.Revoke {
+	for _, r := range nu.Revoke {
 		if !currentRoles.Contains(r) {
-			plog.Noticef("revoking ungranted role %s for user %s", r, n.User)
-			return User{}, authErr(http.StatusConflict, fmt.Sprintf("Revoking ungranted role %s for user %s", r, n.User))
+			plog.Noticef("revoking ungranted role %s for user %s", r, nu.User)
+			return User{}, authErr(http.StatusConflict, fmt.Sprintf("Revoking ungranted role %s for user %s", r, nu.User))
 		}
 		currentRoles.Remove(r)
 	}
 	out.Roles = currentRoles.Values()
 	sort.Strings(out.Roles)
 	return out, nil
-}
-
-func (u User) CheckPassword(password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
-	return err == nil
 }
 
 // merge for a role works the same as User above -- atomic Role application to
@@ -481,10 +491,7 @@ func (r Role) merge(n Role) (Role, error) {
 		return out, err
 	}
 	out.Permissions, err = out.Permissions.Revoke(n.Revoke)
-	if err != nil {
-		return out, err
-	}
-	return out, nil
+	return out, err
 }
 
 func (r Role) HasKeyAccess(key string, write bool) bool {

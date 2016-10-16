@@ -1,12 +1,12 @@
-hash: 5971c072b24714f47bf6bfb5b06c14a2ec407660a2a43c75bf51d7f3d7ba54ab
-updated: 2016-10-11T07:16:12.316291343-07:00
+hash: e5a4ab465595b012067e50ad9f175aa9adf77b879e31825acc24d68f5b3418bb
+updated: 2016-10-16T06:52:48.563832311-07:00
 imports:
 - name: github.com/ae6rt/gittools
-  version: 449f4673f8af9903fbdc4eac5e37a669ea55a10f
+  version: ""
 - name: github.com/ae6rt/retry
-  version: 1a40fd118c4c589e39abd065d7e94145c45133a6
+  version: ""
 - name: github.com/aws/aws-sdk-go
-  version: 8aa49b7df483d06102fd8b61bf02268e7697d51c
+  version: ""
   subpackages:
   - aws
   - aws/awserr
@@ -28,24 +28,24 @@ imports:
   - aws/ec2metadata
   - internal/protocol/query/queryutil
 - name: github.com/coreos/etcd
-  version: fca98c9071f2d7fc2ece35b68d2322b2c0ed440e
+  version: ""
   subpackages:
   - client
   - pkg/pathutil
   - pkg/types
+- name: github.com/gorilla/websocket
+  version: ""
 - name: github.com/julienschmidt/httprouter
-  version: 2ba0f3d499bb3c8d1f47107eb55a597b6619d388
-- name: github.com/twinj/uuid
-  version: 7bbe408d339787c56ec15568c947c0959db1b275
+  version: ""
 - name: github.com/vaughan0/go-ini
-  version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
+  version: 8305e43d5c704533364e1c9a9ba4ae1fc1ce05f0
 - name: golang.org/x/net
-  version: cf4effbb9db1f3ef07f7e1891402991b6afbb276
+  version: ""
   subpackages:
   - context
   - websocket
 - name: gopkg.in/inf.v0
-  version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
+  version: 8305e43d5c704533364e1c9a9ba4ae1fc1ce05f0
 testImports:
 - name: github.com/ae6rt/ziptools
-  version: 0e733d9cea2914f8d26004bc575530048d92d063
+  version: ""

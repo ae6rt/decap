@@ -7,12 +7,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/awsutil"
-	"github.com/aws/aws-sdk-go/aws/service"
+	"github.com/aws/aws-sdk-go/aws/request"
 )
 
 var reBucketLocation = regexp.MustCompile(`>([^<>]+)<\/Location`)
 
-func buildGetBucketLocation(r *service.Request) {
+func buildGetBucketLocation(r *request.Request) {
 	if r.DataFilled() {
 		out := r.Data.(*GetBucketLocationOutput)
 		b, err := ioutil.ReadAll(r.HTTPResponse.Body)
@@ -29,7 +29,7 @@ func buildGetBucketLocation(r *service.Request) {
 	}
 }
 
-func populateLocationConstraint(r *service.Request) {
+func populateLocationConstraint(r *request.Request) {
 	if r.ParamsFilled() && aws.StringValue(r.Config.Region) != "us-east-1" {
 		in := r.Params.(*CreateBucketInput)
 		if in.CreateBucketConfiguration == nil {

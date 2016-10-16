@@ -1,4 +1,4 @@
-// Copyright 2015 CoreOS, Inc.
+// Copyright 2015 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -74,8 +74,8 @@ func (l *raftLog) String() string {
 // maybeAppend returns (0, false) if the entries cannot be appended. Otherwise,
 // it returns (last index of new entries, true).
 func (l *raftLog) maybeAppend(index, logTerm, committed uint64, ents ...pb.Entry) (lastnewi uint64, ok bool) {
-	lastnewi = index + uint64(len(ents))
 	if l.matchTerm(index, logTerm) {
+		lastnewi = index + uint64(len(ents))
 		ci := l.findConflict(ents)
 		switch {
 		case ci == 0:
@@ -148,6 +148,13 @@ func (l *raftLog) nextEnts() (ents []pb.Entry) {
 	return nil
 }
 
+// hasNextEnts returns if there is any available entries for execution. This
+// is a fast check without heavy raftLog.slice() in raftLog.nextEnts().
+func (l *raftLog) hasNextEnts() bool {
+	off := max(l.applied+1, l.firstIndex())
+	return l.committed+1 > off
+}
+
 func (l *raftLog) snapshot() (pb.Snapshot, error) {
 	if l.unstable.snapshot != nil {
 		return *l.unstable.snapshot, nil
@@ -181,7 +188,7 @@ func (l *raftLog) commitTo(tocommit uint64) {
 	// never decrease commit
 	if l.committed < tocommit {
 		if l.lastIndex() < tocommit {
-			l.logger.Panicf("tocommit(%d) is out of range [lastIndex(%d)]", tocommit, l.lastIndex())
+			l.logger.Panicf("tocommit(%d) is out of range [lastIndex(%d)]. Was the raft log corrupted, truncated, or lost?", tocommit, l.lastIndex())
 		}
 		l.committed = tocommit
 	}
@@ -225,7 +232,7 @@ func (l *raftLog) term(i uint64) (uint64, error) {
 	if err == nil {
 		return t, nil
 	}
-	if err == ErrCompacted {
+	if err == ErrCompacted || err == ErrUnavailable {
 		return 0, err
 	}
 	panic(err) // TODO(bdarnell)
@@ -332,7 +339,7 @@ func (l *raftLog) mustCheckOutOfBounds(lo, hi uint64) error {
 		return ErrCompacted
 	}
 
-	length := l.lastIndex() - fi + 1
+	length := l.lastIndex() + 1 - fi
 	if lo < fi || hi > fi+length {
 		l.logger.Panicf("slice[%d,%d) out of bound [%d,%d]", lo, hi, fi, l.lastIndex())
 	}

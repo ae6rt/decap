@@ -8,8 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/codepipeline"
 )
 
@@ -17,64 +16,66 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleCodePipeline_AcknowledgeJob() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.AcknowledgeJobInput{
-		JobID: aws.String("JobId"), // Required
+		JobId: aws.String("JobId"), // Required
 		Nonce: aws.String("Nonce"), // Required
 	}
 	resp, err := svc.AcknowledgeJob(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_AcknowledgeThirdPartyJob() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.AcknowledgeThirdPartyJobInput{
 		ClientToken: aws.String("ClientToken"),     // Required
-		JobID:       aws.String("ThirdPartyJobId"), // Required
+		JobId:       aws.String("ThirdPartyJobId"), // Required
 		Nonce:       aws.String("Nonce"),           // Required
 	}
 	resp, err := svc.AcknowledgeThirdPartyJob(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_CreateCustomActionType() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.CreateCustomActionTypeInput{
 		Category: aws.String("ActionCategory"), // Required
@@ -101,49 +102,51 @@ func ExampleCodePipeline_CreateCustomActionType() {
 			// More values...
 		},
 		Settings: &codepipeline.ActionTypeSettings{
-			EntityURLTemplate:          aws.String("UrlTemplate"),
-			ExecutionURLTemplate:       aws.String("UrlTemplate"),
-			RevisionURLTemplate:        aws.String("UrlTemplate"),
-			ThirdPartyConfigurationURL: aws.String("Url"),
+			EntityUrlTemplate:          aws.String("UrlTemplate"),
+			ExecutionUrlTemplate:       aws.String("UrlTemplate"),
+			RevisionUrlTemplate:        aws.String("UrlTemplate"),
+			ThirdPartyConfigurationUrl: aws.String("Url"),
 		},
 	}
 	resp, err := svc.CreateCustomActionType(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_CreatePipeline() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.CreatePipelineInput{
 		Pipeline: &codepipeline.PipelineDeclaration{ // Required
 			ArtifactStore: &codepipeline.ArtifactStore{ // Required
 				Location: aws.String("ArtifactStoreLocation"), // Required
 				Type:     aws.String("ArtifactStoreType"),     // Required
+				EncryptionKey: &codepipeline.EncryptionKey{
+					Id:   aws.String("EncryptionKeyId"),   // Required
+					Type: aws.String("EncryptionKeyType"), // Required
+				},
 			},
 			Name:    aws.String("PipelineName"), // Required
-			RoleARN: aws.String("RoleArn"),      // Required
+			RoleArn: aws.String("RoleArn"),      // Required
 			Stages: []*codepipeline.StageDeclaration{ // Required
 				{ // Required
 					Actions: []*codepipeline.ActionDeclaration{ // Required
 						{ // Required
-							ActionTypeID: &codepipeline.ActionTypeID{ // Required
+							ActionTypeId: &codepipeline.ActionTypeId{ // Required
 								Category: aws.String("ActionCategory"), // Required
 								Owner:    aws.String("ActionOwner"),    // Required
 								Provider: aws.String("ActionProvider"), // Required
@@ -166,7 +169,7 @@ func ExampleCodePipeline_CreatePipeline() {
 								},
 								// More values...
 							},
-							RoleARN:  aws.String("RoleArn"),
+							RoleArn:  aws.String("RoleArn"),
 							RunOrder: aws.Int64(1),
 						},
 						// More values...
@@ -188,26 +191,24 @@ func ExampleCodePipeline_CreatePipeline() {
 	resp, err := svc.CreatePipeline(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_DeleteCustomActionType() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.DeleteCustomActionTypeInput{
 		Category: aws.String("ActionCategory"), // Required
@@ -217,26 +218,24 @@ func ExampleCodePipeline_DeleteCustomActionType() {
 	resp, err := svc.DeleteCustomActionType(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_DeletePipeline() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.DeletePipelineInput{
 		Name: aws.String("PipelineName"), // Required
@@ -244,26 +243,24 @@ func ExampleCodePipeline_DeletePipeline() {
 	resp, err := svc.DeletePipeline(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_DisableStageTransition() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.DisableStageTransitionInput{
 		PipelineName:   aws.String("PipelineName"),        // Required
@@ -274,26 +271,24 @@ func ExampleCodePipeline_DisableStageTransition() {
 	resp, err := svc.DisableStageTransition(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_EnableStageTransition() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.EnableStageTransitionInput{
 		PipelineName:   aws.String("PipelineName"),        // Required
@@ -303,53 +298,49 @@ func ExampleCodePipeline_EnableStageTransition() {
 	resp, err := svc.EnableStageTransition(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_GetJobDetails() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.GetJobDetailsInput{
-		JobID: aws.String("JobId"), // Required
+		JobId: aws.String("JobId"), // Required
 	}
 	resp, err := svc.GetJobDetails(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_GetPipeline() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.GetPipelineInput{
 		Name:    aws.String("PipelineName"), // Required
@@ -358,26 +349,50 @@ func ExampleCodePipeline_GetPipeline() {
 	resp, err := svc.GetPipeline(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleCodePipeline_GetPipelineExecution() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
+
+	params := &codepipeline.GetPipelineExecutionInput{
+		PipelineExecutionId: aws.String("PipelineExecutionId"), // Required
+		PipelineName:        aws.String("PipelineName"),        // Required
+	}
+	resp, err := svc.GetPipelineExecution(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_GetPipelineState() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.GetPipelineStateInput{
 		Name: aws.String("PipelineName"), // Required
@@ -385,54 +400,50 @@ func ExampleCodePipeline_GetPipelineState() {
 	resp, err := svc.GetPipelineState(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_GetThirdPartyJobDetails() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.GetThirdPartyJobDetailsInput{
 		ClientToken: aws.String("ClientToken"),     // Required
-		JobID:       aws.String("ThirdPartyJobId"), // Required
+		JobId:       aws.String("ThirdPartyJobId"), // Required
 	}
 	resp, err := svc.GetThirdPartyJobDetails(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_ListActionTypes() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.ListActionTypesInput{
 		ActionOwnerFilter: aws.String("ActionOwner"),
@@ -441,26 +452,24 @@ func ExampleCodePipeline_ListActionTypes() {
 	resp, err := svc.ListActionTypes(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_ListPipelines() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.ListPipelinesInput{
 		NextToken: aws.String("NextToken"),
@@ -468,29 +477,27 @@ func ExampleCodePipeline_ListPipelines() {
 	resp, err := svc.ListPipelines(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_PollForJobs() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.PollForJobsInput{
-		ActionTypeID: &codepipeline.ActionTypeID{ // Required
+		ActionTypeId: &codepipeline.ActionTypeId{ // Required
 			Category: aws.String("ActionCategory"), // Required
 			Owner:    aws.String("ActionOwner"),    // Required
 			Provider: aws.String("ActionProvider"), // Required
@@ -505,29 +512,27 @@ func ExampleCodePipeline_PollForJobs() {
 	resp, err := svc.PollForJobs(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_PollForThirdPartyJobs() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.PollForThirdPartyJobsInput{
-		ActionTypeID: &codepipeline.ActionTypeID{ // Required
+		ActionTypeId: &codepipeline.ActionTypeId{ // Required
 			Category: aws.String("ActionCategory"), // Required
 			Owner:    aws.String("ActionOwner"),    // Required
 			Provider: aws.String("ActionProvider"), // Required
@@ -538,33 +543,31 @@ func ExampleCodePipeline_PollForThirdPartyJobs() {
 	resp, err := svc.PollForThirdPartyJobs(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_PutActionRevision() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.PutActionRevisionInput{
 		ActionName: aws.String("ActionName"), // Required
 		ActionRevision: &codepipeline.ActionRevision{ // Required
-			Created:          aws.Time(time.Now()),     // Required
-			RevisionID:       aws.String("RevisionId"), // Required
-			RevisionChangeID: aws.String("RevisionChangeId"),
+			Created:          aws.Time(time.Now()),                   // Required
+			RevisionChangeId: aws.String("RevisionChangeIdentifier"), // Required
+			RevisionId:       aws.String("Revision"),                 // Required
 		},
 		PipelineName: aws.String("PipelineName"), // Required
 		StageName:    aws.String("StageName"),    // Required
@@ -572,68 +575,98 @@ func ExampleCodePipeline_PutActionRevision() {
 	resp, err := svc.PutActionRevision(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleCodePipeline_PutApprovalResult() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
+
+	params := &codepipeline.PutApprovalResultInput{
+		ActionName:   aws.String("ActionName"),   // Required
+		PipelineName: aws.String("PipelineName"), // Required
+		Result: &codepipeline.ApprovalResult{ // Required
+			Status:  aws.String("ApprovalStatus"),  // Required
+			Summary: aws.String("ApprovalSummary"), // Required
+		},
+		StageName: aws.String("StageName"),     // Required
+		Token:     aws.String("ApprovalToken"), // Required
+	}
+	resp, err := svc.PutApprovalResult(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_PutJobFailureResult() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.PutJobFailureResultInput{
 		FailureDetails: &codepipeline.FailureDetails{ // Required
+			Message:             aws.String("Message"),     // Required
 			Type:                aws.String("FailureType"), // Required
-			ExternalExecutionID: aws.String("ExecutionId"),
-			Message:             aws.String("Message"),
+			ExternalExecutionId: aws.String("ExecutionId"),
 		},
-		JobID: aws.String("JobId"), // Required
+		JobId: aws.String("JobId"), // Required
 	}
 	resp, err := svc.PutJobFailureResult(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_PutJobSuccessResult() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.PutJobSuccessResultInput{
-		JobID:             aws.String("JobId"), // Required
+		JobId:             aws.String("JobId"), // Required
 		ContinuationToken: aws.String("ContinuationToken"),
 		CurrentRevision: &codepipeline.CurrentRevision{
 			ChangeIdentifier: aws.String("RevisionChangeIdentifier"), // Required
 			Revision:         aws.String("Revision"),                 // Required
+			Created:          aws.Time(time.Now()),
+			RevisionSummary:  aws.String("RevisionSummary"),
 		},
 		ExecutionDetails: &codepipeline.ExecutionDetails{
-			ExternalExecutionID: aws.String("ExecutionId"),
+			ExternalExecutionId: aws.String("ExecutionId"),
 			PercentComplete:     aws.Int64(1),
 			Summary:             aws.String("ExecutionSummary"),
 		},
@@ -641,70 +674,68 @@ func ExampleCodePipeline_PutJobSuccessResult() {
 	resp, err := svc.PutJobSuccessResult(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_PutThirdPartyJobFailureResult() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.PutThirdPartyJobFailureResultInput{
 		ClientToken: aws.String("ClientToken"), // Required
 		FailureDetails: &codepipeline.FailureDetails{ // Required
+			Message:             aws.String("Message"),     // Required
 			Type:                aws.String("FailureType"), // Required
-			ExternalExecutionID: aws.String("ExecutionId"),
-			Message:             aws.String("Message"),
+			ExternalExecutionId: aws.String("ExecutionId"),
 		},
-		JobID: aws.String("ThirdPartyJobId"), // Required
+		JobId: aws.String("ThirdPartyJobId"), // Required
 	}
 	resp, err := svc.PutThirdPartyJobFailureResult(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_PutThirdPartyJobSuccessResult() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.PutThirdPartyJobSuccessResultInput{
 		ClientToken:       aws.String("ClientToken"),     // Required
-		JobID:             aws.String("ThirdPartyJobId"), // Required
+		JobId:             aws.String("ThirdPartyJobId"), // Required
 		ContinuationToken: aws.String("ContinuationToken"),
 		CurrentRevision: &codepipeline.CurrentRevision{
 			ChangeIdentifier: aws.String("RevisionChangeIdentifier"), // Required
 			Revision:         aws.String("Revision"),                 // Required
+			Created:          aws.Time(time.Now()),
+			RevisionSummary:  aws.String("RevisionSummary"),
 		},
 		ExecutionDetails: &codepipeline.ExecutionDetails{
-			ExternalExecutionID: aws.String("ExecutionId"),
+			ExternalExecutionId: aws.String("ExecutionId"),
 			PercentComplete:     aws.Int64(1),
 			Summary:             aws.String("ExecutionSummary"),
 		},
@@ -712,26 +743,52 @@ func ExampleCodePipeline_PutThirdPartyJobSuccessResult() {
 	resp, err := svc.PutThirdPartyJobSuccessResult(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleCodePipeline_RetryStageExecution() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
+
+	params := &codepipeline.RetryStageExecutionInput{
+		PipelineExecutionId: aws.String("PipelineExecutionId"), // Required
+		PipelineName:        aws.String("PipelineName"),        // Required
+		RetryMode:           aws.String("StageRetryMode"),      // Required
+		StageName:           aws.String("StageName"),           // Required
+	}
+	resp, err := svc.RetryStageExecution(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_StartPipelineExecution() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.StartPipelineExecutionInput{
 		Name: aws.String("PipelineName"), // Required
@@ -739,40 +796,42 @@ func ExampleCodePipeline_StartPipelineExecution() {
 	resp, err := svc.StartPipelineExecution(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCodePipeline_UpdatePipeline() {
-	svc := codepipeline.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := codepipeline.New(sess)
 
 	params := &codepipeline.UpdatePipelineInput{
 		Pipeline: &codepipeline.PipelineDeclaration{ // Required
 			ArtifactStore: &codepipeline.ArtifactStore{ // Required
 				Location: aws.String("ArtifactStoreLocation"), // Required
 				Type:     aws.String("ArtifactStoreType"),     // Required
+				EncryptionKey: &codepipeline.EncryptionKey{
+					Id:   aws.String("EncryptionKeyId"),   // Required
+					Type: aws.String("EncryptionKeyType"), // Required
+				},
 			},
 			Name:    aws.String("PipelineName"), // Required
-			RoleARN: aws.String("RoleArn"),      // Required
+			RoleArn: aws.String("RoleArn"),      // Required
 			Stages: []*codepipeline.StageDeclaration{ // Required
 				{ // Required
 					Actions: []*codepipeline.ActionDeclaration{ // Required
 						{ // Required
-							ActionTypeID: &codepipeline.ActionTypeID{ // Required
+							ActionTypeId: &codepipeline.ActionTypeId{ // Required
 								Category: aws.String("ActionCategory"), // Required
 								Owner:    aws.String("ActionOwner"),    // Required
 								Provider: aws.String("ActionProvider"), // Required
@@ -795,7 +854,7 @@ func ExampleCodePipeline_UpdatePipeline() {
 								},
 								// More values...
 							},
-							RoleARN:  aws.String("RoleArn"),
+							RoleArn:  aws.String("RoleArn"),
 							RunOrder: aws.Int64(1),
 						},
 						// More values...
@@ -817,20 +876,12 @@ func ExampleCodePipeline_UpdatePipeline() {
 	resp, err := svc.UpdatePipeline(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }

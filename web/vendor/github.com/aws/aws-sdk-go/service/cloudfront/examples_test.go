@@ -8,8 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudfront"
 )
 
@@ -17,7 +16,13 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleCloudFront_CreateCloudFrontOriginAccessIdentity() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.CreateCloudFrontOriginAccessIdentityInput{
 		CloudFrontOriginAccessIdentityConfig: &cloudfront.OriginAccessIdentityConfig{ // Required
@@ -28,26 +33,24 @@ func ExampleCloudFront_CreateCloudFrontOriginAccessIdentity() {
 	resp, err := svc.CreateCloudFrontOriginAccessIdentity(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_CreateDistribution() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.CreateDistributionInput{
 		DistributionConfig: &cloudfront.DistributionConfig{ // Required
@@ -73,9 +76,16 @@ func ExampleCloudFront_CreateDistribution() {
 							// More values...
 						},
 					},
+					QueryStringCacheKeys: &cloudfront.QueryStringCacheKeys{
+						Quantity: aws.Int64(1), // Required
+						Items: []*string{
+							aws.String("string"), // Required
+							// More values...
+						},
+					},
 				},
 				MinTTL:         aws.Int64(1),         // Required
-				TargetOriginID: aws.String("string"), // Required
+				TargetOriginId: aws.String("string"), // Required
 				TrustedSigners: &cloudfront.TrustedSigners{ // Required
 					Enabled:  aws.Bool(true), // Required
 					Quantity: aws.Int64(1),   // Required
@@ -99,6 +109,7 @@ func ExampleCloudFront_CreateDistribution() {
 						Quantity: aws.Int64(1), // Required
 					},
 				},
+				Compress:        aws.Bool(true),
 				DefaultTTL:      aws.Int64(1),
 				MaxTTL:          aws.Int64(1),
 				SmoothStreaming: aws.Bool(true),
@@ -109,11 +120,28 @@ func ExampleCloudFront_CreateDistribution() {
 				Items: []*cloudfront.Origin{
 					{ // Required
 						DomainName: aws.String("string"), // Required
-						ID:         aws.String("string"), // Required
+						Id:         aws.String("string"), // Required
+						CustomHeaders: &cloudfront.CustomHeaders{
+							Quantity: aws.Int64(1), // Required
+							Items: []*cloudfront.OriginCustomHeader{
+								{ // Required
+									HeaderName:  aws.String("string"), // Required
+									HeaderValue: aws.String("string"), // Required
+								},
+								// More values...
+							},
+						},
 						CustomOriginConfig: &cloudfront.CustomOriginConfig{
 							HTTPPort:             aws.Int64(1),                       // Required
 							HTTPSPort:            aws.Int64(1),                       // Required
 							OriginProtocolPolicy: aws.String("OriginProtocolPolicy"), // Required
+							OriginSslProtocols: &cloudfront.OriginSslProtocols{
+								Items: []*string{ // Required
+									aws.String("SslProtocol"), // Required
+									// More values...
+								},
+								Quantity: aws.Int64(1), // Required
+							},
 						},
 						OriginPath: aws.String("string"),
 						S3OriginConfig: &cloudfront.S3OriginConfig{
@@ -153,10 +181,17 @@ func ExampleCloudFront_CreateDistribution() {
 									// More values...
 								},
 							},
+							QueryStringCacheKeys: &cloudfront.QueryStringCacheKeys{
+								Quantity: aws.Int64(1), // Required
+								Items: []*string{
+									aws.String("string"), // Required
+									// More values...
+								},
+							},
 						},
 						MinTTL:         aws.Int64(1),         // Required
 						PathPattern:    aws.String("string"), // Required
-						TargetOriginID: aws.String("string"), // Required
+						TargetOriginId: aws.String("string"), // Required
 						TrustedSigners: &cloudfront.TrustedSigners{ // Required
 							Enabled:  aws.Bool(true), // Required
 							Quantity: aws.Int64(1),   // Required
@@ -180,6 +215,7 @@ func ExampleCloudFront_CreateDistribution() {
 								Quantity: aws.Int64(1), // Required
 							},
 						},
+						Compress:        aws.Bool(true),
 						DefaultTTL:      aws.Int64(1),
 						MaxTTL:          aws.Int64(1),
 						SmoothStreaming: aws.Bool(true),
@@ -200,6 +236,7 @@ func ExampleCloudFront_CreateDistribution() {
 				},
 			},
 			DefaultRootObject: aws.String("string"),
+			HttpVersion:       aws.String("HttpVersion"),
 			Logging: &cloudfront.LoggingConfig{
 				Bucket:         aws.String("string"), // Required
 				Enabled:        aws.Bool(true),       // Required
@@ -218,39 +255,288 @@ func ExampleCloudFront_CreateDistribution() {
 				},
 			},
 			ViewerCertificate: &cloudfront.ViewerCertificate{
+				ACMCertificateArn:            aws.String("string"),
+				Certificate:                  aws.String("string"),
+				CertificateSource:            aws.String("CertificateSource"),
 				CloudFrontDefaultCertificate: aws.Bool(true),
-				IAMCertificateID:             aws.String("string"),
+				IAMCertificateId:             aws.String("string"),
 				MinimumProtocolVersion:       aws.String("MinimumProtocolVersion"),
 				SSLSupportMethod:             aws.String("SSLSupportMethod"),
 			},
+			WebACLId: aws.String("string"),
 		},
 	}
 	resp, err := svc.CreateDistribution(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleCloudFront_CreateDistributionWithTags() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
+
+	params := &cloudfront.CreateDistributionWithTagsInput{
+		DistributionConfigWithTags: &cloudfront.DistributionConfigWithTags{ // Required
+			DistributionConfig: &cloudfront.DistributionConfig{ // Required
+				CallerReference: aws.String("string"), // Required
+				Comment:         aws.String("string"), // Required
+				DefaultCacheBehavior: &cloudfront.DefaultCacheBehavior{ // Required
+					ForwardedValues: &cloudfront.ForwardedValues{ // Required
+						Cookies: &cloudfront.CookiePreference{ // Required
+							Forward: aws.String("ItemSelection"), // Required
+							WhitelistedNames: &cloudfront.CookieNames{
+								Quantity: aws.Int64(1), // Required
+								Items: []*string{
+									aws.String("string"), // Required
+									// More values...
+								},
+							},
+						},
+						QueryString: aws.Bool(true), // Required
+						Headers: &cloudfront.Headers{
+							Quantity: aws.Int64(1), // Required
+							Items: []*string{
+								aws.String("string"), // Required
+								// More values...
+							},
+						},
+						QueryStringCacheKeys: &cloudfront.QueryStringCacheKeys{
+							Quantity: aws.Int64(1), // Required
+							Items: []*string{
+								aws.String("string"), // Required
+								// More values...
+							},
+						},
+					},
+					MinTTL:         aws.Int64(1),         // Required
+					TargetOriginId: aws.String("string"), // Required
+					TrustedSigners: &cloudfront.TrustedSigners{ // Required
+						Enabled:  aws.Bool(true), // Required
+						Quantity: aws.Int64(1),   // Required
+						Items: []*string{
+							aws.String("string"), // Required
+							// More values...
+						},
+					},
+					ViewerProtocolPolicy: aws.String("ViewerProtocolPolicy"), // Required
+					AllowedMethods: &cloudfront.AllowedMethods{
+						Items: []*string{ // Required
+							aws.String("Method"), // Required
+							// More values...
+						},
+						Quantity: aws.Int64(1), // Required
+						CachedMethods: &cloudfront.CachedMethods{
+							Items: []*string{ // Required
+								aws.String("Method"), // Required
+								// More values...
+							},
+							Quantity: aws.Int64(1), // Required
+						},
+					},
+					Compress:        aws.Bool(true),
+					DefaultTTL:      aws.Int64(1),
+					MaxTTL:          aws.Int64(1),
+					SmoothStreaming: aws.Bool(true),
+				},
+				Enabled: aws.Bool(true), // Required
+				Origins: &cloudfront.Origins{ // Required
+					Quantity: aws.Int64(1), // Required
+					Items: []*cloudfront.Origin{
+						{ // Required
+							DomainName: aws.String("string"), // Required
+							Id:         aws.String("string"), // Required
+							CustomHeaders: &cloudfront.CustomHeaders{
+								Quantity: aws.Int64(1), // Required
+								Items: []*cloudfront.OriginCustomHeader{
+									{ // Required
+										HeaderName:  aws.String("string"), // Required
+										HeaderValue: aws.String("string"), // Required
+									},
+									// More values...
+								},
+							},
+							CustomOriginConfig: &cloudfront.CustomOriginConfig{
+								HTTPPort:             aws.Int64(1),                       // Required
+								HTTPSPort:            aws.Int64(1),                       // Required
+								OriginProtocolPolicy: aws.String("OriginProtocolPolicy"), // Required
+								OriginSslProtocols: &cloudfront.OriginSslProtocols{
+									Items: []*string{ // Required
+										aws.String("SslProtocol"), // Required
+										// More values...
+									},
+									Quantity: aws.Int64(1), // Required
+								},
+							},
+							OriginPath: aws.String("string"),
+							S3OriginConfig: &cloudfront.S3OriginConfig{
+								OriginAccessIdentity: aws.String("string"), // Required
+							},
+						},
+						// More values...
+					},
+				},
+				Aliases: &cloudfront.Aliases{
+					Quantity: aws.Int64(1), // Required
+					Items: []*string{
+						aws.String("string"), // Required
+						// More values...
+					},
+				},
+				CacheBehaviors: &cloudfront.CacheBehaviors{
+					Quantity: aws.Int64(1), // Required
+					Items: []*cloudfront.CacheBehavior{
+						{ // Required
+							ForwardedValues: &cloudfront.ForwardedValues{ // Required
+								Cookies: &cloudfront.CookiePreference{ // Required
+									Forward: aws.String("ItemSelection"), // Required
+									WhitelistedNames: &cloudfront.CookieNames{
+										Quantity: aws.Int64(1), // Required
+										Items: []*string{
+											aws.String("string"), // Required
+											// More values...
+										},
+									},
+								},
+								QueryString: aws.Bool(true), // Required
+								Headers: &cloudfront.Headers{
+									Quantity: aws.Int64(1), // Required
+									Items: []*string{
+										aws.String("string"), // Required
+										// More values...
+									},
+								},
+								QueryStringCacheKeys: &cloudfront.QueryStringCacheKeys{
+									Quantity: aws.Int64(1), // Required
+									Items: []*string{
+										aws.String("string"), // Required
+										// More values...
+									},
+								},
+							},
+							MinTTL:         aws.Int64(1),         // Required
+							PathPattern:    aws.String("string"), // Required
+							TargetOriginId: aws.String("string"), // Required
+							TrustedSigners: &cloudfront.TrustedSigners{ // Required
+								Enabled:  aws.Bool(true), // Required
+								Quantity: aws.Int64(1),   // Required
+								Items: []*string{
+									aws.String("string"), // Required
+									// More values...
+								},
+							},
+							ViewerProtocolPolicy: aws.String("ViewerProtocolPolicy"), // Required
+							AllowedMethods: &cloudfront.AllowedMethods{
+								Items: []*string{ // Required
+									aws.String("Method"), // Required
+									// More values...
+								},
+								Quantity: aws.Int64(1), // Required
+								CachedMethods: &cloudfront.CachedMethods{
+									Items: []*string{ // Required
+										aws.String("Method"), // Required
+										// More values...
+									},
+									Quantity: aws.Int64(1), // Required
+								},
+							},
+							Compress:        aws.Bool(true),
+							DefaultTTL:      aws.Int64(1),
+							MaxTTL:          aws.Int64(1),
+							SmoothStreaming: aws.Bool(true),
+						},
+						// More values...
+					},
+				},
+				CustomErrorResponses: &cloudfront.CustomErrorResponses{
+					Quantity: aws.Int64(1), // Required
+					Items: []*cloudfront.CustomErrorResponse{
+						{ // Required
+							ErrorCode:          aws.Int64(1), // Required
+							ErrorCachingMinTTL: aws.Int64(1),
+							ResponseCode:       aws.String("string"),
+							ResponsePagePath:   aws.String("string"),
+						},
+						// More values...
+					},
+				},
+				DefaultRootObject: aws.String("string"),
+				HttpVersion:       aws.String("HttpVersion"),
+				Logging: &cloudfront.LoggingConfig{
+					Bucket:         aws.String("string"), // Required
+					Enabled:        aws.Bool(true),       // Required
+					IncludeCookies: aws.Bool(true),       // Required
+					Prefix:         aws.String("string"), // Required
+				},
+				PriceClass: aws.String("PriceClass"),
+				Restrictions: &cloudfront.Restrictions{
+					GeoRestriction: &cloudfront.GeoRestriction{ // Required
+						Quantity:        aws.Int64(1),                     // Required
+						RestrictionType: aws.String("GeoRestrictionType"), // Required
+						Items: []*string{
+							aws.String("string"), // Required
+							// More values...
+						},
+					},
+				},
+				ViewerCertificate: &cloudfront.ViewerCertificate{
+					ACMCertificateArn:            aws.String("string"),
+					Certificate:                  aws.String("string"),
+					CertificateSource:            aws.String("CertificateSource"),
+					CloudFrontDefaultCertificate: aws.Bool(true),
+					IAMCertificateId:             aws.String("string"),
+					MinimumProtocolVersion:       aws.String("MinimumProtocolVersion"),
+					SSLSupportMethod:             aws.String("SSLSupportMethod"),
+				},
+				WebACLId: aws.String("string"),
+			},
+			Tags: &cloudfront.Tags{ // Required
+				Items: []*cloudfront.Tag{
+					{ // Required
+						Key:   aws.String("TagKey"), // Required
+						Value: aws.String("TagValue"),
+					},
+					// More values...
+				},
+			},
+		},
+	}
+	resp, err := svc.CreateDistributionWithTags(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_CreateInvalidation() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.CreateInvalidationInput{
-		DistributionID: aws.String("string"), // Required
+		DistributionId: aws.String("string"), // Required
 		InvalidationBatch: &cloudfront.InvalidationBatch{ // Required
 			CallerReference: aws.String("string"), // Required
 			Paths: &cloudfront.Paths{ // Required
@@ -265,26 +551,24 @@ func ExampleCloudFront_CreateInvalidation() {
 	resp, err := svc.CreateInvalidation(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_CreateStreamingDistribution() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.CreateStreamingDistributionInput{
 		StreamingDistributionConfig: &cloudfront.StreamingDistributionConfig{ // Required
@@ -321,300 +605,343 @@ func ExampleCloudFront_CreateStreamingDistribution() {
 	resp, err := svc.CreateStreamingDistribution(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleCloudFront_CreateStreamingDistributionWithTags() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
+
+	params := &cloudfront.CreateStreamingDistributionWithTagsInput{
+		StreamingDistributionConfigWithTags: &cloudfront.StreamingDistributionConfigWithTags{ // Required
+			StreamingDistributionConfig: &cloudfront.StreamingDistributionConfig{ // Required
+				CallerReference: aws.String("string"), // Required
+				Comment:         aws.String("string"), // Required
+				Enabled:         aws.Bool(true),       // Required
+				S3Origin: &cloudfront.S3Origin{ // Required
+					DomainName:           aws.String("string"), // Required
+					OriginAccessIdentity: aws.String("string"), // Required
+				},
+				TrustedSigners: &cloudfront.TrustedSigners{ // Required
+					Enabled:  aws.Bool(true), // Required
+					Quantity: aws.Int64(1),   // Required
+					Items: []*string{
+						aws.String("string"), // Required
+						// More values...
+					},
+				},
+				Aliases: &cloudfront.Aliases{
+					Quantity: aws.Int64(1), // Required
+					Items: []*string{
+						aws.String("string"), // Required
+						// More values...
+					},
+				},
+				Logging: &cloudfront.StreamingLoggingConfig{
+					Bucket:  aws.String("string"), // Required
+					Enabled: aws.Bool(true),       // Required
+					Prefix:  aws.String("string"), // Required
+				},
+				PriceClass: aws.String("PriceClass"),
+			},
+			Tags: &cloudfront.Tags{ // Required
+				Items: []*cloudfront.Tag{
+					{ // Required
+						Key:   aws.String("TagKey"), // Required
+						Value: aws.String("TagValue"),
+					},
+					// More values...
+				},
+			},
+		},
+	}
+	resp, err := svc.CreateStreamingDistributionWithTags(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_DeleteCloudFrontOriginAccessIdentity() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.DeleteCloudFrontOriginAccessIdentityInput{
-		ID:      aws.String("string"), // Required
+		Id:      aws.String("string"), // Required
 		IfMatch: aws.String("string"),
 	}
 	resp, err := svc.DeleteCloudFrontOriginAccessIdentity(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_DeleteDistribution() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.DeleteDistributionInput{
-		ID:      aws.String("string"), // Required
+		Id:      aws.String("string"), // Required
 		IfMatch: aws.String("string"),
 	}
 	resp, err := svc.DeleteDistribution(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_DeleteStreamingDistribution() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.DeleteStreamingDistributionInput{
-		ID:      aws.String("string"), // Required
+		Id:      aws.String("string"), // Required
 		IfMatch: aws.String("string"),
 	}
 	resp, err := svc.DeleteStreamingDistribution(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_GetCloudFrontOriginAccessIdentity() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.GetCloudFrontOriginAccessIdentityInput{
-		ID: aws.String("string"), // Required
+		Id: aws.String("string"), // Required
 	}
 	resp, err := svc.GetCloudFrontOriginAccessIdentity(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_GetCloudFrontOriginAccessIdentityConfig() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.GetCloudFrontOriginAccessIdentityConfigInput{
-		ID: aws.String("string"), // Required
+		Id: aws.String("string"), // Required
 	}
 	resp, err := svc.GetCloudFrontOriginAccessIdentityConfig(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_GetDistribution() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.GetDistributionInput{
-		ID: aws.String("string"), // Required
+		Id: aws.String("string"), // Required
 	}
 	resp, err := svc.GetDistribution(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_GetDistributionConfig() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.GetDistributionConfigInput{
-		ID: aws.String("string"), // Required
+		Id: aws.String("string"), // Required
 	}
 	resp, err := svc.GetDistributionConfig(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_GetInvalidation() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.GetInvalidationInput{
-		DistributionID: aws.String("string"), // Required
-		ID:             aws.String("string"), // Required
+		DistributionId: aws.String("string"), // Required
+		Id:             aws.String("string"), // Required
 	}
 	resp, err := svc.GetInvalidation(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_GetStreamingDistribution() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.GetStreamingDistributionInput{
-		ID: aws.String("string"), // Required
+		Id: aws.String("string"), // Required
 	}
 	resp, err := svc.GetStreamingDistribution(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_GetStreamingDistributionConfig() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.GetStreamingDistributionConfigInput{
-		ID: aws.String("string"), // Required
+		Id: aws.String("string"), // Required
 	}
 	resp, err := svc.GetStreamingDistributionConfig(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_ListCloudFrontOriginAccessIdentities() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.ListCloudFrontOriginAccessIdentitiesInput{
 		Marker:   aws.String("string"),
@@ -623,26 +950,24 @@ func ExampleCloudFront_ListCloudFrontOriginAccessIdentities() {
 	resp, err := svc.ListCloudFrontOriginAccessIdentities(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_ListDistributions() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.ListDistributionsInput{
 		Marker:   aws.String("string"),
@@ -651,55 +976,78 @@ func ExampleCloudFront_ListDistributions() {
 	resp, err := svc.ListDistributions(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleCloudFront_ListDistributionsByWebACLId() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
+
+	params := &cloudfront.ListDistributionsByWebACLIdInput{
+		WebACLId: aws.String("string"), // Required
+		Marker:   aws.String("string"),
+		MaxItems: aws.Int64(1),
+	}
+	resp, err := svc.ListDistributionsByWebACLId(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_ListInvalidations() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.ListInvalidationsInput{
-		DistributionID: aws.String("string"), // Required
+		DistributionId: aws.String("string"), // Required
 		Marker:         aws.String("string"),
 		MaxItems:       aws.Int64(1),
 	}
 	resp, err := svc.ListInvalidations(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_ListStreamingDistributions() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.ListStreamingDistributionsInput{
 		Marker:   aws.String("string"),
@@ -708,58 +1056,144 @@ func ExampleCloudFront_ListStreamingDistributions() {
 	resp, err := svc.ListStreamingDistributions(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleCloudFront_ListTagsForResource() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
+
+	params := &cloudfront.ListTagsForResourceInput{
+		Resource: aws.String("ResourceARN"), // Required
+	}
+	resp, err := svc.ListTagsForResource(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
+func ExampleCloudFront_TagResource() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
+
+	params := &cloudfront.TagResourceInput{
+		Resource: aws.String("ResourceARN"), // Required
+		Tags: &cloudfront.Tags{ // Required
+			Items: []*cloudfront.Tag{
+				{ // Required
+					Key:   aws.String("TagKey"), // Required
+					Value: aws.String("TagValue"),
+				},
+				// More values...
+			},
+		},
+	}
+	resp, err := svc.TagResource(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
+func ExampleCloudFront_UntagResource() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
+
+	params := &cloudfront.UntagResourceInput{
+		Resource: aws.String("ResourceARN"), // Required
+		TagKeys: &cloudfront.TagKeys{ // Required
+			Items: []*string{
+				aws.String("TagKey"), // Required
+				// More values...
+			},
+		},
+	}
+	resp, err := svc.UntagResource(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_UpdateCloudFrontOriginAccessIdentity() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.UpdateCloudFrontOriginAccessIdentityInput{
 		CloudFrontOriginAccessIdentityConfig: &cloudfront.OriginAccessIdentityConfig{ // Required
 			CallerReference: aws.String("string"), // Required
 			Comment:         aws.String("string"), // Required
 		},
-		ID:      aws.String("string"), // Required
+		Id:      aws.String("string"), // Required
 		IfMatch: aws.String("string"),
 	}
 	resp, err := svc.UpdateCloudFrontOriginAccessIdentity(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_UpdateDistribution() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.UpdateDistributionInput{
 		DistributionConfig: &cloudfront.DistributionConfig{ // Required
@@ -785,9 +1219,16 @@ func ExampleCloudFront_UpdateDistribution() {
 							// More values...
 						},
 					},
+					QueryStringCacheKeys: &cloudfront.QueryStringCacheKeys{
+						Quantity: aws.Int64(1), // Required
+						Items: []*string{
+							aws.String("string"), // Required
+							// More values...
+						},
+					},
 				},
 				MinTTL:         aws.Int64(1),         // Required
-				TargetOriginID: aws.String("string"), // Required
+				TargetOriginId: aws.String("string"), // Required
 				TrustedSigners: &cloudfront.TrustedSigners{ // Required
 					Enabled:  aws.Bool(true), // Required
 					Quantity: aws.Int64(1),   // Required
@@ -811,6 +1252,7 @@ func ExampleCloudFront_UpdateDistribution() {
 						Quantity: aws.Int64(1), // Required
 					},
 				},
+				Compress:        aws.Bool(true),
 				DefaultTTL:      aws.Int64(1),
 				MaxTTL:          aws.Int64(1),
 				SmoothStreaming: aws.Bool(true),
@@ -821,11 +1263,28 @@ func ExampleCloudFront_UpdateDistribution() {
 				Items: []*cloudfront.Origin{
 					{ // Required
 						DomainName: aws.String("string"), // Required
-						ID:         aws.String("string"), // Required
+						Id:         aws.String("string"), // Required
+						CustomHeaders: &cloudfront.CustomHeaders{
+							Quantity: aws.Int64(1), // Required
+							Items: []*cloudfront.OriginCustomHeader{
+								{ // Required
+									HeaderName:  aws.String("string"), // Required
+									HeaderValue: aws.String("string"), // Required
+								},
+								// More values...
+							},
+						},
 						CustomOriginConfig: &cloudfront.CustomOriginConfig{
 							HTTPPort:             aws.Int64(1),                       // Required
 							HTTPSPort:            aws.Int64(1),                       // Required
 							OriginProtocolPolicy: aws.String("OriginProtocolPolicy"), // Required
+							OriginSslProtocols: &cloudfront.OriginSslProtocols{
+								Items: []*string{ // Required
+									aws.String("SslProtocol"), // Required
+									// More values...
+								},
+								Quantity: aws.Int64(1), // Required
+							},
 						},
 						OriginPath: aws.String("string"),
 						S3OriginConfig: &cloudfront.S3OriginConfig{
@@ -865,10 +1324,17 @@ func ExampleCloudFront_UpdateDistribution() {
 									// More values...
 								},
 							},
+							QueryStringCacheKeys: &cloudfront.QueryStringCacheKeys{
+								Quantity: aws.Int64(1), // Required
+								Items: []*string{
+									aws.String("string"), // Required
+									// More values...
+								},
+							},
 						},
 						MinTTL:         aws.Int64(1),         // Required
 						PathPattern:    aws.String("string"), // Required
-						TargetOriginID: aws.String("string"), // Required
+						TargetOriginId: aws.String("string"), // Required
 						TrustedSigners: &cloudfront.TrustedSigners{ // Required
 							Enabled:  aws.Bool(true), // Required
 							Quantity: aws.Int64(1),   // Required
@@ -892,6 +1358,7 @@ func ExampleCloudFront_UpdateDistribution() {
 								Quantity: aws.Int64(1), // Required
 							},
 						},
+						Compress:        aws.Bool(true),
 						DefaultTTL:      aws.Int64(1),
 						MaxTTL:          aws.Int64(1),
 						SmoothStreaming: aws.Bool(true),
@@ -912,6 +1379,7 @@ func ExampleCloudFront_UpdateDistribution() {
 				},
 			},
 			DefaultRootObject: aws.String("string"),
+			HttpVersion:       aws.String("HttpVersion"),
 			Logging: &cloudfront.LoggingConfig{
 				Bucket:         aws.String("string"), // Required
 				Enabled:        aws.Bool(true),       // Required
@@ -930,41 +1398,43 @@ func ExampleCloudFront_UpdateDistribution() {
 				},
 			},
 			ViewerCertificate: &cloudfront.ViewerCertificate{
+				ACMCertificateArn:            aws.String("string"),
+				Certificate:                  aws.String("string"),
+				CertificateSource:            aws.String("CertificateSource"),
 				CloudFrontDefaultCertificate: aws.Bool(true),
-				IAMCertificateID:             aws.String("string"),
+				IAMCertificateId:             aws.String("string"),
 				MinimumProtocolVersion:       aws.String("MinimumProtocolVersion"),
 				SSLSupportMethod:             aws.String("SSLSupportMethod"),
 			},
+			WebACLId: aws.String("string"),
 		},
-		ID:      aws.String("string"), // Required
+		Id:      aws.String("string"), // Required
 		IfMatch: aws.String("string"),
 	}
 	resp, err := svc.UpdateDistribution(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudFront_UpdateStreamingDistribution() {
-	svc := cloudfront.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudfront.New(sess)
 
 	params := &cloudfront.UpdateStreamingDistributionInput{
-		ID: aws.String("string"), // Required
+		Id: aws.String("string"), // Required
 		StreamingDistributionConfig: &cloudfront.StreamingDistributionConfig{ // Required
 			CallerReference: aws.String("string"), // Required
 			Comment:         aws.String("string"), // Required
@@ -1000,20 +1470,12 @@ func ExampleCloudFront_UpdateStreamingDistribution() {
 	resp, err := svc.UpdateStreamingDistribution(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }

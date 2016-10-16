@@ -4,17 +4,43 @@
 package swf
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
-	"github.com/aws/aws-sdk-go/aws/service"
+	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/private/protocol"
+	"github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
 )
 
 const opCountClosedWorkflowExecutions = "CountClosedWorkflowExecutions"
 
-// CountClosedWorkflowExecutionsRequest generates a request for the CountClosedWorkflowExecutions operation.
-func (c *SWF) CountClosedWorkflowExecutionsRequest(input *CountClosedWorkflowExecutionsInput) (req *service.Request, output *WorkflowExecutionCount) {
-	op := &service.Operation{
+// CountClosedWorkflowExecutionsRequest generates a "aws/request.Request" representing the
+// client's request for the CountClosedWorkflowExecutions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See CountClosedWorkflowExecutions for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CountClosedWorkflowExecutions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CountClosedWorkflowExecutionsRequest method.
+//    req, resp := client.CountClosedWorkflowExecutionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) CountClosedWorkflowExecutionsRequest(input *CountClosedWorkflowExecutionsInput) (req *request.Request, output *WorkflowExecutionCount) {
+	op := &request.Operation{
 		Name:       opCountClosedWorkflowExecutions,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -30,6 +56,8 @@ func (c *SWF) CountClosedWorkflowExecutionsRequest(input *CountClosedWorkflowExe
 	return
 }
 
+// CountClosedWorkflowExecutions API operation for Amazon Simple Workflow Service.
+//
 // Returns the number of closed workflow executions within the given domain
 // that meet the specified filtering criteria.
 //
@@ -50,6 +78,24 @@ func (c *SWF) CountClosedWorkflowExecutionsRequest(input *CountClosedWorkflowExe
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation CountClosedWorkflowExecutions for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) CountClosedWorkflowExecutions(input *CountClosedWorkflowExecutionsInput) (*WorkflowExecutionCount, error) {
 	req, out := c.CountClosedWorkflowExecutionsRequest(input)
 	err := req.Send()
@@ -58,9 +104,32 @@ func (c *SWF) CountClosedWorkflowExecutions(input *CountClosedWorkflowExecutions
 
 const opCountOpenWorkflowExecutions = "CountOpenWorkflowExecutions"
 
-// CountOpenWorkflowExecutionsRequest generates a request for the CountOpenWorkflowExecutions operation.
-func (c *SWF) CountOpenWorkflowExecutionsRequest(input *CountOpenWorkflowExecutionsInput) (req *service.Request, output *WorkflowExecutionCount) {
-	op := &service.Operation{
+// CountOpenWorkflowExecutionsRequest generates a "aws/request.Request" representing the
+// client's request for the CountOpenWorkflowExecutions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See CountOpenWorkflowExecutions for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CountOpenWorkflowExecutions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CountOpenWorkflowExecutionsRequest method.
+//    req, resp := client.CountOpenWorkflowExecutionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) CountOpenWorkflowExecutionsRequest(input *CountOpenWorkflowExecutionsInput) (req *request.Request, output *WorkflowExecutionCount) {
+	op := &request.Operation{
 		Name:       opCountOpenWorkflowExecutions,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -76,6 +145,8 @@ func (c *SWF) CountOpenWorkflowExecutionsRequest(input *CountOpenWorkflowExecuti
 	return
 }
 
+// CountOpenWorkflowExecutions API operation for Amazon Simple Workflow Service.
+//
 // Returns the number of open workflow executions within the given domain that
 // meet the specified filtering criteria.
 //
@@ -96,6 +167,24 @@ func (c *SWF) CountOpenWorkflowExecutionsRequest(input *CountOpenWorkflowExecuti
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation CountOpenWorkflowExecutions for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) CountOpenWorkflowExecutions(input *CountOpenWorkflowExecutionsInput) (*WorkflowExecutionCount, error) {
 	req, out := c.CountOpenWorkflowExecutionsRequest(input)
 	err := req.Send()
@@ -104,9 +193,32 @@ func (c *SWF) CountOpenWorkflowExecutions(input *CountOpenWorkflowExecutionsInpu
 
 const opCountPendingActivityTasks = "CountPendingActivityTasks"
 
-// CountPendingActivityTasksRequest generates a request for the CountPendingActivityTasks operation.
-func (c *SWF) CountPendingActivityTasksRequest(input *CountPendingActivityTasksInput) (req *service.Request, output *PendingTaskCount) {
-	op := &service.Operation{
+// CountPendingActivityTasksRequest generates a "aws/request.Request" representing the
+// client's request for the CountPendingActivityTasks operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See CountPendingActivityTasks for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CountPendingActivityTasks method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CountPendingActivityTasksRequest method.
+//    req, resp := client.CountPendingActivityTasksRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) CountPendingActivityTasksRequest(input *CountPendingActivityTasksInput) (req *request.Request, output *PendingTaskCount) {
+	op := &request.Operation{
 		Name:       opCountPendingActivityTasks,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -122,6 +234,8 @@ func (c *SWF) CountPendingActivityTasksRequest(input *CountPendingActivityTasksI
 	return
 }
 
+// CountPendingActivityTasks API operation for Amazon Simple Workflow Service.
+//
 // Returns the estimated number of activity tasks in the specified task list.
 // The count returned is an approximation and is not guaranteed to be exact.
 // If you specify a task list that no activity task was ever scheduled in then
@@ -141,6 +255,24 @@ func (c *SWF) CountPendingActivityTasksRequest(input *CountPendingActivityTasksI
 // the action fails. The associated event attribute's cause parameter will be
 // set to OPERATION_NOT_PERMITTED. For details and example IAM policies, see
 // Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation CountPendingActivityTasks for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) CountPendingActivityTasks(input *CountPendingActivityTasksInput) (*PendingTaskCount, error) {
 	req, out := c.CountPendingActivityTasksRequest(input)
 	err := req.Send()
@@ -149,9 +281,32 @@ func (c *SWF) CountPendingActivityTasks(input *CountPendingActivityTasksInput) (
 
 const opCountPendingDecisionTasks = "CountPendingDecisionTasks"
 
-// CountPendingDecisionTasksRequest generates a request for the CountPendingDecisionTasks operation.
-func (c *SWF) CountPendingDecisionTasksRequest(input *CountPendingDecisionTasksInput) (req *service.Request, output *PendingTaskCount) {
-	op := &service.Operation{
+// CountPendingDecisionTasksRequest generates a "aws/request.Request" representing the
+// client's request for the CountPendingDecisionTasks operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See CountPendingDecisionTasks for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CountPendingDecisionTasks method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CountPendingDecisionTasksRequest method.
+//    req, resp := client.CountPendingDecisionTasksRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) CountPendingDecisionTasksRequest(input *CountPendingDecisionTasksInput) (req *request.Request, output *PendingTaskCount) {
+	op := &request.Operation{
 		Name:       opCountPendingDecisionTasks,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -167,6 +322,8 @@ func (c *SWF) CountPendingDecisionTasksRequest(input *CountPendingDecisionTasksI
 	return
 }
 
+// CountPendingDecisionTasks API operation for Amazon Simple Workflow Service.
+//
 // Returns the estimated number of decision tasks in the specified task list.
 // The count returned is an approximation and is not guaranteed to be exact.
 // If you specify a task list that no decision task was ever scheduled in then
@@ -186,6 +343,24 @@ func (c *SWF) CountPendingDecisionTasksRequest(input *CountPendingDecisionTasksI
 // the action fails. The associated event attribute's cause parameter will be
 // set to OPERATION_NOT_PERMITTED. For details and example IAM policies, see
 // Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation CountPendingDecisionTasks for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) CountPendingDecisionTasks(input *CountPendingDecisionTasksInput) (*PendingTaskCount, error) {
 	req, out := c.CountPendingDecisionTasksRequest(input)
 	err := req.Send()
@@ -194,9 +369,32 @@ func (c *SWF) CountPendingDecisionTasks(input *CountPendingDecisionTasksInput) (
 
 const opDeprecateActivityType = "DeprecateActivityType"
 
-// DeprecateActivityTypeRequest generates a request for the DeprecateActivityType operation.
-func (c *SWF) DeprecateActivityTypeRequest(input *DeprecateActivityTypeInput) (req *service.Request, output *DeprecateActivityTypeOutput) {
-	op := &service.Operation{
+// DeprecateActivityTypeRequest generates a "aws/request.Request" representing the
+// client's request for the DeprecateActivityType operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See DeprecateActivityType for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeprecateActivityType method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeprecateActivityTypeRequest method.
+//    req, resp := client.DeprecateActivityTypeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) DeprecateActivityTypeRequest(input *DeprecateActivityTypeInput) (req *request.Request, output *DeprecateActivityTypeOutput) {
+	op := &request.Operation{
 		Name:       opDeprecateActivityType,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -207,11 +405,15 @@ func (c *SWF) DeprecateActivityTypeRequest(input *DeprecateActivityTypeInput) (r
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeprecateActivityTypeOutput{}
 	req.Data = output
 	return
 }
 
+// DeprecateActivityType API operation for Amazon Simple Workflow Service.
+//
 // Deprecates the specified activity type. After an activity type has been deprecated,
 // you cannot create new tasks of that activity type. Tasks of this type that
 // were scheduled before the type was deprecated will continue to run.
@@ -232,6 +434,27 @@ func (c *SWF) DeprecateActivityTypeRequest(input *DeprecateActivityTypeInput) (r
 // constraints, the action fails. The associated event attribute's cause parameter
 // will be set to OPERATION_NOT_PERMITTED. For details and example IAM policies,
 // see Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation DeprecateActivityType for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * TypeDeprecatedFault
+//   Returned when the specified activity or workflow type was already deprecated.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) DeprecateActivityType(input *DeprecateActivityTypeInput) (*DeprecateActivityTypeOutput, error) {
 	req, out := c.DeprecateActivityTypeRequest(input)
 	err := req.Send()
@@ -240,9 +463,32 @@ func (c *SWF) DeprecateActivityType(input *DeprecateActivityTypeInput) (*Depreca
 
 const opDeprecateDomain = "DeprecateDomain"
 
-// DeprecateDomainRequest generates a request for the DeprecateDomain operation.
-func (c *SWF) DeprecateDomainRequest(input *DeprecateDomainInput) (req *service.Request, output *DeprecateDomainOutput) {
-	op := &service.Operation{
+// DeprecateDomainRequest generates a "aws/request.Request" representing the
+// client's request for the DeprecateDomain operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See DeprecateDomain for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeprecateDomain method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeprecateDomainRequest method.
+//    req, resp := client.DeprecateDomainRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) DeprecateDomainRequest(input *DeprecateDomainInput) (req *request.Request, output *DeprecateDomainOutput) {
+	op := &request.Operation{
 		Name:       opDeprecateDomain,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -253,11 +499,15 @@ func (c *SWF) DeprecateDomainRequest(input *DeprecateDomainInput) (req *service.
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeprecateDomainOutput{}
 	req.Data = output
 	return
 }
 
+// DeprecateDomain API operation for Amazon Simple Workflow Service.
+//
 // Deprecates the specified domain. After a domain has been deprecated it cannot
 // be used to create new workflow executions or register new types. However,
 // you can still use visibility actions on this domain. Deprecating a domain
@@ -279,6 +529,27 @@ func (c *SWF) DeprecateDomainRequest(input *DeprecateDomainInput) (req *service.
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation DeprecateDomain for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * DomainDeprecatedFault
+//   Returned when the specified domain has been deprecated.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) DeprecateDomain(input *DeprecateDomainInput) (*DeprecateDomainOutput, error) {
 	req, out := c.DeprecateDomainRequest(input)
 	err := req.Send()
@@ -287,9 +558,32 @@ func (c *SWF) DeprecateDomain(input *DeprecateDomainInput) (*DeprecateDomainOutp
 
 const opDeprecateWorkflowType = "DeprecateWorkflowType"
 
-// DeprecateWorkflowTypeRequest generates a request for the DeprecateWorkflowType operation.
-func (c *SWF) DeprecateWorkflowTypeRequest(input *DeprecateWorkflowTypeInput) (req *service.Request, output *DeprecateWorkflowTypeOutput) {
-	op := &service.Operation{
+// DeprecateWorkflowTypeRequest generates a "aws/request.Request" representing the
+// client's request for the DeprecateWorkflowType operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See DeprecateWorkflowType for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeprecateWorkflowType method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeprecateWorkflowTypeRequest method.
+//    req, resp := client.DeprecateWorkflowTypeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) DeprecateWorkflowTypeRequest(input *DeprecateWorkflowTypeInput) (req *request.Request, output *DeprecateWorkflowTypeOutput) {
+	op := &request.Operation{
 		Name:       opDeprecateWorkflowType,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -300,11 +594,15 @@ func (c *SWF) DeprecateWorkflowTypeRequest(input *DeprecateWorkflowTypeInput) (r
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeprecateWorkflowTypeOutput{}
 	req.Data = output
 	return
 }
 
+// DeprecateWorkflowType API operation for Amazon Simple Workflow Service.
+//
 // Deprecates the specified workflow type. After a workflow type has been deprecated,
 // you cannot create new executions of that type. Executions that were started
 // before the type was deprecated will continue to run. A deprecated workflow
@@ -326,6 +624,27 @@ func (c *SWF) DeprecateWorkflowTypeRequest(input *DeprecateWorkflowTypeInput) (r
 // constraints, the action fails. The associated event attribute's cause parameter
 // will be set to OPERATION_NOT_PERMITTED. For details and example IAM policies,
 // see Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation DeprecateWorkflowType for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * TypeDeprecatedFault
+//   Returned when the specified activity or workflow type was already deprecated.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) DeprecateWorkflowType(input *DeprecateWorkflowTypeInput) (*DeprecateWorkflowTypeOutput, error) {
 	req, out := c.DeprecateWorkflowTypeRequest(input)
 	err := req.Send()
@@ -334,9 +653,32 @@ func (c *SWF) DeprecateWorkflowType(input *DeprecateWorkflowTypeInput) (*Depreca
 
 const opDescribeActivityType = "DescribeActivityType"
 
-// DescribeActivityTypeRequest generates a request for the DescribeActivityType operation.
-func (c *SWF) DescribeActivityTypeRequest(input *DescribeActivityTypeInput) (req *service.Request, output *DescribeActivityTypeOutput) {
-	op := &service.Operation{
+// DescribeActivityTypeRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeActivityType operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See DescribeActivityType for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeActivityType method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeActivityTypeRequest method.
+//    req, resp := client.DescribeActivityTypeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) DescribeActivityTypeRequest(input *DescribeActivityTypeInput) (req *request.Request, output *DescribeActivityTypeOutput) {
+	op := &request.Operation{
 		Name:       opDescribeActivityType,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -352,6 +694,8 @@ func (c *SWF) DescribeActivityTypeRequest(input *DescribeActivityTypeInput) (req
 	return
 }
 
+// DescribeActivityType API operation for Amazon Simple Workflow Service.
+//
 // Returns information about the specified activity type. This includes configuration
 // settings provided when the type was registered and other general information
 // about the type.
@@ -371,6 +715,24 @@ func (c *SWF) DescribeActivityTypeRequest(input *DescribeActivityTypeInput) (req
 // constraints, the action fails. The associated event attribute's cause parameter
 // will be set to OPERATION_NOT_PERMITTED. For details and example IAM policies,
 // see Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation DescribeActivityType for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) DescribeActivityType(input *DescribeActivityTypeInput) (*DescribeActivityTypeOutput, error) {
 	req, out := c.DescribeActivityTypeRequest(input)
 	err := req.Send()
@@ -379,9 +741,32 @@ func (c *SWF) DescribeActivityType(input *DescribeActivityTypeInput) (*DescribeA
 
 const opDescribeDomain = "DescribeDomain"
 
-// DescribeDomainRequest generates a request for the DescribeDomain operation.
-func (c *SWF) DescribeDomainRequest(input *DescribeDomainInput) (req *service.Request, output *DescribeDomainOutput) {
-	op := &service.Operation{
+// DescribeDomainRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeDomain operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See DescribeDomain for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeDomain method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeDomainRequest method.
+//    req, resp := client.DescribeDomainRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) DescribeDomainRequest(input *DescribeDomainInput) (req *request.Request, output *DescribeDomainOutput) {
+	op := &request.Operation{
 		Name:       opDescribeDomain,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -397,6 +782,8 @@ func (c *SWF) DescribeDomainRequest(input *DescribeDomainInput) (req *service.Re
 	return
 }
 
+// DescribeDomain API operation for Amazon Simple Workflow Service.
+//
 // Returns information about the specified domain, including description and
 // status.
 //
@@ -413,6 +800,24 @@ func (c *SWF) DescribeDomainRequest(input *DescribeDomainInput) (req *service.Re
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation DescribeDomain for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) DescribeDomain(input *DescribeDomainInput) (*DescribeDomainOutput, error) {
 	req, out := c.DescribeDomainRequest(input)
 	err := req.Send()
@@ -421,9 +826,32 @@ func (c *SWF) DescribeDomain(input *DescribeDomainInput) (*DescribeDomainOutput,
 
 const opDescribeWorkflowExecution = "DescribeWorkflowExecution"
 
-// DescribeWorkflowExecutionRequest generates a request for the DescribeWorkflowExecution operation.
-func (c *SWF) DescribeWorkflowExecutionRequest(input *DescribeWorkflowExecutionInput) (req *service.Request, output *DescribeWorkflowExecutionOutput) {
-	op := &service.Operation{
+// DescribeWorkflowExecutionRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeWorkflowExecution operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See DescribeWorkflowExecution for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeWorkflowExecution method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeWorkflowExecutionRequest method.
+//    req, resp := client.DescribeWorkflowExecutionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) DescribeWorkflowExecutionRequest(input *DescribeWorkflowExecutionInput) (req *request.Request, output *DescribeWorkflowExecutionOutput) {
+	op := &request.Operation{
 		Name:       opDescribeWorkflowExecution,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -439,6 +867,8 @@ func (c *SWF) DescribeWorkflowExecutionRequest(input *DescribeWorkflowExecutionI
 	return
 }
 
+// DescribeWorkflowExecution API operation for Amazon Simple Workflow Service.
+//
 // Returns information about the specified workflow execution including its
 // type and some statistics.
 //
@@ -456,6 +886,24 @@ func (c *SWF) DescribeWorkflowExecutionRequest(input *DescribeWorkflowExecutionI
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation DescribeWorkflowExecution for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) DescribeWorkflowExecution(input *DescribeWorkflowExecutionInput) (*DescribeWorkflowExecutionOutput, error) {
 	req, out := c.DescribeWorkflowExecutionRequest(input)
 	err := req.Send()
@@ -464,9 +912,32 @@ func (c *SWF) DescribeWorkflowExecution(input *DescribeWorkflowExecutionInput) (
 
 const opDescribeWorkflowType = "DescribeWorkflowType"
 
-// DescribeWorkflowTypeRequest generates a request for the DescribeWorkflowType operation.
-func (c *SWF) DescribeWorkflowTypeRequest(input *DescribeWorkflowTypeInput) (req *service.Request, output *DescribeWorkflowTypeOutput) {
-	op := &service.Operation{
+// DescribeWorkflowTypeRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeWorkflowType operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See DescribeWorkflowType for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeWorkflowType method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeWorkflowTypeRequest method.
+//    req, resp := client.DescribeWorkflowTypeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) DescribeWorkflowTypeRequest(input *DescribeWorkflowTypeInput) (req *request.Request, output *DescribeWorkflowTypeOutput) {
+	op := &request.Operation{
 		Name:       opDescribeWorkflowType,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -482,6 +953,8 @@ func (c *SWF) DescribeWorkflowTypeRequest(input *DescribeWorkflowTypeInput) (req
 	return
 }
 
+// DescribeWorkflowType API operation for Amazon Simple Workflow Service.
+//
 // Returns information about the specified workflow type. This includes configuration
 // settings specified when the type was registered and other information such
 // as creation date, current status, and so on.
@@ -501,6 +974,24 @@ func (c *SWF) DescribeWorkflowTypeRequest(input *DescribeWorkflowTypeInput) (req
 // constraints, the action fails. The associated event attribute's cause parameter
 // will be set to OPERATION_NOT_PERMITTED. For details and example IAM policies,
 // see Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation DescribeWorkflowType for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) DescribeWorkflowType(input *DescribeWorkflowTypeInput) (*DescribeWorkflowTypeOutput, error) {
 	req, out := c.DescribeWorkflowTypeRequest(input)
 	err := req.Send()
@@ -509,13 +1000,36 @@ func (c *SWF) DescribeWorkflowType(input *DescribeWorkflowTypeInput) (*DescribeW
 
 const opGetWorkflowExecutionHistory = "GetWorkflowExecutionHistory"
 
-// GetWorkflowExecutionHistoryRequest generates a request for the GetWorkflowExecutionHistory operation.
-func (c *SWF) GetWorkflowExecutionHistoryRequest(input *GetWorkflowExecutionHistoryInput) (req *service.Request, output *GetWorkflowExecutionHistoryOutput) {
-	op := &service.Operation{
+// GetWorkflowExecutionHistoryRequest generates a "aws/request.Request" representing the
+// client's request for the GetWorkflowExecutionHistory operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See GetWorkflowExecutionHistory for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetWorkflowExecutionHistory method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetWorkflowExecutionHistoryRequest method.
+//    req, resp := client.GetWorkflowExecutionHistoryRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) GetWorkflowExecutionHistoryRequest(input *GetWorkflowExecutionHistoryInput) (req *request.Request, output *GetWorkflowExecutionHistoryOutput) {
+	op := &request.Operation{
 		Name:       opGetWorkflowExecutionHistory,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &service.Paginator{
+		Paginator: &request.Paginator{
 			InputTokens:     []string{"nextPageToken"},
 			OutputTokens:    []string{"nextPageToken"},
 			LimitToken:      "maximumPageSize",
@@ -533,6 +1047,8 @@ func (c *SWF) GetWorkflowExecutionHistoryRequest(input *GetWorkflowExecutionHist
 	return
 }
 
+// GetWorkflowExecutionHistory API operation for Amazon Simple Workflow Service.
+//
 // Returns the history of the specified workflow execution. The results may
 // be split into multiple pages. To retrieve subsequent pages, make the call
 // again using the nextPageToken returned by the initial call.
@@ -551,14 +1067,50 @@ func (c *SWF) GetWorkflowExecutionHistoryRequest(input *GetWorkflowExecutionHist
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation GetWorkflowExecutionHistory for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) GetWorkflowExecutionHistory(input *GetWorkflowExecutionHistoryInput) (*GetWorkflowExecutionHistoryOutput, error) {
 	req, out := c.GetWorkflowExecutionHistoryRequest(input)
 	err := req.Send()
 	return out, err
 }
 
+// GetWorkflowExecutionHistoryPages iterates over the pages of a GetWorkflowExecutionHistory operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See GetWorkflowExecutionHistory method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a GetWorkflowExecutionHistory operation.
+//    pageNum := 0
+//    err := client.GetWorkflowExecutionHistoryPages(params,
+//        func(page *GetWorkflowExecutionHistoryOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *SWF) GetWorkflowExecutionHistoryPages(input *GetWorkflowExecutionHistoryInput, fn func(p *GetWorkflowExecutionHistoryOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.GetWorkflowExecutionHistoryRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*GetWorkflowExecutionHistoryOutput), lastPage)
 	})
@@ -566,13 +1118,36 @@ func (c *SWF) GetWorkflowExecutionHistoryPages(input *GetWorkflowExecutionHistor
 
 const opListActivityTypes = "ListActivityTypes"
 
-// ListActivityTypesRequest generates a request for the ListActivityTypes operation.
-func (c *SWF) ListActivityTypesRequest(input *ListActivityTypesInput) (req *service.Request, output *ListActivityTypesOutput) {
-	op := &service.Operation{
+// ListActivityTypesRequest generates a "aws/request.Request" representing the
+// client's request for the ListActivityTypes operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See ListActivityTypes for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListActivityTypes method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListActivityTypesRequest method.
+//    req, resp := client.ListActivityTypesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) ListActivityTypesRequest(input *ListActivityTypesInput) (req *request.Request, output *ListActivityTypesOutput) {
+	op := &request.Operation{
 		Name:       opListActivityTypes,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &service.Paginator{
+		Paginator: &request.Paginator{
 			InputTokens:     []string{"nextPageToken"},
 			OutputTokens:    []string{"nextPageToken"},
 			LimitToken:      "maximumPageSize",
@@ -590,6 +1165,8 @@ func (c *SWF) ListActivityTypesRequest(input *ListActivityTypesInput) (req *serv
 	return
 }
 
+// ListActivityTypes API operation for Amazon Simple Workflow Service.
+//
 // Returns information about all activities registered in the specified domain
 // that match the specified name and registration status. The result includes
 // information like creation date, current status of the activity, etc. The
@@ -609,14 +1186,50 @@ func (c *SWF) ListActivityTypesRequest(input *ListActivityTypesInput) (req *serv
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation ListActivityTypes for usage and error information.
+//
+// Returned Error Codes:
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
 func (c *SWF) ListActivityTypes(input *ListActivityTypesInput) (*ListActivityTypesOutput, error) {
 	req, out := c.ListActivityTypesRequest(input)
 	err := req.Send()
 	return out, err
 }
 
+// ListActivityTypesPages iterates over the pages of a ListActivityTypes operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListActivityTypes method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListActivityTypes operation.
+//    pageNum := 0
+//    err := client.ListActivityTypesPages(params,
+//        func(page *ListActivityTypesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *SWF) ListActivityTypesPages(input *ListActivityTypesInput, fn func(p *ListActivityTypesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListActivityTypesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListActivityTypesOutput), lastPage)
 	})
@@ -624,13 +1237,36 @@ func (c *SWF) ListActivityTypesPages(input *ListActivityTypesInput, fn func(p *L
 
 const opListClosedWorkflowExecutions = "ListClosedWorkflowExecutions"
 
-// ListClosedWorkflowExecutionsRequest generates a request for the ListClosedWorkflowExecutions operation.
-func (c *SWF) ListClosedWorkflowExecutionsRequest(input *ListClosedWorkflowExecutionsInput) (req *service.Request, output *WorkflowExecutionInfos) {
-	op := &service.Operation{
+// ListClosedWorkflowExecutionsRequest generates a "aws/request.Request" representing the
+// client's request for the ListClosedWorkflowExecutions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See ListClosedWorkflowExecutions for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListClosedWorkflowExecutions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListClosedWorkflowExecutionsRequest method.
+//    req, resp := client.ListClosedWorkflowExecutionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) ListClosedWorkflowExecutionsRequest(input *ListClosedWorkflowExecutionsInput) (req *request.Request, output *WorkflowExecutionInfos) {
+	op := &request.Operation{
 		Name:       opListClosedWorkflowExecutions,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &service.Paginator{
+		Paginator: &request.Paginator{
 			InputTokens:     []string{"nextPageToken"},
 			OutputTokens:    []string{"nextPageToken"},
 			LimitToken:      "maximumPageSize",
@@ -648,6 +1284,8 @@ func (c *SWF) ListClosedWorkflowExecutionsRequest(input *ListClosedWorkflowExecu
 	return
 }
 
+// ListClosedWorkflowExecutions API operation for Amazon Simple Workflow Service.
+//
 // Returns a list of closed workflow executions in the specified domain that
 // meet the filtering criteria. The results may be split into multiple pages.
 // To retrieve subsequent pages, make the call again using the nextPageToken
@@ -670,14 +1308,50 @@ func (c *SWF) ListClosedWorkflowExecutionsRequest(input *ListClosedWorkflowExecu
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation ListClosedWorkflowExecutions for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) ListClosedWorkflowExecutions(input *ListClosedWorkflowExecutionsInput) (*WorkflowExecutionInfos, error) {
 	req, out := c.ListClosedWorkflowExecutionsRequest(input)
 	err := req.Send()
 	return out, err
 }
 
+// ListClosedWorkflowExecutionsPages iterates over the pages of a ListClosedWorkflowExecutions operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListClosedWorkflowExecutions method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListClosedWorkflowExecutions operation.
+//    pageNum := 0
+//    err := client.ListClosedWorkflowExecutionsPages(params,
+//        func(page *WorkflowExecutionInfos, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *SWF) ListClosedWorkflowExecutionsPages(input *ListClosedWorkflowExecutionsInput, fn func(p *WorkflowExecutionInfos, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListClosedWorkflowExecutionsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*WorkflowExecutionInfos), lastPage)
 	})
@@ -685,13 +1359,36 @@ func (c *SWF) ListClosedWorkflowExecutionsPages(input *ListClosedWorkflowExecuti
 
 const opListDomains = "ListDomains"
 
-// ListDomainsRequest generates a request for the ListDomains operation.
-func (c *SWF) ListDomainsRequest(input *ListDomainsInput) (req *service.Request, output *ListDomainsOutput) {
-	op := &service.Operation{
+// ListDomainsRequest generates a "aws/request.Request" representing the
+// client's request for the ListDomains operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See ListDomains for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListDomains method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListDomainsRequest method.
+//    req, resp := client.ListDomainsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) ListDomainsRequest(input *ListDomainsInput) (req *request.Request, output *ListDomainsOutput) {
+	op := &request.Operation{
 		Name:       opListDomains,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &service.Paginator{
+		Paginator: &request.Paginator{
 			InputTokens:     []string{"nextPageToken"},
 			OutputTokens:    []string{"nextPageToken"},
 			LimitToken:      "maximumPageSize",
@@ -709,6 +1406,8 @@ func (c *SWF) ListDomainsRequest(input *ListDomainsInput) (req *service.Request,
 	return
 }
 
+// ListDomains API operation for Amazon Simple Workflow Service.
+//
 // Returns the list of domains registered in the account. The results may be
 // split into multiple pages. To retrieve subsequent pages, make the call again
 // using the nextPageToken returned by the initial call.
@@ -728,14 +1427,45 @@ func (c *SWF) ListDomainsRequest(input *ListDomainsInput) (req *service.Request,
 // specified constraints, the action fails. The associated event attribute's
 // cause parameter will be set to OPERATION_NOT_PERMITTED. For details and example
 // IAM policies, see Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation ListDomains for usage and error information.
+//
+// Returned Error Codes:
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) ListDomains(input *ListDomainsInput) (*ListDomainsOutput, error) {
 	req, out := c.ListDomainsRequest(input)
 	err := req.Send()
 	return out, err
 }
 
+// ListDomainsPages iterates over the pages of a ListDomains operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListDomains method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListDomains operation.
+//    pageNum := 0
+//    err := client.ListDomainsPages(params,
+//        func(page *ListDomainsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *SWF) ListDomainsPages(input *ListDomainsInput, fn func(p *ListDomainsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListDomainsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListDomainsOutput), lastPage)
 	})
@@ -743,13 +1473,36 @@ func (c *SWF) ListDomainsPages(input *ListDomainsInput, fn func(p *ListDomainsOu
 
 const opListOpenWorkflowExecutions = "ListOpenWorkflowExecutions"
 
-// ListOpenWorkflowExecutionsRequest generates a request for the ListOpenWorkflowExecutions operation.
-func (c *SWF) ListOpenWorkflowExecutionsRequest(input *ListOpenWorkflowExecutionsInput) (req *service.Request, output *WorkflowExecutionInfos) {
-	op := &service.Operation{
+// ListOpenWorkflowExecutionsRequest generates a "aws/request.Request" representing the
+// client's request for the ListOpenWorkflowExecutions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See ListOpenWorkflowExecutions for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListOpenWorkflowExecutions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListOpenWorkflowExecutionsRequest method.
+//    req, resp := client.ListOpenWorkflowExecutionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) ListOpenWorkflowExecutionsRequest(input *ListOpenWorkflowExecutionsInput) (req *request.Request, output *WorkflowExecutionInfos) {
+	op := &request.Operation{
 		Name:       opListOpenWorkflowExecutions,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &service.Paginator{
+		Paginator: &request.Paginator{
 			InputTokens:     []string{"nextPageToken"},
 			OutputTokens:    []string{"nextPageToken"},
 			LimitToken:      "maximumPageSize",
@@ -767,6 +1520,8 @@ func (c *SWF) ListOpenWorkflowExecutionsRequest(input *ListOpenWorkflowExecution
 	return
 }
 
+// ListOpenWorkflowExecutions API operation for Amazon Simple Workflow Service.
+//
 // Returns a list of open workflow executions in the specified domain that meet
 // the filtering criteria. The results may be split into multiple pages. To
 // retrieve subsequent pages, make the call again using the nextPageToken returned
@@ -789,14 +1544,50 @@ func (c *SWF) ListOpenWorkflowExecutionsRequest(input *ListOpenWorkflowExecution
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation ListOpenWorkflowExecutions for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) ListOpenWorkflowExecutions(input *ListOpenWorkflowExecutionsInput) (*WorkflowExecutionInfos, error) {
 	req, out := c.ListOpenWorkflowExecutionsRequest(input)
 	err := req.Send()
 	return out, err
 }
 
+// ListOpenWorkflowExecutionsPages iterates over the pages of a ListOpenWorkflowExecutions operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListOpenWorkflowExecutions method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListOpenWorkflowExecutions operation.
+//    pageNum := 0
+//    err := client.ListOpenWorkflowExecutionsPages(params,
+//        func(page *WorkflowExecutionInfos, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *SWF) ListOpenWorkflowExecutionsPages(input *ListOpenWorkflowExecutionsInput, fn func(p *WorkflowExecutionInfos, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListOpenWorkflowExecutionsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*WorkflowExecutionInfos), lastPage)
 	})
@@ -804,13 +1595,36 @@ func (c *SWF) ListOpenWorkflowExecutionsPages(input *ListOpenWorkflowExecutionsI
 
 const opListWorkflowTypes = "ListWorkflowTypes"
 
-// ListWorkflowTypesRequest generates a request for the ListWorkflowTypes operation.
-func (c *SWF) ListWorkflowTypesRequest(input *ListWorkflowTypesInput) (req *service.Request, output *ListWorkflowTypesOutput) {
-	op := &service.Operation{
+// ListWorkflowTypesRequest generates a "aws/request.Request" representing the
+// client's request for the ListWorkflowTypes operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See ListWorkflowTypes for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListWorkflowTypes method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListWorkflowTypesRequest method.
+//    req, resp := client.ListWorkflowTypesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) ListWorkflowTypesRequest(input *ListWorkflowTypesInput) (req *request.Request, output *ListWorkflowTypesOutput) {
+	op := &request.Operation{
 		Name:       opListWorkflowTypes,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &service.Paginator{
+		Paginator: &request.Paginator{
 			InputTokens:     []string{"nextPageToken"},
 			OutputTokens:    []string{"nextPageToken"},
 			LimitToken:      "maximumPageSize",
@@ -828,6 +1642,8 @@ func (c *SWF) ListWorkflowTypesRequest(input *ListWorkflowTypesInput) (req *serv
 	return
 }
 
+// ListWorkflowTypes API operation for Amazon Simple Workflow Service.
+//
 // Returns information about workflow types in the specified domain. The results
 // may be split into multiple pages that can be retrieved by making the call
 // repeatedly.
@@ -845,14 +1661,50 @@ func (c *SWF) ListWorkflowTypesRequest(input *ListWorkflowTypesInput) (req *serv
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation ListWorkflowTypes for usage and error information.
+//
+// Returned Error Codes:
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
 func (c *SWF) ListWorkflowTypes(input *ListWorkflowTypesInput) (*ListWorkflowTypesOutput, error) {
 	req, out := c.ListWorkflowTypesRequest(input)
 	err := req.Send()
 	return out, err
 }
 
+// ListWorkflowTypesPages iterates over the pages of a ListWorkflowTypes operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListWorkflowTypes method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListWorkflowTypes operation.
+//    pageNum := 0
+//    err := client.ListWorkflowTypesPages(params,
+//        func(page *ListWorkflowTypesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *SWF) ListWorkflowTypesPages(input *ListWorkflowTypesInput, fn func(p *ListWorkflowTypesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListWorkflowTypesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListWorkflowTypesOutput), lastPage)
 	})
@@ -860,9 +1712,32 @@ func (c *SWF) ListWorkflowTypesPages(input *ListWorkflowTypesInput, fn func(p *L
 
 const opPollForActivityTask = "PollForActivityTask"
 
-// PollForActivityTaskRequest generates a request for the PollForActivityTask operation.
-func (c *SWF) PollForActivityTaskRequest(input *PollForActivityTaskInput) (req *service.Request, output *PollForActivityTaskOutput) {
-	op := &service.Operation{
+// PollForActivityTaskRequest generates a "aws/request.Request" representing the
+// client's request for the PollForActivityTask operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See PollForActivityTask for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the PollForActivityTask method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the PollForActivityTaskRequest method.
+//    req, resp := client.PollForActivityTaskRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) PollForActivityTaskRequest(input *PollForActivityTaskInput) (req *request.Request, output *PollForActivityTaskOutput) {
+	op := &request.Operation{
 		Name:       opPollForActivityTask,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -878,6 +1753,8 @@ func (c *SWF) PollForActivityTaskRequest(input *PollForActivityTaskInput) (req *
 	return
 }
 
+// PollForActivityTask API operation for Amazon Simple Workflow Service.
+//
 // Used by workers to get an ActivityTask from the specified activity taskList.
 // This initiates a long poll, where the service holds the HTTP connection open
 // and responds as soon as a task becomes available. The maximum time the service
@@ -903,6 +1780,29 @@ func (c *SWF) PollForActivityTaskRequest(input *PollForActivityTaskInput) (req *
 // the action fails. The associated event attribute's cause parameter will be
 // set to OPERATION_NOT_PERMITTED. For details and example IAM policies, see
 // Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation PollForActivityTask for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
+//   * LimitExceededFault
+//   Returned by any operation if a system imposed limitation has been reached.
+//   To address this fault you should either clean up unused resources or increase
+//   the limit by contacting AWS.
+//
 func (c *SWF) PollForActivityTask(input *PollForActivityTaskInput) (*PollForActivityTaskOutput, error) {
 	req, out := c.PollForActivityTaskRequest(input)
 	err := req.Send()
@@ -911,13 +1811,36 @@ func (c *SWF) PollForActivityTask(input *PollForActivityTaskInput) (*PollForActi
 
 const opPollForDecisionTask = "PollForDecisionTask"
 
-// PollForDecisionTaskRequest generates a request for the PollForDecisionTask operation.
-func (c *SWF) PollForDecisionTaskRequest(input *PollForDecisionTaskInput) (req *service.Request, output *PollForDecisionTaskOutput) {
-	op := &service.Operation{
+// PollForDecisionTaskRequest generates a "aws/request.Request" representing the
+// client's request for the PollForDecisionTask operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See PollForDecisionTask for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the PollForDecisionTask method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the PollForDecisionTaskRequest method.
+//    req, resp := client.PollForDecisionTaskRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) PollForDecisionTaskRequest(input *PollForDecisionTaskInput) (req *request.Request, output *PollForDecisionTaskOutput) {
+	op := &request.Operation{
 		Name:       opPollForDecisionTask,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &service.Paginator{
+		Paginator: &request.Paginator{
 			InputTokens:     []string{"nextPageToken"},
 			OutputTokens:    []string{"nextPageToken"},
 			LimitToken:      "maximumPageSize",
@@ -935,6 +1858,8 @@ func (c *SWF) PollForDecisionTaskRequest(input *PollForDecisionTaskInput) (req *
 	return
 }
 
+// PollForDecisionTask API operation for Amazon Simple Workflow Service.
+//
 // Used by deciders to get a DecisionTask from the specified decision taskList.
 // A decision task may be returned for any open workflow execution that is using
 // the specified task list. The task includes a paginated view of the history
@@ -968,14 +1893,55 @@ func (c *SWF) PollForDecisionTaskRequest(input *PollForDecisionTaskInput) (req *
 // the action fails. The associated event attribute's cause parameter will be
 // set to OPERATION_NOT_PERMITTED. For details and example IAM policies, see
 // Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation PollForDecisionTask for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
+//   * LimitExceededFault
+//   Returned by any operation if a system imposed limitation has been reached.
+//   To address this fault you should either clean up unused resources or increase
+//   the limit by contacting AWS.
+//
 func (c *SWF) PollForDecisionTask(input *PollForDecisionTaskInput) (*PollForDecisionTaskOutput, error) {
 	req, out := c.PollForDecisionTaskRequest(input)
 	err := req.Send()
 	return out, err
 }
 
+// PollForDecisionTaskPages iterates over the pages of a PollForDecisionTask operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See PollForDecisionTask method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a PollForDecisionTask operation.
+//    pageNum := 0
+//    err := client.PollForDecisionTaskPages(params,
+//        func(page *PollForDecisionTaskOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *SWF) PollForDecisionTaskPages(input *PollForDecisionTaskInput, fn func(p *PollForDecisionTaskOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.PollForDecisionTaskRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*PollForDecisionTaskOutput), lastPage)
 	})
@@ -983,9 +1949,32 @@ func (c *SWF) PollForDecisionTaskPages(input *PollForDecisionTaskInput, fn func(
 
 const opRecordActivityTaskHeartbeat = "RecordActivityTaskHeartbeat"
 
-// RecordActivityTaskHeartbeatRequest generates a request for the RecordActivityTaskHeartbeat operation.
-func (c *SWF) RecordActivityTaskHeartbeatRequest(input *RecordActivityTaskHeartbeatInput) (req *service.Request, output *RecordActivityTaskHeartbeatOutput) {
-	op := &service.Operation{
+// RecordActivityTaskHeartbeatRequest generates a "aws/request.Request" representing the
+// client's request for the RecordActivityTaskHeartbeat operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See RecordActivityTaskHeartbeat for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RecordActivityTaskHeartbeat method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RecordActivityTaskHeartbeatRequest method.
+//    req, resp := client.RecordActivityTaskHeartbeatRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) RecordActivityTaskHeartbeatRequest(input *RecordActivityTaskHeartbeatInput) (req *request.Request, output *RecordActivityTaskHeartbeatOutput) {
+	op := &request.Operation{
 		Name:       opRecordActivityTaskHeartbeat,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1001,6 +1990,8 @@ func (c *SWF) RecordActivityTaskHeartbeatRequest(input *RecordActivityTaskHeartb
 	return
 }
 
+// RecordActivityTaskHeartbeat API operation for Amazon Simple Workflow Service.
+//
 // Used by activity workers to report to the service that the ActivityTask represented
 // by the specified taskToken is still making progress. The worker can also
 // (optionally) specify details of the progress, for example percent complete,
@@ -1037,6 +2028,24 @@ func (c *SWF) RecordActivityTaskHeartbeatRequest(input *RecordActivityTaskHeartb
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation RecordActivityTaskHeartbeat for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) RecordActivityTaskHeartbeat(input *RecordActivityTaskHeartbeatInput) (*RecordActivityTaskHeartbeatOutput, error) {
 	req, out := c.RecordActivityTaskHeartbeatRequest(input)
 	err := req.Send()
@@ -1045,9 +2054,32 @@ func (c *SWF) RecordActivityTaskHeartbeat(input *RecordActivityTaskHeartbeatInpu
 
 const opRegisterActivityType = "RegisterActivityType"
 
-// RegisterActivityTypeRequest generates a request for the RegisterActivityType operation.
-func (c *SWF) RegisterActivityTypeRequest(input *RegisterActivityTypeInput) (req *service.Request, output *RegisterActivityTypeOutput) {
-	op := &service.Operation{
+// RegisterActivityTypeRequest generates a "aws/request.Request" representing the
+// client's request for the RegisterActivityType operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See RegisterActivityType for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RegisterActivityType method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RegisterActivityTypeRequest method.
+//    req, resp := client.RegisterActivityTypeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) RegisterActivityTypeRequest(input *RegisterActivityTypeInput) (req *request.Request, output *RegisterActivityTypeOutput) {
+	op := &request.Operation{
 		Name:       opRegisterActivityType,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1058,11 +2090,15 @@ func (c *SWF) RegisterActivityTypeRequest(input *RegisterActivityTypeInput) (req
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RegisterActivityTypeOutput{}
 	req.Data = output
 	return
 }
 
+// RegisterActivityType API operation for Amazon Simple Workflow Service.
+//
 // Registers a new activity type along with its configuration settings in the
 // specified domain.
 //
@@ -1084,6 +2120,35 @@ func (c *SWF) RegisterActivityTypeRequest(input *RegisterActivityTypeInput) (req
 // event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation RegisterActivityType for usage and error information.
+//
+// Returned Error Codes:
+//   * TypeAlreadyExistsFault
+//   Returned if the type already exists in the specified domain. You will get
+//   this fault even if the existing type is in deprecated status. You can specify
+//   another version if the intent is to create a new distinct version of the
+//   type.
+//
+//   * LimitExceededFault
+//   Returned by any operation if a system imposed limitation has been reached.
+//   To address this fault you should either clean up unused resources or increase
+//   the limit by contacting AWS.
+//
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) RegisterActivityType(input *RegisterActivityTypeInput) (*RegisterActivityTypeOutput, error) {
 	req, out := c.RegisterActivityTypeRequest(input)
 	err := req.Send()
@@ -1092,9 +2157,32 @@ func (c *SWF) RegisterActivityType(input *RegisterActivityTypeInput) (*RegisterA
 
 const opRegisterDomain = "RegisterDomain"
 
-// RegisterDomainRequest generates a request for the RegisterDomain operation.
-func (c *SWF) RegisterDomainRequest(input *RegisterDomainInput) (req *service.Request, output *RegisterDomainOutput) {
-	op := &service.Operation{
+// RegisterDomainRequest generates a "aws/request.Request" representing the
+// client's request for the RegisterDomain operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See RegisterDomain for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RegisterDomain method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RegisterDomainRequest method.
+//    req, resp := client.RegisterDomainRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) RegisterDomainRequest(input *RegisterDomainInput) (req *request.Request, output *RegisterDomainOutput) {
+	op := &request.Operation{
 		Name:       opRegisterDomain,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1105,11 +2193,15 @@ func (c *SWF) RegisterDomainRequest(input *RegisterDomainInput) (req *service.Re
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RegisterDomainOutput{}
 	req.Data = output
 	return
 }
 
+// RegisterDomain API operation for Amazon Simple Workflow Service.
+//
 // Registers a new domain.
 //
 // Access Control
@@ -1126,6 +2218,28 @@ func (c *SWF) RegisterDomainRequest(input *RegisterDomainInput) (req *service.Re
 // The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation RegisterDomain for usage and error information.
+//
+// Returned Error Codes:
+//   * DomainAlreadyExistsFault
+//   Returned if the specified domain already exists. You will get this fault
+//   even if the existing domain is in deprecated status.
+//
+//   * LimitExceededFault
+//   Returned by any operation if a system imposed limitation has been reached.
+//   To address this fault you should either clean up unused resources or increase
+//   the limit by contacting AWS.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) RegisterDomain(input *RegisterDomainInput) (*RegisterDomainOutput, error) {
 	req, out := c.RegisterDomainRequest(input)
 	err := req.Send()
@@ -1134,9 +2248,32 @@ func (c *SWF) RegisterDomain(input *RegisterDomainInput) (*RegisterDomainOutput,
 
 const opRegisterWorkflowType = "RegisterWorkflowType"
 
-// RegisterWorkflowTypeRequest generates a request for the RegisterWorkflowType operation.
-func (c *SWF) RegisterWorkflowTypeRequest(input *RegisterWorkflowTypeInput) (req *service.Request, output *RegisterWorkflowTypeOutput) {
-	op := &service.Operation{
+// RegisterWorkflowTypeRequest generates a "aws/request.Request" representing the
+// client's request for the RegisterWorkflowType operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See RegisterWorkflowType for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RegisterWorkflowType method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RegisterWorkflowTypeRequest method.
+//    req, resp := client.RegisterWorkflowTypeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) RegisterWorkflowTypeRequest(input *RegisterWorkflowTypeInput) (req *request.Request, output *RegisterWorkflowTypeOutput) {
+	op := &request.Operation{
 		Name:       opRegisterWorkflowType,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1147,11 +2284,15 @@ func (c *SWF) RegisterWorkflowTypeRequest(input *RegisterWorkflowTypeInput) (req
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RegisterWorkflowTypeOutput{}
 	req.Data = output
 	return
 }
 
+// RegisterWorkflowType API operation for Amazon Simple Workflow Service.
+//
 // Registers a new workflow type and its configuration settings in the specified
 // domain.
 //
@@ -1176,6 +2317,35 @@ func (c *SWF) RegisterWorkflowTypeRequest(input *RegisterWorkflowTypeInput) (req
 // event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation RegisterWorkflowType for usage and error information.
+//
+// Returned Error Codes:
+//   * TypeAlreadyExistsFault
+//   Returned if the type already exists in the specified domain. You will get
+//   this fault even if the existing type is in deprecated status. You can specify
+//   another version if the intent is to create a new distinct version of the
+//   type.
+//
+//   * LimitExceededFault
+//   Returned by any operation if a system imposed limitation has been reached.
+//   To address this fault you should either clean up unused resources or increase
+//   the limit by contacting AWS.
+//
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) RegisterWorkflowType(input *RegisterWorkflowTypeInput) (*RegisterWorkflowTypeOutput, error) {
 	req, out := c.RegisterWorkflowTypeRequest(input)
 	err := req.Send()
@@ -1184,9 +2354,32 @@ func (c *SWF) RegisterWorkflowType(input *RegisterWorkflowTypeInput) (*RegisterW
 
 const opRequestCancelWorkflowExecution = "RequestCancelWorkflowExecution"
 
-// RequestCancelWorkflowExecutionRequest generates a request for the RequestCancelWorkflowExecution operation.
-func (c *SWF) RequestCancelWorkflowExecutionRequest(input *RequestCancelWorkflowExecutionInput) (req *service.Request, output *RequestCancelWorkflowExecutionOutput) {
-	op := &service.Operation{
+// RequestCancelWorkflowExecutionRequest generates a "aws/request.Request" representing the
+// client's request for the RequestCancelWorkflowExecution operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See RequestCancelWorkflowExecution for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RequestCancelWorkflowExecution method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RequestCancelWorkflowExecutionRequest method.
+//    req, resp := client.RequestCancelWorkflowExecutionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) RequestCancelWorkflowExecutionRequest(input *RequestCancelWorkflowExecutionInput) (req *request.Request, output *RequestCancelWorkflowExecutionOutput) {
+	op := &request.Operation{
 		Name:       opRequestCancelWorkflowExecution,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1197,11 +2390,15 @@ func (c *SWF) RequestCancelWorkflowExecutionRequest(input *RequestCancelWorkflow
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RequestCancelWorkflowExecutionOutput{}
 	req.Data = output
 	return
 }
 
+// RequestCancelWorkflowExecution API operation for Amazon Simple Workflow Service.
+//
 // Records a WorkflowExecutionCancelRequested event in the currently running
 // workflow execution identified by the given domain, workflowId, and runId.
 // This logically requests the cancellation of the workflow execution as a whole.
@@ -1225,6 +2422,24 @@ func (c *SWF) RequestCancelWorkflowExecutionRequest(input *RequestCancelWorkflow
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation RequestCancelWorkflowExecution for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) RequestCancelWorkflowExecution(input *RequestCancelWorkflowExecutionInput) (*RequestCancelWorkflowExecutionOutput, error) {
 	req, out := c.RequestCancelWorkflowExecutionRequest(input)
 	err := req.Send()
@@ -1233,9 +2448,32 @@ func (c *SWF) RequestCancelWorkflowExecution(input *RequestCancelWorkflowExecuti
 
 const opRespondActivityTaskCanceled = "RespondActivityTaskCanceled"
 
-// RespondActivityTaskCanceledRequest generates a request for the RespondActivityTaskCanceled operation.
-func (c *SWF) RespondActivityTaskCanceledRequest(input *RespondActivityTaskCanceledInput) (req *service.Request, output *RespondActivityTaskCanceledOutput) {
-	op := &service.Operation{
+// RespondActivityTaskCanceledRequest generates a "aws/request.Request" representing the
+// client's request for the RespondActivityTaskCanceled operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See RespondActivityTaskCanceled for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RespondActivityTaskCanceled method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RespondActivityTaskCanceledRequest method.
+//    req, resp := client.RespondActivityTaskCanceledRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) RespondActivityTaskCanceledRequest(input *RespondActivityTaskCanceledInput) (req *request.Request, output *RespondActivityTaskCanceledOutput) {
+	op := &request.Operation{
 		Name:       opRespondActivityTaskCanceled,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1246,11 +2484,15 @@ func (c *SWF) RespondActivityTaskCanceledRequest(input *RespondActivityTaskCance
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RespondActivityTaskCanceledOutput{}
 	req.Data = output
 	return
 }
 
+// RespondActivityTaskCanceled API operation for Amazon Simple Workflow Service.
+//
 // Used by workers to tell the service that the ActivityTask identified by the
 // taskToken was successfully canceled. Additional details can be optionally
 // provided using the details argument.
@@ -1279,6 +2521,24 @@ func (c *SWF) RespondActivityTaskCanceledRequest(input *RespondActivityTaskCance
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation RespondActivityTaskCanceled for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) RespondActivityTaskCanceled(input *RespondActivityTaskCanceledInput) (*RespondActivityTaskCanceledOutput, error) {
 	req, out := c.RespondActivityTaskCanceledRequest(input)
 	err := req.Send()
@@ -1287,9 +2547,32 @@ func (c *SWF) RespondActivityTaskCanceled(input *RespondActivityTaskCanceledInpu
 
 const opRespondActivityTaskCompleted = "RespondActivityTaskCompleted"
 
-// RespondActivityTaskCompletedRequest generates a request for the RespondActivityTaskCompleted operation.
-func (c *SWF) RespondActivityTaskCompletedRequest(input *RespondActivityTaskCompletedInput) (req *service.Request, output *RespondActivityTaskCompletedOutput) {
-	op := &service.Operation{
+// RespondActivityTaskCompletedRequest generates a "aws/request.Request" representing the
+// client's request for the RespondActivityTaskCompleted operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See RespondActivityTaskCompleted for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RespondActivityTaskCompleted method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RespondActivityTaskCompletedRequest method.
+//    req, resp := client.RespondActivityTaskCompletedRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) RespondActivityTaskCompletedRequest(input *RespondActivityTaskCompletedInput) (req *request.Request, output *RespondActivityTaskCompletedOutput) {
+	op := &request.Operation{
 		Name:       opRespondActivityTaskCompleted,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1300,11 +2583,15 @@ func (c *SWF) RespondActivityTaskCompletedRequest(input *RespondActivityTaskComp
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RespondActivityTaskCompletedOutput{}
 	req.Data = output
 	return
 }
 
+// RespondActivityTaskCompleted API operation for Amazon Simple Workflow Service.
+//
 // Used by workers to tell the service that the ActivityTask identified by the
 // taskToken completed successfully with a result (if provided). The result
 // appears in the ActivityTaskCompleted event in the workflow history.
@@ -1331,6 +2618,24 @@ func (c *SWF) RespondActivityTaskCompletedRequest(input *RespondActivityTaskComp
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation RespondActivityTaskCompleted for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) RespondActivityTaskCompleted(input *RespondActivityTaskCompletedInput) (*RespondActivityTaskCompletedOutput, error) {
 	req, out := c.RespondActivityTaskCompletedRequest(input)
 	err := req.Send()
@@ -1339,9 +2644,32 @@ func (c *SWF) RespondActivityTaskCompleted(input *RespondActivityTaskCompletedIn
 
 const opRespondActivityTaskFailed = "RespondActivityTaskFailed"
 
-// RespondActivityTaskFailedRequest generates a request for the RespondActivityTaskFailed operation.
-func (c *SWF) RespondActivityTaskFailedRequest(input *RespondActivityTaskFailedInput) (req *service.Request, output *RespondActivityTaskFailedOutput) {
-	op := &service.Operation{
+// RespondActivityTaskFailedRequest generates a "aws/request.Request" representing the
+// client's request for the RespondActivityTaskFailed operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See RespondActivityTaskFailed for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RespondActivityTaskFailed method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RespondActivityTaskFailedRequest method.
+//    req, resp := client.RespondActivityTaskFailedRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) RespondActivityTaskFailedRequest(input *RespondActivityTaskFailedInput) (req *request.Request, output *RespondActivityTaskFailedOutput) {
+	op := &request.Operation{
 		Name:       opRespondActivityTaskFailed,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1352,11 +2680,15 @@ func (c *SWF) RespondActivityTaskFailedRequest(input *RespondActivityTaskFailedI
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RespondActivityTaskFailedOutput{}
 	req.Data = output
 	return
 }
 
+// RespondActivityTaskFailed API operation for Amazon Simple Workflow Service.
+//
 // Used by workers to tell the service that the ActivityTask identified by the
 // taskToken has failed with reason (if specified). The reason and details appear
 // in the ActivityTaskFailed event added to the workflow history.
@@ -1380,6 +2712,24 @@ func (c *SWF) RespondActivityTaskFailedRequest(input *RespondActivityTaskFailedI
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation RespondActivityTaskFailed for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) RespondActivityTaskFailed(input *RespondActivityTaskFailedInput) (*RespondActivityTaskFailedOutput, error) {
 	req, out := c.RespondActivityTaskFailedRequest(input)
 	err := req.Send()
@@ -1388,9 +2738,32 @@ func (c *SWF) RespondActivityTaskFailed(input *RespondActivityTaskFailedInput) (
 
 const opRespondDecisionTaskCompleted = "RespondDecisionTaskCompleted"
 
-// RespondDecisionTaskCompletedRequest generates a request for the RespondDecisionTaskCompleted operation.
-func (c *SWF) RespondDecisionTaskCompletedRequest(input *RespondDecisionTaskCompletedInput) (req *service.Request, output *RespondDecisionTaskCompletedOutput) {
-	op := &service.Operation{
+// RespondDecisionTaskCompletedRequest generates a "aws/request.Request" representing the
+// client's request for the RespondDecisionTaskCompleted operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See RespondDecisionTaskCompleted for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RespondDecisionTaskCompleted method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RespondDecisionTaskCompletedRequest method.
+//    req, resp := client.RespondDecisionTaskCompletedRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) RespondDecisionTaskCompletedRequest(input *RespondDecisionTaskCompletedInput) (req *request.Request, output *RespondDecisionTaskCompletedOutput) {
+	op := &request.Operation{
 		Name:       opRespondDecisionTaskCompleted,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1401,11 +2774,15 @@ func (c *SWF) RespondDecisionTaskCompletedRequest(input *RespondDecisionTaskComp
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RespondDecisionTaskCompletedOutput{}
 	req.Data = output
 	return
 }
 
+// RespondDecisionTaskCompleted API operation for Amazon Simple Workflow Service.
+//
 // Used by deciders to tell the service that the DecisionTask identified by
 // the taskToken has successfully completed. The decisions argument specifies
 // the list of decisions made while processing the task.
@@ -1422,6 +2799,24 @@ func (c *SWF) RespondDecisionTaskCompletedRequest(input *RespondDecisionTaskComp
 // permissions on decisions as if they were actual API calls, including applying
 // conditions to some parameters. For more information, see Using IAM to Manage
 // Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation RespondDecisionTaskCompleted for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) RespondDecisionTaskCompleted(input *RespondDecisionTaskCompletedInput) (*RespondDecisionTaskCompletedOutput, error) {
 	req, out := c.RespondDecisionTaskCompletedRequest(input)
 	err := req.Send()
@@ -1430,9 +2825,32 @@ func (c *SWF) RespondDecisionTaskCompleted(input *RespondDecisionTaskCompletedIn
 
 const opSignalWorkflowExecution = "SignalWorkflowExecution"
 
-// SignalWorkflowExecutionRequest generates a request for the SignalWorkflowExecution operation.
-func (c *SWF) SignalWorkflowExecutionRequest(input *SignalWorkflowExecutionInput) (req *service.Request, output *SignalWorkflowExecutionOutput) {
-	op := &service.Operation{
+// SignalWorkflowExecutionRequest generates a "aws/request.Request" representing the
+// client's request for the SignalWorkflowExecution operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See SignalWorkflowExecution for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the SignalWorkflowExecution method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the SignalWorkflowExecutionRequest method.
+//    req, resp := client.SignalWorkflowExecutionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) SignalWorkflowExecutionRequest(input *SignalWorkflowExecutionInput) (req *request.Request, output *SignalWorkflowExecutionOutput) {
+	op := &request.Operation{
 		Name:       opSignalWorkflowExecution,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1443,11 +2861,15 @@ func (c *SWF) SignalWorkflowExecutionRequest(input *SignalWorkflowExecutionInput
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SignalWorkflowExecutionOutput{}
 	req.Data = output
 	return
 }
 
+// SignalWorkflowExecution API operation for Amazon Simple Workflow Service.
+//
 // Records a WorkflowExecutionSignaled event in the workflow execution history
 // and creates a decision task for the workflow execution identified by the
 // given domain, workflowId and runId. The event is recorded with the specified
@@ -1469,6 +2891,24 @@ func (c *SWF) SignalWorkflowExecutionRequest(input *SignalWorkflowExecutionInput
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation SignalWorkflowExecution for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) SignalWorkflowExecution(input *SignalWorkflowExecutionInput) (*SignalWorkflowExecutionOutput, error) {
 	req, out := c.SignalWorkflowExecutionRequest(input)
 	err := req.Send()
@@ -1477,9 +2917,32 @@ func (c *SWF) SignalWorkflowExecution(input *SignalWorkflowExecutionInput) (*Sig
 
 const opStartWorkflowExecution = "StartWorkflowExecution"
 
-// StartWorkflowExecutionRequest generates a request for the StartWorkflowExecution operation.
-func (c *SWF) StartWorkflowExecutionRequest(input *StartWorkflowExecutionInput) (req *service.Request, output *StartWorkflowExecutionOutput) {
-	op := &service.Operation{
+// StartWorkflowExecutionRequest generates a "aws/request.Request" representing the
+// client's request for the StartWorkflowExecution operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See StartWorkflowExecution for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the StartWorkflowExecution method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the StartWorkflowExecutionRequest method.
+//    req, resp := client.StartWorkflowExecutionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) StartWorkflowExecutionRequest(input *StartWorkflowExecutionInput) (req *request.Request, output *StartWorkflowExecutionOutput) {
+	op := &request.Operation{
 		Name:       opStartWorkflowExecution,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1495,6 +2958,8 @@ func (c *SWF) StartWorkflowExecutionRequest(input *StartWorkflowExecutionInput) 
 	return
 }
 
+// StartWorkflowExecution API operation for Amazon Simple Workflow Service.
+//
 // Starts an execution of the workflow type in the specified domain using the
 // provided workflowId and input data.
 //
@@ -1519,6 +2984,39 @@ func (c *SWF) StartWorkflowExecutionRequest(input *StartWorkflowExecutionInput) 
 // constraints, the action fails. The associated event attribute's cause parameter
 // will be set to OPERATION_NOT_PERMITTED. For details and example IAM policies,
 // see Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation StartWorkflowExecution for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * TypeDeprecatedFault
+//   Returned when the specified activity or workflow type was already deprecated.
+//
+//   * WorkflowExecutionAlreadyStartedFault
+//   Returned by StartWorkflowExecution when an open execution with the same workflowId
+//   is already running in the specified domain.
+//
+//   * LimitExceededFault
+//   Returned by any operation if a system imposed limitation has been reached.
+//   To address this fault you should either clean up unused resources or increase
+//   the limit by contacting AWS.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
+//   * DefaultUndefinedFault
+
+//
 func (c *SWF) StartWorkflowExecution(input *StartWorkflowExecutionInput) (*StartWorkflowExecutionOutput, error) {
 	req, out := c.StartWorkflowExecutionRequest(input)
 	err := req.Send()
@@ -1527,9 +3025,32 @@ func (c *SWF) StartWorkflowExecution(input *StartWorkflowExecutionInput) (*Start
 
 const opTerminateWorkflowExecution = "TerminateWorkflowExecution"
 
-// TerminateWorkflowExecutionRequest generates a request for the TerminateWorkflowExecution operation.
-func (c *SWF) TerminateWorkflowExecutionRequest(input *TerminateWorkflowExecutionInput) (req *service.Request, output *TerminateWorkflowExecutionOutput) {
-	op := &service.Operation{
+// TerminateWorkflowExecutionRequest generates a "aws/request.Request" representing the
+// client's request for the TerminateWorkflowExecution operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See TerminateWorkflowExecution for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the TerminateWorkflowExecution method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the TerminateWorkflowExecutionRequest method.
+//    req, resp := client.TerminateWorkflowExecutionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *SWF) TerminateWorkflowExecutionRequest(input *TerminateWorkflowExecutionInput) (req *request.Request, output *TerminateWorkflowExecutionOutput) {
+	op := &request.Operation{
 		Name:       opTerminateWorkflowExecution,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
@@ -1540,11 +3061,15 @@ func (c *SWF) TerminateWorkflowExecutionRequest(input *TerminateWorkflowExecutio
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &TerminateWorkflowExecutionOutput{}
 	req.Data = output
 	return
 }
 
+// TerminateWorkflowExecution API operation for Amazon Simple Workflow Service.
+//
 // Records a WorkflowExecutionTerminated event and forces closure of the workflow
 // execution identified by the given domain, runId, and workflowId. The child
 // policy, registered with the workflow type or specified when starting this
@@ -1569,6 +3094,24 @@ func (c *SWF) TerminateWorkflowExecutionRequest(input *TerminateWorkflowExecutio
 // fails. The associated event attribute's cause parameter will be set to OPERATION_NOT_PERMITTED.
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Workflow Service's
+// API operation TerminateWorkflowExecution for usage and error information.
+//
+// Returned Error Codes:
+//   * UnknownResourceFault
+//   Returned when the named resource cannot be found with in the scope of this
+//   operation (region or domain). This could happen if the named resource was
+//   never created or is no longer available for this operation.
+//
+//   * OperationNotPermittedFault
+//   Returned when the caller does not have sufficient permissions to invoke the
+//   action.
+//
 func (c *SWF) TerminateWorkflowExecution(input *TerminateWorkflowExecutionInput) (*TerminateWorkflowExecutionOutput, error) {
 	req, out := c.TerminateWorkflowExecutionRequest(input)
 	err := req.Send()
@@ -1577,20 +3120,20 @@ func (c *SWF) TerminateWorkflowExecution(input *TerminateWorkflowExecutionInput)
 
 // Provides details of the ActivityTaskCancelRequested event.
 type ActivityTaskCancelRequestedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The unique ID of the task.
-	ActivityID *string `locationName:"activityId" type:"string" required:"true"`
+	//
+	// ActivityId is a required field
+	ActivityId *string `locationName:"activityId" min:"1" type:"string" required:"true"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the RequestCancelActivityTask decision for this cancellation
 	// request. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
-
-	metadataActivityTaskCancelRequestedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataActivityTaskCancelRequestedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -1605,29 +3148,29 @@ func (s ActivityTaskCancelRequestedEventAttributes) GoString() string {
 
 // Provides details of the ActivityTaskCanceled event.
 type ActivityTaskCanceledEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Details of the cancellation (if any).
 	Details *string `locationName:"details" type:"string"`
 
 	// If set, contains the ID of the last ActivityTaskCancelRequested event recorded
 	// for this activity task. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	LatestCancelRequestedEventID *int64 `locationName:"latestCancelRequestedEventId" type:"long"`
+	LatestCancelRequestedEventId *int64 `locationName:"latestCancelRequestedEventId" type:"long"`
 
 	// The ID of the ActivityTaskScheduled event that was recorded when this activity
 	// task was scheduled. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 
 	// The ID of the ActivityTaskStarted event recorded when this activity task
 	// was started. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
-
-	metadataActivityTaskCanceledEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataActivityTaskCanceledEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -1642,24 +3185,24 @@ func (s ActivityTaskCanceledEventAttributes) GoString() string {
 
 // Provides details of the ActivityTaskCompleted event.
 type ActivityTaskCompletedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The results of the activity task (if any).
 	Result *string `locationName:"result" type:"string"`
 
 	// The ID of the ActivityTaskScheduled event that was recorded when this activity
 	// task was scheduled. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 
 	// The ID of the ActivityTaskStarted event recorded when this activity task
 	// was started. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
-
-	metadataActivityTaskCompletedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataActivityTaskCompletedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -1674,6 +3217,8 @@ func (s ActivityTaskCompletedEventAttributes) GoString() string {
 
 // Provides details of the ActivityTaskFailed event.
 type ActivityTaskFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The details of the failure (if any).
 	Details *string `locationName:"details" type:"string"`
 
@@ -1683,18 +3228,16 @@ type ActivityTaskFailedEventAttributes struct {
 	// The ID of the ActivityTaskScheduled event that was recorded when this activity
 	// task was scheduled. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 
 	// The ID of the ActivityTaskStarted event recorded when this activity task
 	// was started. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
-
-	metadataActivityTaskFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataActivityTaskFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -1709,10 +3252,16 @@ func (s ActivityTaskFailedEventAttributes) GoString() string {
 
 // Provides details of the ActivityTaskScheduled event.
 type ActivityTaskScheduledEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The unique ID of the activity task.
-	ActivityID *string `locationName:"activityId" type:"string" required:"true"`
+	//
+	// ActivityId is a required field
+	ActivityId *string `locationName:"activityId" min:"1" type:"string" required:"true"`
 
 	// The type of the activity task.
+	//
+	// ActivityType is a required field
 	ActivityType *ActivityType `locationName:"activityType" type:"structure" required:"true"`
 
 	// Optional. Data attached to the event that can be used by the decider in subsequent
@@ -1723,7 +3272,9 @@ type ActivityTaskScheduledEventAttributes struct {
 	// resulted in the scheduling of this activity task. This information can be
 	// useful for diagnosing problems by tracing back the chain of events leading
 	// up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The maximum time before which the worker processing this task must report
 	// progress by calling RecordActivityTaskHeartbeat. If the timeout is exceeded,
@@ -1745,6 +3296,8 @@ type ActivityTaskScheduledEventAttributes struct {
 	StartToCloseTimeout *string `locationName:"startToCloseTimeout" type:"string"`
 
 	// The task list in which the activity task has been scheduled.
+	//
+	// TaskList is a required field
 	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
 
 	// Optional. The priority to assign to the scheduled activity task. If set,
@@ -1758,12 +3311,6 @@ type ActivityTaskScheduledEventAttributes struct {
 	// (http://docs.aws.amazon.com/amazonswf/latest/developerguide/programming-priority.html)
 	// in the Amazon Simple Workflow Developer Guide.
 	TaskPriority *string `locationName:"taskPriority" type:"string"`
-
-	metadataActivityTaskScheduledEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataActivityTaskScheduledEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1778,6 +3325,8 @@ func (s ActivityTaskScheduledEventAttributes) GoString() string {
 
 // Provides details of the ActivityTaskStarted event.
 type ActivityTaskStartedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Identity of the worker that was assigned this task. This aids diagnostics
 	// when problems arise. The form of this identity is user defined.
 	Identity *string `locationName:"identity" type:"string"`
@@ -1785,13 +3334,9 @@ type ActivityTaskStartedEventAttributes struct {
 	// The ID of the ActivityTaskScheduled event that was recorded when this activity
 	// task was scheduled. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
-
-	metadataActivityTaskStartedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataActivityTaskStartedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -1806,6 +3351,8 @@ func (s ActivityTaskStartedEventAttributes) GoString() string {
 
 // Provides details of the ActivityTaskTimedOut event.
 type ActivityTaskTimedOutEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Contains the content of the details parameter for the last call made by the
 	// activity to RecordActivityTaskHeartbeat.
 	Details *string `locationName:"details" type:"string"`
@@ -1813,21 +3360,21 @@ type ActivityTaskTimedOutEventAttributes struct {
 	// The ID of the ActivityTaskScheduled event that was recorded when this activity
 	// task was scheduled. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 
 	// The ID of the ActivityTaskStarted event recorded when this activity task
 	// was started. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The type of the timeout that caused this event.
+	//
+	// TimeoutType is a required field
 	TimeoutType *string `locationName:"timeoutType" type:"string" required:"true" enum:"ActivityTaskTimeoutType"`
-
-	metadataActivityTaskTimedOutEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataActivityTaskTimedOutEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1842,23 +3389,23 @@ func (s ActivityTaskTimedOutEventAttributes) GoString() string {
 
 // Represents an activity type.
 type ActivityType struct {
+	_ struct{} `type:"structure"`
+
 	// The name of this activity.
 	//
 	// The combination of activity type name and version must be unique within
 	// a domain.
-	Name *string `locationName:"name" type:"string" required:"true"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 
 	// The version of this activity.
 	//
 	// The combination of activity type name and version must be unique with in
 	// a domain.
-	Version *string `locationName:"version" type:"string" required:"true"`
-
-	metadataActivityType `json:"-" xml:"-"`
-}
-
-type metadataActivityType struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Version is a required field
+	Version *string `locationName:"version" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1871,8 +3418,32 @@ func (s ActivityType) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ActivityType) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ActivityType"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+	if s.Version == nil {
+		invalidParams.Add(request.NewErrParamRequired("Version"))
+	}
+	if s.Version != nil && len(*s.Version) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Version", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Configuration settings registered with the activity type.
 type ActivityTypeConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. The default maximum time, in seconds, before which a worker processing
 	// a task must report progress by calling RecordActivityTaskHeartbeat.
 	//
@@ -1929,12 +3500,6 @@ type ActivityTypeConfiguration struct {
 	// The duration is specified in seconds; an integer greater than or equal to
 	// 0. The value "NONE" can be used to specify unlimited duration.
 	DefaultTaskStartToCloseTimeout *string `locationName:"defaultTaskStartToCloseTimeout" type:"string"`
-
-	metadataActivityTypeConfiguration `json:"-" xml:"-"`
-}
-
-type metadataActivityTypeConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1949,10 +3514,16 @@ func (s ActivityTypeConfiguration) GoString() string {
 
 // Detailed information about an activity type.
 type ActivityTypeInfo struct {
+	_ struct{} `type:"structure"`
+
 	// The ActivityType type structure representing the activity type.
+	//
+	// ActivityType is a required field
 	ActivityType *ActivityType `locationName:"activityType" type:"structure" required:"true"`
 
 	// The date and time this activity type was created through RegisterActivityType.
+	//
+	// CreationDate is a required field
 	CreationDate *time.Time `locationName:"creationDate" type:"timestamp" timestampFormat:"unix" required:"true"`
 
 	// If DEPRECATED, the date and time DeprecateActivityType was called.
@@ -1962,13 +3533,9 @@ type ActivityTypeInfo struct {
 	Description *string `locationName:"description" type:"string"`
 
 	// The current status of the activity type.
+	//
+	// Status is a required field
 	Status *string `locationName:"status" type:"string" required:"true" enum:"RegistrationStatus"`
-
-	metadataActivityTypeInfo `json:"-" xml:"-"`
-}
-
-type metadataActivityTypeInfo struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1997,14 +3564,12 @@ func (s ActivityTypeInfo) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type CancelTimerDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Required. The unique ID of the timer to cancel.
-	TimerID *string `locationName:"timerId" type:"string" required:"true"`
-
-	metadataCancelTimerDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataCancelTimerDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TimerId is a required field
+	TimerId *string `locationName:"timerId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2017,30 +3582,48 @@ func (s CancelTimerDecisionAttributes) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CancelTimerDecisionAttributes) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CancelTimerDecisionAttributes"}
+	if s.TimerId == nil {
+		invalidParams.Add(request.NewErrParamRequired("TimerId"))
+	}
+	if s.TimerId != nil && len(*s.TimerId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TimerId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the CancelTimerFailed event.
 type CancelTimerFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"CancelTimerFailedCause"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the CancelTimer decision to cancel this timer. This information
 	// can be useful for diagnosing problems by tracing back the chain of events
 	// leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The timerId provided in the CancelTimer decision that failed.
-	TimerID *string `locationName:"timerId" type:"string" required:"true"`
-
-	metadataCancelTimerFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataCancelTimerFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TimerId is a required field
+	TimerId *string `locationName:"timerId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2069,14 +3652,10 @@ func (s CancelTimerFailedEventAttributes) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type CancelWorkflowExecutionDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. details of the cancellation.
 	Details *string `locationName:"details" type:"string"`
-
-	metadataCancelWorkflowExecutionDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataCancelWorkflowExecutionDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2091,25 +3670,25 @@ func (s CancelWorkflowExecutionDecisionAttributes) GoString() string {
 
 // Provides details of the CancelWorkflowExecutionFailed event.
 type CancelWorkflowExecutionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"CancelWorkflowExecutionFailedCause"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the CancelWorkflowExecution decision for this cancellation
 	// request. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
-
-	metadataCancelWorkflowExecutionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataCancelWorkflowExecutionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -2124,6 +3703,8 @@ func (s CancelWorkflowExecutionFailedEventAttributes) GoString() string {
 
 // Provide details of the ChildWorkflowExecutionCanceled event.
 type ChildWorkflowExecutionCanceledEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Details of the cancellation (if provided).
 	Details *string `locationName:"details" type:"string"`
 
@@ -2131,24 +3712,26 @@ type ChildWorkflowExecutionCanceledEventAttributes struct {
 	// the StartChildWorkflowExecution decision to start this child workflow execution.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The ID of the ChildWorkflowExecutionStarted event recorded when this child
 	// workflow execution was started. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The child workflow execution that was canceled.
+	//
+	// WorkflowExecution is a required field
 	WorkflowExecution *WorkflowExecution `locationName:"workflowExecution" type:"structure" required:"true"`
 
 	// The type of the child workflow execution.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataChildWorkflowExecutionCanceledEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataChildWorkflowExecutionCanceledEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2163,11 +3746,15 @@ func (s ChildWorkflowExecutionCanceledEventAttributes) GoString() string {
 
 // Provides details of the ChildWorkflowExecutionCompleted event.
 type ChildWorkflowExecutionCompletedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the StartChildWorkflowExecutionInitiated event corresponding to
 	// the StartChildWorkflowExecution decision to start this child workflow execution.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The result of the child workflow execution (if any).
 	Result *string `locationName:"result" type:"string"`
@@ -2175,19 +3762,19 @@ type ChildWorkflowExecutionCompletedEventAttributes struct {
 	// The ID of the ChildWorkflowExecutionStarted event recorded when this child
 	// workflow execution was started. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The child workflow execution that was completed.
+	//
+	// WorkflowExecution is a required field
 	WorkflowExecution *WorkflowExecution `locationName:"workflowExecution" type:"structure" required:"true"`
 
 	// The type of the child workflow execution.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataChildWorkflowExecutionCompletedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataChildWorkflowExecutionCompletedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2202,6 +3789,8 @@ func (s ChildWorkflowExecutionCompletedEventAttributes) GoString() string {
 
 // Provides details of the ChildWorkflowExecutionFailed event.
 type ChildWorkflowExecutionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The details of the failure (if provided).
 	Details *string `locationName:"details" type:"string"`
 
@@ -2209,7 +3798,9 @@ type ChildWorkflowExecutionFailedEventAttributes struct {
 	// the StartChildWorkflowExecution decision to start this child workflow execution.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The reason for the failure (if provided).
 	Reason *string `locationName:"reason" type:"string"`
@@ -2217,19 +3808,19 @@ type ChildWorkflowExecutionFailedEventAttributes struct {
 	// The ID of the ChildWorkflowExecutionStarted event recorded when this child
 	// workflow execution was started. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The child workflow execution that failed.
+	//
+	// WorkflowExecution is a required field
 	WorkflowExecution *WorkflowExecution `locationName:"workflowExecution" type:"structure" required:"true"`
 
 	// The type of the child workflow execution.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataChildWorkflowExecutionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataChildWorkflowExecutionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2244,23 +3835,25 @@ func (s ChildWorkflowExecutionFailedEventAttributes) GoString() string {
 
 // Provides details of the ChildWorkflowExecutionStarted event.
 type ChildWorkflowExecutionStartedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the StartChildWorkflowExecutionInitiated event corresponding to
 	// the StartChildWorkflowExecution decision to start this child workflow execution.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The child workflow execution that was started.
+	//
+	// WorkflowExecution is a required field
 	WorkflowExecution *WorkflowExecution `locationName:"workflowExecution" type:"structure" required:"true"`
 
 	// The type of the child workflow execution.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataChildWorkflowExecutionStartedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataChildWorkflowExecutionStartedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2275,28 +3868,32 @@ func (s ChildWorkflowExecutionStartedEventAttributes) GoString() string {
 
 // Provides details of the ChildWorkflowExecutionTerminated event.
 type ChildWorkflowExecutionTerminatedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the StartChildWorkflowExecutionInitiated event corresponding to
 	// the StartChildWorkflowExecution decision to start this child workflow execution.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The ID of the ChildWorkflowExecutionStarted event recorded when this child
 	// workflow execution was started. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The child workflow execution that was terminated.
+	//
+	// WorkflowExecution is a required field
 	WorkflowExecution *WorkflowExecution `locationName:"workflowExecution" type:"structure" required:"true"`
 
 	// The type of the child workflow execution.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataChildWorkflowExecutionTerminatedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataChildWorkflowExecutionTerminatedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2311,32 +3908,38 @@ func (s ChildWorkflowExecutionTerminatedEventAttributes) GoString() string {
 
 // Provides details of the ChildWorkflowExecutionTimedOut event.
 type ChildWorkflowExecutionTimedOutEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the StartChildWorkflowExecutionInitiated event corresponding to
 	// the StartChildWorkflowExecution decision to start this child workflow execution.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The ID of the ChildWorkflowExecutionStarted event recorded when this child
 	// workflow execution was started. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The type of the timeout that caused the child workflow execution to time
 	// out.
+	//
+	// TimeoutType is a required field
 	TimeoutType *string `locationName:"timeoutType" type:"string" required:"true" enum:"WorkflowExecutionTimeoutType"`
 
 	// The child workflow execution that timed out.
+	//
+	// WorkflowExecution is a required field
 	WorkflowExecution *WorkflowExecution `locationName:"workflowExecution" type:"structure" required:"true"`
 
 	// The type of the child workflow execution.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataChildWorkflowExecutionTimedOutEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataChildWorkflowExecutionTimedOutEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2352,15 +3955,13 @@ func (s ChildWorkflowExecutionTimedOutEventAttributes) GoString() string {
 // Used to filter the closed workflow executions in visibility APIs by their
 // close status.
 type CloseStatusFilter struct {
+	_ struct{} `type:"structure"`
+
 	// Required. The close status that must match the close status of an execution
 	// for it to meet the criteria of this filter.
+	//
+	// Status is a required field
 	Status *string `locationName:"status" type:"string" required:"true" enum:"CloseStatus"`
-
-	metadataCloseStatusFilter `json:"-" xml:"-"`
-}
-
-type metadataCloseStatusFilter struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2371,6 +3972,19 @@ func (s CloseStatusFilter) String() string {
 // GoString returns the string representation
 func (s CloseStatusFilter) GoString() string {
 	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CloseStatusFilter) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CloseStatusFilter"}
+	if s.Status == nil {
+		invalidParams.Add(request.NewErrParamRequired("Status"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
 // Provides details of the CompleteWorkflowExecution decision.
@@ -2389,15 +4003,11 @@ func (s CloseStatusFilter) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type CompleteWorkflowExecutionDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The result of the workflow execution. The form of the result is implementation
 	// defined.
 	Result *string `locationName:"result" type:"string"`
-
-	metadataCompleteWorkflowExecutionDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataCompleteWorkflowExecutionDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2412,25 +4022,25 @@ func (s CompleteWorkflowExecutionDecisionAttributes) GoString() string {
 
 // Provides details of the CompleteWorkflowExecutionFailed event.
 type CompleteWorkflowExecutionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"CompleteWorkflowExecutionFailedCause"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the CompleteWorkflowExecution decision to complete this
 	// execution. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
-
-	metadataCompleteWorkflowExecutionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataCompleteWorkflowExecutionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -2462,6 +4072,8 @@ func (s CompleteWorkflowExecutionFailedEventAttributes) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type ContinueAsNewWorkflowExecutionDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// If set, specifies the policy to use for the child workflow executions of
 	// the new execution if it is terminated by calling the TerminateWorkflowExecution
 	// action explicitly or due to an expired timeout. This policy overrides the
@@ -2501,7 +4113,7 @@ type ContinueAsNewWorkflowExecutionDecisionAttributes struct {
 	// In order for this workflow execution to invoke AWS Lambda functions, an
 	// appropriate IAM role must be specified either as a default for the workflow
 	// type or through this field.
-	LambdaRole *string `locationName:"lambdaRole" type:"string"`
+	LambdaRole *string `locationName:"lambdaRole" min:"1" type:"string"`
 
 	// The list of tags to associate with the new workflow execution. A maximum
 	// of 5 tags can be specified. You can list workflow executions with a specific
@@ -2536,13 +4148,7 @@ type ContinueAsNewWorkflowExecutionDecisionAttributes struct {
 	// at registration time then a fault will be returned.
 	TaskStartToCloseTimeout *string `locationName:"taskStartToCloseTimeout" type:"string"`
 
-	WorkflowTypeVersion *string `locationName:"workflowTypeVersion" type:"string"`
-
-	metadataContinueAsNewWorkflowExecutionDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataContinueAsNewWorkflowExecutionDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	WorkflowTypeVersion *string `locationName:"workflowTypeVersion" min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -2555,27 +4161,48 @@ func (s ContinueAsNewWorkflowExecutionDecisionAttributes) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ContinueAsNewWorkflowExecutionDecisionAttributes) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ContinueAsNewWorkflowExecutionDecisionAttributes"}
+	if s.LambdaRole != nil && len(*s.LambdaRole) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("LambdaRole", 1))
+	}
+	if s.WorkflowTypeVersion != nil && len(*s.WorkflowTypeVersion) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowTypeVersion", 1))
+	}
+	if s.TaskList != nil {
+		if err := s.TaskList.Validate(); err != nil {
+			invalidParams.AddNested("TaskList", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the ContinueAsNewWorkflowExecutionFailed event.
 type ContinueAsNewWorkflowExecutionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"ContinueAsNewWorkflowExecutionFailedCause"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the ContinueAsNewWorkflowExecution decision that started
 	// this execution. This information can be useful for diagnosing problems by
 	// tracing back the chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
-
-	metadataContinueAsNewWorkflowExecutionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataContinueAsNewWorkflowExecutionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -2589,6 +4216,8 @@ func (s ContinueAsNewWorkflowExecutionFailedEventAttributes) GoString() string {
 }
 
 type CountClosedWorkflowExecutionsInput struct {
+	_ struct{} `type:"structure"`
+
 	// If specified, only workflow executions that match this close status are counted.
 	// This filter has an affect only if executionStatus is specified as CLOSED.
 	//
@@ -2604,7 +4233,9 @@ type CountClosedWorkflowExecutionsInput struct {
 	CloseTimeFilter *ExecutionTimeFilter `locationName:"closeTimeFilter" type:"structure"`
 
 	// The name of the domain containing the workflow executions to count.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// If specified, only workflow executions matching the WorkflowId in the filter
 	// are counted.
@@ -2632,12 +4263,6 @@ type CountClosedWorkflowExecutionsInput struct {
 	// closeStatusFilter, executionFilter, typeFilter and tagFilter are mutually
 	// exclusive. You can specify at most one of these in a request.
 	TypeFilter *WorkflowTypeFilter `locationName:"typeFilter" type:"structure"`
-
-	metadataCountClosedWorkflowExecutionsInput `json:"-" xml:"-"`
-}
-
-type metadataCountClosedWorkflowExecutionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2650,9 +4275,59 @@ func (s CountClosedWorkflowExecutionsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CountClosedWorkflowExecutionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CountClosedWorkflowExecutionsInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.CloseStatusFilter != nil {
+		if err := s.CloseStatusFilter.Validate(); err != nil {
+			invalidParams.AddNested("CloseStatusFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.CloseTimeFilter != nil {
+		if err := s.CloseTimeFilter.Validate(); err != nil {
+			invalidParams.AddNested("CloseTimeFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.ExecutionFilter != nil {
+		if err := s.ExecutionFilter.Validate(); err != nil {
+			invalidParams.AddNested("ExecutionFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.StartTimeFilter != nil {
+		if err := s.StartTimeFilter.Validate(); err != nil {
+			invalidParams.AddNested("StartTimeFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TagFilter != nil {
+		if err := s.TagFilter.Validate(); err != nil {
+			invalidParams.AddNested("TagFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TypeFilter != nil {
+		if err := s.TypeFilter.Validate(); err != nil {
+			invalidParams.AddNested("TypeFilter", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type CountOpenWorkflowExecutionsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain containing the workflow executions to count.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// If specified, only workflow executions matching the WorkflowId in the filter
 	// are counted.
@@ -2663,6 +4338,8 @@ type CountOpenWorkflowExecutionsInput struct {
 
 	// Specifies the start time criteria that workflow executions must meet in order
 	// to be counted.
+	//
+	// StartTimeFilter is a required field
 	StartTimeFilter *ExecutionTimeFilter `locationName:"startTimeFilter" type:"structure" required:"true"`
 
 	// If specified, only executions that have a tag that matches the filter are
@@ -2677,12 +4354,6 @@ type CountOpenWorkflowExecutionsInput struct {
 	// executionFilter, typeFilter and tagFilter are mutually exclusive. You can
 	// specify at most one of these in a request.
 	TypeFilter *WorkflowTypeFilter `locationName:"typeFilter" type:"structure"`
-
-	metadataCountOpenWorkflowExecutionsInput `json:"-" xml:"-"`
-}
-
-type metadataCountOpenWorkflowExecutionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2695,18 +4366,57 @@ func (s CountOpenWorkflowExecutionsInput) GoString() string {
 	return s.String()
 }
 
-type CountPendingActivityTasksInput struct {
-	// The name of the domain that contains the task list.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CountOpenWorkflowExecutionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CountOpenWorkflowExecutionsInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.StartTimeFilter == nil {
+		invalidParams.Add(request.NewErrParamRequired("StartTimeFilter"))
+	}
+	if s.ExecutionFilter != nil {
+		if err := s.ExecutionFilter.Validate(); err != nil {
+			invalidParams.AddNested("ExecutionFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.StartTimeFilter != nil {
+		if err := s.StartTimeFilter.Validate(); err != nil {
+			invalidParams.AddNested("StartTimeFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TagFilter != nil {
+		if err := s.TagFilter.Validate(); err != nil {
+			invalidParams.AddNested("TagFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TypeFilter != nil {
+		if err := s.TypeFilter.Validate(); err != nil {
+			invalidParams.AddNested("TypeFilter", err.(request.ErrInvalidParams))
+		}
+	}
 
-	// The name of the task list.
-	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
-
-	metadataCountPendingActivityTasksInput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCountPendingActivityTasksInput struct {
-	SDKShapeTraits bool `type:"structure"`
+type CountPendingActivityTasksInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the domain that contains the task list.
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
+
+	// The name of the task list.
+	//
+	// TaskList is a required field
+	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
 }
 
 // String returns the string representation
@@ -2719,18 +4429,42 @@ func (s CountPendingActivityTasksInput) GoString() string {
 	return s.String()
 }
 
-type CountPendingDecisionTasksInput struct {
-	// The name of the domain that contains the task list.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CountPendingActivityTasksInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CountPendingActivityTasksInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.TaskList == nil {
+		invalidParams.Add(request.NewErrParamRequired("TaskList"))
+	}
+	if s.TaskList != nil {
+		if err := s.TaskList.Validate(); err != nil {
+			invalidParams.AddNested("TaskList", err.(request.ErrInvalidParams))
+		}
+	}
 
-	// The name of the task list.
-	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
-
-	metadataCountPendingDecisionTasksInput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCountPendingDecisionTasksInput struct {
-	SDKShapeTraits bool `type:"structure"`
+type CountPendingDecisionTasksInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the domain that contains the task list.
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
+
+	// The name of the task list.
+	//
+	// TaskList is a required field
+	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
 }
 
 // String returns the string representation
@@ -2741,6 +4475,30 @@ func (s CountPendingDecisionTasksInput) String() string {
 // GoString returns the string representation
 func (s CountPendingDecisionTasksInput) GoString() string {
 	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CountPendingDecisionTasksInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CountPendingDecisionTasksInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.TaskList == nil {
+		invalidParams.Add(request.NewErrParamRequired("TaskList"))
+	}
+	if s.TaskList != nil {
+		if err := s.TaskList.Validate(); err != nil {
+			invalidParams.AddNested("TaskList", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
 // Specifies a decision made by the decider. A decision can be one of these
@@ -2851,6 +4609,8 @@ func (s CountPendingDecisionTasksInput) GoString() string {
 //   StartTimerDecisionAttributes   CancelTimerDecisionAttributes   SignalExternalWorkflowExecutionDecisionAttributes
 //   RequestCancelExternalWorkflowExecutionDecisionAttributes   StartChildWorkflowExecutionDecisionAttributes
 type Decision struct {
+	_ struct{} `type:"structure"`
+
 	// Provides details of the CancelTimer decision. It is not set for other decision
 	// types.
 	CancelTimerDecisionAttributes *CancelTimerDecisionAttributes `locationName:"cancelTimerDecisionAttributes" type:"structure"`
@@ -2868,6 +4628,8 @@ type Decision struct {
 	ContinueAsNewWorkflowExecutionDecisionAttributes *ContinueAsNewWorkflowExecutionDecisionAttributes `locationName:"continueAsNewWorkflowExecutionDecisionAttributes" type:"structure"`
 
 	// Specifies the type of the decision.
+	//
+	// DecisionType is a required field
 	DecisionType *string `locationName:"decisionType" type:"string" required:"true" enum:"DecisionType"`
 
 	// Provides details of the FailWorkflowExecution decision. It is not set for
@@ -2921,12 +4683,6 @@ type Decision struct {
 	// Provides details of the StartTimer decision. It is not set for other decision
 	// types.
 	StartTimerDecisionAttributes *StartTimerDecisionAttributes `locationName:"startTimerDecisionAttributes" type:"structure"`
-
-	metadataDecision `json:"-" xml:"-"`
-}
-
-type metadataDecision struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2939,26 +4695,89 @@ func (s Decision) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *Decision) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "Decision"}
+	if s.DecisionType == nil {
+		invalidParams.Add(request.NewErrParamRequired("DecisionType"))
+	}
+	if s.CancelTimerDecisionAttributes != nil {
+		if err := s.CancelTimerDecisionAttributes.Validate(); err != nil {
+			invalidParams.AddNested("CancelTimerDecisionAttributes", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.ContinueAsNewWorkflowExecutionDecisionAttributes != nil {
+		if err := s.ContinueAsNewWorkflowExecutionDecisionAttributes.Validate(); err != nil {
+			invalidParams.AddNested("ContinueAsNewWorkflowExecutionDecisionAttributes", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.RecordMarkerDecisionAttributes != nil {
+		if err := s.RecordMarkerDecisionAttributes.Validate(); err != nil {
+			invalidParams.AddNested("RecordMarkerDecisionAttributes", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.RequestCancelActivityTaskDecisionAttributes != nil {
+		if err := s.RequestCancelActivityTaskDecisionAttributes.Validate(); err != nil {
+			invalidParams.AddNested("RequestCancelActivityTaskDecisionAttributes", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.RequestCancelExternalWorkflowExecutionDecisionAttributes != nil {
+		if err := s.RequestCancelExternalWorkflowExecutionDecisionAttributes.Validate(); err != nil {
+			invalidParams.AddNested("RequestCancelExternalWorkflowExecutionDecisionAttributes", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.ScheduleActivityTaskDecisionAttributes != nil {
+		if err := s.ScheduleActivityTaskDecisionAttributes.Validate(); err != nil {
+			invalidParams.AddNested("ScheduleActivityTaskDecisionAttributes", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.ScheduleLambdaFunctionDecisionAttributes != nil {
+		if err := s.ScheduleLambdaFunctionDecisionAttributes.Validate(); err != nil {
+			invalidParams.AddNested("ScheduleLambdaFunctionDecisionAttributes", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.SignalExternalWorkflowExecutionDecisionAttributes != nil {
+		if err := s.SignalExternalWorkflowExecutionDecisionAttributes.Validate(); err != nil {
+			invalidParams.AddNested("SignalExternalWorkflowExecutionDecisionAttributes", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.StartChildWorkflowExecutionDecisionAttributes != nil {
+		if err := s.StartChildWorkflowExecutionDecisionAttributes.Validate(); err != nil {
+			invalidParams.AddNested("StartChildWorkflowExecutionDecisionAttributes", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.StartTimerDecisionAttributes != nil {
+		if err := s.StartTimerDecisionAttributes.Validate(); err != nil {
+			invalidParams.AddNested("StartTimerDecisionAttributes", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the DecisionTaskCompleted event.
 type DecisionTaskCompletedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// User defined context for the workflow execution.
 	ExecutionContext *string `locationName:"executionContext" type:"string"`
 
 	// The ID of the DecisionTaskScheduled event that was recorded when this decision
 	// task was scheduled. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 
 	// The ID of the DecisionTaskStarted event recorded when this decision task
 	// was started. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
-
-	metadataDecisionTaskCompletedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataDecisionTaskCompletedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -2973,6 +4792,8 @@ func (s DecisionTaskCompletedEventAttributes) GoString() string {
 
 // Provides details about the DecisionTaskScheduled event.
 type DecisionTaskScheduledEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The maximum duration for this decision task. The task is considered timed
 	// out if it does not completed within this duration.
 	//
@@ -2981,6 +4802,8 @@ type DecisionTaskScheduledEventAttributes struct {
 	StartToCloseTimeout *string `locationName:"startToCloseTimeout" type:"string"`
 
 	// The name of the task list in which the decision task was scheduled.
+	//
+	// TaskList is a required field
 	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
 
 	// Optional. A task priority that, if set, specifies the priority for this decision
@@ -2992,12 +4815,6 @@ type DecisionTaskScheduledEventAttributes struct {
 	// (http://docs.aws.amazon.com/amazonswf/latest/developerguide/programming-priority.html)
 	// in the Amazon Simple Workflow Developer Guide.
 	TaskPriority *string `locationName:"taskPriority" type:"string"`
-
-	metadataDecisionTaskScheduledEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataDecisionTaskScheduledEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3012,6 +4829,8 @@ func (s DecisionTaskScheduledEventAttributes) GoString() string {
 
 // Provides details of the DecisionTaskStarted event.
 type DecisionTaskStartedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Identity of the decider making the request. This enables diagnostic tracing
 	// when problems arise. The form of this identity is user defined.
 	Identity *string `locationName:"identity" type:"string"`
@@ -3019,13 +4838,9 @@ type DecisionTaskStartedEventAttributes struct {
 	// The ID of the DecisionTaskScheduled event that was recorded when this decision
 	// task was scheduled. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
-
-	metadataDecisionTaskStartedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataDecisionTaskStartedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -3040,24 +4855,26 @@ func (s DecisionTaskStartedEventAttributes) GoString() string {
 
 // Provides details of the DecisionTaskTimedOut event.
 type DecisionTaskTimedOutEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the DecisionTaskScheduled event that was recorded when this decision
 	// task was scheduled. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 
 	// The ID of the DecisionTaskStarted event recorded when this decision task
 	// was started. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The type of timeout that expired before the decision task could be completed.
+	//
+	// TimeoutType is a required field
 	TimeoutType *string `locationName:"timeoutType" type:"string" required:"true" enum:"DecisionTaskTimeoutType"`
-
-	metadataDecisionTaskTimedOutEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataDecisionTaskTimedOutEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3071,17 +4888,17 @@ func (s DecisionTaskTimedOutEventAttributes) GoString() string {
 }
 
 type DeprecateActivityTypeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The activity type to deprecate.
+	//
+	// ActivityType is a required field
 	ActivityType *ActivityType `locationName:"activityType" type:"structure" required:"true"`
 
 	// The name of the domain in which the activity type is registered.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
-
-	metadataDeprecateActivityTypeInput `json:"-" xml:"-"`
-}
-
-type metadataDeprecateActivityTypeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3094,12 +4911,32 @@ func (s DeprecateActivityTypeInput) GoString() string {
 	return s.String()
 }
 
-type DeprecateActivityTypeOutput struct {
-	metadataDeprecateActivityTypeOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeprecateActivityTypeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeprecateActivityTypeInput"}
+	if s.ActivityType == nil {
+		invalidParams.Add(request.NewErrParamRequired("ActivityType"))
+	}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.ActivityType != nil {
+		if err := s.ActivityType.Validate(); err != nil {
+			invalidParams.AddNested("ActivityType", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeprecateActivityTypeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeprecateActivityTypeOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3113,14 +4950,12 @@ func (s DeprecateActivityTypeOutput) GoString() string {
 }
 
 type DeprecateDomainInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain to deprecate.
-	Name *string `locationName:"name" type:"string" required:"true"`
-
-	metadataDeprecateDomainInput `json:"-" xml:"-"`
-}
-
-type metadataDeprecateDomainInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3133,12 +4968,24 @@ func (s DeprecateDomainInput) GoString() string {
 	return s.String()
 }
 
-type DeprecateDomainOutput struct {
-	metadataDeprecateDomainOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeprecateDomainInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeprecateDomainInput"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeprecateDomainOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeprecateDomainOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3152,17 +4999,17 @@ func (s DeprecateDomainOutput) GoString() string {
 }
 
 type DeprecateWorkflowTypeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain in which the workflow type is registered.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// The workflow type to deprecate.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataDeprecateWorkflowTypeInput `json:"-" xml:"-"`
-}
-
-type metadataDeprecateWorkflowTypeInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3175,12 +5022,32 @@ func (s DeprecateWorkflowTypeInput) GoString() string {
 	return s.String()
 }
 
-type DeprecateWorkflowTypeOutput struct {
-	metadataDeprecateWorkflowTypeOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeprecateWorkflowTypeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeprecateWorkflowTypeInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.WorkflowType == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowType"))
+	}
+	if s.WorkflowType != nil {
+		if err := s.WorkflowType.Validate(); err != nil {
+			invalidParams.AddNested("WorkflowType", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeprecateWorkflowTypeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeprecateWorkflowTypeOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3194,18 +5061,18 @@ func (s DeprecateWorkflowTypeOutput) GoString() string {
 }
 
 type DescribeActivityTypeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The activity type to get information about. Activity types are identified
 	// by the name and version that were supplied when the activity was registered.
+	//
+	// ActivityType is a required field
 	ActivityType *ActivityType `locationName:"activityType" type:"structure" required:"true"`
 
 	// The name of the domain in which the activity type is registered.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
-
-	metadataDescribeActivityTypeInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeActivityTypeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3218,9 +5085,37 @@ func (s DescribeActivityTypeInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeActivityTypeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeActivityTypeInput"}
+	if s.ActivityType == nil {
+		invalidParams.Add(request.NewErrParamRequired("ActivityType"))
+	}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.ActivityType != nil {
+		if err := s.ActivityType.Validate(); err != nil {
+			invalidParams.AddNested("ActivityType", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Detailed information about an activity type.
 type DescribeActivityTypeOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The configuration settings registered with the activity type.
+	//
+	// Configuration is a required field
 	Configuration *ActivityTypeConfiguration `locationName:"configuration" type:"structure" required:"true"`
 
 	// General information about the activity type.
@@ -3232,13 +5127,9 @@ type DescribeActivityTypeOutput struct {
 	// type should be running.   DEPRECATED: The type was deprecated using DeprecateActivityType,
 	// but is still in use. You should keep workers supporting this type running.
 	// You cannot create new tasks of this type.
+	//
+	// TypeInfo is a required field
 	TypeInfo *ActivityTypeInfo `locationName:"typeInfo" type:"structure" required:"true"`
-
-	metadataDescribeActivityTypeOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeActivityTypeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3252,14 +5143,12 @@ func (s DescribeActivityTypeOutput) GoString() string {
 }
 
 type DescribeDomainInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain to describe.
-	Name *string `locationName:"name" type:"string" required:"true"`
-
-	metadataDescribeDomainInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeDomainInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3272,19 +5161,35 @@ func (s DescribeDomainInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeDomainInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeDomainInput"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains details of a domain.
 type DescribeDomainOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Contains the configuration settings of a domain.
+	//
+	// Configuration is a required field
 	Configuration *DomainConfiguration `locationName:"configuration" type:"structure" required:"true"`
 
 	// Contains general information about a domain.
+	//
+	// DomainInfo is a required field
 	DomainInfo *DomainInfo `locationName:"domainInfo" type:"structure" required:"true"`
-
-	metadataDescribeDomainOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeDomainOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3298,17 +5203,17 @@ func (s DescribeDomainOutput) GoString() string {
 }
 
 type DescribeWorkflowExecutionInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain containing the workflow execution.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// The workflow execution to describe.
+	//
+	// Execution is a required field
 	Execution *WorkflowExecution `locationName:"execution" type:"structure" required:"true"`
-
-	metadataDescribeWorkflowExecutionInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeWorkflowExecutionInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3321,13 +5226,43 @@ func (s DescribeWorkflowExecutionInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeWorkflowExecutionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeWorkflowExecutionInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.Execution == nil {
+		invalidParams.Add(request.NewErrParamRequired("Execution"))
+	}
+	if s.Execution != nil {
+		if err := s.Execution.Validate(); err != nil {
+			invalidParams.AddNested("Execution", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains details about a workflow execution.
 type DescribeWorkflowExecutionOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The configuration settings for this workflow execution including timeout
 	// values, tasklist etc.
+	//
+	// ExecutionConfiguration is a required field
 	ExecutionConfiguration *WorkflowExecutionConfiguration `locationName:"executionConfiguration" type:"structure" required:"true"`
 
 	// Information about the workflow execution.
+	//
+	// ExecutionInfo is a required field
 	ExecutionInfo *WorkflowExecutionInfo `locationName:"executionInfo" type:"structure" required:"true"`
 
 	// The time when the last activity task was scheduled for this workflow execution.
@@ -3342,13 +5277,9 @@ type DescribeWorkflowExecutionOutput struct {
 
 	// The number of tasks for this workflow execution. This includes open and closed
 	// tasks of all types.
+	//
+	// OpenCounts is a required field
 	OpenCounts *WorkflowExecutionOpenCounts `locationName:"openCounts" type:"structure" required:"true"`
-
-	metadataDescribeWorkflowExecutionOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeWorkflowExecutionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3362,17 +5293,17 @@ func (s DescribeWorkflowExecutionOutput) GoString() string {
 }
 
 type DescribeWorkflowTypeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain in which this workflow type is registered.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// The workflow type to describe.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataDescribeWorkflowTypeInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeWorkflowTypeInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3385,9 +5316,37 @@ func (s DescribeWorkflowTypeInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeWorkflowTypeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeWorkflowTypeInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.WorkflowType == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowType"))
+	}
+	if s.WorkflowType != nil {
+		if err := s.WorkflowType.Validate(); err != nil {
+			invalidParams.AddNested("WorkflowType", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains details about a workflow type.
 type DescribeWorkflowTypeOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Configuration settings of the workflow type registered through RegisterWorkflowType
+	//
+	// Configuration is a required field
 	Configuration *WorkflowTypeConfiguration `locationName:"configuration" type:"structure" required:"true"`
 
 	// General information about the workflow type.
@@ -3399,13 +5358,9 @@ type DescribeWorkflowTypeOutput struct {
 	// type should be running.  DEPRECATED: The type was deprecated using DeprecateWorkflowType,
 	// but is still in use. You should keep workers supporting this type running.
 	// You cannot create new workflow executions of this type.
+	//
+	// TypeInfo is a required field
 	TypeInfo *WorkflowTypeInfo `locationName:"typeInfo" type:"structure" required:"true"`
-
-	metadataDescribeWorkflowTypeOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeWorkflowTypeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3420,14 +5375,12 @@ func (s DescribeWorkflowTypeOutput) GoString() string {
 
 // Contains the configuration settings of a domain.
 type DomainConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// The retention period for workflow executions in this domain.
-	WorkflowExecutionRetentionPeriodInDays *string `locationName:"workflowExecutionRetentionPeriodInDays" type:"string" required:"true"`
-
-	metadataDomainConfiguration `json:"-" xml:"-"`
-}
-
-type metadataDomainConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowExecutionRetentionPeriodInDays is a required field
+	WorkflowExecutionRetentionPeriodInDays *string `locationName:"workflowExecutionRetentionPeriodInDays" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3442,11 +5395,15 @@ func (s DomainConfiguration) GoString() string {
 
 // Contains general information about a domain.
 type DomainInfo struct {
+	_ struct{} `type:"structure"`
+
 	// The description of the domain provided through RegisterDomain.
 	Description *string `locationName:"description" type:"string"`
 
 	// The name of the domain. This name is unique within the account.
-	Name *string `locationName:"name" type:"string" required:"true"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 
 	// The status of the domain:
 	//
@@ -3454,13 +5411,9 @@ type DomainInfo struct {
 	// this domain for registering types and creating new workflow executions.
 	//  DEPRECATED: The domain was deprecated using DeprecateDomain, but is still
 	// in use. You should not create new workflow executions in this domain.
+	//
+	// Status is a required field
 	Status *string `locationName:"status" type:"string" required:"true" enum:"RegistrationStatus"`
-
-	metadataDomainInfo `json:"-" xml:"-"`
-}
-
-type metadataDomainInfo struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3479,17 +5432,15 @@ func (s DomainInfo) GoString() string {
 // format (https://en.wikipedia.org/wiki/Unix_time). For example: "oldestDate":
 // 1325376070.
 type ExecutionTimeFilter struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies the latest start or close date and time to return.
 	LatestDate *time.Time `locationName:"latestDate" type:"timestamp" timestampFormat:"unix"`
 
 	// Specifies the oldest start or close date and time to return.
+	//
+	// OldestDate is a required field
 	OldestDate *time.Time `locationName:"oldestDate" type:"timestamp" timestampFormat:"unix" required:"true"`
-
-	metadataExecutionTimeFilter `json:"-" xml:"-"`
-}
-
-type metadataExecutionTimeFilter struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3502,22 +5453,35 @@ func (s ExecutionTimeFilter) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ExecutionTimeFilter) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ExecutionTimeFilter"}
+	if s.OldestDate == nil {
+		invalidParams.Add(request.NewErrParamRequired("OldestDate"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the ExternalWorkflowExecutionCancelRequested event.
 type ExternalWorkflowExecutionCancelRequestedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the RequestCancelExternalWorkflowExecutionInitiated event corresponding
 	// to the RequestCancelExternalWorkflowExecution decision to cancel this external
 	// workflow execution. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The external workflow execution to which the cancellation request was delivered.
+	//
+	// WorkflowExecution is a required field
 	WorkflowExecution *WorkflowExecution `locationName:"workflowExecution" type:"structure" required:"true"`
-
-	metadataExternalWorkflowExecutionCancelRequestedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataExternalWorkflowExecutionCancelRequestedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3532,20 +5496,20 @@ func (s ExternalWorkflowExecutionCancelRequestedEventAttributes) GoString() stri
 
 // Provides details of the ExternalWorkflowExecutionSignaled event.
 type ExternalWorkflowExecutionSignaledEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the SignalExternalWorkflowExecutionInitiated event corresponding
 	// to the SignalExternalWorkflowExecution decision to request this signal. This
 	// information can be useful for diagnosing problems by tracing back the chain
 	// of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The external workflow execution that the signal was delivered to.
+	//
+	// WorkflowExecution is a required field
 	WorkflowExecution *WorkflowExecution `locationName:"workflowExecution" type:"structure" required:"true"`
-
-	metadataExternalWorkflowExecutionSignaledEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataExternalWorkflowExecutionSignaledEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3574,17 +5538,13 @@ func (s ExternalWorkflowExecutionSignaledEventAttributes) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type FailWorkflowExecutionDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. Details of the failure.
 	Details *string `locationName:"details" type:"string"`
 
 	// A descriptive reason for the failure that may help in diagnostics.
 	Reason *string `locationName:"reason" type:"string"`
-
-	metadataFailWorkflowExecutionDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataFailWorkflowExecutionDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3599,25 +5559,25 @@ func (s FailWorkflowExecutionDecisionAttributes) GoString() string {
 
 // Provides details of the FailWorkflowExecutionFailed event.
 type FailWorkflowExecutionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"FailWorkflowExecutionFailedCause"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the FailWorkflowExecution decision to fail this execution.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
-
-	metadataFailWorkflowExecutionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataFailWorkflowExecutionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -3631,10 +5591,16 @@ func (s FailWorkflowExecutionFailedEventAttributes) GoString() string {
 }
 
 type GetWorkflowExecutionHistoryInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain containing the workflow execution.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// Specifies the workflow execution for which to return the history.
+	//
+	// Execution is a required field
 	Execution *WorkflowExecution `locationName:"execution" type:"structure" required:"true"`
 
 	// The maximum number of results that will be returned per call. nextPageToken
@@ -3657,12 +5623,6 @@ type GetWorkflowExecutionHistoryInput struct {
 	// When set to true, returns the events in reverse order. By default the results
 	// are returned in ascending order of the eventTimeStamp of the events.
 	ReverseOrder *bool `locationName:"reverseOrder" type:"boolean"`
-
-	metadataGetWorkflowExecutionHistoryInput `json:"-" xml:"-"`
-}
-
-type metadataGetWorkflowExecutionHistoryInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3675,11 +5635,39 @@ func (s GetWorkflowExecutionHistoryInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetWorkflowExecutionHistoryInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetWorkflowExecutionHistoryInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.Execution == nil {
+		invalidParams.Add(request.NewErrParamRequired("Execution"))
+	}
+	if s.Execution != nil {
+		if err := s.Execution.Validate(); err != nil {
+			invalidParams.AddNested("Execution", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Paginated representation of a workflow history for a workflow execution.
 // This is the up to date, complete and authoritative record of the events related
 // to all tasks and events in the life of the workflow execution.
 type GetWorkflowExecutionHistoryOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The list of history events.
+	//
+	// Events is a required field
 	Events []*HistoryEvent `locationName:"events" type:"list" required:"true"`
 
 	// If a NextPageToken was returned by a previous call, there are more results
@@ -3689,12 +5677,6 @@ type GetWorkflowExecutionHistoryOutput struct {
 	// The configured maximumPageSize determines how many results can be returned
 	// in a single call.
 	NextPageToken *string `locationName:"nextPageToken" type:"string"`
-
-	metadataGetWorkflowExecutionHistoryOutput `json:"-" xml:"-"`
-}
-
-type metadataGetWorkflowExecutionHistoryOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3777,6 +5759,8 @@ func (s GetWorkflowExecutionHistoryOutput) GoString() string {
 // AWS Lambda service. This happens when the AWS Lambda service is not available
 // in the current region, or received too many requests.
 type HistoryEvent struct {
+	_ struct{} `type:"structure"`
+
 	// If the event is of type ActivityTaskcancelRequested then this member is set
 	// and provides detailed information about the event. It is not set for other
 	// event types.
@@ -3880,12 +5864,18 @@ type HistoryEvent struct {
 
 	// The system generated ID of the event. This ID uniquely identifies the event
 	// with in the workflow execution history.
-	EventID *int64 `locationName:"eventId" type:"long" required:"true"`
+	//
+	// EventId is a required field
+	EventId *int64 `locationName:"eventId" type:"long" required:"true"`
 
 	// The date and time when the event occurred.
+	//
+	// EventTimestamp is a required field
 	EventTimestamp *time.Time `locationName:"eventTimestamp" type:"timestamp" timestampFormat:"unix" required:"true"`
 
 	// The type of the history event.
+	//
+	// EventType is a required field
 	EventType *string `locationName:"eventType" type:"string" required:"true" enum:"EventType"`
 
 	// If the event is of type ExternalWorkflowExecutionCancelRequested then this
@@ -4032,12 +6022,6 @@ type HistoryEvent struct {
 	// and provides detailed information about the event. It is not set for other
 	// event types.
 	WorkflowExecutionTimedOutEventAttributes *WorkflowExecutionTimedOutEventAttributes `locationName:"workflowExecutionTimedOutEventAttributes" type:"structure"`
-
-	metadataHistoryEvent `json:"-" xml:"-"`
-}
-
-type metadataHistoryEvent struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4052,22 +6036,22 @@ func (s HistoryEvent) GoString() string {
 
 // Provides details for the LambdaFunctionCompleted event.
 type LambdaFunctionCompletedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The result of the function execution (if any).
 	Result *string `locationName:"result" type:"string"`
 
 	// The ID of the LambdaFunctionScheduled event that was recorded when this AWS
 	// Lambda function was scheduled. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 
 	// The ID of the LambdaFunctionStarted event recorded in the history.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
-
-	metadataLambdaFunctionCompletedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataLambdaFunctionCompletedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -4082,6 +6066,8 @@ func (s LambdaFunctionCompletedEventAttributes) GoString() string {
 
 // Provides details for the LambdaFunctionFailed event.
 type LambdaFunctionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The details of the failure (if any).
 	Details *string `locationName:"details" type:"string"`
 
@@ -4091,16 +6077,14 @@ type LambdaFunctionFailedEventAttributes struct {
 	// The ID of the LambdaFunctionScheduled event that was recorded when this AWS
 	// Lambda function was scheduled. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 
 	// The ID of the LambdaFunctionStarted event recorded in the history.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
-
-	metadataLambdaFunctionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataLambdaFunctionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -4115,30 +6099,32 @@ func (s LambdaFunctionFailedEventAttributes) GoString() string {
 
 // Provides details for the LambdaFunctionScheduled event.
 type LambdaFunctionScheduledEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the DecisionTaskCompleted event for the decision that resulted
 	// in the scheduling of this AWS Lambda function. This information can be useful
 	// for diagnosing problems by tracing back the chain of events leading up to
 	// this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The unique Amazon SWF ID for the AWS Lambda task.
-	ID *string `locationName:"id" type:"string" required:"true"`
+	//
+	// Id is a required field
+	Id *string `locationName:"id" min:"1" type:"string" required:"true"`
 
 	// Input provided to the AWS Lambda function.
-	Input *string `locationName:"input" type:"string"`
+	Input *string `locationName:"input" min:"1" type:"string"`
 
 	// The name of the scheduled AWS Lambda function.
-	Name *string `locationName:"name" type:"string" required:"true"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 
 	// The maximum time, in seconds, that the AWS Lambda function can take to execute
 	// from start to close before it is marked as failed.
 	StartToCloseTimeout *string `locationName:"startToCloseTimeout" type:"string"`
-
-	metadataLambdaFunctionScheduledEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataLambdaFunctionScheduledEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4153,16 +6139,14 @@ func (s LambdaFunctionScheduledEventAttributes) GoString() string {
 
 // Provides details for the LambdaFunctionStarted event.
 type LambdaFunctionStartedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the LambdaFunctionScheduled event that was recorded when this AWS
 	// Lambda function was scheduled. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
-
-	metadataLambdaFunctionStartedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataLambdaFunctionStartedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -4177,22 +6161,22 @@ func (s LambdaFunctionStartedEventAttributes) GoString() string {
 
 // Provides details for the LambdaFunctionTimedOut event.
 type LambdaFunctionTimedOutEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the LambdaFunctionScheduled event that was recorded when this AWS
 	// Lambda function was scheduled. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
+	//
+	// ScheduledEventId is a required field
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long" required:"true"`
 
 	// The ID of the LambdaFunctionStarted event recorded in the history.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The type of the timeout that caused this event.
 	TimeoutType *string `locationName:"timeoutType" type:"string" enum:"LambdaFunctionTimeoutType"`
-
-	metadataLambdaFunctionTimedOutEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataLambdaFunctionTimedOutEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4206,8 +6190,12 @@ func (s LambdaFunctionTimedOutEventAttributes) GoString() string {
 }
 
 type ListActivityTypesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain in which the activity types have been registered.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// The maximum number of results that will be returned per call. nextPageToken
 	// can be used to obtain futher pages of results. The default is 1000, which
@@ -4219,7 +6207,7 @@ type ListActivityTypesInput struct {
 	MaximumPageSize *int64 `locationName:"maximumPageSize" type:"integer"`
 
 	// If specified, only lists the activity types that have this name.
-	Name *string `locationName:"name" type:"string"`
+	Name *string `locationName:"name" min:"1" type:"string"`
 
 	// If a NextPageToken was returned by a previous call, there are more results
 	// available. To retrieve the next page of results, make the call again using
@@ -4230,17 +6218,13 @@ type ListActivityTypesInput struct {
 	NextPageToken *string `locationName:"nextPageToken" type:"string"`
 
 	// Specifies the registration status of the activity types to list.
+	//
+	// RegistrationStatus is a required field
 	RegistrationStatus *string `locationName:"registrationStatus" type:"string" required:"true" enum:"RegistrationStatus"`
 
 	// When set to true, returns the results in reverse order. By default, the results
 	// are returned in ascending alphabetical order by name of the activity types.
 	ReverseOrder *bool `locationName:"reverseOrder" type:"boolean"`
-
-	metadataListActivityTypesInput `json:"-" xml:"-"`
-}
-
-type metadataListActivityTypesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4253,8 +6237,32 @@ func (s ListActivityTypesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListActivityTypesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListActivityTypesInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+	if s.RegistrationStatus == nil {
+		invalidParams.Add(request.NewErrParamRequired("RegistrationStatus"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains a paginated list of activity type information structures.
 type ListActivityTypesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If a NextPageToken was returned by a previous call, there are more results
 	// available. To retrieve the next page of results, make the call again using
 	// the returned token in nextPageToken. Keep all other arguments unchanged.
@@ -4264,13 +6272,9 @@ type ListActivityTypesOutput struct {
 	NextPageToken *string `locationName:"nextPageToken" type:"string"`
 
 	// List of activity type information.
+	//
+	// TypeInfos is a required field
 	TypeInfos []*ActivityTypeInfo `locationName:"typeInfos" type:"list" required:"true"`
-
-	metadataListActivityTypesOutput `json:"-" xml:"-"`
-}
-
-type metadataListActivityTypesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4284,6 +6288,8 @@ func (s ListActivityTypesOutput) GoString() string {
 }
 
 type ListClosedWorkflowExecutionsInput struct {
+	_ struct{} `type:"structure"`
+
 	// If specified, only workflow executions that match this close status are listed.
 	// For example, if TERMINATED is specified, then only TERMINATED workflow executions
 	// are listed.
@@ -4302,7 +6308,9 @@ type ListClosedWorkflowExecutionsInput struct {
 	CloseTimeFilter *ExecutionTimeFilter `locationName:"closeTimeFilter" type:"structure"`
 
 	// The name of the domain that contains the workflow executions to list.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// If specified, only workflow executions matching the workflow ID specified
 	// in the filter are returned.
@@ -4352,12 +6360,6 @@ type ListClosedWorkflowExecutionsInput struct {
 	// closeStatusFilter, executionFilter, typeFilter and tagFilter are mutually
 	// exclusive. You can specify at most one of these in a request.
 	TypeFilter *WorkflowTypeFilter `locationName:"typeFilter" type:"structure"`
-
-	metadataListClosedWorkflowExecutionsInput `json:"-" xml:"-"`
-}
-
-type metadataListClosedWorkflowExecutionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4370,7 +6372,55 @@ func (s ListClosedWorkflowExecutionsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListClosedWorkflowExecutionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListClosedWorkflowExecutionsInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.CloseStatusFilter != nil {
+		if err := s.CloseStatusFilter.Validate(); err != nil {
+			invalidParams.AddNested("CloseStatusFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.CloseTimeFilter != nil {
+		if err := s.CloseTimeFilter.Validate(); err != nil {
+			invalidParams.AddNested("CloseTimeFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.ExecutionFilter != nil {
+		if err := s.ExecutionFilter.Validate(); err != nil {
+			invalidParams.AddNested("ExecutionFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.StartTimeFilter != nil {
+		if err := s.StartTimeFilter.Validate(); err != nil {
+			invalidParams.AddNested("StartTimeFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TagFilter != nil {
+		if err := s.TagFilter.Validate(); err != nil {
+			invalidParams.AddNested("TagFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TypeFilter != nil {
+		if err := s.TypeFilter.Validate(); err != nil {
+			invalidParams.AddNested("TypeFilter", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type ListDomainsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The maximum number of results that will be returned per call. nextPageToken
 	// can be used to obtain futher pages of results. The default is 1000, which
 	// is the maximum allowed page size. You can, however, specify a page size smaller
@@ -4389,17 +6439,13 @@ type ListDomainsInput struct {
 	NextPageToken *string `locationName:"nextPageToken" type:"string"`
 
 	// Specifies the registration status of the domains to list.
+	//
+	// RegistrationStatus is a required field
 	RegistrationStatus *string `locationName:"registrationStatus" type:"string" required:"true" enum:"RegistrationStatus"`
 
 	// When set to true, returns the results in reverse order. By default, the results
 	// are returned in ascending alphabetical order by name of the domains.
 	ReverseOrder *bool `locationName:"reverseOrder" type:"boolean"`
-
-	metadataListDomainsInput `json:"-" xml:"-"`
-}
-
-type metadataListDomainsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4412,9 +6458,26 @@ func (s ListDomainsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListDomainsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListDomainsInput"}
+	if s.RegistrationStatus == nil {
+		invalidParams.Add(request.NewErrParamRequired("RegistrationStatus"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains a paginated collection of DomainInfo structures.
 type ListDomainsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A list of DomainInfo structures.
+	//
+	// DomainInfos is a required field
 	DomainInfos []*DomainInfo `locationName:"domainInfos" type:"list" required:"true"`
 
 	// If a NextPageToken was returned by a previous call, there are more results
@@ -4424,12 +6487,6 @@ type ListDomainsOutput struct {
 	// The configured maximumPageSize determines how many results can be returned
 	// in a single call.
 	NextPageToken *string `locationName:"nextPageToken" type:"string"`
-
-	metadataListDomainsOutput `json:"-" xml:"-"`
-}
-
-type metadataListDomainsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4443,8 +6500,12 @@ func (s ListDomainsOutput) GoString() string {
 }
 
 type ListOpenWorkflowExecutionsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain that contains the workflow executions to list.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// If specified, only workflow executions matching the workflow ID specified
 	// in the filter are returned.
@@ -4476,6 +6537,8 @@ type ListOpenWorkflowExecutionsInput struct {
 
 	// Workflow executions are included in the returned results based on whether
 	// their start times are within the range specified by this filter.
+	//
+	// StartTimeFilter is a required field
 	StartTimeFilter *ExecutionTimeFilter `locationName:"startTimeFilter" type:"structure" required:"true"`
 
 	// If specified, only executions that have the matching tag are listed.
@@ -4489,12 +6552,6 @@ type ListOpenWorkflowExecutionsInput struct {
 	// executionFilter, typeFilter and tagFilter are mutually exclusive. You can
 	// specify at most one of these in a request.
 	TypeFilter *WorkflowTypeFilter `locationName:"typeFilter" type:"structure"`
-
-	metadataListOpenWorkflowExecutionsInput `json:"-" xml:"-"`
-}
-
-type metadataListOpenWorkflowExecutionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4507,9 +6564,52 @@ func (s ListOpenWorkflowExecutionsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListOpenWorkflowExecutionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListOpenWorkflowExecutionsInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.StartTimeFilter == nil {
+		invalidParams.Add(request.NewErrParamRequired("StartTimeFilter"))
+	}
+	if s.ExecutionFilter != nil {
+		if err := s.ExecutionFilter.Validate(); err != nil {
+			invalidParams.AddNested("ExecutionFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.StartTimeFilter != nil {
+		if err := s.StartTimeFilter.Validate(); err != nil {
+			invalidParams.AddNested("StartTimeFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TagFilter != nil {
+		if err := s.TagFilter.Validate(); err != nil {
+			invalidParams.AddNested("TagFilter", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TypeFilter != nil {
+		if err := s.TypeFilter.Validate(); err != nil {
+			invalidParams.AddNested("TypeFilter", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type ListWorkflowTypesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain in which the workflow types have been registered.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// The maximum number of results that will be returned per call. nextPageToken
 	// can be used to obtain futher pages of results. The default is 1000, which
@@ -4521,7 +6621,7 @@ type ListWorkflowTypesInput struct {
 	MaximumPageSize *int64 `locationName:"maximumPageSize" type:"integer"`
 
 	// If specified, lists the workflow type with this name.
-	Name *string `locationName:"name" type:"string"`
+	Name *string `locationName:"name" min:"1" type:"string"`
 
 	// If a NextPageToken was returned by a previous call, there are more results
 	// available. To retrieve the next page of results, make the call again using
@@ -4532,18 +6632,14 @@ type ListWorkflowTypesInput struct {
 	NextPageToken *string `locationName:"nextPageToken" type:"string"`
 
 	// Specifies the registration status of the workflow types to list.
+	//
+	// RegistrationStatus is a required field
 	RegistrationStatus *string `locationName:"registrationStatus" type:"string" required:"true" enum:"RegistrationStatus"`
 
 	// When set to true, returns the results in reverse order. By default the results
 	// are returned in ascending alphabetical order of the name of the workflow
 	// types.
 	ReverseOrder *bool `locationName:"reverseOrder" type:"boolean"`
-
-	metadataListWorkflowTypesInput `json:"-" xml:"-"`
-}
-
-type metadataListWorkflowTypesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4556,8 +6652,32 @@ func (s ListWorkflowTypesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListWorkflowTypesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListWorkflowTypesInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+	if s.RegistrationStatus == nil {
+		invalidParams.Add(request.NewErrParamRequired("RegistrationStatus"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains a paginated list of information structures about workflow types.
 type ListWorkflowTypesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If a NextPageToken was returned by a previous call, there are more results
 	// available. To retrieve the next page of results, make the call again using
 	// the returned token in nextPageToken. Keep all other arguments unchanged.
@@ -4567,13 +6687,9 @@ type ListWorkflowTypesOutput struct {
 	NextPageToken *string `locationName:"nextPageToken" type:"string"`
 
 	// The list of workflow type information.
+	//
+	// TypeInfos is a required field
 	TypeInfos []*WorkflowTypeInfo `locationName:"typeInfos" type:"list" required:"true"`
-
-	metadataListWorkflowTypesOutput `json:"-" xml:"-"`
-}
-
-type metadataListWorkflowTypesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4588,23 +6704,23 @@ func (s ListWorkflowTypesOutput) GoString() string {
 
 // Provides details of the MarkerRecorded event.
 type MarkerRecordedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the RecordMarker decision that requested this marker. This
 	// information can be useful for diagnosing problems by tracing back the chain
 	// of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// Details of the marker (if any).
 	Details *string `locationName:"details" type:"string"`
 
 	// The name of the marker.
-	MarkerName *string `locationName:"markerName" type:"string" required:"true"`
-
-	metadataMarkerRecordedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataMarkerRecordedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// MarkerName is a required field
+	MarkerName *string `locationName:"markerName" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4619,18 +6735,16 @@ func (s MarkerRecordedEventAttributes) GoString() string {
 
 // Contains the count of tasks in a task list.
 type PendingTaskCount struct {
+	_ struct{} `type:"structure"`
+
 	// The number of tasks in the task list.
+	//
+	// Count is a required field
 	Count *int64 `locationName:"count" type:"integer" required:"true"`
 
 	// If set to true, indicates that the actual count was more than the maximum
 	// supported by this API and the count returned is the truncated value.
 	Truncated *bool `locationName:"truncated" type:"boolean"`
-
-	metadataPendingTaskCount `json:"-" xml:"-"`
-}
-
-type metadataPendingTaskCount struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4644,8 +6758,12 @@ func (s PendingTaskCount) GoString() string {
 }
 
 type PollForActivityTaskInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain that contains the task lists being polled.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// Identity of the worker making the request, recorded in the ActivityTaskStarted
 	// event in the workflow history. This enables diagnostic tracing when problems
@@ -4658,13 +6776,9 @@ type PollForActivityTaskInput struct {
 	// contain a : (colon), / (slash), | (vertical bar), or any control characters
 	// (\u0000-\u001f | \u007f - \u009f). Also, it must not contain the literal
 	// string quotarnquot.
+	//
+	// TaskList is a required field
 	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
-
-	metadataPollForActivityTaskInput `json:"-" xml:"-"`
-}
-
-type metadataPollForActivityTaskInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4677,12 +6791,42 @@ func (s PollForActivityTaskInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *PollForActivityTaskInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "PollForActivityTaskInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.TaskList == nil {
+		invalidParams.Add(request.NewErrParamRequired("TaskList"))
+	}
+	if s.TaskList != nil {
+		if err := s.TaskList.Validate(); err != nil {
+			invalidParams.AddNested("TaskList", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Unit of work sent to an activity worker.
 type PollForActivityTaskOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The unique ID of the task.
-	ActivityID *string `locationName:"activityId" type:"string" required:"true"`
+	//
+	// ActivityId is a required field
+	ActivityId *string `locationName:"activityId" min:"1" type:"string" required:"true"`
 
 	// The type of this activity task.
+	//
+	// ActivityType is a required field
 	ActivityType *ActivityType `locationName:"activityType" type:"structure" required:"true"`
 
 	// The inputs provided when the activity task was scheduled. The form of the
@@ -4690,21 +6834,21 @@ type PollForActivityTaskOutput struct {
 	Input *string `locationName:"input" type:"string"`
 
 	// The ID of the ActivityTaskStarted event recorded in the history.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The opaque string used as a handle on the task. This token is used by workers
 	// to communicate progress and response information back to the system about
 	// the task.
-	TaskToken *string `locationName:"taskToken" type:"string" required:"true"`
+	//
+	// TaskToken is a required field
+	TaskToken *string `locationName:"taskToken" min:"1" type:"string" required:"true"`
 
 	// The workflow execution that started this activity task.
+	//
+	// WorkflowExecution is a required field
 	WorkflowExecution *WorkflowExecution `locationName:"workflowExecution" type:"structure" required:"true"`
-
-	metadataPollForActivityTaskOutput `json:"-" xml:"-"`
-}
-
-type metadataPollForActivityTaskOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4718,8 +6862,12 @@ func (s PollForActivityTaskOutput) GoString() string {
 }
 
 type PollForDecisionTaskInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain containing the task lists to poll.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// Identity of the decider making the request, which is recorded in the DecisionTaskStarted
 	// event in the workflow history. This enables diagnostic tracing when problems
@@ -4758,13 +6906,9 @@ type PollForDecisionTaskInput struct {
 	// contain a : (colon), / (slash), | (vertical bar), or any control characters
 	// (\u0000-\u001f | \u007f - \u009f). Also, it must not contain the literal
 	// string quotarnquot.
+	//
+	// TaskList is a required field
 	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
-
-	metadataPollForDecisionTaskInput `json:"-" xml:"-"`
-}
-
-type metadataPollForDecisionTaskInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4777,11 +6921,39 @@ func (s PollForDecisionTaskInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *PollForDecisionTaskInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "PollForDecisionTaskInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.TaskList == nil {
+		invalidParams.Add(request.NewErrParamRequired("TaskList"))
+	}
+	if s.TaskList != nil {
+		if err := s.TaskList.Validate(); err != nil {
+			invalidParams.AddNested("TaskList", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A structure that represents a decision task. Decision tasks are sent to deciders
 // in order for them to make decisions.
 type PollForDecisionTaskOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A paginated list of history events of the workflow execution. The decider
 	// uses this during the processing of the decision task.
+	//
+	// Events is a required field
 	Events []*HistoryEvent `locationName:"events" type:"list" required:"true"`
 
 	// If a NextPageToken was returned by a previous call, there are more results
@@ -4796,27 +6968,29 @@ type PollForDecisionTaskOutput struct {
 	// this workflow execution that was processed by the decider. This can be used
 	// to determine the events in the history new since the last decision task received
 	// by the decider.
-	PreviousStartedEventID *int64 `locationName:"previousStartedEventId" type:"long"`
+	PreviousStartedEventId *int64 `locationName:"previousStartedEventId" type:"long"`
 
 	// The ID of the DecisionTaskStarted event recorded in the history.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The opaque string used as a handle on the task. This token is used by workers
 	// to communicate progress and response information back to the system about
 	// the task.
-	TaskToken *string `locationName:"taskToken" type:"string" required:"true"`
+	//
+	// TaskToken is a required field
+	TaskToken *string `locationName:"taskToken" min:"1" type:"string" required:"true"`
 
 	// The workflow execution for which this decision task was created.
+	//
+	// WorkflowExecution is a required field
 	WorkflowExecution *WorkflowExecution `locationName:"workflowExecution" type:"structure" required:"true"`
 
 	// The type of the workflow execution for which this decision task was created.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataPollForDecisionTaskOutput `json:"-" xml:"-"`
-}
-
-type metadataPollForDecisionTaskOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4830,6 +7004,8 @@ func (s PollForDecisionTaskOutput) GoString() string {
 }
 
 type RecordActivityTaskHeartbeatInput struct {
+	_ struct{} `type:"structure"`
+
 	// If specified, contains details about the progress of the task.
 	Details *string `locationName:"details" type:"string"`
 
@@ -4838,13 +7014,9 @@ type RecordActivityTaskHeartbeatInput struct {
 	//  taskToken is generated by the service and should be treated as an opaque
 	// value. If the task is passed to another process, its taskToken must also
 	// be passed. This enables it to provide its progress and respond with results.
-	TaskToken *string `locationName:"taskToken" type:"string" required:"true"`
-
-	metadataRecordActivityTaskHeartbeatInput `json:"-" xml:"-"`
-}
-
-type metadataRecordActivityTaskHeartbeatInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TaskToken is a required field
+	TaskToken *string `locationName:"taskToken" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4857,16 +7029,30 @@ func (s RecordActivityTaskHeartbeatInput) GoString() string {
 	return s.String()
 }
 
-// Status information about an activity task.
-type RecordActivityTaskHeartbeatOutput struct {
-	// Set to true if cancellation of the task is requested.
-	CancelRequested *bool `locationName:"cancelRequested" type:"boolean" required:"true"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RecordActivityTaskHeartbeatInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RecordActivityTaskHeartbeatInput"}
+	if s.TaskToken == nil {
+		invalidParams.Add(request.NewErrParamRequired("TaskToken"))
+	}
+	if s.TaskToken != nil && len(*s.TaskToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TaskToken", 1))
+	}
 
-	metadataRecordActivityTaskHeartbeatOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRecordActivityTaskHeartbeatOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Status information about an activity task.
+type RecordActivityTaskHeartbeatOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Set to true if cancellation of the task is requested.
+	//
+	// CancelRequested is a required field
+	CancelRequested *bool `locationName:"cancelRequested" type:"boolean" required:"true"`
 }
 
 // String returns the string representation
@@ -4895,17 +7081,15 @@ func (s RecordActivityTaskHeartbeatOutput) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type RecordMarkerDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. details of the marker.
 	Details *string `locationName:"details" type:"string"`
 
 	// Required. The name of the marker.
-	MarkerName *string `locationName:"markerName" type:"string" required:"true"`
-
-	metadataRecordMarkerDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataRecordMarkerDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// MarkerName is a required field
+	MarkerName *string `locationName:"markerName" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4918,30 +7102,48 @@ func (s RecordMarkerDecisionAttributes) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RecordMarkerDecisionAttributes) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RecordMarkerDecisionAttributes"}
+	if s.MarkerName == nil {
+		invalidParams.Add(request.NewErrParamRequired("MarkerName"))
+	}
+	if s.MarkerName != nil && len(*s.MarkerName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("MarkerName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the RecordMarkerFailed event.
 type RecordMarkerFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"RecordMarkerFailedCause"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the RecordMarkerFailed decision for this cancellation request.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The marker's name.
-	MarkerName *string `locationName:"markerName" type:"string" required:"true"`
-
-	metadataRecordMarkerFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataRecordMarkerFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// MarkerName is a required field
+	MarkerName *string `locationName:"markerName" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4955,6 +7157,8 @@ func (s RecordMarkerFailedEventAttributes) GoString() string {
 }
 
 type RegisterActivityTypeInput struct {
+	_ struct{} `type:"structure"`
+
 	// If set, specifies the default maximum time before which a worker processing
 	// a task of this type must report progress by calling RecordActivityTaskHeartbeat.
 	// If the timeout is exceeded, the activity task is automatically timed out.
@@ -5011,7 +7215,9 @@ type RegisterActivityTypeInput struct {
 	Description *string `locationName:"description" type:"string"`
 
 	// The name of the domain in which this activity is to be registered.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// The name of the activity type within the domain.
 	//
@@ -5019,7 +7225,9 @@ type RegisterActivityTypeInput struct {
 	// contain a : (colon), / (slash), | (vertical bar), or any control characters
 	// (\u0000-\u001f | \u007f - \u009f). Also, it must not contain the literal
 	// string quotarnquot.
-	Name *string `locationName:"name" type:"string" required:"true"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 
 	// The version of the activity type.
 	//
@@ -5028,13 +7236,9 @@ type RegisterActivityTypeInput struct {
 	// end with whitespace. It must not contain a : (colon), / (slash), | (vertical
 	// bar), or any control characters (\u0000-\u001f | \u007f - \u009f). Also,
 	// it must not contain the literal string quotarnquot.
-	Version *string `locationName:"version" type:"string" required:"true"`
-
-	metadataRegisterActivityTypeInput `json:"-" xml:"-"`
-}
-
-type metadataRegisterActivityTypeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Version is a required field
+	Version *string `locationName:"version" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5047,12 +7251,41 @@ func (s RegisterActivityTypeInput) GoString() string {
 	return s.String()
 }
 
-type RegisterActivityTypeOutput struct {
-	metadataRegisterActivityTypeOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RegisterActivityTypeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RegisterActivityTypeInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+	if s.Version == nil {
+		invalidParams.Add(request.NewErrParamRequired("Version"))
+	}
+	if s.Version != nil && len(*s.Version) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Version", 1))
+	}
+	if s.DefaultTaskList != nil {
+		if err := s.DefaultTaskList.Validate(); err != nil {
+			invalidParams.AddNested("DefaultTaskList", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRegisterActivityTypeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RegisterActivityTypeOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -5066,6 +7299,8 @@ func (s RegisterActivityTypeOutput) GoString() string {
 }
 
 type RegisterDomainInput struct {
+	_ struct{} `type:"structure"`
+
 	// A text description of the domain.
 	Description *string `locationName:"description" type:"string"`
 
@@ -5076,7 +7311,9 @@ type RegisterDomainInput struct {
 	// contain a : (colon), / (slash), | (vertical bar), or any control characters
 	// (\u0000-\u001f | \u007f - \u009f). Also, it must not contain the literal
 	// string quotarnquot.
-	Name *string `locationName:"name" type:"string" required:"true"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 
 	// The duration (in days) that records and histories of workflow executions
 	// on the domain should be kept by the service. After the retention period,
@@ -5089,13 +7326,9 @@ type RegisterDomainInput struct {
 	// The maximum workflow execution retention period is 90 days. For more information
 	// about Amazon SWF service limits, see: Amazon SWF Service Limits (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dg-limits.html)
 	// in the Amazon SWF Developer Guide.
-	WorkflowExecutionRetentionPeriodInDays *string `locationName:"workflowExecutionRetentionPeriodInDays" type:"string" required:"true"`
-
-	metadataRegisterDomainInput `json:"-" xml:"-"`
-}
-
-type metadataRegisterDomainInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowExecutionRetentionPeriodInDays is a required field
+	WorkflowExecutionRetentionPeriodInDays *string `locationName:"workflowExecutionRetentionPeriodInDays" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5108,12 +7341,30 @@ func (s RegisterDomainInput) GoString() string {
 	return s.String()
 }
 
-type RegisterDomainOutput struct {
-	metadataRegisterDomainOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RegisterDomainInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RegisterDomainInput"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+	if s.WorkflowExecutionRetentionPeriodInDays == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowExecutionRetentionPeriodInDays"))
+	}
+	if s.WorkflowExecutionRetentionPeriodInDays != nil && len(*s.WorkflowExecutionRetentionPeriodInDays) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowExecutionRetentionPeriodInDays", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRegisterDomainOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RegisterDomainOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -5127,6 +7378,8 @@ func (s RegisterDomainOutput) GoString() string {
 }
 
 type RegisterWorkflowTypeInput struct {
+	_ struct{} `type:"structure"`
+
 	// If set, specifies the default policy to use for the child workflow executions
 	// when a workflow execution of this type is terminated, by calling the TerminateWorkflowExecution
 	// action explicitly or due to an expired timeout. This default can be overridden
@@ -5159,7 +7412,7 @@ type RegisterWorkflowTypeInput struct {
 	// This default can be overridden when starting a workflow execution using
 	// the StartWorkflowExecution action or the StartChildWorkflowExecution and
 	// ContinueAsNewWorkflowExecution decision.
-	DefaultLambdaRole *string `locationName:"defaultLambdaRole" type:"string"`
+	DefaultLambdaRole *string `locationName:"defaultLambdaRole" min:"1" type:"string"`
 
 	// If set, specifies the default task list to use for scheduling decision tasks
 	// for executions of this workflow type. This default is used only if a task
@@ -5190,7 +7443,9 @@ type RegisterWorkflowTypeInput struct {
 	Description *string `locationName:"description" type:"string"`
 
 	// The name of the domain in which to register the workflow type.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// The name of the workflow type.
 	//
@@ -5198,7 +7453,9 @@ type RegisterWorkflowTypeInput struct {
 	// contain a : (colon), / (slash), | (vertical bar), or any control characters
 	// (\u0000-\u001f | \u007f - \u009f). Also, it must not contain the literal
 	// string quotarnquot.
-	Name *string `locationName:"name" type:"string" required:"true"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 
 	// The version of the workflow type.
 	//
@@ -5208,13 +7465,9 @@ type RegisterWorkflowTypeInput struct {
 	// not start or end with whitespace. It must not contain a : (colon), / (slash),
 	// | (vertical bar), or any control characters (\u0000-\u001f | \u007f - \u009f).
 	// Also, it must not contain the literal string quotarnquot.
-	Version *string `locationName:"version" type:"string" required:"true"`
-
-	metadataRegisterWorkflowTypeInput `json:"-" xml:"-"`
-}
-
-type metadataRegisterWorkflowTypeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Version is a required field
+	Version *string `locationName:"version" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5227,12 +7480,44 @@ func (s RegisterWorkflowTypeInput) GoString() string {
 	return s.String()
 }
 
-type RegisterWorkflowTypeOutput struct {
-	metadataRegisterWorkflowTypeOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RegisterWorkflowTypeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RegisterWorkflowTypeInput"}
+	if s.DefaultLambdaRole != nil && len(*s.DefaultLambdaRole) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("DefaultLambdaRole", 1))
+	}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+	if s.Version == nil {
+		invalidParams.Add(request.NewErrParamRequired("Version"))
+	}
+	if s.Version != nil && len(*s.Version) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Version", 1))
+	}
+	if s.DefaultTaskList != nil {
+		if err := s.DefaultTaskList.Validate(); err != nil {
+			invalidParams.AddNested("DefaultTaskList", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRegisterWorkflowTypeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RegisterWorkflowTypeOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -5261,14 +7546,12 @@ func (s RegisterWorkflowTypeOutput) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type RequestCancelActivityTaskDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The activityId of the activity task to be canceled.
-	ActivityID *string `locationName:"activityId" type:"string" required:"true"`
-
-	metadataRequestCancelActivityTaskDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataRequestCancelActivityTaskDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// ActivityId is a required field
+	ActivityId *string `locationName:"activityId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5281,10 +7564,30 @@ func (s RequestCancelActivityTaskDecisionAttributes) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RequestCancelActivityTaskDecisionAttributes) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RequestCancelActivityTaskDecisionAttributes"}
+	if s.ActivityId == nil {
+		invalidParams.Add(request.NewErrParamRequired("ActivityId"))
+	}
+	if s.ActivityId != nil && len(*s.ActivityId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("ActivityId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the RequestCancelActivityTaskFailed event.
 type RequestCancelActivityTaskFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The activityId provided in the RequestCancelActivityTask decision that failed.
-	ActivityID *string `locationName:"activityId" type:"string" required:"true"`
+	//
+	// ActivityId is a required field
+	ActivityId *string `locationName:"activityId" min:"1" type:"string" required:"true"`
 
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
@@ -5292,19 +7595,17 @@ type RequestCancelActivityTaskFailedEventAttributes struct {
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"RequestCancelActivityTaskFailedCause"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the RequestCancelActivityTask decision for this cancellation
 	// request. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
-
-	metadataRequestCancelActivityTaskFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataRequestCancelActivityTaskFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -5333,21 +7634,19 @@ func (s RequestCancelActivityTaskFailedEventAttributes) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type RequestCancelExternalWorkflowExecutionDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. Data attached to the event that can be used by the decider in subsequent
 	// workflow tasks.
 	Control *string `locationName:"control" type:"string"`
 
 	// The runId of the external workflow execution to cancel.
-	RunID *string `locationName:"runId" type:"string"`
+	RunId *string `locationName:"runId" type:"string"`
 
 	// Required. The workflowId of the external workflow execution to cancel.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataRequestCancelExternalWorkflowExecutionDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataRequestCancelExternalWorkflowExecutionDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5360,14 +7659,34 @@ func (s RequestCancelExternalWorkflowExecutionDecisionAttributes) GoString() str
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RequestCancelExternalWorkflowExecutionDecisionAttributes) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RequestCancelExternalWorkflowExecutionDecisionAttributes"}
+	if s.WorkflowId == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowId"))
+	}
+	if s.WorkflowId != nil && len(*s.WorkflowId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the RequestCancelExternalWorkflowExecutionFailed event.
 type RequestCancelExternalWorkflowExecutionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"RequestCancelExternalWorkflowExecutionFailedCause"`
 
 	Control *string `locationName:"control" type:"string"`
@@ -5376,26 +7695,26 @@ type RequestCancelExternalWorkflowExecutionFailedEventAttributes struct {
 	// that resulted in the RequestCancelExternalWorkflowExecution decision for
 	// this cancellation request. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The ID of the RequestCancelExternalWorkflowExecutionInitiated event corresponding
 	// to the RequestCancelExternalWorkflowExecution decision to cancel this external
 	// workflow execution. This information can be useful for diagnosing problems
 	// by tracing back the chain of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The runId of the external workflow execution.
-	RunID *string `locationName:"runId" type:"string"`
+	RunId *string `locationName:"runId" type:"string"`
 
 	// The workflowId of the external workflow to which the cancel request was to
 	// be delivered.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataRequestCancelExternalWorkflowExecutionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataRequestCancelExternalWorkflowExecutionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5410,6 +7729,8 @@ func (s RequestCancelExternalWorkflowExecutionFailedEventAttributes) GoString() 
 
 // Provides details of the RequestCancelExternalWorkflowExecutionInitiated event.
 type RequestCancelExternalWorkflowExecutionInitiatedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. Data attached to the event that can be used by the decider in subsequent
 	// workflow tasks.
 	Control *string `locationName:"control" type:"string"`
@@ -5418,19 +7739,17 @@ type RequestCancelExternalWorkflowExecutionInitiatedEventAttributes struct {
 	// that resulted in the RequestCancelExternalWorkflowExecution decision for
 	// this cancellation request. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The runId of the external workflow execution to be canceled.
-	RunID *string `locationName:"runId" type:"string"`
+	RunId *string `locationName:"runId" type:"string"`
 
 	// The workflowId of the external workflow execution to be canceled.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataRequestCancelExternalWorkflowExecutionInitiatedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataRequestCancelExternalWorkflowExecutionInitiatedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5444,20 +7763,20 @@ func (s RequestCancelExternalWorkflowExecutionInitiatedEventAttributes) GoString
 }
 
 type RequestCancelWorkflowExecutionInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain containing the workflow execution to cancel.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// The runId of the workflow execution to cancel.
-	RunID *string `locationName:"runId" type:"string"`
+	RunId *string `locationName:"runId" type:"string"`
 
 	// The workflowId of the workflow execution to cancel.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataRequestCancelWorkflowExecutionInput `json:"-" xml:"-"`
-}
-
-type metadataRequestCancelWorkflowExecutionInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5470,12 +7789,30 @@ func (s RequestCancelWorkflowExecutionInput) GoString() string {
 	return s.String()
 }
 
-type RequestCancelWorkflowExecutionOutput struct {
-	metadataRequestCancelWorkflowExecutionOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RequestCancelWorkflowExecutionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RequestCancelWorkflowExecutionInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.WorkflowId == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowId"))
+	}
+	if s.WorkflowId != nil && len(*s.WorkflowId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRequestCancelWorkflowExecutionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RequestCancelWorkflowExecutionOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -5489,6 +7826,8 @@ func (s RequestCancelWorkflowExecutionOutput) GoString() string {
 }
 
 type RespondActivityTaskCanceledInput struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. Information about the cancellation.
 	Details *string `locationName:"details" type:"string"`
 
@@ -5497,13 +7836,9 @@ type RespondActivityTaskCanceledInput struct {
 	// taskToken is generated by the service and should be treated as an opaque
 	// value. If the task is passed to another process, its taskToken must also
 	// be passed. This enables it to provide its progress and respond with results.
-	TaskToken *string `locationName:"taskToken" type:"string" required:"true"`
-
-	metadataRespondActivityTaskCanceledInput `json:"-" xml:"-"`
-}
-
-type metadataRespondActivityTaskCanceledInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TaskToken is a required field
+	TaskToken *string `locationName:"taskToken" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5516,12 +7851,24 @@ func (s RespondActivityTaskCanceledInput) GoString() string {
 	return s.String()
 }
 
-type RespondActivityTaskCanceledOutput struct {
-	metadataRespondActivityTaskCanceledOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RespondActivityTaskCanceledInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RespondActivityTaskCanceledInput"}
+	if s.TaskToken == nil {
+		invalidParams.Add(request.NewErrParamRequired("TaskToken"))
+	}
+	if s.TaskToken != nil && len(*s.TaskToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TaskToken", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRespondActivityTaskCanceledOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RespondActivityTaskCanceledOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -5535,6 +7882,8 @@ func (s RespondActivityTaskCanceledOutput) GoString() string {
 }
 
 type RespondActivityTaskCompletedInput struct {
+	_ struct{} `type:"structure"`
+
 	// The result of the activity task. It is a free form string that is implementation
 	// specific.
 	Result *string `locationName:"result" type:"string"`
@@ -5544,13 +7893,9 @@ type RespondActivityTaskCompletedInput struct {
 	//  taskToken is generated by the service and should be treated as an opaque
 	// value. If the task is passed to another process, its taskToken must also
 	// be passed. This enables it to provide its progress and respond with results.
-	TaskToken *string `locationName:"taskToken" type:"string" required:"true"`
-
-	metadataRespondActivityTaskCompletedInput `json:"-" xml:"-"`
-}
-
-type metadataRespondActivityTaskCompletedInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TaskToken is a required field
+	TaskToken *string `locationName:"taskToken" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5563,12 +7908,24 @@ func (s RespondActivityTaskCompletedInput) GoString() string {
 	return s.String()
 }
 
-type RespondActivityTaskCompletedOutput struct {
-	metadataRespondActivityTaskCompletedOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RespondActivityTaskCompletedInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RespondActivityTaskCompletedInput"}
+	if s.TaskToken == nil {
+		invalidParams.Add(request.NewErrParamRequired("TaskToken"))
+	}
+	if s.TaskToken != nil && len(*s.TaskToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TaskToken", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRespondActivityTaskCompletedOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RespondActivityTaskCompletedOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -5582,6 +7939,8 @@ func (s RespondActivityTaskCompletedOutput) GoString() string {
 }
 
 type RespondActivityTaskFailedInput struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. Detailed information about the failure.
 	Details *string `locationName:"details" type:"string"`
 
@@ -5593,13 +7952,9 @@ type RespondActivityTaskFailedInput struct {
 	//  taskToken is generated by the service and should be treated as an opaque
 	// value. If the task is passed to another process, its taskToken must also
 	// be passed. This enables it to provide its progress and respond with results.
-	TaskToken *string `locationName:"taskToken" type:"string" required:"true"`
-
-	metadataRespondActivityTaskFailedInput `json:"-" xml:"-"`
-}
-
-type metadataRespondActivityTaskFailedInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TaskToken is a required field
+	TaskToken *string `locationName:"taskToken" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5612,12 +7967,24 @@ func (s RespondActivityTaskFailedInput) GoString() string {
 	return s.String()
 }
 
-type RespondActivityTaskFailedOutput struct {
-	metadataRespondActivityTaskFailedOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RespondActivityTaskFailedInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RespondActivityTaskFailedInput"}
+	if s.TaskToken == nil {
+		invalidParams.Add(request.NewErrParamRequired("TaskToken"))
+	}
+	if s.TaskToken != nil && len(*s.TaskToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TaskToken", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRespondActivityTaskFailedOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RespondActivityTaskFailedOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -5631,6 +7998,8 @@ func (s RespondActivityTaskFailedOutput) GoString() string {
 }
 
 type RespondDecisionTaskCompletedInput struct {
+	_ struct{} `type:"structure"`
+
 	// The list of decisions (possibly empty) made by the decider while processing
 	// this decision task. See the docs for the decision structure for details.
 	Decisions []*Decision `locationName:"decisions" type:"list"`
@@ -5643,13 +8012,9 @@ type RespondDecisionTaskCompletedInput struct {
 	// taskToken is generated by the service and should be treated as an opaque
 	// value. If the task is passed to another process, its taskToken must also
 	// be passed. This enables it to provide its progress and respond with results.
-	TaskToken *string `locationName:"taskToken" type:"string" required:"true"`
-
-	metadataRespondDecisionTaskCompletedInput `json:"-" xml:"-"`
-}
-
-type metadataRespondDecisionTaskCompletedInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TaskToken is a required field
+	TaskToken *string `locationName:"taskToken" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5662,12 +8027,34 @@ func (s RespondDecisionTaskCompletedInput) GoString() string {
 	return s.String()
 }
 
-type RespondDecisionTaskCompletedOutput struct {
-	metadataRespondDecisionTaskCompletedOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RespondDecisionTaskCompletedInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RespondDecisionTaskCompletedInput"}
+	if s.TaskToken == nil {
+		invalidParams.Add(request.NewErrParamRequired("TaskToken"))
+	}
+	if s.TaskToken != nil && len(*s.TaskToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TaskToken", 1))
+	}
+	if s.Decisions != nil {
+		for i, v := range s.Decisions {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Decisions", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRespondDecisionTaskCompletedOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RespondDecisionTaskCompletedOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -5699,15 +8086,21 @@ func (s RespondDecisionTaskCompletedOutput) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type ScheduleActivityTaskDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Required. The activityId of the activity task.
 	//
 	// The specified string must not start or end with whitespace. It must not
 	// contain a : (colon), / (slash), | (vertical bar), or any control characters
 	// (\u0000-\u001f | \u007f - \u009f). Also, it must not contain the literal
 	// string quotarnquot.
-	ActivityID *string `locationName:"activityId" type:"string" required:"true"`
+	//
+	// ActivityId is a required field
+	ActivityId *string `locationName:"activityId" min:"1" type:"string" required:"true"`
 
 	// Required. The type of the activity task to schedule.
+	//
+	// ActivityType is a required field
 	ActivityType *ActivityType `locationName:"activityType" type:"structure" required:"true"`
 
 	// Optional. Data attached to the event that can be used by the decider in subsequent
@@ -5788,12 +8181,6 @@ type ScheduleActivityTaskDecisionAttributes struct {
 	// (http://docs.aws.amazon.com/amazonswf/latest/developerguide/programming-priority.html)
 	// in the Amazon Simple Workflow Developer Guide.
 	TaskPriority *string `locationName:"taskPriority" type:"string"`
-
-	metadataScheduleActivityTaskDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataScheduleActivityTaskDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5806,12 +8193,47 @@ func (s ScheduleActivityTaskDecisionAttributes) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ScheduleActivityTaskDecisionAttributes) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ScheduleActivityTaskDecisionAttributes"}
+	if s.ActivityId == nil {
+		invalidParams.Add(request.NewErrParamRequired("ActivityId"))
+	}
+	if s.ActivityId != nil && len(*s.ActivityId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("ActivityId", 1))
+	}
+	if s.ActivityType == nil {
+		invalidParams.Add(request.NewErrParamRequired("ActivityType"))
+	}
+	if s.ActivityType != nil {
+		if err := s.ActivityType.Validate(); err != nil {
+			invalidParams.AddNested("ActivityType", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TaskList != nil {
+		if err := s.TaskList.Validate(); err != nil {
+			invalidParams.AddNested("TaskList", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the ScheduleActivityTaskFailed event.
 type ScheduleActivityTaskFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The activityId provided in the ScheduleActivityTask decision that failed.
-	ActivityID *string `locationName:"activityId" type:"string" required:"true"`
+	//
+	// ActivityId is a required field
+	ActivityId *string `locationName:"activityId" min:"1" type:"string" required:"true"`
 
 	// The activity type provided in the ScheduleActivityTask decision that failed.
+	//
+	// ActivityType is a required field
 	ActivityType *ActivityType `locationName:"activityType" type:"structure" required:"true"`
 
 	// The cause of the failure. This information is generated by the system and
@@ -5820,19 +8242,17 @@ type ScheduleActivityTaskFailedEventAttributes struct {
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"ScheduleActivityTaskFailedCause"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision that
 	// resulted in the scheduling of this activity task. This information can be
 	// useful for diagnosing problems by tracing back the chain of events leading
 	// up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
-
-	metadataScheduleActivityTaskFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataScheduleActivityTaskFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 }
 
 // String returns the string representation
@@ -5864,28 +8284,28 @@ func (s ScheduleActivityTaskFailedEventAttributes) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type ScheduleLambdaFunctionDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Required. The SWF id of the AWS Lambda task.
 	//
 	// The specified string must not start or end with whitespace. It must not
 	// contain a : (colon), / (slash), | (vertical bar), or any control characters
 	// (\u0000-\u001f | \u007f - \u009f). Also, it must not contain the literal
 	// string quotarnquot.
-	ID *string `locationName:"id" type:"string" required:"true"`
+	//
+	// Id is a required field
+	Id *string `locationName:"id" min:"1" type:"string" required:"true"`
 
 	// The input provided to the AWS Lambda function.
-	Input *string `locationName:"input" type:"string"`
+	Input *string `locationName:"input" min:"1" type:"string"`
 
 	// Required. The name of the AWS Lambda function to invoke.
-	Name *string `locationName:"name" type:"string" required:"true"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 
 	// If set, specifies the maximum duration the function may take to execute.
 	StartToCloseTimeout *string `locationName:"startToCloseTimeout" type:"string"`
-
-	metadataScheduleLambdaFunctionDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataScheduleLambdaFunctionDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5898,33 +8318,62 @@ func (s ScheduleLambdaFunctionDecisionAttributes) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ScheduleLambdaFunctionDecisionAttributes) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ScheduleLambdaFunctionDecisionAttributes"}
+	if s.Id == nil {
+		invalidParams.Add(request.NewErrParamRequired("Id"))
+	}
+	if s.Id != nil && len(*s.Id) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Id", 1))
+	}
+	if s.Input != nil && len(*s.Input) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Input", 1))
+	}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details for the ScheduleLambdaFunctionFailed event.
 type ScheduleLambdaFunctionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"ScheduleLambdaFunctionFailedCause"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision that
 	// resulted in the scheduling of this AWS Lambda function. This information
 	// can be useful for diagnosing problems by tracing back the chain of events
 	// leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The unique Amazon SWF ID of the AWS Lambda task.
-	ID *string `locationName:"id" type:"string" required:"true"`
+	//
+	// Id is a required field
+	Id *string `locationName:"id" min:"1" type:"string" required:"true"`
 
 	// The name of the scheduled AWS Lambda function.
-	Name *string `locationName:"name" type:"string" required:"true"`
-
-	metadataScheduleLambdaFunctionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataScheduleLambdaFunctionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5953,6 +8402,8 @@ func (s ScheduleLambdaFunctionFailedEventAttributes) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type SignalExternalWorkflowExecutionDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. Data attached to the event that can be used by the decider in subsequent
 	// decision tasks.
 	Control *string `locationName:"control" type:"string"`
@@ -5962,20 +8413,18 @@ type SignalExternalWorkflowExecutionDecisionAttributes struct {
 	Input *string `locationName:"input" type:"string"`
 
 	// The runId of the workflow execution to be signaled.
-	RunID *string `locationName:"runId" type:"string"`
+	RunId *string `locationName:"runId" type:"string"`
 
 	// Required. The name of the signal.The target workflow execution will use the
 	// signal name and input to process the signal.
-	SignalName *string `locationName:"signalName" type:"string" required:"true"`
+	//
+	// SignalName is a required field
+	SignalName *string `locationName:"signalName" min:"1" type:"string" required:"true"`
 
 	// Required. The workflowId of the workflow execution to be signaled.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataSignalExternalWorkflowExecutionDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataSignalExternalWorkflowExecutionDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5988,14 +8437,40 @@ func (s SignalExternalWorkflowExecutionDecisionAttributes) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SignalExternalWorkflowExecutionDecisionAttributes) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SignalExternalWorkflowExecutionDecisionAttributes"}
+	if s.SignalName == nil {
+		invalidParams.Add(request.NewErrParamRequired("SignalName"))
+	}
+	if s.SignalName != nil && len(*s.SignalName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SignalName", 1))
+	}
+	if s.WorkflowId == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowId"))
+	}
+	if s.WorkflowId != nil && len(*s.WorkflowId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the SignalExternalWorkflowExecutionFailed event.
 type SignalExternalWorkflowExecutionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"SignalExternalWorkflowExecutionFailedCause"`
 
 	Control *string `locationName:"control" type:"string"`
@@ -6004,27 +8479,27 @@ type SignalExternalWorkflowExecutionFailedEventAttributes struct {
 	// that resulted in the SignalExternalWorkflowExecution decision for this signal.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The ID of the SignalExternalWorkflowExecutionInitiated event corresponding
 	// to the SignalExternalWorkflowExecution decision to request this signal. This
 	// information can be useful for diagnosing problems by tracing back the chain
 	// of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The runId of the external workflow execution that the signal was being delivered
 	// to.
-	RunID *string `locationName:"runId" type:"string"`
+	RunId *string `locationName:"runId" type:"string"`
 
 	// The workflowId of the external workflow execution that the signal was being
 	// delivered to.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataSignalExternalWorkflowExecutionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataSignalExternalWorkflowExecutionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6039,6 +8514,8 @@ func (s SignalExternalWorkflowExecutionFailedEventAttributes) GoString() string 
 
 // Provides details of the SignalExternalWorkflowExecutionInitiated event.
 type SignalExternalWorkflowExecutionInitiatedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. data attached to the event that can be used by the decider in subsequent
 	// decision tasks.
 	Control *string `locationName:"control" type:"string"`
@@ -6047,25 +8524,25 @@ type SignalExternalWorkflowExecutionInitiatedEventAttributes struct {
 	// that resulted in the SignalExternalWorkflowExecution decision for this signal.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// Input provided to the signal (if any).
 	Input *string `locationName:"input" type:"string"`
 
 	// The runId of the external workflow execution to send the signal to.
-	RunID *string `locationName:"runId" type:"string"`
+	RunId *string `locationName:"runId" type:"string"`
 
 	// The name of the signal.
-	SignalName *string `locationName:"signalName" type:"string" required:"true"`
+	//
+	// SignalName is a required field
+	SignalName *string `locationName:"signalName" min:"1" type:"string" required:"true"`
 
 	// The workflowId of the external workflow execution.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataSignalExternalWorkflowExecutionInitiatedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataSignalExternalWorkflowExecutionInitiatedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6079,27 +8556,29 @@ func (s SignalExternalWorkflowExecutionInitiatedEventAttributes) GoString() stri
 }
 
 type SignalWorkflowExecutionInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain containing the workflow execution to signal.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// Data to attach to the WorkflowExecutionSignaled event in the target workflow
 	// execution's history.
 	Input *string `locationName:"input" type:"string"`
 
 	// The runId of the workflow execution to signal.
-	RunID *string `locationName:"runId" type:"string"`
+	RunId *string `locationName:"runId" type:"string"`
 
 	// The name of the signal. This name must be meaningful to the target workflow.
-	SignalName *string `locationName:"signalName" type:"string" required:"true"`
+	//
+	// SignalName is a required field
+	SignalName *string `locationName:"signalName" min:"1" type:"string" required:"true"`
 
 	// The workflowId of the workflow execution to signal.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataSignalWorkflowExecutionInput `json:"-" xml:"-"`
-}
-
-type metadataSignalWorkflowExecutionInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6112,12 +8591,36 @@ func (s SignalWorkflowExecutionInput) GoString() string {
 	return s.String()
 }
 
-type SignalWorkflowExecutionOutput struct {
-	metadataSignalWorkflowExecutionOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SignalWorkflowExecutionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SignalWorkflowExecutionInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.SignalName == nil {
+		invalidParams.Add(request.NewErrParamRequired("SignalName"))
+	}
+	if s.SignalName != nil && len(*s.SignalName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SignalName", 1))
+	}
+	if s.WorkflowId == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowId"))
+	}
+	if s.WorkflowId != nil && len(*s.WorkflowId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataSignalWorkflowExecutionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type SignalWorkflowExecutionOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -6150,6 +8653,8 @@ func (s SignalWorkflowExecutionOutput) GoString() string {
 // will be set to OPERATION_NOT_PERMITTED. For details and example IAM policies,
 // see Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type StartChildWorkflowExecutionDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. If set, specifies the policy to use for the child workflow executions
 	// if the workflow execution being started is terminated by calling the TerminateWorkflowExecution
 	// action explicitly or due to an expired timeout. This policy overrides the
@@ -6192,7 +8697,7 @@ type StartChildWorkflowExecutionDecisionAttributes struct {
 	// In order for this workflow execution to invoke AWS Lambda functions, an
 	// appropriate IAM role must be specified either as a default for the workflow
 	// type or through this field.
-	LambdaRole *string `locationName:"lambdaRole" type:"string"`
+	LambdaRole *string `locationName:"lambdaRole" min:"1" type:"string"`
 
 	// The list of tags to associate with the child workflow execution. A maximum
 	// of 5 tags can be specified. You can list workflow executions with a specific
@@ -6242,16 +8747,14 @@ type StartChildWorkflowExecutionDecisionAttributes struct {
 	// contain a : (colon), / (slash), | (vertical bar), or any control characters
 	// (\u0000-\u001f | \u007f - \u009f). Also, it must not contain the literal
 	// string quotarnquot.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 
 	// Required. The type of the workflow execution to be started.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataStartChildWorkflowExecutionDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataStartChildWorkflowExecutionDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6264,14 +8767,50 @@ func (s StartChildWorkflowExecutionDecisionAttributes) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StartChildWorkflowExecutionDecisionAttributes) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StartChildWorkflowExecutionDecisionAttributes"}
+	if s.LambdaRole != nil && len(*s.LambdaRole) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("LambdaRole", 1))
+	}
+	if s.WorkflowId == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowId"))
+	}
+	if s.WorkflowId != nil && len(*s.WorkflowId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowId", 1))
+	}
+	if s.WorkflowType == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowType"))
+	}
+	if s.TaskList != nil {
+		if err := s.TaskList.Validate(); err != nil {
+			invalidParams.AddNested("TaskList", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.WorkflowType != nil {
+		if err := s.WorkflowType.Validate(); err != nil {
+			invalidParams.AddNested("WorkflowType", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the StartChildWorkflowExecutionFailed event.
 type StartChildWorkflowExecutionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"StartChildWorkflowExecutionFailedCause"`
 
 	Control *string `locationName:"control" type:"string"`
@@ -6280,26 +8819,28 @@ type StartChildWorkflowExecutionFailedEventAttributes struct {
 	// that resulted in the StartChildWorkflowExecution decision to request this
 	// child workflow execution. This information can be useful for diagnosing problems
 	// by tracing back the cause of events.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The ID of the StartChildWorkflowExecutionInitiated event corresponding to
 	// the StartChildWorkflowExecution decision to start this child workflow execution.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	InitiatedEventID *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
+	//
+	// InitiatedEventId is a required field
+	InitiatedEventId *int64 `locationName:"initiatedEventId" type:"long" required:"true"`
 
 	// The workflowId of the child workflow execution.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 
 	// The workflow type provided in the StartChildWorkflowExecution decision that
 	// failed.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataStartChildWorkflowExecutionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataStartChildWorkflowExecutionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6314,6 +8855,8 @@ func (s StartChildWorkflowExecutionFailedEventAttributes) GoString() string {
 
 // Provides details of the StartChildWorkflowExecutionInitiated event.
 type StartChildWorkflowExecutionInitiatedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The policy to use for the child workflow executions if this execution gets
 	// terminated by explicitly calling the TerminateWorkflowExecution action or
 	// due to an expired timeout.
@@ -6325,6 +8868,8 @@ type StartChildWorkflowExecutionInitiatedEventAttributes struct {
 	// event in its history. It is up to the decider to take appropriate actions
 	// when it receives an execution history with this event. ABANDON: no action
 	// will be taken. The child executions will continue to run.
+	//
+	// ChildPolicy is a required field
 	ChildPolicy *string `locationName:"childPolicy" type:"string" required:"true" enum:"ChildPolicy"`
 
 	// Optional. Data attached to the event that can be used by the decider in subsequent
@@ -6335,7 +8880,9 @@ type StartChildWorkflowExecutionInitiatedEventAttributes struct {
 	// that resulted in the StartChildWorkflowExecution decision to request this
 	// child workflow execution. This information can be useful for diagnosing problems
 	// by tracing back the cause of events.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The maximum duration for the child workflow execution. If the workflow execution
 	// is not closed within this duration, it will be timed out and force terminated.
@@ -6349,13 +8896,15 @@ type StartChildWorkflowExecutionInitiatedEventAttributes struct {
 
 	// The IAM role attached to this workflow execution to use when invoking AWS
 	// Lambda functions.
-	LambdaRole *string `locationName:"lambdaRole" type:"string"`
+	LambdaRole *string `locationName:"lambdaRole" min:"1" type:"string"`
 
 	// The list of tags to associated with the child workflow execution.
 	TagList []*string `locationName:"tagList" type:"list"`
 
 	// The name of the task list used for the decision tasks of the child workflow
 	// execution.
+	//
+	// TaskList is a required field
 	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
 
 	// Optional. The priority assigned for the decision tasks for this workflow
@@ -6375,16 +8924,14 @@ type StartChildWorkflowExecutionInitiatedEventAttributes struct {
 	TaskStartToCloseTimeout *string `locationName:"taskStartToCloseTimeout" type:"string"`
 
 	// The workflowId of the child workflow execution.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 
 	// The type of the child workflow execution.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataStartChildWorkflowExecutionInitiatedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataStartChildWorkflowExecutionInitiatedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6399,6 +8946,8 @@ func (s StartChildWorkflowExecutionInitiatedEventAttributes) GoString() string {
 
 // Provides details for the StartLambdaFunctionFailed event.
 type StartLambdaFunctionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
@@ -6413,13 +8962,7 @@ type StartLambdaFunctionFailedEventAttributes struct {
 	// The ID of the LambdaFunctionScheduled event that was recorded when this AWS
 	// Lambda function was scheduled. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	ScheduledEventID *int64 `locationName:"scheduledEventId" type:"long"`
-
-	metadataStartLambdaFunctionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataStartLambdaFunctionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	ScheduledEventId *int64 `locationName:"scheduledEventId" type:"long"`
 }
 
 // String returns the string representation
@@ -6448,6 +8991,8 @@ func (s StartLambdaFunctionFailedEventAttributes) GoString() string {
 // For details and example IAM policies, see Using IAM to Manage Access to Amazon
 // SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
 type StartTimerDecisionAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. Data attached to the event that can be used by the decider in subsequent
 	// workflow tasks.
 	Control *string `locationName:"control" type:"string"`
@@ -6456,7 +9001,9 @@ type StartTimerDecisionAttributes struct {
 	//
 	// The duration is specified in seconds; an integer greater than or equal to
 	// 0.
-	StartToFireTimeout *string `locationName:"startToFireTimeout" type:"string" required:"true"`
+	//
+	// StartToFireTimeout is a required field
+	StartToFireTimeout *string `locationName:"startToFireTimeout" min:"1" type:"string" required:"true"`
 
 	// Required. The unique ID of the timer.
 	//
@@ -6464,13 +9011,9 @@ type StartTimerDecisionAttributes struct {
 	// contain a : (colon), / (slash), | (vertical bar), or any control characters
 	// (\u0000-\u001f | \u007f - \u009f). Also, it must not contain the literal
 	// string quotarnquot.
-	TimerID *string `locationName:"timerId" type:"string" required:"true"`
-
-	metadataStartTimerDecisionAttributes `json:"-" xml:"-"`
-}
-
-type metadataStartTimerDecisionAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TimerId is a required field
+	TimerId *string `locationName:"timerId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6483,30 +9026,54 @@ func (s StartTimerDecisionAttributes) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StartTimerDecisionAttributes) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StartTimerDecisionAttributes"}
+	if s.StartToFireTimeout == nil {
+		invalidParams.Add(request.NewErrParamRequired("StartToFireTimeout"))
+	}
+	if s.StartToFireTimeout != nil && len(*s.StartToFireTimeout) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("StartToFireTimeout", 1))
+	}
+	if s.TimerId == nil {
+		invalidParams.Add(request.NewErrParamRequired("TimerId"))
+	}
+	if s.TimerId != nil && len(*s.TimerId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TimerId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the StartTimerFailed event.
 type StartTimerFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The cause of the failure. This information is generated by the system and
 	// can be useful for diagnostic purposes.
 	//
 	// If cause is set to OPERATION_NOT_PERMITTED, the decision failed because
 	// it lacked sufficient permissions. For details and example IAM policies, see
 	// Using IAM to Manage Access to Amazon SWF Workflows (http://docs.aws.amazon.com/amazonswf/latest/developerguide/swf-dev-iam.html).
+	//
+	// Cause is a required field
 	Cause *string `locationName:"cause" type:"string" required:"true" enum:"StartTimerFailedCause"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the StartTimer decision for this activity task. This information
 	// can be useful for diagnosing problems by tracing back the chain of events
 	// leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The timerId provided in the StartTimer decision that failed.
-	TimerID *string `locationName:"timerId" type:"string" required:"true"`
-
-	metadataStartTimerFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataStartTimerFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TimerId is a required field
+	TimerId *string `locationName:"timerId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6520,6 +9087,8 @@ func (s StartTimerFailedEventAttributes) GoString() string {
 }
 
 type StartWorkflowExecutionInput struct {
+	_ struct{} `type:"structure"`
+
 	// If set, specifies the policy to use for the child workflow executions of
 	// this workflow execution if it is terminated, by calling the TerminateWorkflowExecution
 	// action explicitly or due to an expired timeout. This policy overrides the
@@ -6539,7 +9108,9 @@ type StartWorkflowExecutionInput struct {
 	ChildPolicy *string `locationName:"childPolicy" type:"string" enum:"ChildPolicy"`
 
 	// The name of the domain in which the workflow execution is created.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// The total duration for this workflow execution. This overrides the defaultExecutionStartToCloseTimeout
 	// specified when registering the workflow type.
@@ -6566,7 +9137,7 @@ type StartWorkflowExecutionInput struct {
 	// In order for this workflow execution to invoke AWS Lambda functions, an
 	// appropriate IAM role must be specified either as a default for the workflow
 	// type or through this field.
-	LambdaRole *string `locationName:"lambdaRole" type:"string"`
+	LambdaRole *string `locationName:"lambdaRole" min:"1" type:"string"`
 
 	// The list of tags to associate with the workflow execution. You can specify
 	// a maximum of 5 tags. You can list workflow executions with a specific tag
@@ -6622,16 +9193,14 @@ type StartWorkflowExecutionInput struct {
 	// contain a : (colon), / (slash), | (vertical bar), or any control characters
 	// (\u0000-\u001f | \u007f - \u009f). Also, it must not contain the literal
 	// string quotarnquot.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 
 	// The type of the workflow to start.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataStartWorkflowExecutionInput `json:"-" xml:"-"`
-}
-
-type metadataStartWorkflowExecutionInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6644,17 +9213,51 @@ func (s StartWorkflowExecutionInput) GoString() string {
 	return s.String()
 }
 
-// Specifies the runId of a workflow execution.
-type StartWorkflowExecutionOutput struct {
-	// The runId of a workflow execution. This ID is generated by the service and
-	// can be used to uniquely identify the workflow execution within a domain.
-	RunID *string `locationName:"runId" type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StartWorkflowExecutionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StartWorkflowExecutionInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.LambdaRole != nil && len(*s.LambdaRole) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("LambdaRole", 1))
+	}
+	if s.WorkflowId == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowId"))
+	}
+	if s.WorkflowId != nil && len(*s.WorkflowId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowId", 1))
+	}
+	if s.WorkflowType == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowType"))
+	}
+	if s.TaskList != nil {
+		if err := s.TaskList.Validate(); err != nil {
+			invalidParams.AddNested("TaskList", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.WorkflowType != nil {
+		if err := s.WorkflowType.Validate(); err != nil {
+			invalidParams.AddNested("WorkflowType", err.(request.ErrInvalidParams))
+		}
+	}
 
-	metadataStartWorkflowExecutionOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataStartWorkflowExecutionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Specifies the runId of a workflow execution.
+type StartWorkflowExecutionOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The runId of a workflow execution. This ID is generated by the service and
+	// can be used to uniquely identify the workflow execution within a domain.
+	RunId *string `locationName:"runId" min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -6669,15 +9272,13 @@ func (s StartWorkflowExecutionOutput) GoString() string {
 
 // Used to filter the workflow executions in visibility APIs based on a tag.
 type TagFilter struct {
+	_ struct{} `type:"structure"`
+
 	// Required. Specifies the tag that must be associated with the execution for
 	// it to meet the filter criteria.
-	Tag *string `locationName:"tag" type:"string" required:"true"`
-
-	metadataTagFilter `json:"-" xml:"-"`
-}
-
-type metadataTagFilter struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Tag is a required field
+	Tag *string `locationName:"tag" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6690,16 +9291,30 @@ func (s TagFilter) GoString() string {
 	return s.String()
 }
 
-// Represents a task list.
-type TaskList struct {
-	// The name of the task list.
-	Name *string `locationName:"name" type:"string" required:"true"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *TagFilter) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "TagFilter"}
+	if s.Tag == nil {
+		invalidParams.Add(request.NewErrParamRequired("Tag"))
+	}
+	if s.Tag != nil && len(*s.Tag) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Tag", 1))
+	}
 
-	metadataTaskList `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataTaskList struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents a task list.
+type TaskList struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the task list.
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6712,7 +9327,25 @@ func (s TaskList) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *TaskList) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "TaskList"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type TerminateWorkflowExecutionInput struct {
+	_ struct{} `type:"structure"`
+
 	// If set, specifies the policy to use for the child workflow executions of
 	// the workflow execution being terminated. This policy overrides the child
 	// policy specified for the workflow execution at registration time or when
@@ -6735,22 +9368,20 @@ type TerminateWorkflowExecutionInput struct {
 	Details *string `locationName:"details" type:"string"`
 
 	// The domain of the workflow execution to terminate.
-	Domain *string `locationName:"domain" type:"string" required:"true"`
+	//
+	// Domain is a required field
+	Domain *string `locationName:"domain" min:"1" type:"string" required:"true"`
 
 	// Optional. A descriptive reason for terminating the workflow execution.
 	Reason *string `locationName:"reason" type:"string"`
 
 	// The runId of the workflow execution to terminate.
-	RunID *string `locationName:"runId" type:"string"`
+	RunId *string `locationName:"runId" type:"string"`
 
 	// The workflowId of the workflow execution to terminate.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataTerminateWorkflowExecutionInput `json:"-" xml:"-"`
-}
-
-type metadataTerminateWorkflowExecutionInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6763,12 +9394,30 @@ func (s TerminateWorkflowExecutionInput) GoString() string {
 	return s.String()
 }
 
-type TerminateWorkflowExecutionOutput struct {
-	metadataTerminateWorkflowExecutionOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *TerminateWorkflowExecutionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "TerminateWorkflowExecutionInput"}
+	if s.Domain == nil {
+		invalidParams.Add(request.NewErrParamRequired("Domain"))
+	}
+	if s.Domain != nil && len(*s.Domain) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Domain", 1))
+	}
+	if s.WorkflowId == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowId"))
+	}
+	if s.WorkflowId != nil && len(*s.WorkflowId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataTerminateWorkflowExecutionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type TerminateWorkflowExecutionOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -6783,25 +9432,27 @@ func (s TerminateWorkflowExecutionOutput) GoString() string {
 
 // Provides details of the TimerCanceled event.
 type TimerCanceledEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the CancelTimer decision to cancel this timer. This information
 	// can be useful for diagnosing problems by tracing back the chain of events
 	// leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The ID of the TimerStarted event that was recorded when this timer was started.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The unique ID of the timer that was canceled.
-	TimerID *string `locationName:"timerId" type:"string" required:"true"`
-
-	metadataTimerCanceledEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataTimerCanceledEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TimerId is a required field
+	TimerId *string `locationName:"timerId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6816,19 +9467,19 @@ func (s TimerCanceledEventAttributes) GoString() string {
 
 // Provides details of the TimerFired event.
 type TimerFiredEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the TimerStarted event that was recorded when this timer was started.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	StartedEventID *int64 `locationName:"startedEventId" type:"long" required:"true"`
+	//
+	// StartedEventId is a required field
+	StartedEventId *int64 `locationName:"startedEventId" type:"long" required:"true"`
 
 	// The unique ID of the timer that fired.
-	TimerID *string `locationName:"timerId" type:"string" required:"true"`
-
-	metadataTimerFiredEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataTimerFiredEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TimerId is a required field
+	TimerId *string `locationName:"timerId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6843,6 +9494,8 @@ func (s TimerFiredEventAttributes) GoString() string {
 
 // Provides details of the TimerStarted event.
 type TimerStartedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. Data attached to the event that can be used by the decider in subsequent
 	// workflow tasks.
 	Control *string `locationName:"control" type:"string"`
@@ -6851,22 +9504,22 @@ type TimerStartedEventAttributes struct {
 	// that resulted in the StartTimer decision for this activity task. This information
 	// can be useful for diagnosing problems by tracing back the chain of events
 	// leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The duration of time after which the timer will fire.
 	//
 	// The duration is specified in seconds; an integer greater than or equal to
 	// 0.
-	StartToFireTimeout *string `locationName:"startToFireTimeout" type:"string" required:"true"`
+	//
+	// StartToFireTimeout is a required field
+	StartToFireTimeout *string `locationName:"startToFireTimeout" min:"1" type:"string" required:"true"`
 
 	// The unique ID of the timer that was started.
-	TimerID *string `locationName:"timerId" type:"string" required:"true"`
-
-	metadataTimerStartedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataTimerStartedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TimerId is a required field
+	TimerId *string `locationName:"timerId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6881,17 +9534,17 @@ func (s TimerStartedEventAttributes) GoString() string {
 
 // Represents a workflow execution.
 type WorkflowExecution struct {
+	_ struct{} `type:"structure"`
+
 	// A system-generated unique identifier for the workflow execution.
-	RunID *string `locationName:"runId" type:"string" required:"true"`
+	//
+	// RunId is a required field
+	RunId *string `locationName:"runId" min:"1" type:"string" required:"true"`
 
 	// The user defined identifier associated with the workflow execution.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataWorkflowExecution `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecution struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -6904,8 +9557,32 @@ func (s WorkflowExecution) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *WorkflowExecution) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "WorkflowExecution"}
+	if s.RunId == nil {
+		invalidParams.Add(request.NewErrParamRequired("RunId"))
+	}
+	if s.RunId != nil && len(*s.RunId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("RunId", 1))
+	}
+	if s.WorkflowId == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowId"))
+	}
+	if s.WorkflowId != nil && len(*s.WorkflowId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Provides details of the WorkflowExecutionCancelRequested event.
 type WorkflowExecutionCancelRequestedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// If set, indicates that the request to cancel the workflow execution was automatically
 	// generated, and specifies the cause. This happens if the parent workflow execution
 	// times out or is terminated, and the child policy is set to cancel child executions.
@@ -6916,16 +9593,10 @@ type WorkflowExecutionCancelRequestedEventAttributes struct {
 	// execution.The source event with this ID can be found in the history of the
 	// source workflow execution. This information can be useful for diagnosing
 	// problems by tracing back the chain of events leading up to this event.
-	ExternalInitiatedEventID *int64 `locationName:"externalInitiatedEventId" type:"long"`
+	ExternalInitiatedEventId *int64 `locationName:"externalInitiatedEventId" type:"long"`
 
 	// The external workflow execution for which the cancellation was requested.
 	ExternalWorkflowExecution *WorkflowExecution `locationName:"externalWorkflowExecution" type:"structure"`
-
-	metadataWorkflowExecutionCancelRequestedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionCancelRequestedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6940,20 +9611,18 @@ func (s WorkflowExecutionCancelRequestedEventAttributes) GoString() string {
 
 // Provides details of the WorkflowExecutionCanceled event.
 type WorkflowExecutionCanceledEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the CancelWorkflowExecution decision for this cancellation
 	// request. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// Details for the cancellation (if any).
 	Details *string `locationName:"details" type:"string"`
-
-	metadataWorkflowExecutionCanceledEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionCanceledEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6968,20 +9637,18 @@ func (s WorkflowExecutionCanceledEventAttributes) GoString() string {
 
 // Provides details of the WorkflowExecutionCompleted event.
 type WorkflowExecutionCompletedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the CompleteWorkflowExecution decision to complete this
 	// execution. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The result produced by the workflow execution upon successful completion.
 	Result *string `locationName:"result" type:"string"`
-
-	metadataWorkflowExecutionCompletedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionCompletedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6999,6 +9666,8 @@ func (s WorkflowExecutionCompletedEventAttributes) GoString() string {
 // specified when registering the workflow type and those specified when starting
 // the workflow execution.
 type WorkflowExecutionConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// The policy to use for the child workflow executions if this workflow execution
 	// is terminated, by calling the TerminateWorkflowExecution action explicitly
 	// or due to an expired timeout.
@@ -7010,18 +9679,24 @@ type WorkflowExecutionConfiguration struct {
 	// event in its history. It is up to the decider to take appropriate actions
 	// when it receives an execution history with this event. ABANDON: no action
 	// will be taken. The child executions will continue to run.
+	//
+	// ChildPolicy is a required field
 	ChildPolicy *string `locationName:"childPolicy" type:"string" required:"true" enum:"ChildPolicy"`
 
 	// The total duration for this workflow execution.
 	//
 	// The duration is specified in seconds; an integer greater than or equal to
 	// 0. The value "NONE" can be used to specify unlimited duration.
-	ExecutionStartToCloseTimeout *string `locationName:"executionStartToCloseTimeout" type:"string" required:"true"`
+	//
+	// ExecutionStartToCloseTimeout is a required field
+	ExecutionStartToCloseTimeout *string `locationName:"executionStartToCloseTimeout" min:"1" type:"string" required:"true"`
 
 	// The IAM role used by this workflow execution when invoking AWS Lambda functions.
-	LambdaRole *string `locationName:"lambdaRole" type:"string"`
+	LambdaRole *string `locationName:"lambdaRole" min:"1" type:"string"`
 
 	// The task list used for the decision tasks generated for this workflow execution.
+	//
+	// TaskList is a required field
 	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
 
 	// The priority assigned to decision tasks for this workflow execution. Valid
@@ -7037,13 +9712,9 @@ type WorkflowExecutionConfiguration struct {
 	//
 	// The duration is specified in seconds; an integer greater than or equal to
 	// 0. The value "NONE" can be used to specify unlimited duration.
-	TaskStartToCloseTimeout *string `locationName:"taskStartToCloseTimeout" type:"string" required:"true"`
-
-	metadataWorkflowExecutionConfiguration `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// TaskStartToCloseTimeout is a required field
+	TaskStartToCloseTimeout *string `locationName:"taskStartToCloseTimeout" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -7058,6 +9729,8 @@ func (s WorkflowExecutionConfiguration) GoString() string {
 
 // Provides details of the WorkflowExecutionContinuedAsNew event.
 type WorkflowExecutionContinuedAsNewEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The policy to use for the child workflow executions of the new execution
 	// if it is terminated by calling the TerminateWorkflowExecution action explicitly
 	// or due to an expired timeout.
@@ -7069,13 +9742,17 @@ type WorkflowExecutionContinuedAsNewEventAttributes struct {
 	// event in its history. It is up to the decider to take appropriate actions
 	// when it receives an execution history with this event. ABANDON: no action
 	// will be taken. The child executions will continue to run.
+	//
+	// ChildPolicy is a required field
 	ChildPolicy *string `locationName:"childPolicy" type:"string" required:"true" enum:"ChildPolicy"`
 
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the ContinueAsNewWorkflowExecution decision that started
 	// this execution. This information can be useful for diagnosing problems by
 	// tracing back the chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The total duration allowed for the new workflow execution.
 	//
@@ -7088,15 +9765,19 @@ type WorkflowExecutionContinuedAsNewEventAttributes struct {
 
 	// The IAM role attached to this workflow execution to use when invoking AWS
 	// Lambda functions.
-	LambdaRole *string `locationName:"lambdaRole" type:"string"`
+	LambdaRole *string `locationName:"lambdaRole" min:"1" type:"string"`
 
 	// The runId of the new workflow execution.
-	NewExecutionRunID *string `locationName:"newExecutionRunId" type:"string" required:"true"`
+	//
+	// NewExecutionRunId is a required field
+	NewExecutionRunId *string `locationName:"newExecutionRunId" min:"1" type:"string" required:"true"`
 
 	// The list of tags associated with the new workflow execution.
 	TagList []*string `locationName:"tagList" type:"list"`
 
 	// Represents a task list.
+	//
+	// TaskList is a required field
 	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
 
 	TaskPriority *string `locationName:"taskPriority" type:"string"`
@@ -7108,13 +9789,9 @@ type WorkflowExecutionContinuedAsNewEventAttributes struct {
 	TaskStartToCloseTimeout *string `locationName:"taskStartToCloseTimeout" type:"string"`
 
 	// Represents a workflow type.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataWorkflowExecutionContinuedAsNewEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionContinuedAsNewEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7130,18 +9807,16 @@ func (s WorkflowExecutionContinuedAsNewEventAttributes) GoString() string {
 // Contains the count of workflow executions returned from CountOpenWorkflowExecutions
 // or CountClosedWorkflowExecutions
 type WorkflowExecutionCount struct {
+	_ struct{} `type:"structure"`
+
 	// The number of workflow executions.
+	//
+	// Count is a required field
 	Count *int64 `locationName:"count" type:"integer" required:"true"`
 
 	// If set to true, indicates that the actual count was more than the maximum
 	// supported by this API and the count returned is the truncated value.
 	Truncated *bool `locationName:"truncated" type:"boolean"`
-
-	metadataWorkflowExecutionCount `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionCount struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7156,23 +9831,21 @@ func (s WorkflowExecutionCount) GoString() string {
 
 // Provides details of the WorkflowExecutionFailed event.
 type WorkflowExecutionFailedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the DecisionTaskCompleted event corresponding to the decision task
 	// that resulted in the FailWorkflowExecution decision to fail this execution.
 	// This information can be useful for diagnosing problems by tracing back the
 	// chain of events leading up to this event.
-	DecisionTaskCompletedEventID *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
+	//
+	// DecisionTaskCompletedEventId is a required field
+	DecisionTaskCompletedEventId *int64 `locationName:"decisionTaskCompletedEventId" type:"long" required:"true"`
 
 	// The details of the failure (if any).
 	Details *string `locationName:"details" type:"string"`
 
 	// The descriptive reason provided for the failure (if any).
 	Reason *string `locationName:"reason" type:"string"`
-
-	metadataWorkflowExecutionFailedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionFailedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7187,14 +9860,12 @@ func (s WorkflowExecutionFailedEventAttributes) GoString() string {
 
 // Used to filter the workflow executions in visibility APIs by their workflowId.
 type WorkflowExecutionFilter struct {
+	_ struct{} `type:"structure"`
+
 	// The workflowId to pass of match the criteria of this filter.
-	WorkflowID *string `locationName:"workflowId" type:"string" required:"true"`
-
-	metadataWorkflowExecutionFilter `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionFilter struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// WorkflowId is a required field
+	WorkflowId *string `locationName:"workflowId" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -7207,8 +9878,26 @@ func (s WorkflowExecutionFilter) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *WorkflowExecutionFilter) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "WorkflowExecutionFilter"}
+	if s.WorkflowId == nil {
+		invalidParams.Add(request.NewErrParamRequired("WorkflowId"))
+	}
+	if s.WorkflowId != nil && len(*s.WorkflowId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("WorkflowId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains information about a workflow execution.
 type WorkflowExecutionInfo struct {
+	_ struct{} `type:"structure"`
+
 	// Set to true if a cancellation is requested for this workflow execution.
 	CancelRequested *bool `locationName:"cancelRequested" type:"boolean"`
 
@@ -7229,9 +9918,13 @@ type WorkflowExecutionInfo struct {
 	CloseTimestamp *time.Time `locationName:"closeTimestamp" type:"timestamp" timestampFormat:"unix"`
 
 	// The workflow execution this information is about.
+	//
+	// Execution is a required field
 	Execution *WorkflowExecution `locationName:"execution" type:"structure" required:"true"`
 
 	// The current status of the execution.
+	//
+	// ExecutionStatus is a required field
 	ExecutionStatus *string `locationName:"executionStatus" type:"string" required:"true" enum:"ExecutionStatus"`
 
 	// If this workflow execution is a child of another execution then contains
@@ -7239,6 +9932,8 @@ type WorkflowExecutionInfo struct {
 	Parent *WorkflowExecution `locationName:"parent" type:"structure"`
 
 	// The time when the execution was started.
+	//
+	// StartTimestamp is a required field
 	StartTimestamp *time.Time `locationName:"startTimestamp" type:"timestamp" timestampFormat:"unix" required:"true"`
 
 	// The list of tags associated with the workflow execution. Tags can be used
@@ -7247,13 +9942,9 @@ type WorkflowExecutionInfo struct {
 	TagList []*string `locationName:"tagList" type:"list"`
 
 	// The type of the workflow execution.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataWorkflowExecutionInfo `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionInfo struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7268,7 +9959,11 @@ func (s WorkflowExecutionInfo) GoString() string {
 
 // Contains a paginated list of information about workflow executions.
 type WorkflowExecutionInfos struct {
+	_ struct{} `type:"structure"`
+
 	// The list of workflow information structures.
+	//
+	// ExecutionInfos is a required field
 	ExecutionInfos []*WorkflowExecutionInfo `locationName:"executionInfos" type:"list" required:"true"`
 
 	// If a NextPageToken was returned by a previous call, there are more results
@@ -7278,12 +9973,6 @@ type WorkflowExecutionInfos struct {
 	// The configured maximumPageSize determines how many results can be returned
 	// in a single call.
 	NextPageToken *string `locationName:"nextPageToken" type:"string"`
-
-	metadataWorkflowExecutionInfos `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionInfos struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7299,14 +9988,22 @@ func (s WorkflowExecutionInfos) GoString() string {
 // Contains the counts of open tasks, child workflow executions and timers for
 // a workflow execution.
 type WorkflowExecutionOpenCounts struct {
+	_ struct{} `type:"structure"`
+
 	// The count of activity tasks whose status is OPEN.
+	//
+	// OpenActivityTasks is a required field
 	OpenActivityTasks *int64 `locationName:"openActivityTasks" type:"integer" required:"true"`
 
 	// The count of child workflow executions whose status is OPEN.
+	//
+	// OpenChildWorkflowExecutions is a required field
 	OpenChildWorkflowExecutions *int64 `locationName:"openChildWorkflowExecutions" type:"integer" required:"true"`
 
 	// The count of decision tasks whose status is OPEN. A workflow execution can
 	// have at most one open decision task.
+	//
+	// OpenDecisionTasks is a required field
 	OpenDecisionTasks *int64 `locationName:"openDecisionTasks" type:"integer" required:"true"`
 
 	// The count of AWS Lambda functions that are currently executing.
@@ -7314,13 +10011,9 @@ type WorkflowExecutionOpenCounts struct {
 
 	// The count of timers started by this workflow execution that have not fired
 	// yet.
+	//
+	// OpenTimers is a required field
 	OpenTimers *int64 `locationName:"openTimers" type:"integer" required:"true"`
-
-	metadataWorkflowExecutionOpenCounts `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionOpenCounts struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7335,13 +10028,15 @@ func (s WorkflowExecutionOpenCounts) GoString() string {
 
 // Provides details of the WorkflowExecutionSignaled event.
 type WorkflowExecutionSignaledEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The ID of the SignalExternalWorkflowExecutionInitiated event corresponding
 	// to the SignalExternalWorkflow decision to signal this workflow execution.The
 	// source event with this ID can be found in the history of the source workflow
 	// execution. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event. This field is set only
 	// if the signal was initiated by another workflow execution.
-	ExternalInitiatedEventID *int64 `locationName:"externalInitiatedEventId" type:"long"`
+	ExternalInitiatedEventId *int64 `locationName:"externalInitiatedEventId" type:"long"`
 
 	// The workflow execution that sent the signal. This is set only of the signal
 	// was sent by another workflow execution.
@@ -7353,13 +10048,9 @@ type WorkflowExecutionSignaledEventAttributes struct {
 
 	// The name of the signal received. The decider can use the signal name and
 	// inputs to determine how to the process the signal.
-	SignalName *string `locationName:"signalName" type:"string" required:"true"`
-
-	metadataWorkflowExecutionSignaledEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionSignaledEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// SignalName is a required field
+	SignalName *string `locationName:"signalName" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -7374,6 +10065,8 @@ func (s WorkflowExecutionSignaledEventAttributes) GoString() string {
 
 // Provides details of WorkflowExecutionStarted event.
 type WorkflowExecutionStartedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The policy to use for the child workflow executions if this workflow execution
 	// is terminated, by calling the TerminateWorkflowExecution action explicitly
 	// or due to an expired timeout.
@@ -7385,12 +10078,14 @@ type WorkflowExecutionStartedEventAttributes struct {
 	// event in its history. It is up to the decider to take appropriate actions
 	// when it receives an execution history with this event. ABANDON: no action
 	// will be taken. The child executions will continue to run.
+	//
+	// ChildPolicy is a required field
 	ChildPolicy *string `locationName:"childPolicy" type:"string" required:"true" enum:"ChildPolicy"`
 
 	// If this workflow execution was started due to a ContinueAsNewWorkflowExecution
 	// decision, then it contains the runId of the previous workflow execution that
 	// was closed and continued as this execution.
-	ContinuedExecutionRunID *string `locationName:"continuedExecutionRunId" type:"string"`
+	ContinuedExecutionRunId *string `locationName:"continuedExecutionRunId" type:"string"`
 
 	// The maximum duration for this workflow execution.
 	//
@@ -7403,14 +10098,14 @@ type WorkflowExecutionStartedEventAttributes struct {
 
 	// The IAM role attached to this workflow execution to use when invoking AWS
 	// Lambda functions.
-	LambdaRole *string `locationName:"lambdaRole" type:"string"`
+	LambdaRole *string `locationName:"lambdaRole" min:"1" type:"string"`
 
 	// The ID of the StartChildWorkflowExecutionInitiated event corresponding to
 	// the StartChildWorkflowExecution decision to start this workflow execution.
 	// The source event with this ID can be found in the history of the source workflow
 	// execution. This information can be useful for diagnosing problems by tracing
 	// back the chain of events leading up to this event.
-	ParentInitiatedEventID *int64 `locationName:"parentInitiatedEventId" type:"long"`
+	ParentInitiatedEventId *int64 `locationName:"parentInitiatedEventId" type:"long"`
 
 	// The source workflow execution that started this workflow execution. The member
 	// is not set if the workflow execution was not started by a workflow.
@@ -7422,6 +10117,8 @@ type WorkflowExecutionStartedEventAttributes struct {
 
 	// The name of the task list for scheduling the decision tasks for this workflow
 	// execution.
+	//
+	// TaskList is a required field
 	TaskList *TaskList `locationName:"taskList" type:"structure" required:"true"`
 
 	TaskPriority *string `locationName:"taskPriority" type:"string"`
@@ -7433,13 +10130,9 @@ type WorkflowExecutionStartedEventAttributes struct {
 	TaskStartToCloseTimeout *string `locationName:"taskStartToCloseTimeout" type:"string"`
 
 	// The workflow type of this execution.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataWorkflowExecutionStartedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionStartedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7454,6 +10147,8 @@ func (s WorkflowExecutionStartedEventAttributes) GoString() string {
 
 // Provides details of the WorkflowExecutionTerminated event.
 type WorkflowExecutionTerminatedEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// If set, indicates that the workflow execution was automatically terminated,
 	// and specifies the cause. This happens if the parent workflow execution times
 	// out or is terminated and the child policy is set to terminate child executions.
@@ -7468,6 +10163,8 @@ type WorkflowExecutionTerminatedEventAttributes struct {
 	// event in its history. It is up to the decider to take appropriate actions
 	// when it receives an execution history with this event. ABANDON: no action
 	// will be taken. The child executions will continue to run.
+	//
+	// ChildPolicy is a required field
 	ChildPolicy *string `locationName:"childPolicy" type:"string" required:"true" enum:"ChildPolicy"`
 
 	// The details provided for the termination (if any).
@@ -7475,12 +10172,6 @@ type WorkflowExecutionTerminatedEventAttributes struct {
 
 	// The reason provided for the termination (if any).
 	Reason *string `locationName:"reason" type:"string"`
-
-	metadataWorkflowExecutionTerminatedEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionTerminatedEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7495,6 +10186,8 @@ func (s WorkflowExecutionTerminatedEventAttributes) GoString() string {
 
 // Provides details of the WorkflowExecutionTimedOut event.
 type WorkflowExecutionTimedOutEventAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// The policy used for the child workflow executions of this workflow execution.
 	//
 	// The supported child policies are:
@@ -7504,16 +10197,14 @@ type WorkflowExecutionTimedOutEventAttributes struct {
 	// event in its history. It is up to the decider to take appropriate actions
 	// when it receives an execution history with this event. ABANDON: no action
 	// will be taken. The child executions will continue to run.
+	//
+	// ChildPolicy is a required field
 	ChildPolicy *string `locationName:"childPolicy" type:"string" required:"true" enum:"ChildPolicy"`
 
 	// The type of timeout that caused this event.
+	//
+	// TimeoutType is a required field
 	TimeoutType *string `locationName:"timeoutType" type:"string" required:"true" enum:"WorkflowExecutionTimeoutType"`
-
-	metadataWorkflowExecutionTimedOutEventAttributes `json:"-" xml:"-"`
-}
-
-type metadataWorkflowExecutionTimedOutEventAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7528,23 +10219,23 @@ func (s WorkflowExecutionTimedOutEventAttributes) GoString() string {
 
 // Represents a workflow type.
 type WorkflowType struct {
+	_ struct{} `type:"structure"`
+
 	// Required. The name of the workflow type.
 	//
 	// The combination of workflow type name and version must be unique with in
 	// a domain.
-	Name *string `locationName:"name" type:"string" required:"true"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 
 	// Required. The version of the workflow type.
 	//
 	// The combination of workflow type name and version must be unique with in
 	// a domain.
-	Version *string `locationName:"version" type:"string" required:"true"`
-
-	metadataWorkflowType `json:"-" xml:"-"`
-}
-
-type metadataWorkflowType struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Version is a required field
+	Version *string `locationName:"version" min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -7557,8 +10248,32 @@ func (s WorkflowType) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *WorkflowType) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "WorkflowType"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+	if s.Version == nil {
+		invalidParams.Add(request.NewErrParamRequired("Version"))
+	}
+	if s.Version != nil && len(*s.Version) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Version", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The configuration settings of a workflow type.
 type WorkflowTypeConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// Optional. The default policy to use for the child workflow executions when
 	// a workflow execution of this type is terminated, by calling the TerminateWorkflowExecution
 	// action explicitly or due to an expired timeout. This default can be overridden
@@ -7585,7 +10300,7 @@ type WorkflowTypeConfiguration struct {
 
 	// The default IAM role to use when a workflow execution invokes a AWS Lambda
 	// function.
-	DefaultLambdaRole *string `locationName:"defaultLambdaRole" type:"string"`
+	DefaultLambdaRole *string `locationName:"defaultLambdaRole" min:"1" type:"string"`
 
 	// Optional. The default task list, specified when registering the workflow
 	// type, for decisions tasks scheduled for workflow executions of this type.
@@ -7617,12 +10332,6 @@ type WorkflowTypeConfiguration struct {
 	// The duration is specified in seconds; an integer greater than or equal to
 	// 0. The value "NONE" can be used to specify unlimited duration.
 	DefaultTaskStartToCloseTimeout *string `locationName:"defaultTaskStartToCloseTimeout" type:"string"`
-
-	metadataWorkflowTypeConfiguration `json:"-" xml:"-"`
-}
-
-type metadataWorkflowTypeConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7638,17 +10347,15 @@ func (s WorkflowTypeConfiguration) GoString() string {
 // Used to filter workflow execution query results by type. Each parameter,
 // if specified, defines a rule that must be satisfied by each returned result.
 type WorkflowTypeFilter struct {
+	_ struct{} `type:"structure"`
+
 	// Required. Name of the workflow type.
-	Name *string `locationName:"name" type:"string" required:"true"`
+	//
+	// Name is a required field
+	Name *string `locationName:"name" min:"1" type:"string" required:"true"`
 
 	// Version of the workflow type.
 	Version *string `locationName:"version" type:"string"`
-
-	metadataWorkflowTypeFilter `json:"-" xml:"-"`
-}
-
-type metadataWorkflowTypeFilter struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7661,9 +10368,29 @@ func (s WorkflowTypeFilter) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *WorkflowTypeFilter) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "WorkflowTypeFilter"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains information about a workflow type.
 type WorkflowTypeInfo struct {
+	_ struct{} `type:"structure"`
+
 	// The date when this type was registered.
+	//
+	// CreationDate is a required field
 	CreationDate *time.Time `locationName:"creationDate" type:"timestamp" timestampFormat:"unix" required:"true"`
 
 	// If the type is in deprecated state, then it is set to the date when the type
@@ -7674,16 +10401,14 @@ type WorkflowTypeInfo struct {
 	Description *string `locationName:"description" type:"string"`
 
 	// The current status of the workflow type.
+	//
+	// Status is a required field
 	Status *string `locationName:"status" type:"string" required:"true" enum:"RegistrationStatus"`
 
 	// The workflow type this information is about.
+	//
+	// WorkflowType is a required field
 	WorkflowType *WorkflowType `locationName:"workflowType" type:"structure" required:"true"`
-
-	metadataWorkflowTypeInfo `json:"-" xml:"-"`
-}
-
-type metadataWorkflowTypeInfo struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7697,375 +10422,497 @@ func (s WorkflowTypeInfo) GoString() string {
 }
 
 const (
-	// @enum ActivityTaskTimeoutType
+	// ActivityTaskTimeoutTypeStartToClose is a ActivityTaskTimeoutType enum value
 	ActivityTaskTimeoutTypeStartToClose = "START_TO_CLOSE"
-	// @enum ActivityTaskTimeoutType
+
+	// ActivityTaskTimeoutTypeScheduleToStart is a ActivityTaskTimeoutType enum value
 	ActivityTaskTimeoutTypeScheduleToStart = "SCHEDULE_TO_START"
-	// @enum ActivityTaskTimeoutType
+
+	// ActivityTaskTimeoutTypeScheduleToClose is a ActivityTaskTimeoutType enum value
 	ActivityTaskTimeoutTypeScheduleToClose = "SCHEDULE_TO_CLOSE"
-	// @enum ActivityTaskTimeoutType
+
+	// ActivityTaskTimeoutTypeHeartbeat is a ActivityTaskTimeoutType enum value
 	ActivityTaskTimeoutTypeHeartbeat = "HEARTBEAT"
 )
 
 const (
-	// @enum CancelTimerFailedCause
+	// CancelTimerFailedCauseTimerIdUnknown is a CancelTimerFailedCause enum value
 	CancelTimerFailedCauseTimerIdUnknown = "TIMER_ID_UNKNOWN"
-	// @enum CancelTimerFailedCause
+
+	// CancelTimerFailedCauseOperationNotPermitted is a CancelTimerFailedCause enum value
 	CancelTimerFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum CancelWorkflowExecutionFailedCause
+	// CancelWorkflowExecutionFailedCauseUnhandledDecision is a CancelWorkflowExecutionFailedCause enum value
 	CancelWorkflowExecutionFailedCauseUnhandledDecision = "UNHANDLED_DECISION"
-	// @enum CancelWorkflowExecutionFailedCause
+
+	// CancelWorkflowExecutionFailedCauseOperationNotPermitted is a CancelWorkflowExecutionFailedCause enum value
 	CancelWorkflowExecutionFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum ChildPolicy
+	// ChildPolicyTerminate is a ChildPolicy enum value
 	ChildPolicyTerminate = "TERMINATE"
-	// @enum ChildPolicy
+
+	// ChildPolicyRequestCancel is a ChildPolicy enum value
 	ChildPolicyRequestCancel = "REQUEST_CANCEL"
-	// @enum ChildPolicy
+
+	// ChildPolicyAbandon is a ChildPolicy enum value
 	ChildPolicyAbandon = "ABANDON"
 )
 
 const (
-	// @enum CloseStatus
+	// CloseStatusCompleted is a CloseStatus enum value
 	CloseStatusCompleted = "COMPLETED"
-	// @enum CloseStatus
+
+	// CloseStatusFailed is a CloseStatus enum value
 	CloseStatusFailed = "FAILED"
-	// @enum CloseStatus
+
+	// CloseStatusCanceled is a CloseStatus enum value
 	CloseStatusCanceled = "CANCELED"
-	// @enum CloseStatus
+
+	// CloseStatusTerminated is a CloseStatus enum value
 	CloseStatusTerminated = "TERMINATED"
-	// @enum CloseStatus
+
+	// CloseStatusContinuedAsNew is a CloseStatus enum value
 	CloseStatusContinuedAsNew = "CONTINUED_AS_NEW"
-	// @enum CloseStatus
+
+	// CloseStatusTimedOut is a CloseStatus enum value
 	CloseStatusTimedOut = "TIMED_OUT"
 )
 
 const (
-	// @enum CompleteWorkflowExecutionFailedCause
+	// CompleteWorkflowExecutionFailedCauseUnhandledDecision is a CompleteWorkflowExecutionFailedCause enum value
 	CompleteWorkflowExecutionFailedCauseUnhandledDecision = "UNHANDLED_DECISION"
-	// @enum CompleteWorkflowExecutionFailedCause
+
+	// CompleteWorkflowExecutionFailedCauseOperationNotPermitted is a CompleteWorkflowExecutionFailedCause enum value
 	CompleteWorkflowExecutionFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum ContinueAsNewWorkflowExecutionFailedCause
+	// ContinueAsNewWorkflowExecutionFailedCauseUnhandledDecision is a ContinueAsNewWorkflowExecutionFailedCause enum value
 	ContinueAsNewWorkflowExecutionFailedCauseUnhandledDecision = "UNHANDLED_DECISION"
-	// @enum ContinueAsNewWorkflowExecutionFailedCause
+
+	// ContinueAsNewWorkflowExecutionFailedCauseWorkflowTypeDeprecated is a ContinueAsNewWorkflowExecutionFailedCause enum value
 	ContinueAsNewWorkflowExecutionFailedCauseWorkflowTypeDeprecated = "WORKFLOW_TYPE_DEPRECATED"
-	// @enum ContinueAsNewWorkflowExecutionFailedCause
+
+	// ContinueAsNewWorkflowExecutionFailedCauseWorkflowTypeDoesNotExist is a ContinueAsNewWorkflowExecutionFailedCause enum value
 	ContinueAsNewWorkflowExecutionFailedCauseWorkflowTypeDoesNotExist = "WORKFLOW_TYPE_DOES_NOT_EXIST"
-	// @enum ContinueAsNewWorkflowExecutionFailedCause
+
+	// ContinueAsNewWorkflowExecutionFailedCauseDefaultExecutionStartToCloseTimeoutUndefined is a ContinueAsNewWorkflowExecutionFailedCause enum value
 	ContinueAsNewWorkflowExecutionFailedCauseDefaultExecutionStartToCloseTimeoutUndefined = "DEFAULT_EXECUTION_START_TO_CLOSE_TIMEOUT_UNDEFINED"
-	// @enum ContinueAsNewWorkflowExecutionFailedCause
+
+	// ContinueAsNewWorkflowExecutionFailedCauseDefaultTaskStartToCloseTimeoutUndefined is a ContinueAsNewWorkflowExecutionFailedCause enum value
 	ContinueAsNewWorkflowExecutionFailedCauseDefaultTaskStartToCloseTimeoutUndefined = "DEFAULT_TASK_START_TO_CLOSE_TIMEOUT_UNDEFINED"
-	// @enum ContinueAsNewWorkflowExecutionFailedCause
+
+	// ContinueAsNewWorkflowExecutionFailedCauseDefaultTaskListUndefined is a ContinueAsNewWorkflowExecutionFailedCause enum value
 	ContinueAsNewWorkflowExecutionFailedCauseDefaultTaskListUndefined = "DEFAULT_TASK_LIST_UNDEFINED"
-	// @enum ContinueAsNewWorkflowExecutionFailedCause
+
+	// ContinueAsNewWorkflowExecutionFailedCauseDefaultChildPolicyUndefined is a ContinueAsNewWorkflowExecutionFailedCause enum value
 	ContinueAsNewWorkflowExecutionFailedCauseDefaultChildPolicyUndefined = "DEFAULT_CHILD_POLICY_UNDEFINED"
-	// @enum ContinueAsNewWorkflowExecutionFailedCause
+
+	// ContinueAsNewWorkflowExecutionFailedCauseContinueAsNewWorkflowExecutionRateExceeded is a ContinueAsNewWorkflowExecutionFailedCause enum value
 	ContinueAsNewWorkflowExecutionFailedCauseContinueAsNewWorkflowExecutionRateExceeded = "CONTINUE_AS_NEW_WORKFLOW_EXECUTION_RATE_EXCEEDED"
-	// @enum ContinueAsNewWorkflowExecutionFailedCause
+
+	// ContinueAsNewWorkflowExecutionFailedCauseOperationNotPermitted is a ContinueAsNewWorkflowExecutionFailedCause enum value
 	ContinueAsNewWorkflowExecutionFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum DecisionTaskTimeoutType
+	// DecisionTaskTimeoutTypeStartToClose is a DecisionTaskTimeoutType enum value
 	DecisionTaskTimeoutTypeStartToClose = "START_TO_CLOSE"
 )
 
 const (
-	// @enum DecisionType
+	// DecisionTypeScheduleActivityTask is a DecisionType enum value
 	DecisionTypeScheduleActivityTask = "ScheduleActivityTask"
-	// @enum DecisionType
+
+	// DecisionTypeRequestCancelActivityTask is a DecisionType enum value
 	DecisionTypeRequestCancelActivityTask = "RequestCancelActivityTask"
-	// @enum DecisionType
+
+	// DecisionTypeCompleteWorkflowExecution is a DecisionType enum value
 	DecisionTypeCompleteWorkflowExecution = "CompleteWorkflowExecution"
-	// @enum DecisionType
+
+	// DecisionTypeFailWorkflowExecution is a DecisionType enum value
 	DecisionTypeFailWorkflowExecution = "FailWorkflowExecution"
-	// @enum DecisionType
+
+	// DecisionTypeCancelWorkflowExecution is a DecisionType enum value
 	DecisionTypeCancelWorkflowExecution = "CancelWorkflowExecution"
-	// @enum DecisionType
+
+	// DecisionTypeContinueAsNewWorkflowExecution is a DecisionType enum value
 	DecisionTypeContinueAsNewWorkflowExecution = "ContinueAsNewWorkflowExecution"
-	// @enum DecisionType
+
+	// DecisionTypeRecordMarker is a DecisionType enum value
 	DecisionTypeRecordMarker = "RecordMarker"
-	// @enum DecisionType
+
+	// DecisionTypeStartTimer is a DecisionType enum value
 	DecisionTypeStartTimer = "StartTimer"
-	// @enum DecisionType
+
+	// DecisionTypeCancelTimer is a DecisionType enum value
 	DecisionTypeCancelTimer = "CancelTimer"
-	// @enum DecisionType
+
+	// DecisionTypeSignalExternalWorkflowExecution is a DecisionType enum value
 	DecisionTypeSignalExternalWorkflowExecution = "SignalExternalWorkflowExecution"
-	// @enum DecisionType
+
+	// DecisionTypeRequestCancelExternalWorkflowExecution is a DecisionType enum value
 	DecisionTypeRequestCancelExternalWorkflowExecution = "RequestCancelExternalWorkflowExecution"
-	// @enum DecisionType
+
+	// DecisionTypeStartChildWorkflowExecution is a DecisionType enum value
 	DecisionTypeStartChildWorkflowExecution = "StartChildWorkflowExecution"
-	// @enum DecisionType
+
+	// DecisionTypeScheduleLambdaFunction is a DecisionType enum value
 	DecisionTypeScheduleLambdaFunction = "ScheduleLambdaFunction"
 )
 
 const (
-	// @enum EventType
+	// EventTypeWorkflowExecutionStarted is a EventType enum value
 	EventTypeWorkflowExecutionStarted = "WorkflowExecutionStarted"
-	// @enum EventType
+
+	// EventTypeWorkflowExecutionCancelRequested is a EventType enum value
 	EventTypeWorkflowExecutionCancelRequested = "WorkflowExecutionCancelRequested"
-	// @enum EventType
+
+	// EventTypeWorkflowExecutionCompleted is a EventType enum value
 	EventTypeWorkflowExecutionCompleted = "WorkflowExecutionCompleted"
-	// @enum EventType
+
+	// EventTypeCompleteWorkflowExecutionFailed is a EventType enum value
 	EventTypeCompleteWorkflowExecutionFailed = "CompleteWorkflowExecutionFailed"
-	// @enum EventType
+
+	// EventTypeWorkflowExecutionFailed is a EventType enum value
 	EventTypeWorkflowExecutionFailed = "WorkflowExecutionFailed"
-	// @enum EventType
+
+	// EventTypeFailWorkflowExecutionFailed is a EventType enum value
 	EventTypeFailWorkflowExecutionFailed = "FailWorkflowExecutionFailed"
-	// @enum EventType
+
+	// EventTypeWorkflowExecutionTimedOut is a EventType enum value
 	EventTypeWorkflowExecutionTimedOut = "WorkflowExecutionTimedOut"
-	// @enum EventType
+
+	// EventTypeWorkflowExecutionCanceled is a EventType enum value
 	EventTypeWorkflowExecutionCanceled = "WorkflowExecutionCanceled"
-	// @enum EventType
+
+	// EventTypeCancelWorkflowExecutionFailed is a EventType enum value
 	EventTypeCancelWorkflowExecutionFailed = "CancelWorkflowExecutionFailed"
-	// @enum EventType
+
+	// EventTypeWorkflowExecutionContinuedAsNew is a EventType enum value
 	EventTypeWorkflowExecutionContinuedAsNew = "WorkflowExecutionContinuedAsNew"
-	// @enum EventType
+
+	// EventTypeContinueAsNewWorkflowExecutionFailed is a EventType enum value
 	EventTypeContinueAsNewWorkflowExecutionFailed = "ContinueAsNewWorkflowExecutionFailed"
-	// @enum EventType
+
+	// EventTypeWorkflowExecutionTerminated is a EventType enum value
 	EventTypeWorkflowExecutionTerminated = "WorkflowExecutionTerminated"
-	// @enum EventType
+
+	// EventTypeDecisionTaskScheduled is a EventType enum value
 	EventTypeDecisionTaskScheduled = "DecisionTaskScheduled"
-	// @enum EventType
+
+	// EventTypeDecisionTaskStarted is a EventType enum value
 	EventTypeDecisionTaskStarted = "DecisionTaskStarted"
-	// @enum EventType
+
+	// EventTypeDecisionTaskCompleted is a EventType enum value
 	EventTypeDecisionTaskCompleted = "DecisionTaskCompleted"
-	// @enum EventType
+
+	// EventTypeDecisionTaskTimedOut is a EventType enum value
 	EventTypeDecisionTaskTimedOut = "DecisionTaskTimedOut"
-	// @enum EventType
+
+	// EventTypeActivityTaskScheduled is a EventType enum value
 	EventTypeActivityTaskScheduled = "ActivityTaskScheduled"
-	// @enum EventType
+
+	// EventTypeScheduleActivityTaskFailed is a EventType enum value
 	EventTypeScheduleActivityTaskFailed = "ScheduleActivityTaskFailed"
-	// @enum EventType
+
+	// EventTypeActivityTaskStarted is a EventType enum value
 	EventTypeActivityTaskStarted = "ActivityTaskStarted"
-	// @enum EventType
+
+	// EventTypeActivityTaskCompleted is a EventType enum value
 	EventTypeActivityTaskCompleted = "ActivityTaskCompleted"
-	// @enum EventType
+
+	// EventTypeActivityTaskFailed is a EventType enum value
 	EventTypeActivityTaskFailed = "ActivityTaskFailed"
-	// @enum EventType
+
+	// EventTypeActivityTaskTimedOut is a EventType enum value
 	EventTypeActivityTaskTimedOut = "ActivityTaskTimedOut"
-	// @enum EventType
+
+	// EventTypeActivityTaskCanceled is a EventType enum value
 	EventTypeActivityTaskCanceled = "ActivityTaskCanceled"
-	// @enum EventType
+
+	// EventTypeActivityTaskCancelRequested is a EventType enum value
 	EventTypeActivityTaskCancelRequested = "ActivityTaskCancelRequested"
-	// @enum EventType
+
+	// EventTypeRequestCancelActivityTaskFailed is a EventType enum value
 	EventTypeRequestCancelActivityTaskFailed = "RequestCancelActivityTaskFailed"
-	// @enum EventType
+
+	// EventTypeWorkflowExecutionSignaled is a EventType enum value
 	EventTypeWorkflowExecutionSignaled = "WorkflowExecutionSignaled"
-	// @enum EventType
+
+	// EventTypeMarkerRecorded is a EventType enum value
 	EventTypeMarkerRecorded = "MarkerRecorded"
-	// @enum EventType
+
+	// EventTypeRecordMarkerFailed is a EventType enum value
 	EventTypeRecordMarkerFailed = "RecordMarkerFailed"
-	// @enum EventType
+
+	// EventTypeTimerStarted is a EventType enum value
 	EventTypeTimerStarted = "TimerStarted"
-	// @enum EventType
+
+	// EventTypeStartTimerFailed is a EventType enum value
 	EventTypeStartTimerFailed = "StartTimerFailed"
-	// @enum EventType
+
+	// EventTypeTimerFired is a EventType enum value
 	EventTypeTimerFired = "TimerFired"
-	// @enum EventType
+
+	// EventTypeTimerCanceled is a EventType enum value
 	EventTypeTimerCanceled = "TimerCanceled"
-	// @enum EventType
+
+	// EventTypeCancelTimerFailed is a EventType enum value
 	EventTypeCancelTimerFailed = "CancelTimerFailed"
-	// @enum EventType
+
+	// EventTypeStartChildWorkflowExecutionInitiated is a EventType enum value
 	EventTypeStartChildWorkflowExecutionInitiated = "StartChildWorkflowExecutionInitiated"
-	// @enum EventType
+
+	// EventTypeStartChildWorkflowExecutionFailed is a EventType enum value
 	EventTypeStartChildWorkflowExecutionFailed = "StartChildWorkflowExecutionFailed"
-	// @enum EventType
+
+	// EventTypeChildWorkflowExecutionStarted is a EventType enum value
 	EventTypeChildWorkflowExecutionStarted = "ChildWorkflowExecutionStarted"
-	// @enum EventType
+
+	// EventTypeChildWorkflowExecutionCompleted is a EventType enum value
 	EventTypeChildWorkflowExecutionCompleted = "ChildWorkflowExecutionCompleted"
-	// @enum EventType
+
+	// EventTypeChildWorkflowExecutionFailed is a EventType enum value
 	EventTypeChildWorkflowExecutionFailed = "ChildWorkflowExecutionFailed"
-	// @enum EventType
+
+	// EventTypeChildWorkflowExecutionTimedOut is a EventType enum value
 	EventTypeChildWorkflowExecutionTimedOut = "ChildWorkflowExecutionTimedOut"
-	// @enum EventType
+
+	// EventTypeChildWorkflowExecutionCanceled is a EventType enum value
 	EventTypeChildWorkflowExecutionCanceled = "ChildWorkflowExecutionCanceled"
-	// @enum EventType
+
+	// EventTypeChildWorkflowExecutionTerminated is a EventType enum value
 	EventTypeChildWorkflowExecutionTerminated = "ChildWorkflowExecutionTerminated"
-	// @enum EventType
+
+	// EventTypeSignalExternalWorkflowExecutionInitiated is a EventType enum value
 	EventTypeSignalExternalWorkflowExecutionInitiated = "SignalExternalWorkflowExecutionInitiated"
-	// @enum EventType
+
+	// EventTypeSignalExternalWorkflowExecutionFailed is a EventType enum value
 	EventTypeSignalExternalWorkflowExecutionFailed = "SignalExternalWorkflowExecutionFailed"
-	// @enum EventType
+
+	// EventTypeExternalWorkflowExecutionSignaled is a EventType enum value
 	EventTypeExternalWorkflowExecutionSignaled = "ExternalWorkflowExecutionSignaled"
-	// @enum EventType
+
+	// EventTypeRequestCancelExternalWorkflowExecutionInitiated is a EventType enum value
 	EventTypeRequestCancelExternalWorkflowExecutionInitiated = "RequestCancelExternalWorkflowExecutionInitiated"
-	// @enum EventType
+
+	// EventTypeRequestCancelExternalWorkflowExecutionFailed is a EventType enum value
 	EventTypeRequestCancelExternalWorkflowExecutionFailed = "RequestCancelExternalWorkflowExecutionFailed"
-	// @enum EventType
+
+	// EventTypeExternalWorkflowExecutionCancelRequested is a EventType enum value
 	EventTypeExternalWorkflowExecutionCancelRequested = "ExternalWorkflowExecutionCancelRequested"
-	// @enum EventType
+
+	// EventTypeLambdaFunctionScheduled is a EventType enum value
 	EventTypeLambdaFunctionScheduled = "LambdaFunctionScheduled"
-	// @enum EventType
+
+	// EventTypeLambdaFunctionStarted is a EventType enum value
 	EventTypeLambdaFunctionStarted = "LambdaFunctionStarted"
-	// @enum EventType
+
+	// EventTypeLambdaFunctionCompleted is a EventType enum value
 	EventTypeLambdaFunctionCompleted = "LambdaFunctionCompleted"
-	// @enum EventType
+
+	// EventTypeLambdaFunctionFailed is a EventType enum value
 	EventTypeLambdaFunctionFailed = "LambdaFunctionFailed"
-	// @enum EventType
+
+	// EventTypeLambdaFunctionTimedOut is a EventType enum value
 	EventTypeLambdaFunctionTimedOut = "LambdaFunctionTimedOut"
-	// @enum EventType
+
+	// EventTypeScheduleLambdaFunctionFailed is a EventType enum value
 	EventTypeScheduleLambdaFunctionFailed = "ScheduleLambdaFunctionFailed"
-	// @enum EventType
+
+	// EventTypeStartLambdaFunctionFailed is a EventType enum value
 	EventTypeStartLambdaFunctionFailed = "StartLambdaFunctionFailed"
 )
 
 const (
-	// @enum ExecutionStatus
+	// ExecutionStatusOpen is a ExecutionStatus enum value
 	ExecutionStatusOpen = "OPEN"
-	// @enum ExecutionStatus
+
+	// ExecutionStatusClosed is a ExecutionStatus enum value
 	ExecutionStatusClosed = "CLOSED"
 )
 
 const (
-	// @enum FailWorkflowExecutionFailedCause
+	// FailWorkflowExecutionFailedCauseUnhandledDecision is a FailWorkflowExecutionFailedCause enum value
 	FailWorkflowExecutionFailedCauseUnhandledDecision = "UNHANDLED_DECISION"
-	// @enum FailWorkflowExecutionFailedCause
+
+	// FailWorkflowExecutionFailedCauseOperationNotPermitted is a FailWorkflowExecutionFailedCause enum value
 	FailWorkflowExecutionFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum LambdaFunctionTimeoutType
+	// LambdaFunctionTimeoutTypeStartToClose is a LambdaFunctionTimeoutType enum value
 	LambdaFunctionTimeoutTypeStartToClose = "START_TO_CLOSE"
 )
 
 const (
-	// @enum RecordMarkerFailedCause
+	// RecordMarkerFailedCauseOperationNotPermitted is a RecordMarkerFailedCause enum value
 	RecordMarkerFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum RegistrationStatus
+	// RegistrationStatusRegistered is a RegistrationStatus enum value
 	RegistrationStatusRegistered = "REGISTERED"
-	// @enum RegistrationStatus
+
+	// RegistrationStatusDeprecated is a RegistrationStatus enum value
 	RegistrationStatusDeprecated = "DEPRECATED"
 )
 
 const (
-	// @enum RequestCancelActivityTaskFailedCause
+	// RequestCancelActivityTaskFailedCauseActivityIdUnknown is a RequestCancelActivityTaskFailedCause enum value
 	RequestCancelActivityTaskFailedCauseActivityIdUnknown = "ACTIVITY_ID_UNKNOWN"
-	// @enum RequestCancelActivityTaskFailedCause
+
+	// RequestCancelActivityTaskFailedCauseOperationNotPermitted is a RequestCancelActivityTaskFailedCause enum value
 	RequestCancelActivityTaskFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum RequestCancelExternalWorkflowExecutionFailedCause
+	// RequestCancelExternalWorkflowExecutionFailedCauseUnknownExternalWorkflowExecution is a RequestCancelExternalWorkflowExecutionFailedCause enum value
 	RequestCancelExternalWorkflowExecutionFailedCauseUnknownExternalWorkflowExecution = "UNKNOWN_EXTERNAL_WORKFLOW_EXECUTION"
-	// @enum RequestCancelExternalWorkflowExecutionFailedCause
+
+	// RequestCancelExternalWorkflowExecutionFailedCauseRequestCancelExternalWorkflowExecutionRateExceeded is a RequestCancelExternalWorkflowExecutionFailedCause enum value
 	RequestCancelExternalWorkflowExecutionFailedCauseRequestCancelExternalWorkflowExecutionRateExceeded = "REQUEST_CANCEL_EXTERNAL_WORKFLOW_EXECUTION_RATE_EXCEEDED"
-	// @enum RequestCancelExternalWorkflowExecutionFailedCause
+
+	// RequestCancelExternalWorkflowExecutionFailedCauseOperationNotPermitted is a RequestCancelExternalWorkflowExecutionFailedCause enum value
 	RequestCancelExternalWorkflowExecutionFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum ScheduleActivityTaskFailedCause
+	// ScheduleActivityTaskFailedCauseActivityTypeDeprecated is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseActivityTypeDeprecated = "ACTIVITY_TYPE_DEPRECATED"
-	// @enum ScheduleActivityTaskFailedCause
+
+	// ScheduleActivityTaskFailedCauseActivityTypeDoesNotExist is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseActivityTypeDoesNotExist = "ACTIVITY_TYPE_DOES_NOT_EXIST"
-	// @enum ScheduleActivityTaskFailedCause
+
+	// ScheduleActivityTaskFailedCauseActivityIdAlreadyInUse is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseActivityIdAlreadyInUse = "ACTIVITY_ID_ALREADY_IN_USE"
-	// @enum ScheduleActivityTaskFailedCause
+
+	// ScheduleActivityTaskFailedCauseOpenActivitiesLimitExceeded is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseOpenActivitiesLimitExceeded = "OPEN_ACTIVITIES_LIMIT_EXCEEDED"
-	// @enum ScheduleActivityTaskFailedCause
+
+	// ScheduleActivityTaskFailedCauseActivityCreationRateExceeded is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseActivityCreationRateExceeded = "ACTIVITY_CREATION_RATE_EXCEEDED"
-	// @enum ScheduleActivityTaskFailedCause
+
+	// ScheduleActivityTaskFailedCauseDefaultScheduleToCloseTimeoutUndefined is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseDefaultScheduleToCloseTimeoutUndefined = "DEFAULT_SCHEDULE_TO_CLOSE_TIMEOUT_UNDEFINED"
-	// @enum ScheduleActivityTaskFailedCause
+
+	// ScheduleActivityTaskFailedCauseDefaultTaskListUndefined is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseDefaultTaskListUndefined = "DEFAULT_TASK_LIST_UNDEFINED"
-	// @enum ScheduleActivityTaskFailedCause
+
+	// ScheduleActivityTaskFailedCauseDefaultScheduleToStartTimeoutUndefined is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseDefaultScheduleToStartTimeoutUndefined = "DEFAULT_SCHEDULE_TO_START_TIMEOUT_UNDEFINED"
-	// @enum ScheduleActivityTaskFailedCause
+
+	// ScheduleActivityTaskFailedCauseDefaultStartToCloseTimeoutUndefined is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseDefaultStartToCloseTimeoutUndefined = "DEFAULT_START_TO_CLOSE_TIMEOUT_UNDEFINED"
-	// @enum ScheduleActivityTaskFailedCause
+
+	// ScheduleActivityTaskFailedCauseDefaultHeartbeatTimeoutUndefined is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseDefaultHeartbeatTimeoutUndefined = "DEFAULT_HEARTBEAT_TIMEOUT_UNDEFINED"
-	// @enum ScheduleActivityTaskFailedCause
+
+	// ScheduleActivityTaskFailedCauseOperationNotPermitted is a ScheduleActivityTaskFailedCause enum value
 	ScheduleActivityTaskFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum ScheduleLambdaFunctionFailedCause
+	// ScheduleLambdaFunctionFailedCauseIdAlreadyInUse is a ScheduleLambdaFunctionFailedCause enum value
 	ScheduleLambdaFunctionFailedCauseIdAlreadyInUse = "ID_ALREADY_IN_USE"
-	// @enum ScheduleLambdaFunctionFailedCause
+
+	// ScheduleLambdaFunctionFailedCauseOpenLambdaFunctionsLimitExceeded is a ScheduleLambdaFunctionFailedCause enum value
 	ScheduleLambdaFunctionFailedCauseOpenLambdaFunctionsLimitExceeded = "OPEN_LAMBDA_FUNCTIONS_LIMIT_EXCEEDED"
-	// @enum ScheduleLambdaFunctionFailedCause
+
+	// ScheduleLambdaFunctionFailedCauseLambdaFunctionCreationRateExceeded is a ScheduleLambdaFunctionFailedCause enum value
 	ScheduleLambdaFunctionFailedCauseLambdaFunctionCreationRateExceeded = "LAMBDA_FUNCTION_CREATION_RATE_EXCEEDED"
-	// @enum ScheduleLambdaFunctionFailedCause
+
+	// ScheduleLambdaFunctionFailedCauseLambdaServiceNotAvailableInRegion is a ScheduleLambdaFunctionFailedCause enum value
 	ScheduleLambdaFunctionFailedCauseLambdaServiceNotAvailableInRegion = "LAMBDA_SERVICE_NOT_AVAILABLE_IN_REGION"
 )
 
 const (
-	// @enum SignalExternalWorkflowExecutionFailedCause
+	// SignalExternalWorkflowExecutionFailedCauseUnknownExternalWorkflowExecution is a SignalExternalWorkflowExecutionFailedCause enum value
 	SignalExternalWorkflowExecutionFailedCauseUnknownExternalWorkflowExecution = "UNKNOWN_EXTERNAL_WORKFLOW_EXECUTION"
-	// @enum SignalExternalWorkflowExecutionFailedCause
+
+	// SignalExternalWorkflowExecutionFailedCauseSignalExternalWorkflowExecutionRateExceeded is a SignalExternalWorkflowExecutionFailedCause enum value
 	SignalExternalWorkflowExecutionFailedCauseSignalExternalWorkflowExecutionRateExceeded = "SIGNAL_EXTERNAL_WORKFLOW_EXECUTION_RATE_EXCEEDED"
-	// @enum SignalExternalWorkflowExecutionFailedCause
+
+	// SignalExternalWorkflowExecutionFailedCauseOperationNotPermitted is a SignalExternalWorkflowExecutionFailedCause enum value
 	SignalExternalWorkflowExecutionFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum StartChildWorkflowExecutionFailedCause
+	// StartChildWorkflowExecutionFailedCauseWorkflowTypeDoesNotExist is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseWorkflowTypeDoesNotExist = "WORKFLOW_TYPE_DOES_NOT_EXIST"
-	// @enum StartChildWorkflowExecutionFailedCause
+
+	// StartChildWorkflowExecutionFailedCauseWorkflowTypeDeprecated is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseWorkflowTypeDeprecated = "WORKFLOW_TYPE_DEPRECATED"
-	// @enum StartChildWorkflowExecutionFailedCause
+
+	// StartChildWorkflowExecutionFailedCauseOpenChildrenLimitExceeded is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseOpenChildrenLimitExceeded = "OPEN_CHILDREN_LIMIT_EXCEEDED"
-	// @enum StartChildWorkflowExecutionFailedCause
+
+	// StartChildWorkflowExecutionFailedCauseOpenWorkflowsLimitExceeded is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseOpenWorkflowsLimitExceeded = "OPEN_WORKFLOWS_LIMIT_EXCEEDED"
-	// @enum StartChildWorkflowExecutionFailedCause
+
+	// StartChildWorkflowExecutionFailedCauseChildCreationRateExceeded is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseChildCreationRateExceeded = "CHILD_CREATION_RATE_EXCEEDED"
-	// @enum StartChildWorkflowExecutionFailedCause
+
+	// StartChildWorkflowExecutionFailedCauseWorkflowAlreadyRunning is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseWorkflowAlreadyRunning = "WORKFLOW_ALREADY_RUNNING"
-	// @enum StartChildWorkflowExecutionFailedCause
+
+	// StartChildWorkflowExecutionFailedCauseDefaultExecutionStartToCloseTimeoutUndefined is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseDefaultExecutionStartToCloseTimeoutUndefined = "DEFAULT_EXECUTION_START_TO_CLOSE_TIMEOUT_UNDEFINED"
-	// @enum StartChildWorkflowExecutionFailedCause
+
+	// StartChildWorkflowExecutionFailedCauseDefaultTaskListUndefined is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseDefaultTaskListUndefined = "DEFAULT_TASK_LIST_UNDEFINED"
-	// @enum StartChildWorkflowExecutionFailedCause
+
+	// StartChildWorkflowExecutionFailedCauseDefaultTaskStartToCloseTimeoutUndefined is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseDefaultTaskStartToCloseTimeoutUndefined = "DEFAULT_TASK_START_TO_CLOSE_TIMEOUT_UNDEFINED"
-	// @enum StartChildWorkflowExecutionFailedCause
+
+	// StartChildWorkflowExecutionFailedCauseDefaultChildPolicyUndefined is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseDefaultChildPolicyUndefined = "DEFAULT_CHILD_POLICY_UNDEFINED"
-	// @enum StartChildWorkflowExecutionFailedCause
+
+	// StartChildWorkflowExecutionFailedCauseOperationNotPermitted is a StartChildWorkflowExecutionFailedCause enum value
 	StartChildWorkflowExecutionFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum StartLambdaFunctionFailedCause
+	// StartLambdaFunctionFailedCauseAssumeRoleFailed is a StartLambdaFunctionFailedCause enum value
 	StartLambdaFunctionFailedCauseAssumeRoleFailed = "ASSUME_ROLE_FAILED"
 )
 
 const (
-	// @enum StartTimerFailedCause
+	// StartTimerFailedCauseTimerIdAlreadyInUse is a StartTimerFailedCause enum value
 	StartTimerFailedCauseTimerIdAlreadyInUse = "TIMER_ID_ALREADY_IN_USE"
-	// @enum StartTimerFailedCause
+
+	// StartTimerFailedCauseOpenTimersLimitExceeded is a StartTimerFailedCause enum value
 	StartTimerFailedCauseOpenTimersLimitExceeded = "OPEN_TIMERS_LIMIT_EXCEEDED"
-	// @enum StartTimerFailedCause
+
+	// StartTimerFailedCauseTimerCreationRateExceeded is a StartTimerFailedCause enum value
 	StartTimerFailedCauseTimerCreationRateExceeded = "TIMER_CREATION_RATE_EXCEEDED"
-	// @enum StartTimerFailedCause
+
+	// StartTimerFailedCauseOperationNotPermitted is a StartTimerFailedCause enum value
 	StartTimerFailedCauseOperationNotPermitted = "OPERATION_NOT_PERMITTED"
 )
 
 const (
-	// @enum WorkflowExecutionCancelRequestedCause
+	// WorkflowExecutionCancelRequestedCauseChildPolicyApplied is a WorkflowExecutionCancelRequestedCause enum value
 	WorkflowExecutionCancelRequestedCauseChildPolicyApplied = "CHILD_POLICY_APPLIED"
 )
 
 const (
-	// @enum WorkflowExecutionTerminatedCause
+	// WorkflowExecutionTerminatedCauseChildPolicyApplied is a WorkflowExecutionTerminatedCause enum value
 	WorkflowExecutionTerminatedCauseChildPolicyApplied = "CHILD_POLICY_APPLIED"
-	// @enum WorkflowExecutionTerminatedCause
+
+	// WorkflowExecutionTerminatedCauseEventLimitExceeded is a WorkflowExecutionTerminatedCause enum value
 	WorkflowExecutionTerminatedCauseEventLimitExceeded = "EVENT_LIMIT_EXCEEDED"
-	// @enum WorkflowExecutionTerminatedCause
+
+	// WorkflowExecutionTerminatedCauseOperatorInitiated is a WorkflowExecutionTerminatedCause enum value
 	WorkflowExecutionTerminatedCauseOperatorInitiated = "OPERATOR_INITIATED"
 )
 
 const (
-	// @enum WorkflowExecutionTimeoutType
+	// WorkflowExecutionTimeoutTypeStartToClose is a WorkflowExecutionTimeoutType enum value
 	WorkflowExecutionTimeoutTypeStartToClose = "START_TO_CLOSE"
 )

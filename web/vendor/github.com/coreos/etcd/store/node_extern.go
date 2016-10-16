@@ -1,4 +1,4 @@
-// Copyright 2015 CoreOS, Inc.
+// Copyright 2015 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -102,6 +102,7 @@ func (eNode *NodeExtern) Clone() *NodeExtern {
 type NodeExterns []*NodeExtern
 
 // interfaces for sorting
+
 func (ns NodeExterns) Len() int {
 	return len(ns)
 }

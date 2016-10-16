@@ -7,14 +7,37 @@ import (
 	"io"
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
-	"github.com/aws/aws-sdk-go/aws/service"
+	"github.com/aws/aws-sdk-go/aws/request"
 )
 
 const opSearch = "Search"
 
-// SearchRequest generates a request for the Search operation.
-func (c *CloudSearchDomain) SearchRequest(input *SearchInput) (req *service.Request, output *SearchOutput) {
-	op := &service.Operation{
+// SearchRequest generates a "aws/request.Request" representing the
+// client's request for the Search operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See Search for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the Search method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the SearchRequest method.
+//    req, resp := client.SearchRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *CloudSearchDomain) SearchRequest(input *SearchInput) (req *request.Request, output *SearchOutput) {
+	op := &request.Operation{
 		Name:       opSearch,
 		HTTPMethod: "GET",
 		HTTPPath:   "/2013-01-01/search?format=sdk&pretty=true",
@@ -30,18 +53,20 @@ func (c *CloudSearchDomain) SearchRequest(input *SearchInput) (req *service.Requ
 	return
 }
 
+// Search API operation for Amazon CloudSearch Domain.
+//
 // Retrieves a list of documents that match the specified search criteria. How
 // you specify the search criteria depends on which query parser you use. Amazon
 // CloudSearch supports four query parsers:
 //
-//   simple: search all text and text-array fields for the specified string.
-// Search for phrases, individual terms, and prefixes.   structured: search
-// specific fields, construct compound queries using Boolean operators, and
-// use advanced features such as term boosting and proximity searching.  lucene:
-// specify search criteria using the Apache Lucene query parser syntax.  dismax:
-// specify search criteria using the simplified subset of the Apache Lucene
-// query parser syntax defined by the DisMax query parser.  For more information,
-// see Searching Your Data (http://docs.aws.amazon.com/cloudsearch/latest/developerguide/searching.html)
+//  simple: search all text and text-array fields for the specified string.
+// Search for phrases, individual terms, and prefixes.  structured: search specific
+// fields, construct compound queries using Boolean operators, and use advanced
+// features such as term boosting and proximity searching. lucene: specify search
+// criteria using the Apache Lucene query parser syntax. dismax: specify search
+// criteria using the simplified subset of the Apache Lucene query parser syntax
+// defined by the DisMax query parser.  For more information, see Searching
+// Your Data (http://docs.aws.amazon.com/cloudsearch/latest/developerguide/searching.html)
 // in the Amazon CloudSearch Developer Guide.
 //
 // The endpoint for submitting Search requests is domain-specific. You submit
@@ -49,6 +74,18 @@ func (c *CloudSearchDomain) SearchRequest(input *SearchInput) (req *service.Requ
 // for your domain, use the Amazon CloudSearch configuration service DescribeDomains
 // action. A domain's endpoints are also displayed on the domain dashboard in
 // the Amazon CloudSearch console.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon CloudSearch Domain's
+// API operation Search for usage and error information.
+//
+// Returned Error Codes:
+//   * SearchException
+//   Information about any problems encountered while processing a search request.
+//
 func (c *CloudSearchDomain) Search(input *SearchInput) (*SearchOutput, error) {
 	req, out := c.SearchRequest(input)
 	err := req.Send()
@@ -57,9 +94,32 @@ func (c *CloudSearchDomain) Search(input *SearchInput) (*SearchOutput, error) {
 
 const opSuggest = "Suggest"
 
-// SuggestRequest generates a request for the Suggest operation.
-func (c *CloudSearchDomain) SuggestRequest(input *SuggestInput) (req *service.Request, output *SuggestOutput) {
-	op := &service.Operation{
+// SuggestRequest generates a "aws/request.Request" representing the
+// client's request for the Suggest operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See Suggest for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the Suggest method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the SuggestRequest method.
+//    req, resp := client.SuggestRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *CloudSearchDomain) SuggestRequest(input *SuggestInput) (req *request.Request, output *SuggestOutput) {
+	op := &request.Operation{
 		Name:       opSuggest,
 		HTTPMethod: "GET",
 		HTTPPath:   "/2013-01-01/suggest?format=sdk&pretty=true",
@@ -75,6 +135,8 @@ func (c *CloudSearchDomain) SuggestRequest(input *SuggestInput) (req *service.Re
 	return
 }
 
+// Suggest API operation for Amazon CloudSearch Domain.
+//
 // Retrieves autocomplete suggestions for a partial query string. You can use
 // suggestions enable you to display likely matches before users finish typing.
 // In Amazon CloudSearch, suggestions are based on the contents of a particular
@@ -92,6 +154,18 @@ func (c *CloudSearchDomain) SuggestRequest(input *SuggestInput) (req *service.Re
 // for your domain, use the Amazon CloudSearch configuration service DescribeDomains
 // action. A domain's endpoints are also displayed on the domain dashboard in
 // the Amazon CloudSearch console.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon CloudSearch Domain's
+// API operation Suggest for usage and error information.
+//
+// Returned Error Codes:
+//   * SearchException
+//   Information about any problems encountered while processing a search request.
+//
 func (c *CloudSearchDomain) Suggest(input *SuggestInput) (*SuggestOutput, error) {
 	req, out := c.SuggestRequest(input)
 	err := req.Send()
@@ -100,9 +174,32 @@ func (c *CloudSearchDomain) Suggest(input *SuggestInput) (*SuggestOutput, error)
 
 const opUploadDocuments = "UploadDocuments"
 
-// UploadDocumentsRequest generates a request for the UploadDocuments operation.
-func (c *CloudSearchDomain) UploadDocumentsRequest(input *UploadDocumentsInput) (req *service.Request, output *UploadDocumentsOutput) {
-	op := &service.Operation{
+// UploadDocumentsRequest generates a "aws/request.Request" representing the
+// client's request for the UploadDocuments operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// See UploadDocuments for usage and error information.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UploadDocuments method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UploadDocumentsRequest method.
+//    req, resp := client.UploadDocumentsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *CloudSearchDomain) UploadDocumentsRequest(input *UploadDocumentsInput) (req *request.Request, output *UploadDocumentsOutput) {
+	op := &request.Operation{
 		Name:       opUploadDocuments,
 		HTTPMethod: "POST",
 		HTTPPath:   "/2013-01-01/documents/batch?format=sdk",
@@ -118,6 +215,8 @@ func (c *CloudSearchDomain) UploadDocumentsRequest(input *UploadDocumentsInput) 
 	return
 }
 
+// UploadDocuments API operation for Amazon CloudSearch Domain.
+//
 // Posts a batch of documents to a search domain for indexing. A document batch
 // is a collection of add and delete operations that represent the documents
 // you want to add, update, or delete from your domain. Batches can be described
@@ -140,6 +239,18 @@ func (c *CloudSearchDomain) UploadDocumentsRequest(input *UploadDocumentsInput) 
 // in the Amazon CloudSearch Developer Guide. For more information about uploading
 // data for indexing, see Uploading Data (http://docs.aws.amazon.com/cloudsearch/latest/developerguide/uploading-data.html)
 // in the Amazon CloudSearch Developer Guide.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon CloudSearch Domain's
+// API operation UploadDocuments for usage and error information.
+//
+// Returned Error Codes:
+//   * DocumentServiceException
+//   Information about any problems encountered while processing an upload request.
+//
 func (c *CloudSearchDomain) UploadDocuments(input *UploadDocumentsInput) (*UploadDocumentsOutput, error) {
 	req, out := c.UploadDocumentsRequest(input)
 	err := req.Send()
@@ -148,17 +259,13 @@ func (c *CloudSearchDomain) UploadDocuments(input *UploadDocumentsInput) (*Uploa
 
 // A container for facet information.
 type Bucket struct {
+	_ struct{} `type:"structure"`
+
 	// The number of hits that contain the facet value in the specified facet field.
 	Count *int64 `locationName:"count" type:"long"`
 
 	// The facet value being counted.
 	Value *string `locationName:"value" type:"string"`
-
-	metadataBucket `json:"-" xml:"-"`
-}
-
-type metadataBucket struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -173,14 +280,10 @@ func (s Bucket) GoString() string {
 
 // A container for the calculated facet values and counts.
 type BucketInfo struct {
+	_ struct{} `type:"structure"`
+
 	// A list of the calculated facet values and counts.
 	Buckets []*Bucket `locationName:"buckets" type:"list"`
-
-	metadataBucketInfo `json:"-" xml:"-"`
-}
-
-type metadataBucketInfo struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -196,14 +299,10 @@ func (s BucketInfo) GoString() string {
 // A warning returned by the document service when an issue is discovered while
 // processing an upload request.
 type DocumentServiceWarning struct {
+	_ struct{} `type:"structure"`
+
 	// The description for a warning returned by the document service.
 	Message *string `locationName:"message" type:"string"`
-
-	metadataDocumentServiceWarning `json:"-" xml:"-"`
-}
-
-type metadataDocumentServiceWarning struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -216,8 +315,71 @@ func (s DocumentServiceWarning) GoString() string {
 	return s.String()
 }
 
+// The statistics for a field calculated in the request.
+type FieldStats struct {
+	_ struct{} `type:"structure"`
+
+	// The number of documents that contain a value in the specified field in the
+	// result set.
+	Count *int64 `locationName:"count" type:"long"`
+
+	// The maximum value found in the specified field in the result set.
+	//
+	// If the field is numeric (int, int-array, double, or double-array), max is
+	// the string representation of a double-precision 64-bit floating point value.
+	// If the field is date or date-array, max is the string representation of a
+	// date with the format specified in IETF RFC3339 (http://tools.ietf.org/html/rfc3339):
+	// yyyy-mm-ddTHH:mm:ss.SSSZ.
+	Max *string `locationName:"max" type:"string"`
+
+	// The average of the values found in the specified field in the result set.
+	//
+	// If the field is numeric (int, int-array, double, or double-array), mean
+	// is the string representation of a double-precision 64-bit floating point
+	// value. If the field is date or date-array, mean is the string representation
+	// of a date with the format specified in IETF RFC3339 (http://tools.ietf.org/html/rfc3339):
+	// yyyy-mm-ddTHH:mm:ss.SSSZ.
+	Mean *string `locationName:"mean" type:"string"`
+
+	// The minimum value found in the specified field in the result set.
+	//
+	// If the field is numeric (int, int-array, double, or double-array), min is
+	// the string representation of a double-precision 64-bit floating point value.
+	// If the field is date or date-array, min is the string representation of a
+	// date with the format specified in IETF RFC3339 (http://tools.ietf.org/html/rfc3339):
+	// yyyy-mm-ddTHH:mm:ss.SSSZ.
+	Min *string `locationName:"min" type:"string"`
+
+	// The number of documents that do not contain a value in the specified field
+	// in the result set.
+	Missing *int64 `locationName:"missing" type:"long"`
+
+	// The standard deviation of the values in the specified field in the result
+	// set.
+	Stddev *float64 `locationName:"stddev" type:"double"`
+
+	// The sum of the field values across the documents in the result set. null
+	// for date fields.
+	Sum *float64 `locationName:"sum" type:"double"`
+
+	// The sum of all field values in the result set squared.
+	SumOfSquares *float64 `locationName:"sumOfSquares" type:"double"`
+}
+
+// String returns the string representation
+func (s FieldStats) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s FieldStats) GoString() string {
+	return s.String()
+}
+
 // Information about a document that matches the search request.
 type Hit struct {
+	_ struct{} `type:"structure"`
+
 	// The expressions returned from a document that matches the search request.
 	Exprs map[string]*string `locationName:"exprs" type:"map"`
 
@@ -228,13 +390,7 @@ type Hit struct {
 	Highlights map[string]*string `locationName:"highlights" type:"map"`
 
 	// The document ID of a document that matches the search request.
-	ID *string `locationName:"id" type:"string"`
-
-	metadataHit `json:"-" xml:"-"`
-}
-
-type metadataHit struct {
-	SDKShapeTraits bool `type:"structure"`
+	Id *string `locationName:"id" type:"string"`
 }
 
 // String returns the string representation
@@ -249,6 +405,8 @@ func (s Hit) GoString() string {
 
 // The collection of documents that match the search request.
 type Hits struct {
+	_ struct{} `type:"structure"`
+
 	// A cursor that can be used to retrieve the next set of matching documents
 	// when you want to page through a large result set.
 	Cursor *string `locationName:"cursor" type:"string"`
@@ -261,12 +419,6 @@ type Hits struct {
 
 	// The index of the first matching document.
 	Start *int64 `locationName:"start" type:"long"`
-
-	metadataHits `json:"-" xml:"-"`
-}
-
-type metadataHits struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -281,6 +433,8 @@ func (s Hits) GoString() string {
 
 // Container for the parameters to the Search request.
 type SearchInput struct {
+	_ struct{} `type:"structure"`
+
 	// Retrieves a cursor value you can use to page through large result sets. Use
 	// the size parameter to control the number of hits to include in each response.
 	// You can specify either the cursor or start parameter in a request; they are
@@ -419,6 +573,8 @@ type SearchInput struct {
 	// For more information about specifying search criteria, see Searching Your
 	// Data (http://docs.aws.amazon.com/cloudsearch/latest/developerguide/searching.html)
 	// in the Amazon CloudSearch Developer Guide.
+	//
+	// Query is a required field
 	Query *string `location:"querystring" locationName:"q" type:"string" required:"true"`
 
 	// Configures options for the query parser specified in the queryParser parameter.
@@ -426,7 +582,7 @@ type SearchInput struct {
 	//
 	// The options you can configure vary according to which parser you use:
 	//
-	//   defaultOperator: The default operator used to combine individual terms
+	//  defaultOperator: The default operator used to combine individual terms
 	// in the search string. For example: defaultOperator: 'or'. For the dismax
 	// parser, you specify a percentage that represents the percentage of terms
 	// in the search string (rounded down) that must match, rather than a default
@@ -435,17 +591,17 @@ type SearchInput struct {
 	// by the percent (%) symbol. For example, defaultOperator: 50%. Valid values:
 	// and, or, a percentage in the range 0%-100% (dismax). Default: and (simple,
 	// structured, lucene) or 100 (dismax). Valid for: simple, structured, lucene,
-	// and dismax.  fields: An array of the fields to search when no fields are
-	// specified in a search. If no fields are specified in a search and this option
-	// is not specified, all text and text-array fields are searched. You can specify
-	// a weight for each field to control the relative importance of each field
-	// when Amazon CloudSearch calculates relevance scores. To specify a field weight,
+	// and dismax. fields: An array of the fields to search when no fields are specified
+	// in a search. If no fields are specified in a search and this option is not
+	// specified, all text and text-array fields are searched. You can specify a
+	// weight for each field to control the relative importance of each field when
+	// Amazon CloudSearch calculates relevance scores. To specify a field weight,
 	// append a caret (^) symbol and the weight to the field name. For example,
 	// to boost the importance of the title field over the description field you
 	// could specify: "fields":["title^5","description"]. Valid values: The name
 	// of any configured field and an optional numeric value greater than zero.
 	// Default: All text and text-array fields. Valid for: simple, structured, lucene,
-	// and dismax.  operators: An array of the operators or special characters you
+	// and dismax. operators: An array of the operators or special characters you
 	// want to disable for the simple query parser. If you disable the and, or,
 	// or not operators, the corresponding operators (+, |, -) have no special meaning
 	// and are dropped from the search string. Similarly, disabling prefix disables
@@ -462,7 +618,7 @@ type SearchInput struct {
 	// the phrase operator to support just simple term and phrase queries: "operators":["and","not","or",
 	// "prefix"]. Valid values: and, escape, fuzzy, near, not, or, phrase, precedence,
 	// prefix, whitespace. Default: All operators and special characters are enabled.
-	// Valid for: simple.  phraseFields: An array of the text or text-array fields
+	// Valid for: simple. phraseFields: An array of the text or text-array fields
 	// you want to use for phrase searches. When the terms in the search string
 	// appear in close proximity within a field, the field scores higher. You can
 	// specify a weight for each field to boost that score. The phraseSlop option
@@ -473,17 +629,17 @@ type SearchInput struct {
 	// "plot"] Valid values: The name of any text or text-array field and an optional
 	// numeric value greater than zero. Default: No fields. If you don't specify
 	// any fields with phraseFields, proximity scoring is disabled even if phraseSlop
-	// is specified. Valid for: dismax.  phraseSlop: An integer value that specifies
+	// is specified. Valid for: dismax. phraseSlop: An integer value that specifies
 	// how much matches can deviate from the search phrase and still be boosted
 	// according to the weights specified in the phraseFields option; for example,
 	// phraseSlop: 2. You must also specify phraseFields to enable proximity scoring.
-	// Valid values: positive integers. Default: 0. Valid for: dismax.  explicitPhraseSlop:
+	// Valid values: positive integers. Default: 0. Valid for: dismax. explicitPhraseSlop:
 	// An integer value that specifies how much a match can deviate from the search
 	// phrase when the phrase is enclosed in double quotes in the search string.
 	// (Phrases that exceed this proximity distance are not considered a match.)
 	// For example, to specify a slop of three for dismax phrase queries, you would
 	// specify "explicitPhraseSlop":3. Valid values: positive integers. Default:
-	// 0. Valid for: dismax.  tieBreaker: When a term in the search string is found
+	// 0. Valid for: dismax. tieBreaker: When a term in the search string is found
 	// in a document's field, a score is calculated for that field based on how
 	// common the word is in that field compared to other documents. If the term
 	// occurs in multiple fields within a document, by default only the highest
@@ -558,11 +714,13 @@ type SearchInput struct {
 	// in the Amazon CloudSearch Developer Guide.
 	Start *int64 `location:"querystring" locationName:"start" type:"long"`
 
-	metadataSearchInput `json:"-" xml:"-"`
-}
-
-type metadataSearchInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// Specifies one or more fields for which to get statistics information. Each
+	// specified field must be facet-enabled in the domain configuration. The fields
+	// are specified in JSON using the form:
+	//
+	// {"FIELD-A":{},"FIELD-B":{}} There are currently no options supported for
+	// statistics.
+	Stats *string `location:"querystring" locationName:"stats" type:"string"`
 }
 
 // String returns the string representation
@@ -575,23 +733,35 @@ func (s SearchInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SearchInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SearchInput"}
+	if s.Query == nil {
+		invalidParams.Add(request.NewErrParamRequired("Query"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a Search request. Contains the documents that match the specified
 // search criteria and any requested fields, highlights, and facet information.
 type SearchOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The requested facet information.
 	Facets map[string]*BucketInfo `locationName:"facets" type:"map"`
 
 	// The documents that match the search criteria.
 	Hits *Hits `locationName:"hits" type:"structure"`
 
+	// The requested field statistics information.
+	Stats map[string]*FieldStats `locationName:"stats" type:"map"`
+
 	// The status information returned for the search request.
 	Status *SearchStatus `locationName:"status" type:"structure"`
-
-	metadataSearchOutput `json:"-" xml:"-"`
-}
-
-type metadataSearchOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -607,17 +777,13 @@ func (s SearchOutput) GoString() string {
 // Contains the resource id (rid) and the time it took to process the request
 // (timems).
 type SearchStatus struct {
+	_ struct{} `type:"structure"`
+
 	// The encrypted resource ID for the request.
-	RID *string `locationName:"rid" type:"string"`
+	Rid *string `locationName:"rid" type:"string"`
 
 	// How long it took to process the request, in milliseconds.
-	TimeMS *int64 `locationName:"timems" type:"long"`
-
-	metadataSearchStatus `json:"-" xml:"-"`
-}
-
-type metadataSearchStatus struct {
-	SDKShapeTraits bool `type:"structure"`
+	Timems *int64 `locationName:"timems" type:"long"`
 }
 
 // String returns the string representation
@@ -632,20 +798,20 @@ func (s SearchStatus) GoString() string {
 
 // Container for the parameters to the Suggest request.
 type SuggestInput struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies the string for which you want to get suggestions.
+	//
+	// Query is a required field
 	Query *string `location:"querystring" locationName:"q" type:"string" required:"true"`
 
 	// Specifies the maximum number of suggestions to return.
 	Size *int64 `location:"querystring" locationName:"size" type:"long"`
 
 	// Specifies the name of the suggester to use to find suggested matches.
+	//
+	// Suggester is a required field
 	Suggester *string `location:"querystring" locationName:"suggester" type:"string" required:"true"`
-
-	metadataSuggestInput `json:"-" xml:"-"`
-}
-
-type metadataSuggestInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -658,8 +824,26 @@ func (s SuggestInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SuggestInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SuggestInput"}
+	if s.Query == nil {
+		invalidParams.Add(request.NewErrParamRequired("Query"))
+	}
+	if s.Suggester == nil {
+		invalidParams.Add(request.NewErrParamRequired("Suggester"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Container for the suggestion information returned in a SuggestResponse.
 type SuggestModel struct {
+	_ struct{} `type:"structure"`
+
 	// The number of documents that were found to match the query string.
 	Found *int64 `locationName:"found" type:"long"`
 
@@ -668,12 +852,6 @@ type SuggestModel struct {
 
 	// The documents that match the query string.
 	Suggestions []*SuggestionMatch `locationName:"suggestions" type:"list"`
-
-	metadataSuggestModel `json:"-" xml:"-"`
-}
-
-type metadataSuggestModel struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -688,18 +866,14 @@ func (s SuggestModel) GoString() string {
 
 // Contains the response to a Suggest request.
 type SuggestOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The status of a SuggestRequest. Contains the resource ID (rid) and how long
 	// it took to process the request (timems).
 	Status *SuggestStatus `locationName:"status" type:"structure"`
 
 	// Container for the matching search suggestion information.
 	Suggest *SuggestModel `locationName:"suggest" type:"structure"`
-
-	metadataSuggestOutput `json:"-" xml:"-"`
-}
-
-type metadataSuggestOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -715,17 +889,13 @@ func (s SuggestOutput) GoString() string {
 // Contains the resource id (rid) and the time it took to process the request
 // (timems).
 type SuggestStatus struct {
+	_ struct{} `type:"structure"`
+
 	// The encrypted resource ID for the request.
-	RID *string `locationName:"rid" type:"string"`
+	Rid *string `locationName:"rid" type:"string"`
 
 	// How long it took to process the request, in milliseconds.
-	TimeMS *int64 `locationName:"timems" type:"long"`
-
-	metadataSuggestStatus `json:"-" xml:"-"`
-}
-
-type metadataSuggestStatus struct {
-	SDKShapeTraits bool `type:"structure"`
+	Timems *int64 `locationName:"timems" type:"long"`
 }
 
 // String returns the string representation
@@ -740,20 +910,16 @@ func (s SuggestStatus) GoString() string {
 
 // An autocomplete suggestion that matches the query string specified in a SuggestRequest.
 type SuggestionMatch struct {
+	_ struct{} `type:"structure"`
+
 	// The document ID of the suggested document.
-	ID *string `locationName:"id" type:"string"`
+	Id *string `locationName:"id" type:"string"`
 
 	// The relevance score of a suggested match.
 	Score *int64 `locationName:"score" type:"long"`
 
 	// The string that matches the query string specified in the SuggestRequest.
 	Suggestion *string `locationName:"suggestion" type:"string"`
-
-	metadataSuggestionMatch `json:"-" xml:"-"`
-}
-
-type metadataSuggestionMatch struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -768,20 +934,20 @@ func (s SuggestionMatch) GoString() string {
 
 // Container for the parameters to the UploadDocuments request.
 type UploadDocumentsInput struct {
+	_ struct{} `type:"structure" payload:"Documents"`
+
 	// The format of the batch you are uploading. Amazon CloudSearch supports two
 	// document batch formats:
 	//
 	//  application/json application/xml
+	//
+	// ContentType is a required field
 	ContentType *string `location:"header" locationName:"Content-Type" type:"string" required:"true" enum:"ContentType"`
 
 	// A batch of documents formatted in JSON or HTML.
+	//
+	// Documents is a required field
 	Documents io.ReadSeeker `locationName:"documents" type:"blob" required:"true"`
-
-	metadataUploadDocumentsInput `json:"-" xml:"-"`
-}
-
-type metadataUploadDocumentsInput struct {
-	SDKShapeTraits bool `type:"structure" payload:"Documents"`
 }
 
 // String returns the string representation
@@ -794,8 +960,26 @@ func (s UploadDocumentsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UploadDocumentsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UploadDocumentsInput"}
+	if s.ContentType == nil {
+		invalidParams.Add(request.NewErrParamRequired("ContentType"))
+	}
+	if s.Documents == nil {
+		invalidParams.Add(request.NewErrParamRequired("Documents"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains the response to an UploadDocuments request.
 type UploadDocumentsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The number of documents that were added to the search domain.
 	Adds *int64 `locationName:"adds" type:"long"`
 
@@ -807,12 +991,6 @@ type UploadDocumentsOutput struct {
 
 	// Any warnings returned by the document service about the documents being uploaded.
 	Warnings []*DocumentServiceWarning `locationName:"warnings" type:"list"`
-
-	metadataUploadDocumentsOutput `json:"-" xml:"-"`
-}
-
-type metadataUploadDocumentsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -826,19 +1004,23 @@ func (s UploadDocumentsOutput) GoString() string {
 }
 
 const (
-	// @enum ContentType
+	// ContentTypeApplicationJson is a ContentType enum value
 	ContentTypeApplicationJson = "application/json"
-	// @enum ContentType
+
+	// ContentTypeApplicationXml is a ContentType enum value
 	ContentTypeApplicationXml = "application/xml"
 )
 
 const (
-	// @enum QueryParser
+	// QueryParserSimple is a QueryParser enum value
 	QueryParserSimple = "simple"
-	// @enum QueryParser
+
+	// QueryParserStructured is a QueryParser enum value
 	QueryParserStructured = "structured"
-	// @enum QueryParser
+
+	// QueryParserLucene is a QueryParser enum value
 	QueryParserLucene = "lucene"
-	// @enum QueryParser
+
+	// QueryParserDismax is a QueryParser enum value
 	QueryParserDismax = "dismax"
 )

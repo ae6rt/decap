@@ -1,4 +1,4 @@
-// Copyright 2015 CoreOS, Inc.
+// Copyright 2015 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ func TestTransportSend(t *testing.T) {
 	ss.Initialize()
 	peer1 := newFakePeer()
 	peer2 := newFakePeer()
-	tr := &transport{
-		serverStats: ss,
+	tr := &Transport{
+		ServerStats: ss,
 		peers:       map[types.ID]Peer{types.ID(1): peer1, types.ID(2): peer2},
 	}
 	wmsgsIgnored := []raftpb.Message{
@@ -66,15 +66,44 @@ func TestTransportSend(t *testing.T) {
 	}
 }
 
+func TestTransportCutMend(t *testing.T) {
+	ss := &stats.ServerStats{}
+	ss.Initialize()
+	peer1 := newFakePeer()
+	peer2 := newFakePeer()
+	tr := &Transport{
+		ServerStats: ss,
+		peers:       map[types.ID]Peer{types.ID(1): peer1, types.ID(2): peer2},
+	}
+
+	tr.CutPeer(types.ID(1))
+
+	wmsgsTo := []raftpb.Message{
+		// good message
+		{Type: raftpb.MsgProp, To: 1},
+		{Type: raftpb.MsgApp, To: 1},
+	}
+
+	tr.Send(wmsgsTo)
+	if len(peer1.msgs) > 0 {
+		t.Fatalf("msgs expected to be ignored, got %+v", peer1.msgs)
+	}
+
+	tr.MendPeer(types.ID(1))
+
+	tr.Send(wmsgsTo)
+	if !reflect.DeepEqual(peer1.msgs, wmsgsTo) {
+		t.Errorf("msgs to peer 1 = %+v, want %+v", peer1.msgs, wmsgsTo)
+	}
+}
+
 func TestTransportAdd(t *testing.T) {
 	ls := stats.NewLeaderStats("")
-	term := uint64(10)
-	tr := &transport{
-		roundTripper: &roundTripperRecorder{},
-		leaderStats:  ls,
-		term:         term,
-		peers:        make(map[types.ID]Peer),
-		prober:       probing.NewProber(nil),
+	tr := &Transport{
+		LeaderStats: ls,
+		streamRt:    &roundTripperRecorder{},
+		peers:       make(map[types.ID]Peer),
+		prober:      probing.NewProber(nil),
 	}
 	tr.AddPeer(1, []string{"http://localhost:2380"})
 
@@ -95,18 +124,14 @@ func TestTransportAdd(t *testing.T) {
 	}
 
 	tr.Stop()
-
-	if g := s.(*peer).msgAppReader.msgAppTerm; g != term {
-		t.Errorf("peer.term = %d, want %d", g, term)
-	}
 }
 
 func TestTransportRemove(t *testing.T) {
-	tr := &transport{
-		roundTripper: &roundTripperRecorder{},
-		leaderStats:  stats.NewLeaderStats(""),
-		peers:        make(map[types.ID]Peer),
-		prober:       probing.NewProber(nil),
+	tr := &Transport{
+		LeaderStats: stats.NewLeaderStats(""),
+		streamRt:    &roundTripperRecorder{},
+		peers:       make(map[types.ID]Peer),
+		prober:      probing.NewProber(nil),
 	}
 	tr.AddPeer(1, []string{"http://localhost:2380"})
 	tr.RemovePeer(types.ID(1))
@@ -119,26 +144,28 @@ func TestTransportRemove(t *testing.T) {
 
 func TestTransportUpdate(t *testing.T) {
 	peer := newFakePeer()
-	tr := &transport{
+	tr := &Transport{
 		peers:  map[types.ID]Peer{types.ID(1): peer},
 		prober: probing.NewProber(nil),
 	}
 	u := "http://localhost:2380"
 	tr.UpdatePeer(types.ID(1), []string{u})
 	wurls := types.URLs(testutil.MustNewURLs(t, []string{"http://localhost:2380"}))
-	if !reflect.DeepEqual(peer.urls, wurls) {
-		t.Errorf("urls = %+v, want %+v", peer.urls, wurls)
+	if !reflect.DeepEqual(peer.peerURLs, wurls) {
+		t.Errorf("urls = %+v, want %+v", peer.peerURLs, wurls)
 	}
 }
 
 func TestTransportErrorc(t *testing.T) {
 	errorc := make(chan error, 1)
-	tr := &transport{
-		roundTripper: newRespRoundTripper(http.StatusForbidden, nil),
-		leaderStats:  stats.NewLeaderStats(""),
-		peers:        make(map[types.ID]Peer),
-		prober:       probing.NewProber(nil),
-		errorc:       errorc,
+	tr := &Transport{
+		Raft:        &fakeRaft{},
+		LeaderStats: stats.NewLeaderStats(""),
+		ErrorC:      errorc,
+		streamRt:    newRespRoundTripper(http.StatusForbidden, nil),
+		pipelineRt:  newRespRoundTripper(http.StatusForbidden, nil),
+		peers:       make(map[types.ID]Peer),
+		prober:      probing.NewProber(nil),
 	}
 	tr.AddPeer(1, []string{"http://localhost:2380"})
 	defer tr.Stop()
@@ -148,12 +175,11 @@ func TestTransportErrorc(t *testing.T) {
 		t.Fatalf("received unexpected from errorc")
 	case <-time.After(10 * time.Millisecond):
 	}
-	tr.peers[1].Send(raftpb.Message{})
+	tr.peers[1].send(raftpb.Message{})
 
-	testutil.WaitSchedule()
 	select {
 	case <-errorc:
-	default:
+	case <-time.After(1 * time.Second):
 		t.Fatalf("cannot receive error from errorc")
 	}
 }

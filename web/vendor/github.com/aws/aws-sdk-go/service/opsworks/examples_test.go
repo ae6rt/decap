@@ -8,8 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/opsworks"
 )
 
@@ -17,11 +16,17 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleOpsWorks_AssignInstance() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.AssignInstanceInput{
-		InstanceID: aws.String("String"), // Required
-		LayerIDs: []*string{ // Required
+		InstanceId: aws.String("String"), // Required
+		LayerIds: []*string{ // Required
 			aws.String("String"), // Required
 			// More values...
 		},
@@ -29,114 +34,106 @@ func ExampleOpsWorks_AssignInstance() {
 	resp, err := svc.AssignInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_AssignVolume() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.AssignVolumeInput{
-		VolumeID:   aws.String("String"), // Required
-		InstanceID: aws.String("String"),
+		VolumeId:   aws.String("String"), // Required
+		InstanceId: aws.String("String"),
 	}
 	resp, err := svc.AssignVolume(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_AssociateElasticIP() {
-	svc := opsworks.New(nil)
-
-	params := &opsworks.AssociateElasticIPInput{
-		ElasticIP:  aws.String("String"), // Required
-		InstanceID: aws.String("String"),
+func ExampleOpsWorks_AssociateElasticIp() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.AssociateElasticIP(params)
+
+	svc := opsworks.New(sess)
+
+	params := &opsworks.AssociateElasticIpInput{
+		ElasticIp:  aws.String("String"), // Required
+		InstanceId: aws.String("String"),
+	}
+	resp, err := svc.AssociateElasticIp(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_AttachElasticLoadBalancer() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.AttachElasticLoadBalancerInput{
 		ElasticLoadBalancerName: aws.String("String"), // Required
-		LayerID:                 aws.String("String"), // Required
+		LayerId:                 aws.String("String"), // Required
 	}
 	resp, err := svc.AttachElasticLoadBalancer(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_CloneStack() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.CloneStackInput{
-		ServiceRoleARN: aws.String("String"), // Required
-		SourceStackID:  aws.String("String"), // Required
+		ServiceRoleArn: aws.String("String"), // Required
+		SourceStackId:  aws.String("String"), // Required
 		AgentVersion:   aws.String("String"),
 		Attributes: map[string]*string{
 			"Key": aws.String("String"), // Required
@@ -146,7 +143,7 @@ func ExampleOpsWorks_CloneStack() {
 			BerkshelfVersion: aws.String("String"),
 			ManageBerkshelf:  aws.Bool(true),
 		},
-		CloneAppIDs: []*string{
+		CloneAppIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
@@ -158,59 +155,57 @@ func ExampleOpsWorks_CloneStack() {
 		CustomCookbooksSource: &opsworks.Source{
 			Password: aws.String("String"),
 			Revision: aws.String("String"),
-			SSHKey:   aws.String("String"),
+			SshKey:   aws.String("String"),
 			Type:     aws.String("SourceType"),
-			URL:      aws.String("String"),
+			Url:      aws.String("String"),
 			Username: aws.String("String"),
 		},
-		CustomJSON:                aws.String("String"),
+		CustomJson:                aws.String("String"),
 		DefaultAvailabilityZone:   aws.String("String"),
-		DefaultInstanceProfileARN: aws.String("String"),
+		DefaultInstanceProfileArn: aws.String("String"),
 		DefaultOs:                 aws.String("String"),
 		DefaultRootDeviceType:     aws.String("RootDeviceType"),
-		DefaultSSHKeyName:         aws.String("String"),
-		DefaultSubnetID:           aws.String("String"),
+		DefaultSshKeyName:         aws.String("String"),
+		DefaultSubnetId:           aws.String("String"),
 		HostnameTheme:             aws.String("String"),
 		Name:                      aws.String("String"),
 		Region:                    aws.String("String"),
 		UseCustomCookbooks:        aws.Bool(true),
-		UseOpsWorksSecurityGroups: aws.Bool(true),
-		VPCID: aws.String("String"),
+		UseOpsworksSecurityGroups: aws.Bool(true),
+		VpcId: aws.String("String"),
 	}
 	resp, err := svc.CloneStack(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_CreateApp() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.CreateAppInput{
 		Name:    aws.String("String"),  // Required
-		StackID: aws.String("String"),  // Required
+		StackId: aws.String("String"),  // Required
 		Type:    aws.String("AppType"), // Required
 		AppSource: &opsworks.Source{
 			Password: aws.String("String"),
 			Revision: aws.String("String"),
-			SSHKey:   aws.String("String"),
+			SshKey:   aws.String("String"),
 			Type:     aws.String("SourceType"),
-			URL:      aws.String("String"),
+			Url:      aws.String("String"),
 			Username: aws.String("String"),
 		},
 		Attributes: map[string]*string{
@@ -219,7 +214,7 @@ func ExampleOpsWorks_CreateApp() {
 		},
 		DataSources: []*opsworks.DataSource{
 			{ // Required
-				ARN:          aws.String("String"),
+				Arn:          aws.String("String"),
 				DatabaseName: aws.String("String"),
 				Type:         aws.String("String"),
 			},
@@ -230,7 +225,7 @@ func ExampleOpsWorks_CreateApp() {
 			aws.String("String"), // Required
 			// More values...
 		},
-		EnableSSL: aws.Bool(true),
+		EnableSsl: aws.Bool(true),
 		Environment: []*opsworks.EnvironmentVariable{
 			{ // Required
 				Key:    aws.String("String"), // Required
@@ -239,36 +234,34 @@ func ExampleOpsWorks_CreateApp() {
 			},
 			// More values...
 		},
-		SSLConfiguration: &opsworks.SSLConfiguration{
+		Shortname: aws.String("String"),
+		SslConfiguration: &opsworks.SslConfiguration{
 			Certificate: aws.String("String"), // Required
 			PrivateKey:  aws.String("String"), // Required
 			Chain:       aws.String("String"),
 		},
-		Shortname: aws.String("String"),
 	}
 	resp, err := svc.CreateApp(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_CreateDeployment() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.CreateDeploymentInput{
 		Command: &opsworks.DeploymentCommand{ // Required
@@ -281,11 +274,15 @@ func ExampleOpsWorks_CreateDeployment() {
 				// More values...
 			},
 		},
-		StackID:    aws.String("String"), // Required
-		AppID:      aws.String("String"),
+		StackId:    aws.String("String"), // Required
+		AppId:      aws.String("String"),
 		Comment:    aws.String("String"),
-		CustomJSON: aws.String("String"),
-		InstanceIDs: []*string{
+		CustomJson: aws.String("String"),
+		InstanceIds: []*string{
+			aws.String("String"), // Required
+			// More values...
+		},
+		LayerIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
@@ -293,46 +290,44 @@ func ExampleOpsWorks_CreateDeployment() {
 	resp, err := svc.CreateDeployment(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_CreateInstance() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.CreateInstanceInput{
 		InstanceType: aws.String("String"), // Required
-		LayerIDs: []*string{ // Required
+		LayerIds: []*string{ // Required
 			aws.String("String"), // Required
 			// More values...
 		},
-		StackID:          aws.String("String"), // Required
-		AMIID:            aws.String("String"),
+		StackId:          aws.String("String"), // Required
 		AgentVersion:     aws.String("String"),
+		AmiId:            aws.String("String"),
 		Architecture:     aws.String("Architecture"),
 		AutoScalingType:  aws.String("AutoScalingType"),
 		AvailabilityZone: aws.String("String"),
 		BlockDeviceMappings: []*opsworks.BlockDeviceMapping{
 			{ // Required
 				DeviceName: aws.String("String"),
-				EBS: &opsworks.EBSBlockDevice{
+				Ebs: &opsworks.EbsBlockDevice{
 					DeleteOnTermination: aws.Bool(true),
-					IOPS:                aws.Int64(1),
-					SnapshotID:          aws.String("String"),
+					Iops:                aws.Int64(1),
+					SnapshotId:          aws.String("String"),
 					VolumeSize:          aws.Int64(1),
 					VolumeType:          aws.String("VolumeType"),
 				},
@@ -341,52 +336,51 @@ func ExampleOpsWorks_CreateInstance() {
 			},
 			// More values...
 		},
-		EBSOptimized:         aws.Bool(true),
+		EbsOptimized:         aws.Bool(true),
 		Hostname:             aws.String("String"),
 		InstallUpdatesOnBoot: aws.Bool(true),
 		Os:                   aws.String("String"),
 		RootDeviceType:       aws.String("RootDeviceType"),
-		SSHKeyName:           aws.String("String"),
-		SubnetID:             aws.String("String"),
+		SshKeyName:           aws.String("String"),
+		SubnetId:             aws.String("String"),
+		Tenancy:              aws.String("String"),
 		VirtualizationType:   aws.String("String"),
 	}
 	resp, err := svc.CreateInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_CreateLayer() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.CreateLayerInput{
 		Name:      aws.String("String"),    // Required
 		Shortname: aws.String("String"),    // Required
-		StackID:   aws.String("String"),    // Required
+		StackId:   aws.String("String"),    // Required
 		Type:      aws.String("LayerType"), // Required
 		Attributes: map[string]*string{
 			"Key": aws.String("String"), // Required
 			// More values...
 		},
-		AutoAssignElasticIPs:     aws.Bool(true),
-		AutoAssignPublicIPs:      aws.Bool(true),
-		CustomInstanceProfileARN: aws.String("String"),
-		CustomJSON:               aws.String("String"),
+		AutoAssignElasticIps:     aws.Bool(true),
+		AutoAssignPublicIps:      aws.Bool(true),
+		CustomInstanceProfileArn: aws.String("String"),
+		CustomJson:               aws.String("String"),
 		CustomRecipes: &opsworks.Recipes{
 			Configure: []*string{
 				aws.String("String"), // Required
@@ -409,7 +403,7 @@ func ExampleOpsWorks_CreateLayer() {
 				// More values...
 			},
 		},
-		CustomSecurityGroupIDs: []*string{
+		CustomSecurityGroupIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
@@ -417,7 +411,7 @@ func ExampleOpsWorks_CreateLayer() {
 		InstallUpdatesOnBoot: aws.Bool(true),
 		LifecycleEventConfiguration: &opsworks.LifecycleEventConfiguration{
 			Shutdown: &opsworks.ShutdownEventConfiguration{
-				DelayUntilELBConnectionsDrained: aws.Bool(true),
+				DelayUntilElbConnectionsDrained: aws.Bool(true),
 				ExecutionTimeout:                aws.Int64(1),
 			},
 		},
@@ -425,14 +419,14 @@ func ExampleOpsWorks_CreateLayer() {
 			aws.String("String"), // Required
 			// More values...
 		},
-		UseEBSOptimizedInstances: aws.Bool(true),
+		UseEbsOptimizedInstances: aws.Bool(true),
 		VolumeConfigurations: []*opsworks.VolumeConfiguration{
 			{ // Required
 				MountPoint:    aws.String("String"), // Required
 				NumberOfDisks: aws.Int64(1),         // Required
 				Size:          aws.Int64(1),         // Required
-				IOPS:          aws.Int64(1),
-				RAIDLevel:     aws.Int64(1),
+				Iops:          aws.Int64(1),
+				RaidLevel:     aws.Int64(1),
 				VolumeType:    aws.String("String"),
 			},
 			// More values...
@@ -441,32 +435,30 @@ func ExampleOpsWorks_CreateLayer() {
 	resp, err := svc.CreateLayer(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_CreateStack() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.CreateStackInput{
-		DefaultInstanceProfileARN: aws.String("String"), // Required
+		DefaultInstanceProfileArn: aws.String("String"), // Required
 		Name:           aws.String("String"), // Required
 		Region:         aws.String("String"), // Required
-		ServiceRoleARN: aws.String("String"), // Required
+		ServiceRoleArn: aws.String("String"), // Required
 		AgentVersion:   aws.String("String"),
 		Attributes: map[string]*string{
 			"Key": aws.String("String"), // Required
@@ -483,635 +475,593 @@ func ExampleOpsWorks_CreateStack() {
 		CustomCookbooksSource: &opsworks.Source{
 			Password: aws.String("String"),
 			Revision: aws.String("String"),
-			SSHKey:   aws.String("String"),
+			SshKey:   aws.String("String"),
 			Type:     aws.String("SourceType"),
-			URL:      aws.String("String"),
+			Url:      aws.String("String"),
 			Username: aws.String("String"),
 		},
-		CustomJSON:                aws.String("String"),
+		CustomJson:                aws.String("String"),
 		DefaultAvailabilityZone:   aws.String("String"),
 		DefaultOs:                 aws.String("String"),
 		DefaultRootDeviceType:     aws.String("RootDeviceType"),
-		DefaultSSHKeyName:         aws.String("String"),
-		DefaultSubnetID:           aws.String("String"),
+		DefaultSshKeyName:         aws.String("String"),
+		DefaultSubnetId:           aws.String("String"),
 		HostnameTheme:             aws.String("String"),
 		UseCustomCookbooks:        aws.Bool(true),
-		UseOpsWorksSecurityGroups: aws.Bool(true),
-		VPCID: aws.String("String"),
+		UseOpsworksSecurityGroups: aws.Bool(true),
+		VpcId: aws.String("String"),
 	}
 	resp, err := svc.CreateStack(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_CreateUserProfile() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.CreateUserProfileInput{
-		IAMUserARN:          aws.String("String"), // Required
+		IamUserArn:          aws.String("String"), // Required
 		AllowSelfManagement: aws.Bool(true),
-		SSHPublicKey:        aws.String("String"),
-		SSHUsername:         aws.String("String"),
+		SshPublicKey:        aws.String("String"),
+		SshUsername:         aws.String("String"),
 	}
 	resp, err := svc.CreateUserProfile(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DeleteApp() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DeleteAppInput{
-		AppID: aws.String("String"), // Required
+		AppId: aws.String("String"), // Required
 	}
 	resp, err := svc.DeleteApp(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DeleteInstance() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DeleteInstanceInput{
-		InstanceID:      aws.String("String"), // Required
-		DeleteElasticIP: aws.Bool(true),
+		InstanceId:      aws.String("String"), // Required
+		DeleteElasticIp: aws.Bool(true),
 		DeleteVolumes:   aws.Bool(true),
 	}
 	resp, err := svc.DeleteInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DeleteLayer() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DeleteLayerInput{
-		LayerID: aws.String("String"), // Required
+		LayerId: aws.String("String"), // Required
 	}
 	resp, err := svc.DeleteLayer(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DeleteStack() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DeleteStackInput{
-		StackID: aws.String("String"), // Required
+		StackId: aws.String("String"), // Required
 	}
 	resp, err := svc.DeleteStack(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DeleteUserProfile() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DeleteUserProfileInput{
-		IAMUserARN: aws.String("String"), // Required
+		IamUserArn: aws.String("String"), // Required
 	}
 	resp, err := svc.DeleteUserProfile(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DeregisterEcsCluster() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DeregisterEcsClusterInput{
-		EcsClusterARN: aws.String("String"), // Required
+		EcsClusterArn: aws.String("String"), // Required
 	}
 	resp, err := svc.DeregisterEcsCluster(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_DeregisterElasticIP() {
-	svc := opsworks.New(nil)
-
-	params := &opsworks.DeregisterElasticIPInput{
-		ElasticIP: aws.String("String"), // Required
+func ExampleOpsWorks_DeregisterElasticIp() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.DeregisterElasticIP(params)
+
+	svc := opsworks.New(sess)
+
+	params := &opsworks.DeregisterElasticIpInput{
+		ElasticIp: aws.String("String"), // Required
+	}
+	resp, err := svc.DeregisterElasticIp(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DeregisterInstance() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DeregisterInstanceInput{
-		InstanceID: aws.String("String"), // Required
+		InstanceId: aws.String("String"), // Required
 	}
 	resp, err := svc.DeregisterInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_DeregisterRDSDBInstance() {
-	svc := opsworks.New(nil)
-
-	params := &opsworks.DeregisterRDSDBInstanceInput{
-		RDSDBInstanceARN: aws.String("String"), // Required
+func ExampleOpsWorks_DeregisterRdsDbInstance() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.DeregisterRDSDBInstance(params)
+
+	svc := opsworks.New(sess)
+
+	params := &opsworks.DeregisterRdsDbInstanceInput{
+		RdsDbInstanceArn: aws.String("String"), // Required
+	}
+	resp, err := svc.DeregisterRdsDbInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DeregisterVolume() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DeregisterVolumeInput{
-		VolumeID: aws.String("String"), // Required
+		VolumeId: aws.String("String"), // Required
 	}
 	resp, err := svc.DeregisterVolume(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeAgentVersions() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeAgentVersionsInput{
 		ConfigurationManager: &opsworks.StackConfigurationManager{
 			Name:    aws.String("String"),
 			Version: aws.String("String"),
 		},
-		StackID: aws.String("String"),
+		StackId: aws.String("String"),
 	}
 	resp, err := svc.DescribeAgentVersions(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeApps() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeAppsInput{
-		AppIDs: []*string{
+		AppIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
-		StackID: aws.String("String"),
+		StackId: aws.String("String"),
 	}
 	resp, err := svc.DescribeApps(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeCommands() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeCommandsInput{
-		CommandIDs: []*string{
+		CommandIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
-		DeploymentID: aws.String("String"),
-		InstanceID:   aws.String("String"),
+		DeploymentId: aws.String("String"),
+		InstanceId:   aws.String("String"),
 	}
 	resp, err := svc.DescribeCommands(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeDeployments() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeDeploymentsInput{
-		AppID: aws.String("String"),
-		DeploymentIDs: []*string{
+		AppId: aws.String("String"),
+		DeploymentIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
-		StackID: aws.String("String"),
+		StackId: aws.String("String"),
 	}
 	resp, err := svc.DescribeDeployments(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeEcsClusters() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeEcsClustersInput{
-		EcsClusterARNs: []*string{
+		EcsClusterArns: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
 		MaxResults: aws.Int64(1),
 		NextToken:  aws.String("String"),
-		StackID:    aws.String("String"),
+		StackId:    aws.String("String"),
 	}
 	resp, err := svc.DescribeEcsClusters(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_DescribeElasticIPs() {
-	svc := opsworks.New(nil)
+func ExampleOpsWorks_DescribeElasticIps() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
 
-	params := &opsworks.DescribeElasticIPsInput{
-		IPs: []*string{
+	svc := opsworks.New(sess)
+
+	params := &opsworks.DescribeElasticIpsInput{
+		InstanceId: aws.String("String"),
+		Ips: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
-		InstanceID: aws.String("String"),
-		StackID:    aws.String("String"),
+		StackId: aws.String("String"),
 	}
-	resp, err := svc.DescribeElasticIPs(params)
+	resp, err := svc.DescribeElasticIps(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeElasticLoadBalancers() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeElasticLoadBalancersInput{
-		LayerIDs: []*string{
+		LayerIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
-		StackID: aws.String("String"),
+		StackId: aws.String("String"),
 	}
 	resp, err := svc.DescribeElasticLoadBalancers(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeInstances() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeInstancesInput{
-		InstanceIDs: []*string{
+		InstanceIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
-		LayerID: aws.String("String"),
-		StackID: aws.String("String"),
+		LayerId: aws.String("String"),
+		StackId: aws.String("String"),
 	}
 	resp, err := svc.DescribeInstances(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeLayers() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeLayersInput{
-		LayerIDs: []*string{
+		LayerIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
-		StackID: aws.String("String"),
+		StackId: aws.String("String"),
 	}
 	resp, err := svc.DescribeLayers(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeLoadBasedAutoScaling() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeLoadBasedAutoScalingInput{
-		LayerIDs: []*string{ // Required
+		LayerIds: []*string{ // Required
 			aws.String("String"), // Required
 			// More values...
 		},
@@ -1119,231 +1069,215 @@ func ExampleOpsWorks_DescribeLoadBasedAutoScaling() {
 	resp, err := svc.DescribeLoadBasedAutoScaling(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeMyUserProfile() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	var params *opsworks.DescribeMyUserProfileInput
 	resp, err := svc.DescribeMyUserProfile(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribePermissions() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribePermissionsInput{
-		IAMUserARN: aws.String("String"),
-		StackID:    aws.String("String"),
+		IamUserArn: aws.String("String"),
+		StackId:    aws.String("String"),
 	}
 	resp, err := svc.DescribePermissions(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_DescribeRAIDArrays() {
-	svc := opsworks.New(nil)
+func ExampleOpsWorks_DescribeRaidArrays() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
 
-	params := &opsworks.DescribeRAIDArraysInput{
-		InstanceID: aws.String("String"),
-		RAIDArrayIDs: []*string{
+	svc := opsworks.New(sess)
+
+	params := &opsworks.DescribeRaidArraysInput{
+		InstanceId: aws.String("String"),
+		RaidArrayIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
-		StackID: aws.String("String"),
+		StackId: aws.String("String"),
 	}
-	resp, err := svc.DescribeRAIDArrays(params)
+	resp, err := svc.DescribeRaidArrays(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_DescribeRDSDBInstances() {
-	svc := opsworks.New(nil)
+func ExampleOpsWorks_DescribeRdsDbInstances() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
 
-	params := &opsworks.DescribeRDSDBInstancesInput{
-		StackID: aws.String("String"), // Required
-		RDSDBInstanceARNs: []*string{
+	svc := opsworks.New(sess)
+
+	params := &opsworks.DescribeRdsDbInstancesInput{
+		StackId: aws.String("String"), // Required
+		RdsDbInstanceArns: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
 	}
-	resp, err := svc.DescribeRDSDBInstances(params)
+	resp, err := svc.DescribeRdsDbInstances(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeServiceErrors() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeServiceErrorsInput{
-		InstanceID: aws.String("String"),
-		ServiceErrorIDs: []*string{
+		InstanceId: aws.String("String"),
+		ServiceErrorIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
-		StackID: aws.String("String"),
+		StackId: aws.String("String"),
 	}
 	resp, err := svc.DescribeServiceErrors(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeStackProvisioningParameters() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeStackProvisioningParametersInput{
-		StackID: aws.String("String"), // Required
+		StackId: aws.String("String"), // Required
 	}
 	resp, err := svc.DescribeStackProvisioningParameters(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeStackSummary() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeStackSummaryInput{
-		StackID: aws.String("String"), // Required
+		StackId: aws.String("String"), // Required
 	}
 	resp, err := svc.DescribeStackSummary(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeStacks() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeStacksInput{
-		StackIDs: []*string{
+		StackIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
@@ -1351,29 +1285,27 @@ func ExampleOpsWorks_DescribeStacks() {
 	resp, err := svc.DescribeStacks(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeTimeBasedAutoScaling() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeTimeBasedAutoScalingInput{
-		InstanceIDs: []*string{ // Required
+		InstanceIds: []*string{ // Required
 			aws.String("String"), // Required
 			// More values...
 		},
@@ -1381,29 +1313,27 @@ func ExampleOpsWorks_DescribeTimeBasedAutoScaling() {
 	resp, err := svc.DescribeTimeBasedAutoScaling(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeUserProfiles() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeUserProfilesInput{
-		IAMUserARNs: []*string{
+		IamUserArns: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
@@ -1411,32 +1341,30 @@ func ExampleOpsWorks_DescribeUserProfiles() {
 	resp, err := svc.DescribeUserProfiles(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DescribeVolumes() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DescribeVolumesInput{
-		InstanceID:  aws.String("String"),
-		RAIDArrayID: aws.String("String"),
-		StackID:     aws.String("String"),
-		VolumeIDs: []*string{
+		InstanceId:  aws.String("String"),
+		RaidArrayId: aws.String("String"),
+		StackId:     aws.String("String"),
+		VolumeIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
@@ -1444,322 +1372,300 @@ func ExampleOpsWorks_DescribeVolumes() {
 	resp, err := svc.DescribeVolumes(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_DetachElasticLoadBalancer() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.DetachElasticLoadBalancerInput{
 		ElasticLoadBalancerName: aws.String("String"), // Required
-		LayerID:                 aws.String("String"), // Required
+		LayerId:                 aws.String("String"), // Required
 	}
 	resp, err := svc.DetachElasticLoadBalancer(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_DisassociateElasticIP() {
-	svc := opsworks.New(nil)
-
-	params := &opsworks.DisassociateElasticIPInput{
-		ElasticIP: aws.String("String"), // Required
+func ExampleOpsWorks_DisassociateElasticIp() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.DisassociateElasticIP(params)
+
+	svc := opsworks.New(sess)
+
+	params := &opsworks.DisassociateElasticIpInput{
+		ElasticIp: aws.String("String"), // Required
+	}
+	resp, err := svc.DisassociateElasticIp(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_GetHostnameSuggestion() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.GetHostnameSuggestionInput{
-		LayerID: aws.String("String"), // Required
+		LayerId: aws.String("String"), // Required
 	}
 	resp, err := svc.GetHostnameSuggestion(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_GrantAccess() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.GrantAccessInput{
-		InstanceID:        aws.String("String"), // Required
+		InstanceId:        aws.String("String"), // Required
 		ValidForInMinutes: aws.Int64(1),
 	}
 	resp, err := svc.GrantAccess(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_RebootInstance() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.RebootInstanceInput{
-		InstanceID: aws.String("String"), // Required
+		InstanceId: aws.String("String"), // Required
 	}
 	resp, err := svc.RebootInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_RegisterEcsCluster() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.RegisterEcsClusterInput{
-		EcsClusterARN: aws.String("String"), // Required
-		StackID:       aws.String("String"), // Required
+		EcsClusterArn: aws.String("String"), // Required
+		StackId:       aws.String("String"), // Required
 	}
 	resp, err := svc.RegisterEcsCluster(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_RegisterElasticIP() {
-	svc := opsworks.New(nil)
-
-	params := &opsworks.RegisterElasticIPInput{
-		ElasticIP: aws.String("String"), // Required
-		StackID:   aws.String("String"), // Required
+func ExampleOpsWorks_RegisterElasticIp() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.RegisterElasticIP(params)
+
+	svc := opsworks.New(sess)
+
+	params := &opsworks.RegisterElasticIpInput{
+		ElasticIp: aws.String("String"), // Required
+		StackId:   aws.String("String"), // Required
+	}
+	resp, err := svc.RegisterElasticIp(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_RegisterInstance() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.RegisterInstanceInput{
-		StackID:  aws.String("String"), // Required
+		StackId:  aws.String("String"), // Required
 		Hostname: aws.String("String"),
 		InstanceIdentity: &opsworks.InstanceIdentity{
 			Document:  aws.String("String"),
 			Signature: aws.String("String"),
 		},
-		PrivateIP:               aws.String("String"),
-		PublicIP:                aws.String("String"),
-		RSAPublicKey:            aws.String("String"),
-		RSAPublicKeyFingerprint: aws.String("String"),
+		PrivateIp:               aws.String("String"),
+		PublicIp:                aws.String("String"),
+		RsaPublicKey:            aws.String("String"),
+		RsaPublicKeyFingerprint: aws.String("String"),
 	}
 	resp, err := svc.RegisterInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_RegisterRDSDBInstance() {
-	svc := opsworks.New(nil)
-
-	params := &opsworks.RegisterRDSDBInstanceInput{
-		DBPassword:       aws.String("String"), // Required
-		DBUser:           aws.String("String"), // Required
-		RDSDBInstanceARN: aws.String("String"), // Required
-		StackID:          aws.String("String"), // Required
+func ExampleOpsWorks_RegisterRdsDbInstance() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.RegisterRDSDBInstance(params)
+
+	svc := opsworks.New(sess)
+
+	params := &opsworks.RegisterRdsDbInstanceInput{
+		DbPassword:       aws.String("String"), // Required
+		DbUser:           aws.String("String"), // Required
+		RdsDbInstanceArn: aws.String("String"), // Required
+		StackId:          aws.String("String"), // Required
+	}
+	resp, err := svc.RegisterRdsDbInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_RegisterVolume() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.RegisterVolumeInput{
-		StackID:     aws.String("String"), // Required
-		EC2VolumeID: aws.String("String"),
+		StackId:     aws.String("String"), // Required
+		Ec2VolumeId: aws.String("String"),
 	}
 	resp, err := svc.RegisterVolume(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_SetLoadBasedAutoScaling() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.SetLoadBasedAutoScalingInput{
-		LayerID: aws.String("String"), // Required
+		LayerId: aws.String("String"), // Required
 		DownScaling: &opsworks.AutoScalingThresholds{
 			Alarms: []*string{
 				aws.String("String"), // Required
 				// More values...
 			},
-			CPUThreshold:       aws.Float64(1.0),
+			CpuThreshold:       aws.Float64(1.0),
 			IgnoreMetricsTime:  aws.Int64(1),
 			InstanceCount:      aws.Int64(1),
 			LoadThreshold:      aws.Float64(1.0),
@@ -1772,7 +1678,7 @@ func ExampleOpsWorks_SetLoadBasedAutoScaling() {
 				aws.String("String"), // Required
 				// More values...
 			},
-			CPUThreshold:       aws.Float64(1.0),
+			CpuThreshold:       aws.Float64(1.0),
 			IgnoreMetricsTime:  aws.Int64(1),
 			InstanceCount:      aws.Int64(1),
 			LoadThreshold:      aws.Float64(1.0),
@@ -1783,60 +1689,56 @@ func ExampleOpsWorks_SetLoadBasedAutoScaling() {
 	resp, err := svc.SetLoadBasedAutoScaling(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_SetPermission() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.SetPermissionInput{
-		IAMUserARN: aws.String("String"), // Required
-		StackID:    aws.String("String"), // Required
-		AllowSSH:   aws.Bool(true),
+		IamUserArn: aws.String("String"), // Required
+		StackId:    aws.String("String"), // Required
+		AllowSsh:   aws.Bool(true),
 		AllowSudo:  aws.Bool(true),
 		Level:      aws.String("String"),
 	}
 	resp, err := svc.SetPermission(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_SetTimeBasedAutoScaling() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.SetTimeBasedAutoScalingInput{
-		InstanceID: aws.String("String"), // Required
+		InstanceId: aws.String("String"), // Required
 		AutoScalingSchedule: &opsworks.WeeklyAutoScalingSchedule{
 			Friday: map[string]*string{
 				"Key": aws.String("Switch"), // Required
@@ -1871,197 +1773,183 @@ func ExampleOpsWorks_SetTimeBasedAutoScaling() {
 	resp, err := svc.SetTimeBasedAutoScaling(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_StartInstance() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.StartInstanceInput{
-		InstanceID: aws.String("String"), // Required
+		InstanceId: aws.String("String"), // Required
 	}
 	resp, err := svc.StartInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_StartStack() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.StartStackInput{
-		StackID: aws.String("String"), // Required
+		StackId: aws.String("String"), // Required
 	}
 	resp, err := svc.StartStack(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_StopInstance() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.StopInstanceInput{
-		InstanceID: aws.String("String"), // Required
+		InstanceId: aws.String("String"), // Required
 	}
 	resp, err := svc.StopInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_StopStack() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.StopStackInput{
-		StackID: aws.String("String"), // Required
+		StackId: aws.String("String"), // Required
 	}
 	resp, err := svc.StopStack(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_UnassignInstance() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.UnassignInstanceInput{
-		InstanceID: aws.String("String"), // Required
+		InstanceId: aws.String("String"), // Required
 	}
 	resp, err := svc.UnassignInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_UnassignVolume() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.UnassignVolumeInput{
-		VolumeID: aws.String("String"), // Required
+		VolumeId: aws.String("String"), // Required
 	}
 	resp, err := svc.UnassignVolume(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_UpdateApp() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.UpdateAppInput{
-		AppID: aws.String("String"), // Required
+		AppId: aws.String("String"), // Required
 		AppSource: &opsworks.Source{
 			Password: aws.String("String"),
 			Revision: aws.String("String"),
-			SSHKey:   aws.String("String"),
+			SshKey:   aws.String("String"),
 			Type:     aws.String("SourceType"),
-			URL:      aws.String("String"),
+			Url:      aws.String("String"),
 			Username: aws.String("String"),
 		},
 		Attributes: map[string]*string{
@@ -2070,7 +1958,7 @@ func ExampleOpsWorks_UpdateApp() {
 		},
 		DataSources: []*opsworks.DataSource{
 			{ // Required
-				ARN:          aws.String("String"),
+				Arn:          aws.String("String"),
 				DatabaseName: aws.String("String"),
 				Type:         aws.String("String"),
 			},
@@ -2081,7 +1969,7 @@ func ExampleOpsWorks_UpdateApp() {
 			aws.String("String"), // Required
 			// More values...
 		},
-		EnableSSL: aws.Bool(true),
+		EnableSsl: aws.Bool(true),
 		Environment: []*opsworks.EnvironmentVariable{
 			{ // Required
 				Key:    aws.String("String"), // Required
@@ -2091,7 +1979,7 @@ func ExampleOpsWorks_UpdateApp() {
 			// More values...
 		},
 		Name: aws.String("String"),
-		SSLConfiguration: &opsworks.SSLConfiguration{
+		SslConfiguration: &opsworks.SslConfiguration{
 			Certificate: aws.String("String"), // Required
 			PrivateKey:  aws.String("String"), // Required
 			Chain:       aws.String("String"),
@@ -2101,106 +1989,100 @@ func ExampleOpsWorks_UpdateApp() {
 	resp, err := svc.UpdateApp(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_UpdateElasticIP() {
-	svc := opsworks.New(nil)
+func ExampleOpsWorks_UpdateElasticIp() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
 
-	params := &opsworks.UpdateElasticIPInput{
-		ElasticIP: aws.String("String"), // Required
+	svc := opsworks.New(sess)
+
+	params := &opsworks.UpdateElasticIpInput{
+		ElasticIp: aws.String("String"), // Required
 		Name:      aws.String("String"),
 	}
-	resp, err := svc.UpdateElasticIP(params)
+	resp, err := svc.UpdateElasticIp(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_UpdateInstance() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.UpdateInstanceInput{
-		InstanceID:           aws.String("String"), // Required
-		AMIID:                aws.String("String"),
+		InstanceId:           aws.String("String"), // Required
 		AgentVersion:         aws.String("String"),
+		AmiId:                aws.String("String"),
 		Architecture:         aws.String("Architecture"),
 		AutoScalingType:      aws.String("AutoScalingType"),
-		EBSOptimized:         aws.Bool(true),
+		EbsOptimized:         aws.Bool(true),
 		Hostname:             aws.String("String"),
 		InstallUpdatesOnBoot: aws.Bool(true),
 		InstanceType:         aws.String("String"),
-		LayerIDs: []*string{
+		LayerIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
 		Os:         aws.String("String"),
-		SSHKeyName: aws.String("String"),
+		SshKeyName: aws.String("String"),
 	}
 	resp, err := svc.UpdateInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_UpdateLayer() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.UpdateLayerInput{
-		LayerID: aws.String("String"), // Required
+		LayerId: aws.String("String"), // Required
 		Attributes: map[string]*string{
 			"Key": aws.String("String"), // Required
 			// More values...
 		},
-		AutoAssignElasticIPs:     aws.Bool(true),
-		AutoAssignPublicIPs:      aws.Bool(true),
-		CustomInstanceProfileARN: aws.String("String"),
-		CustomJSON:               aws.String("String"),
+		AutoAssignElasticIps:     aws.Bool(true),
+		AutoAssignPublicIps:      aws.Bool(true),
+		CustomInstanceProfileArn: aws.String("String"),
+		CustomJson:               aws.String("String"),
 		CustomRecipes: &opsworks.Recipes{
 			Configure: []*string{
 				aws.String("String"), // Required
@@ -2223,7 +2105,7 @@ func ExampleOpsWorks_UpdateLayer() {
 				// More values...
 			},
 		},
-		CustomSecurityGroupIDs: []*string{
+		CustomSecurityGroupIds: []*string{
 			aws.String("String"), // Required
 			// More values...
 		},
@@ -2231,7 +2113,7 @@ func ExampleOpsWorks_UpdateLayer() {
 		InstallUpdatesOnBoot: aws.Bool(true),
 		LifecycleEventConfiguration: &opsworks.LifecycleEventConfiguration{
 			Shutdown: &opsworks.ShutdownEventConfiguration{
-				DelayUntilELBConnectionsDrained: aws.Bool(true),
+				DelayUntilElbConnectionsDrained: aws.Bool(true),
 				ExecutionTimeout:                aws.Int64(1),
 			},
 		},
@@ -2241,14 +2123,14 @@ func ExampleOpsWorks_UpdateLayer() {
 			// More values...
 		},
 		Shortname:                aws.String("String"),
-		UseEBSOptimizedInstances: aws.Bool(true),
+		UseEbsOptimizedInstances: aws.Bool(true),
 		VolumeConfigurations: []*opsworks.VolumeConfiguration{
 			{ // Required
 				MountPoint:    aws.String("String"), // Required
 				NumberOfDisks: aws.Int64(1),         // Required
 				Size:          aws.Int64(1),         // Required
-				IOPS:          aws.Int64(1),
-				RAIDLevel:     aws.Int64(1),
+				Iops:          aws.Int64(1),
+				RaidLevel:     aws.Int64(1),
 				VolumeType:    aws.String("String"),
 			},
 			// More values...
@@ -2257,85 +2139,79 @@ func ExampleOpsWorks_UpdateLayer() {
 	resp, err := svc.UpdateLayer(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_UpdateMyUserProfile() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.UpdateMyUserProfileInput{
-		SSHPublicKey: aws.String("String"),
+		SshPublicKey: aws.String("String"),
 	}
 	resp, err := svc.UpdateMyUserProfile(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleOpsWorks_UpdateRDSDBInstance() {
-	svc := opsworks.New(nil)
-
-	params := &opsworks.UpdateRDSDBInstanceInput{
-		RDSDBInstanceARN: aws.String("String"), // Required
-		DBPassword:       aws.String("String"),
-		DBUser:           aws.String("String"),
+func ExampleOpsWorks_UpdateRdsDbInstance() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.UpdateRDSDBInstance(params)
+
+	svc := opsworks.New(sess)
+
+	params := &opsworks.UpdateRdsDbInstanceInput{
+		RdsDbInstanceArn: aws.String("String"), // Required
+		DbPassword:       aws.String("String"),
+		DbUser:           aws.String("String"),
+	}
+	resp, err := svc.UpdateRdsDbInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_UpdateStack() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.UpdateStackInput{
-		StackID:      aws.String("String"), // Required
+		StackId:      aws.String("String"), // Required
 		AgentVersion: aws.String("String"),
 		Attributes: map[string]*string{
 			"Key": aws.String("String"), // Required
@@ -2352,100 +2228,88 @@ func ExampleOpsWorks_UpdateStack() {
 		CustomCookbooksSource: &opsworks.Source{
 			Password: aws.String("String"),
 			Revision: aws.String("String"),
-			SSHKey:   aws.String("String"),
+			SshKey:   aws.String("String"),
 			Type:     aws.String("SourceType"),
-			URL:      aws.String("String"),
+			Url:      aws.String("String"),
 			Username: aws.String("String"),
 		},
-		CustomJSON:                aws.String("String"),
+		CustomJson:                aws.String("String"),
 		DefaultAvailabilityZone:   aws.String("String"),
-		DefaultInstanceProfileARN: aws.String("String"),
+		DefaultInstanceProfileArn: aws.String("String"),
 		DefaultOs:                 aws.String("String"),
 		DefaultRootDeviceType:     aws.String("RootDeviceType"),
-		DefaultSSHKeyName:         aws.String("String"),
-		DefaultSubnetID:           aws.String("String"),
+		DefaultSshKeyName:         aws.String("String"),
+		DefaultSubnetId:           aws.String("String"),
 		HostnameTheme:             aws.String("String"),
 		Name:                      aws.String("String"),
-		ServiceRoleARN:            aws.String("String"),
+		ServiceRoleArn:            aws.String("String"),
 		UseCustomCookbooks:        aws.Bool(true),
-		UseOpsWorksSecurityGroups: aws.Bool(true),
+		UseOpsworksSecurityGroups: aws.Bool(true),
 	}
 	resp, err := svc.UpdateStack(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_UpdateUserProfile() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.UpdateUserProfileInput{
-		IAMUserARN:          aws.String("String"), // Required
+		IamUserArn:          aws.String("String"), // Required
 		AllowSelfManagement: aws.Bool(true),
-		SSHPublicKey:        aws.String("String"),
-		SSHUsername:         aws.String("String"),
+		SshPublicKey:        aws.String("String"),
+		SshUsername:         aws.String("String"),
 	}
 	resp, err := svc.UpdateUserProfile(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleOpsWorks_UpdateVolume() {
-	svc := opsworks.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := opsworks.New(sess)
 
 	params := &opsworks.UpdateVolumeInput{
-		VolumeID:   aws.String("String"), // Required
+		VolumeId:   aws.String("String"), // Required
 		MountPoint: aws.String("String"),
 		Name:       aws.String("String"),
 	}
 	resp, err := svc.UpdateVolume(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }

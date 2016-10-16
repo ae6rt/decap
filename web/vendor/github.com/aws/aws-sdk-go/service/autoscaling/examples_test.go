@@ -8,8 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 )
 
@@ -17,42 +16,75 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleAutoScaling_AttachInstances() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.AttachInstancesInput{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
-		InstanceIDs: []*string{
-			aws.String("XmlStringMaxLen16"), // Required
+		InstanceIds: []*string{
+			aws.String("XmlStringMaxLen19"), // Required
 			// More values...
 		},
 	}
 	resp, err := svc.AttachInstances(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleAutoScaling_AttachLoadBalancerTargetGroups() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
+
+	params := &autoscaling.AttachLoadBalancerTargetGroupsInput{
+		AutoScalingGroupName: aws.String("ResourceName"), // Required
+		TargetGroupARNs: []*string{ // Required
+			aws.String("XmlStringMaxLen511"), // Required
+			// More values...
+		},
+	}
+	resp, err := svc.AttachLoadBalancerTargetGroups(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_AttachLoadBalancers() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.AttachLoadBalancersInput{
-		AutoScalingGroupName: aws.String("ResourceName"),
-		LoadBalancerNames: []*string{
+		AutoScalingGroupName: aws.String("ResourceName"), // Required
+		LoadBalancerNames: []*string{ // Required
 			aws.String("XmlStringMaxLen255"), // Required
 			// More values...
 		},
@@ -60,56 +92,53 @@ func ExampleAutoScaling_AttachLoadBalancers() {
 	resp, err := svc.AttachLoadBalancers(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_CompleteLifecycleAction() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.CompleteLifecycleActionInput{
 		AutoScalingGroupName:  aws.String("ResourceName"),          // Required
 		LifecycleActionResult: aws.String("LifecycleActionResult"), // Required
-		LifecycleActionToken:  aws.String("LifecycleActionToken"),  // Required
 		LifecycleHookName:     aws.String("AsciiStringMaxLen255"),  // Required
+		InstanceId:            aws.String("XmlStringMaxLen19"),
+		LifecycleActionToken:  aws.String("LifecycleActionToken"),
 	}
 	resp, err := svc.CompleteLifecycleAction(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_CreateAutoScalingGroup() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.CreateAutoScalingGroupInput{
 		AutoScalingGroupName: aws.String("XmlStringMaxLen255"), // Required
@@ -123,63 +152,67 @@ func ExampleAutoScaling_CreateAutoScalingGroup() {
 		DesiredCapacity:         aws.Int64(1),
 		HealthCheckGracePeriod:  aws.Int64(1),
 		HealthCheckType:         aws.String("XmlStringMaxLen32"),
-		InstanceID:              aws.String("XmlStringMaxLen16"),
+		InstanceId:              aws.String("XmlStringMaxLen19"),
 		LaunchConfigurationName: aws.String("ResourceName"),
 		LoadBalancerNames: []*string{
 			aws.String("XmlStringMaxLen255"), // Required
 			// More values...
 		},
-		PlacementGroup: aws.String("XmlStringMaxLen255"),
+		NewInstancesProtectedFromScaleIn: aws.Bool(true),
+		PlacementGroup:                   aws.String("XmlStringMaxLen255"),
 		Tags: []*autoscaling.Tag{
 			{ // Required
 				Key:               aws.String("TagKey"), // Required
 				PropagateAtLaunch: aws.Bool(true),
-				ResourceID:        aws.String("XmlString"),
+				ResourceId:        aws.String("XmlString"),
 				ResourceType:      aws.String("XmlString"),
 				Value:             aws.String("TagValue"),
 			},
+			// More values...
+		},
+		TargetGroupARNs: []*string{
+			aws.String("XmlStringMaxLen511"), // Required
 			// More values...
 		},
 		TerminationPolicies: []*string{
 			aws.String("XmlStringMaxLen1600"), // Required
 			// More values...
 		},
-		VPCZoneIdentifier: aws.String("XmlStringMaxLen255"),
+		VPCZoneIdentifier: aws.String("XmlStringMaxLen2047"),
 	}
 	resp, err := svc.CreateAutoScalingGroup(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_CreateLaunchConfiguration() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.CreateLaunchConfigurationInput{
 		LaunchConfigurationName:  aws.String("XmlStringMaxLen255"), // Required
-		AssociatePublicIPAddress: aws.Bool(true),
+		AssociatePublicIpAddress: aws.Bool(true),
 		BlockDeviceMappings: []*autoscaling.BlockDeviceMapping{
 			{ // Required
 				DeviceName: aws.String("XmlStringMaxLen255"), // Required
-				EBS: &autoscaling.EBS{
+				Ebs: &autoscaling.Ebs{
 					DeleteOnTermination: aws.Bool(true),
-					IOPS:                aws.Int64(1),
-					SnapshotID:          aws.String("XmlStringMaxLen255"),
+					Encrypted:           aws.Bool(true),
+					Iops:                aws.Int64(1),
+					SnapshotId:          aws.String("XmlStringMaxLen255"),
 					VolumeSize:          aws.Int64(1),
 					VolumeType:          aws.String("BlockDeviceEbsVolumeType"),
 				},
@@ -188,23 +221,23 @@ func ExampleAutoScaling_CreateLaunchConfiguration() {
 			},
 			// More values...
 		},
-		ClassicLinkVPCID: aws.String("XmlStringMaxLen255"),
+		ClassicLinkVPCId: aws.String("XmlStringMaxLen255"),
 		ClassicLinkVPCSecurityGroups: []*string{
 			aws.String("XmlStringMaxLen255"), // Required
 			// More values...
 		},
-		EBSOptimized:       aws.Bool(true),
-		IAMInstanceProfile: aws.String("XmlStringMaxLen1600"),
-		ImageID:            aws.String("XmlStringMaxLen255"),
-		InstanceID:         aws.String("XmlStringMaxLen16"),
+		EbsOptimized:       aws.Bool(true),
+		IamInstanceProfile: aws.String("XmlStringMaxLen1600"),
+		ImageId:            aws.String("XmlStringMaxLen255"),
+		InstanceId:         aws.String("XmlStringMaxLen19"),
 		InstanceMonitoring: &autoscaling.InstanceMonitoring{
 			Enabled: aws.Bool(true),
 		},
 		InstanceType:     aws.String("XmlStringMaxLen255"),
-		KernelID:         aws.String("XmlStringMaxLen255"),
+		KernelId:         aws.String("XmlStringMaxLen255"),
 		KeyName:          aws.String("XmlStringMaxLen255"),
 		PlacementTenancy: aws.String("XmlStringMaxLen64"),
-		RAMDiskID:        aws.String("XmlStringMaxLen255"),
+		RamdiskId:        aws.String("XmlStringMaxLen255"),
 		SecurityGroups: []*string{
 			aws.String("XmlString"), // Required
 			// More values...
@@ -215,33 +248,31 @@ func ExampleAutoScaling_CreateLaunchConfiguration() {
 	resp, err := svc.CreateLaunchConfiguration(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_CreateOrUpdateTags() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.CreateOrUpdateTagsInput{
 		Tags: []*autoscaling.Tag{ // Required
 			{ // Required
 				Key:               aws.String("TagKey"), // Required
 				PropagateAtLaunch: aws.Bool(true),
-				ResourceID:        aws.String("XmlString"),
+				ResourceId:        aws.String("XmlString"),
 				ResourceType:      aws.String("XmlString"),
 				Value:             aws.String("TagValue"),
 			},
@@ -251,26 +282,24 @@ func ExampleAutoScaling_CreateOrUpdateTags() {
 	resp, err := svc.CreateOrUpdateTags(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DeleteAutoScalingGroup() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DeleteAutoScalingGroupInput{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
@@ -279,26 +308,24 @@ func ExampleAutoScaling_DeleteAutoScalingGroup() {
 	resp, err := svc.DeleteAutoScalingGroup(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DeleteLaunchConfiguration() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DeleteLaunchConfigurationInput{
 		LaunchConfigurationName: aws.String("ResourceName"), // Required
@@ -306,26 +333,24 @@ func ExampleAutoScaling_DeleteLaunchConfiguration() {
 	resp, err := svc.DeleteLaunchConfiguration(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DeleteLifecycleHook() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DeleteLifecycleHookInput{
 		AutoScalingGroupName: aws.String("ResourceName"),         // Required
@@ -334,26 +359,24 @@ func ExampleAutoScaling_DeleteLifecycleHook() {
 	resp, err := svc.DeleteLifecycleHook(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DeleteNotificationConfiguration() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DeleteNotificationConfigurationInput{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
@@ -362,26 +385,24 @@ func ExampleAutoScaling_DeleteNotificationConfiguration() {
 	resp, err := svc.DeleteNotificationConfiguration(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DeletePolicy() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DeletePolicyInput{
 		PolicyName:           aws.String("ResourceName"), // Required
@@ -390,61 +411,57 @@ func ExampleAutoScaling_DeletePolicy() {
 	resp, err := svc.DeletePolicy(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DeleteScheduledAction() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DeleteScheduledActionInput{
+		AutoScalingGroupName: aws.String("ResourceName"), // Required
 		ScheduledActionName:  aws.String("ResourceName"), // Required
-		AutoScalingGroupName: aws.String("ResourceName"),
 	}
 	resp, err := svc.DeleteScheduledAction(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DeleteTags() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DeleteTagsInput{
 		Tags: []*autoscaling.Tag{ // Required
 			{ // Required
 				Key:               aws.String("TagKey"), // Required
 				PropagateAtLaunch: aws.Bool(true),
-				ResourceID:        aws.String("XmlString"),
+				ResourceId:        aws.String("XmlString"),
 				ResourceType:      aws.String("XmlString"),
 				Value:             aws.String("TagValue"),
 			},
@@ -454,76 +471,70 @@ func ExampleAutoScaling_DeleteTags() {
 	resp, err := svc.DeleteTags(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeAccountLimits() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	var params *autoscaling.DescribeAccountLimitsInput
 	resp, err := svc.DescribeAccountLimits(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeAdjustmentTypes() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	var params *autoscaling.DescribeAdjustmentTypesInput
 	resp, err := svc.DescribeAdjustmentTypes(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeAutoScalingGroups() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DescribeAutoScalingGroupsInput{
 		AutoScalingGroupNames: []*string{
@@ -536,30 +547,28 @@ func ExampleAutoScaling_DescribeAutoScalingGroups() {
 	resp, err := svc.DescribeAutoScalingGroups(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeAutoScalingInstances() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DescribeAutoScalingInstancesInput{
-		InstanceIDs: []*string{
-			aws.String("XmlStringMaxLen16"), // Required
+		InstanceIds: []*string{
+			aws.String("XmlStringMaxLen19"), // Required
 			// More values...
 		},
 		MaxRecords: aws.Int64(1),
@@ -568,51 +577,47 @@ func ExampleAutoScaling_DescribeAutoScalingInstances() {
 	resp, err := svc.DescribeAutoScalingInstances(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeAutoScalingNotificationTypes() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	var params *autoscaling.DescribeAutoScalingNotificationTypesInput
 	resp, err := svc.DescribeAutoScalingNotificationTypes(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeLaunchConfigurations() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DescribeLaunchConfigurationsInput{
 		LaunchConfigurationNames: []*string{
@@ -625,51 +630,47 @@ func ExampleAutoScaling_DescribeLaunchConfigurations() {
 	resp, err := svc.DescribeLaunchConfigurations(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeLifecycleHookTypes() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	var params *autoscaling.DescribeLifecycleHookTypesInput
 	resp, err := svc.DescribeLifecycleHookTypes(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeLifecycleHooks() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DescribeLifecycleHooksInput{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
@@ -681,26 +682,51 @@ func ExampleAutoScaling_DescribeLifecycleHooks() {
 	resp, err := svc.DescribeLifecycleHooks(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleAutoScaling_DescribeLoadBalancerTargetGroups() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
+
+	params := &autoscaling.DescribeLoadBalancerTargetGroupsInput{
+		AutoScalingGroupName: aws.String("ResourceName"), // Required
+		MaxRecords:           aws.Int64(1),
+		NextToken:            aws.String("XmlString"),
+	}
+	resp, err := svc.DescribeLoadBalancerTargetGroups(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeLoadBalancers() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DescribeLoadBalancersInput{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
@@ -710,51 +736,47 @@ func ExampleAutoScaling_DescribeLoadBalancers() {
 	resp, err := svc.DescribeLoadBalancers(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeMetricCollectionTypes() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	var params *autoscaling.DescribeMetricCollectionTypesInput
 	resp, err := svc.DescribeMetricCollectionTypes(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeNotificationConfigurations() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DescribeNotificationConfigurationsInput{
 		AutoScalingGroupNames: []*string{
@@ -767,26 +789,24 @@ func ExampleAutoScaling_DescribeNotificationConfigurations() {
 	resp, err := svc.DescribeNotificationConfigurations(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribePolicies() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DescribePoliciesInput{
 		AutoScalingGroupName: aws.String("ResourceName"),
@@ -804,29 +824,27 @@ func ExampleAutoScaling_DescribePolicies() {
 	resp, err := svc.DescribePolicies(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeScalingActivities() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DescribeScalingActivitiesInput{
-		ActivityIDs: []*string{
+		ActivityIds: []*string{
 			aws.String("XmlString"), // Required
 			// More values...
 		},
@@ -837,51 +855,47 @@ func ExampleAutoScaling_DescribeScalingActivities() {
 	resp, err := svc.DescribeScalingActivities(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeScalingProcessTypes() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	var params *autoscaling.DescribeScalingProcessTypesInput
 	resp, err := svc.DescribeScalingProcessTypes(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeScheduledActions() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DescribeScheduledActionsInput{
 		AutoScalingGroupName: aws.String("ResourceName"),
@@ -897,26 +911,24 @@ func ExampleAutoScaling_DescribeScheduledActions() {
 	resp, err := svc.DescribeScheduledActions(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeTags() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DescribeTagsInput{
 		Filters: []*autoscaling.Filter{
@@ -935,87 +947,110 @@ func ExampleAutoScaling_DescribeTags() {
 	resp, err := svc.DescribeTags(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DescribeTerminationPolicyTypes() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	var params *autoscaling.DescribeTerminationPolicyTypesInput
 	resp, err := svc.DescribeTerminationPolicyTypes(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DetachInstances() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DetachInstancesInput{
 		AutoScalingGroupName:           aws.String("ResourceName"), // Required
 		ShouldDecrementDesiredCapacity: aws.Bool(true),             // Required
-		InstanceIDs: []*string{
-			aws.String("XmlStringMaxLen16"), // Required
+		InstanceIds: []*string{
+			aws.String("XmlStringMaxLen19"), // Required
 			// More values...
 		},
 	}
 	resp, err := svc.DetachInstances(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleAutoScaling_DetachLoadBalancerTargetGroups() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
+
+	params := &autoscaling.DetachLoadBalancerTargetGroupsInput{
+		AutoScalingGroupName: aws.String("ResourceName"), // Required
+		TargetGroupARNs: []*string{ // Required
+			aws.String("XmlStringMaxLen511"), // Required
+			// More values...
+		},
+	}
+	resp, err := svc.DetachLoadBalancerTargetGroups(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DetachLoadBalancers() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DetachLoadBalancersInput{
-		AutoScalingGroupName: aws.String("ResourceName"),
-		LoadBalancerNames: []*string{
+		AutoScalingGroupName: aws.String("ResourceName"), // Required
+		LoadBalancerNames: []*string{ // Required
 			aws.String("XmlStringMaxLen255"), // Required
 			// More values...
 		},
@@ -1023,26 +1058,24 @@ func ExampleAutoScaling_DetachLoadBalancers() {
 	resp, err := svc.DetachLoadBalancers(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_DisableMetricsCollection() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.DisableMetricsCollectionInput{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
@@ -1054,26 +1087,24 @@ func ExampleAutoScaling_DisableMetricsCollection() {
 	resp, err := svc.DisableMetricsCollection(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_EnableMetricsCollection() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.EnableMetricsCollectionInput{
 		AutoScalingGroupName: aws.String("ResourceName"),       // Required
@@ -1086,58 +1117,54 @@ func ExampleAutoScaling_EnableMetricsCollection() {
 	resp, err := svc.EnableMetricsCollection(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_EnterStandby() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.EnterStandbyInput{
 		AutoScalingGroupName:           aws.String("ResourceName"), // Required
 		ShouldDecrementDesiredCapacity: aws.Bool(true),             // Required
-		InstanceIDs: []*string{
-			aws.String("XmlStringMaxLen16"), // Required
+		InstanceIds: []*string{
+			aws.String("XmlStringMaxLen19"), // Required
 			// More values...
 		},
 	}
 	resp, err := svc.EnterStandby(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_ExecutePolicy() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.ExecutePolicyInput{
 		PolicyName:           aws.String("ResourceName"), // Required
@@ -1149,57 +1176,53 @@ func ExampleAutoScaling_ExecutePolicy() {
 	resp, err := svc.ExecutePolicy(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_ExitStandby() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.ExitStandbyInput{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
-		InstanceIDs: []*string{
-			aws.String("XmlStringMaxLen16"), // Required
+		InstanceIds: []*string{
+			aws.String("XmlStringMaxLen19"), // Required
 			// More values...
 		},
 	}
 	resp, err := svc.ExitStandby(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_PutLifecycleHook() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.PutLifecycleHookInput{
 		AutoScalingGroupName:  aws.String("ResourceName"),         // Required
@@ -1208,32 +1231,30 @@ func ExampleAutoScaling_PutLifecycleHook() {
 		HeartbeatTimeout:      aws.Int64(1),
 		LifecycleTransition:   aws.String("LifecycleTransition"),
 		NotificationMetadata:  aws.String("XmlStringMaxLen1023"),
-		NotificationTargetARN: aws.String("ResourceName"),
+		NotificationTargetARN: aws.String("NotificationTargetResourceName"),
 		RoleARN:               aws.String("ResourceName"),
 	}
 	resp, err := svc.PutLifecycleHook(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_PutNotificationConfiguration() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.PutNotificationConfigurationInput{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
@@ -1246,26 +1267,24 @@ func ExampleAutoScaling_PutNotificationConfiguration() {
 	resp, err := svc.PutNotificationConfiguration(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_PutScalingPolicy() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.PutScalingPolicyInput{
 		AdjustmentType:          aws.String("XmlStringMaxLen255"), // Required
@@ -1290,26 +1309,24 @@ func ExampleAutoScaling_PutScalingPolicy() {
 	resp, err := svc.PutScalingPolicy(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_PutScheduledUpdateGroupAction() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.PutScheduledUpdateGroupActionInput{
 		AutoScalingGroupName: aws.String("ResourceName"),       // Required
@@ -1325,55 +1342,52 @@ func ExampleAutoScaling_PutScheduledUpdateGroupAction() {
 	resp, err := svc.PutScheduledUpdateGroupAction(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_RecordLifecycleActionHeartbeat() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.RecordLifecycleActionHeartbeatInput{
 		AutoScalingGroupName: aws.String("ResourceName"),         // Required
-		LifecycleActionToken: aws.String("LifecycleActionToken"), // Required
 		LifecycleHookName:    aws.String("AsciiStringMaxLen255"), // Required
+		InstanceId:           aws.String("XmlStringMaxLen19"),
+		LifecycleActionToken: aws.String("LifecycleActionToken"),
 	}
 	resp, err := svc.RecordLifecycleActionHeartbeat(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_ResumeProcesses() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.ScalingProcessQuery{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
@@ -1385,26 +1399,24 @@ func ExampleAutoScaling_ResumeProcesses() {
 	resp, err := svc.ResumeProcesses(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_SetDesiredCapacity() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.SetDesiredCapacityInput{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
@@ -1414,55 +1426,81 @@ func ExampleAutoScaling_SetDesiredCapacity() {
 	resp, err := svc.SetDesiredCapacity(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_SetInstanceHealth() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.SetInstanceHealthInput{
 		HealthStatus:             aws.String("XmlStringMaxLen32"), // Required
-		InstanceID:               aws.String("XmlStringMaxLen16"), // Required
+		InstanceId:               aws.String("XmlStringMaxLen19"), // Required
 		ShouldRespectGracePeriod: aws.Bool(true),
 	}
 	resp, err := svc.SetInstanceHealth(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleAutoScaling_SetInstanceProtection() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
+
+	params := &autoscaling.SetInstanceProtectionInput{
+		AutoScalingGroupName: aws.String("ResourceName"), // Required
+		InstanceIds: []*string{ // Required
+			aws.String("XmlStringMaxLen19"), // Required
+			// More values...
+		},
+		ProtectedFromScaleIn: aws.Bool(true), // Required
+	}
+	resp, err := svc.SetInstanceProtection(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_SuspendProcesses() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.ScalingProcessQuery{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
@@ -1474,54 +1512,50 @@ func ExampleAutoScaling_SuspendProcesses() {
 	resp, err := svc.SuspendProcesses(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_TerminateInstanceInAutoScalingGroup() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.TerminateInstanceInAutoScalingGroupInput{
-		InstanceID:                     aws.String("XmlStringMaxLen16"), // Required
+		InstanceId:                     aws.String("XmlStringMaxLen19"), // Required
 		ShouldDecrementDesiredCapacity: aws.Bool(true),                  // Required
 	}
 	resp, err := svc.TerminateInstanceInAutoScalingGroup(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleAutoScaling_UpdateAutoScalingGroup() {
-	svc := autoscaling.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := autoscaling.New(sess)
 
 	params := &autoscaling.UpdateAutoScalingGroupInput{
 		AutoScalingGroupName: aws.String("ResourceName"), // Required
@@ -1536,30 +1570,23 @@ func ExampleAutoScaling_UpdateAutoScalingGroup() {
 		LaunchConfigurationName: aws.String("ResourceName"),
 		MaxSize:                 aws.Int64(1),
 		MinSize:                 aws.Int64(1),
-		PlacementGroup:          aws.String("XmlStringMaxLen255"),
+		NewInstancesProtectedFromScaleIn: aws.Bool(true),
+		PlacementGroup:                   aws.String("XmlStringMaxLen255"),
 		TerminationPolicies: []*string{
 			aws.String("XmlStringMaxLen1600"), // Required
 			// More values...
 		},
-		VPCZoneIdentifier: aws.String("XmlStringMaxLen255"),
+		VPCZoneIdentifier: aws.String("XmlStringMaxLen2047"),
 	}
 	resp, err := svc.UpdateAutoScalingGroup(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }

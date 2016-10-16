@@ -8,77 +8,110 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudhsm"
 )
 
 var _ time.Duration
 var _ bytes.Buffer
 
-func ExampleCloudHSM_CreateHAPG() {
-	svc := cloudhsm.New(nil)
-
-	params := &cloudhsm.CreateHAPGInput{
-		Label: aws.String("Label"), // Required
+func ExampleCloudHSM_AddTagsToResource() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.CreateHAPG(params)
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.AddTagsToResourceInput{
+		ResourceArn: aws.String("String"), // Required
+		TagList: []*cloudhsm.Tag{ // Required
+			{ // Required
+				Key:   aws.String("TagKey"),   // Required
+				Value: aws.String("TagValue"), // Required
+			},
+			// More values...
+		},
+	}
+	resp, err := svc.AddTagsToResource(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleCloudHSM_CreateHSM() {
-	svc := cloudhsm.New(nil)
-
-	params := &cloudhsm.CreateHSMInput{
-		IAMRoleARN:       aws.String("IamRoleArn"),       // Required
-		SSHKey:           aws.String("SshKey"),           // Required
-		SubnetID:         aws.String("SubnetId"),         // Required
-		SubscriptionType: aws.String("SubscriptionType"), // Required
-		ClientToken:      aws.String("ClientToken"),
-		ENIIP:            aws.String("IpAddress"),
-		ExternalID:       aws.String("ExternalId"),
-		SyslogIP:         aws.String("IpAddress"),
+func ExampleCloudHSM_CreateHapg() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.CreateHSM(params)
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.CreateHapgInput{
+		Label: aws.String("Label"), // Required
+	}
+	resp, err := svc.CreateHapg(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleCloudHSM_CreateHsm() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.CreateHsmInput{
+		IamRoleArn:       aws.String("IamRoleArn"),       // Required
+		SshKey:           aws.String("SshKey"),           // Required
+		SubnetId:         aws.String("SubnetId"),         // Required
+		SubscriptionType: aws.String("SubscriptionType"), // Required
+		ClientToken:      aws.String("ClientToken"),
+		EniIp:            aws.String("IpAddress"),
+		ExternalId:       aws.String("ExternalId"),
+		SyslogIp:         aws.String("IpAddress"),
+	}
+	resp, err := svc.CreateHsm(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleCloudHSM_CreateLunaClient() {
-	svc := cloudhsm.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
 
 	params := &cloudhsm.CreateLunaClientInput{
 		Certificate: aws.String("Certificate"), // Required
@@ -87,195 +120,181 @@ func ExampleCloudHSM_CreateLunaClient() {
 	resp, err := svc.CreateLunaClient(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleCloudHSM_DeleteHAPG() {
-	svc := cloudhsm.New(nil)
-
-	params := &cloudhsm.DeleteHAPGInput{
-		HAPGARN: aws.String("HapgArn"), // Required
+func ExampleCloudHSM_DeleteHapg() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.DeleteHAPG(params)
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.DeleteHapgInput{
+		HapgArn: aws.String("HapgArn"), // Required
+	}
+	resp, err := svc.DeleteHapg(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleCloudHSM_DeleteHSM() {
-	svc := cloudhsm.New(nil)
-
-	params := &cloudhsm.DeleteHSMInput{
-		HSMARN: aws.String("HsmArn"), // Required
+func ExampleCloudHSM_DeleteHsm() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.DeleteHSM(params)
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.DeleteHsmInput{
+		HsmArn: aws.String("HsmArn"), // Required
+	}
+	resp, err := svc.DeleteHsm(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudHSM_DeleteLunaClient() {
-	svc := cloudhsm.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
 
 	params := &cloudhsm.DeleteLunaClientInput{
-		ClientARN: aws.String("ClientArn"), // Required
+		ClientArn: aws.String("ClientArn"), // Required
 	}
 	resp, err := svc.DeleteLunaClient(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleCloudHSM_DescribeHAPG() {
-	svc := cloudhsm.New(nil)
-
-	params := &cloudhsm.DescribeHAPGInput{
-		HAPGARN: aws.String("HapgArn"), // Required
+func ExampleCloudHSM_DescribeHapg() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.DescribeHAPG(params)
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.DescribeHapgInput{
+		HapgArn: aws.String("HapgArn"), // Required
+	}
+	resp, err := svc.DescribeHapg(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleCloudHSM_DescribeHSM() {
-	svc := cloudhsm.New(nil)
-
-	params := &cloudhsm.DescribeHSMInput{
-		HSMARN:          aws.String("HsmArn"),
-		HSMSerialNumber: aws.String("HsmSerialNumber"),
+func ExampleCloudHSM_DescribeHsm() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.DescribeHSM(params)
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.DescribeHsmInput{
+		HsmArn:          aws.String("HsmArn"),
+		HsmSerialNumber: aws.String("HsmSerialNumber"),
+	}
+	resp, err := svc.DescribeHsm(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudHSM_DescribeLunaClient() {
-	svc := cloudhsm.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
 
 	params := &cloudhsm.DescribeLunaClientInput{
 		CertificateFingerprint: aws.String("CertificateFingerprint"),
-		ClientARN:              aws.String("ClientArn"),
+		ClientArn:              aws.String("ClientArn"),
 	}
 	resp, err := svc.DescribeLunaClient(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudHSM_GetConfig() {
-	svc := cloudhsm.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
 
 	params := &cloudhsm.GetConfigInput{
-		ClientARN:     aws.String("ClientArn"),     // Required
+		ClientArn:     aws.String("ClientArn"),     // Required
 		ClientVersion: aws.String("ClientVersion"), // Required
-		HAPGList: []*string{ // Required
+		HapgList: []*string{ // Required
 			aws.String("HapgArn"), // Required
 			// More values...
 		},
@@ -283,78 +302,47 @@ func ExampleCloudHSM_GetConfig() {
 	resp, err := svc.GetConfig(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudHSM_ListAvailableZones() {
-	svc := cloudhsm.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
 
 	var params *cloudhsm.ListAvailableZonesInput
 	resp, err := svc.ListAvailableZones(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
-}
-
-func ExampleCloudHSM_ListHSMs() {
-	svc := cloudhsm.New(nil)
-
-	params := &cloudhsm.ListHSMsInput{
-		NextToken: aws.String("PaginationToken"),
-	}
-	resp, err := svc.ListHSMs(params)
-
-	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudHSM_ListHapgs() {
-	svc := cloudhsm.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
 
 	params := &cloudhsm.ListHapgsInput{
 		NextToken: aws.String("PaginationToken"),
@@ -362,26 +350,49 @@ func ExampleCloudHSM_ListHapgs() {
 	resp, err := svc.ListHapgs(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleCloudHSM_ListHsms() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.ListHsmsInput{
+		NextToken: aws.String("PaginationToken"),
+	}
+	resp, err := svc.ListHsms(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleCloudHSM_ListLunaClients() {
-	svc := cloudhsm.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
 
 	params := &cloudhsm.ListLunaClientsInput{
 		NextToken: aws.String("PaginationToken"),
@@ -389,112 +400,152 @@ func ExampleCloudHSM_ListLunaClients() {
 	resp, err := svc.ListLunaClients(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleCloudHSM_ModifyHAPG() {
-	svc := cloudhsm.New(nil)
+func ExampleCloudHSM_ListTagsForResource() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
 
-	params := &cloudhsm.ModifyHAPGInput{
-		HAPGARN: aws.String("HapgArn"), // Required
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.ListTagsForResourceInput{
+		ResourceArn: aws.String("String"), // Required
+	}
+	resp, err := svc.ListTagsForResource(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
+func ExampleCloudHSM_ModifyHapg() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.ModifyHapgInput{
+		HapgArn: aws.String("HapgArn"), // Required
 		Label:   aws.String("Label"),
 		PartitionSerialList: []*string{
 			aws.String("PartitionSerial"), // Required
 			// More values...
 		},
 	}
-	resp, err := svc.ModifyHAPG(params)
+	resp, err := svc.ModifyHapg(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
-func ExampleCloudHSM_ModifyHSM() {
-	svc := cloudhsm.New(nil)
-
-	params := &cloudhsm.ModifyHSMInput{
-		HSMARN:     aws.String("HsmArn"), // Required
-		ENIIP:      aws.String("IpAddress"),
-		ExternalID: aws.String("ExternalId"),
-		IAMRoleARN: aws.String("IamRoleArn"),
-		SubnetID:   aws.String("SubnetId"),
-		SyslogIP:   aws.String("IpAddress"),
+func ExampleCloudHSM_ModifyHsm() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
 	}
-	resp, err := svc.ModifyHSM(params)
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.ModifyHsmInput{
+		HsmArn:     aws.String("HsmArn"), // Required
+		EniIp:      aws.String("IpAddress"),
+		ExternalId: aws.String("ExternalId"),
+		IamRoleArn: aws.String("IamRoleArn"),
+		SubnetId:   aws.String("SubnetId"),
+		SyslogIp:   aws.String("IpAddress"),
+	}
+	resp, err := svc.ModifyHsm(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleCloudHSM_ModifyLunaClient() {
-	svc := cloudhsm.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
 
 	params := &cloudhsm.ModifyLunaClientInput{
 		Certificate: aws.String("Certificate"), // Required
-		ClientARN:   aws.String("ClientArn"),   // Required
+		ClientArn:   aws.String("ClientArn"),   // Required
 	}
 	resp, err := svc.ModifyLunaClient(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleCloudHSM_RemoveTagsFromResource() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := cloudhsm.New(sess)
+
+	params := &cloudhsm.RemoveTagsFromResourceInput{
+		ResourceArn: aws.String("String"), // Required
+		TagKeyList: []*string{ // Required
+			aws.String("TagKey"), // Required
+			// More values...
+		},
+	}
+	resp, err := svc.RemoveTagsFromResource(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }

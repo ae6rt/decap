@@ -12,15 +12,15 @@ work := func() error {
    return nil
 }
 
-r := retry.New(3*time.Second, 3, retry.DefaultBackoffFunc)
+r := retry.New(3, retry.DefaultBackoffFunc)
 
 err := r.Try(work)
 
 if err != nil {
-   if retry.IsTimeout(err) {
-     fmt.Printf("Timeout\n")
-   } else {
-     fmt.Printf("Error: %v\n", err)
-   }
+   fmt.Printf("Error: %v\n", err)
 }
 ```
+
+Earlier versions used channel timeouts.  The latest version is
+inspired by the much simpler
+https://blog.abourget.net/en/2016/01/04/my-favorite-golang-retry-function/.

@@ -3,14 +3,15 @@ package cloudsearchdomain_test
 import (
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/service"
-	"github.com/aws/aws-sdk-go/service/cloudsearchdomain"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/awstesting/unit"
+	"github.com/aws/aws-sdk-go/service/cloudsearchdomain"
 )
 
 func TestRequireEndpointIfRegionProvided(t *testing.T) {
-	svc := cloudsearchdomain.New(&aws.Config{
+	svc := cloudsearchdomain.New(unit.Session, &aws.Config{
 		Region:                 aws.String("mock-region"),
 		DisableParamValidation: aws.Bool(true),
 	})
@@ -19,11 +20,11 @@ func TestRequireEndpointIfRegionProvided(t *testing.T) {
 
 	assert.Equal(t, "", svc.Endpoint)
 	assert.Error(t, err)
-	assert.Equal(t, service.ErrMissingEndpoint, err)
+	assert.Equal(t, aws.ErrMissingEndpoint, err)
 }
 
 func TestRequireEndpointIfNoRegionProvided(t *testing.T) {
-	svc := cloudsearchdomain.New(&aws.Config{
+	svc := cloudsearchdomain.New(unit.Session, &aws.Config{
 		Region:                 aws.String(""),
 		DisableParamValidation: aws.Bool(true),
 	})
@@ -32,11 +33,11 @@ func TestRequireEndpointIfNoRegionProvided(t *testing.T) {
 
 	assert.Equal(t, "", svc.Endpoint)
 	assert.Error(t, err)
-	assert.Equal(t, service.ErrMissingEndpoint, err)
+	assert.Equal(t, aws.ErrMissingEndpoint, err)
 }
 
 func TestRequireEndpointUsed(t *testing.T) {
-	svc := cloudsearchdomain.New(&aws.Config{
+	svc := cloudsearchdomain.New(unit.Session, &aws.Config{
 		Region:                 aws.String("mock-region"),
 		DisableParamValidation: aws.Bool(true),
 		Endpoint:               aws.String("https://endpoint"),

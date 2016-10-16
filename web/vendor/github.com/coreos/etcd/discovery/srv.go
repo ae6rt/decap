@@ -1,4 +1,4 @@
-// Copyright 2015 CoreOS, Inc.
+// Copyright 2015 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,13 +28,16 @@ var (
 	resolveTCPAddr = net.ResolveTCPAddr
 )
 
+// SRVGetCluster gets the cluster information via DNS discovery.
 // TODO(barakmich): Currently ignores priority and weight (as they don't make as much sense for a bootstrap)
 // Also doesn't do any lookups for the token (though it could)
 // Also sees each entry as a separate instance.
 func SRVGetCluster(name, dns string, defaultToken string, apurls types.URLs) (string, string, error) {
-	stringParts := make([]string, 0)
+	var (
+		stringParts []string
+		tcpAPUrls   []string
+	)
 	tempName := int(0)
-	tcpAPUrls := make([]string, 0)
 
 	// First, resolve the apurls
 	for _, url := range apurls {
@@ -52,8 +55,8 @@ func SRVGetCluster(name, dns string, defaultToken string, apurls types.URLs) (st
 			return err
 		}
 		for _, srv := range addrs {
-			target := strings.TrimSuffix(srv.Target, ".")
-			host := net.JoinHostPort(target, fmt.Sprintf("%d", srv.Port))
+			port := fmt.Sprintf("%d", srv.Port)
+			host := net.JoinHostPort(srv.Target, port)
 			tcpAddr, err := resolveTCPAddr("tcp", host)
 			if err != nil {
 				plog.Warningf("couldn't resolve host %s during SRV discovery", host)
@@ -67,26 +70,32 @@ func SRVGetCluster(name, dns string, defaultToken string, apurls types.URLs) (st
 			}
 			if n == "" {
 				n = fmt.Sprintf("%d", tempName)
-				tempName += 1
+				tempName++
 			}
-			stringParts = append(stringParts, fmt.Sprintf("%s=%s%s", n, prefix, host))
-			plog.Noticef("got bootstrap from DNS for %s at %s%s", service, prefix, host)
+			// SRV records have a trailing dot but URL shouldn't.
+			shortHost := strings.TrimSuffix(srv.Target, ".")
+			urlHost := net.JoinHostPort(shortHost, port)
+			stringParts = append(stringParts, fmt.Sprintf("%s=%s%s", n, prefix, urlHost))
+			plog.Noticef("got bootstrap from DNS for %s at %s%s", service, prefix, urlHost)
 		}
 		return nil
 	}
 
 	failCount := 0
 	err := updateNodeMap("etcd-server-ssl", "https://")
+	srvErr := make([]string, 2)
 	if err != nil {
-		plog.Warningf("error querying DNS SRV records for _etcd-server-ssl %s", err)
-		failCount += 1
+		srvErr[0] = fmt.Sprintf("error querying DNS SRV records for _etcd-server-ssl %s", err)
+		failCount++
 	}
 	err = updateNodeMap("etcd-server", "http://")
 	if err != nil {
-		plog.Warningf("discovery: error querying DNS SRV records for _etcd-server %s", err)
-		failCount += 1
+		srvErr[1] = fmt.Sprintf("error querying DNS SRV records for _etcd-server %s", err)
+		failCount++
 	}
 	if failCount == 2 {
+		plog.Warningf(srvErr[0])
+		plog.Warningf(srvErr[1])
 		plog.Errorf("SRV discovery failed: too many errors querying DNS SRV records")
 		return "", "", err
 	}

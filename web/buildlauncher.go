@@ -6,21 +6,19 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"sort"
 	"time"
 
-	"encoding/base64"
 	"encoding/json"
-	"io"
 	"net/url"
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/k8stypes"
 	"github.com/ae6rt/decap/web/locks"
 	"github.com/ae6rt/decap/web/uuid"
-	"github.com/ae6rt/retry"
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
 // NewBuilder is the constructor for a new default Builder instance.
@@ -57,6 +55,7 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 		maxPods:                10,
 		buildScriptsRepo:       buildScriptsRepo,
 		buildScriptsRepoBranch: buildScriptsRepoBranch,
+		tlsConfig:              tlsConfig,
 	}
 }
 
@@ -350,8 +349,41 @@ func (builder DefaultBuilder) DeletePod(podName string) error {
 }
 
 func (builder DefaultBuilder) PodWatcher() {
+	dialer := websocket.DefaultDialer
+	dialer.TLSClientConfig = &builder.tlsConfig
+
+	var host string
+	{
+		u, err := url.Parse(builder.MasterURL)
+		if err != nil {
+			log.Fatalf("Error parsing master host URL: %s, %s", builder.MasterURL, err)
+		}
+		host = u.Host
+	}
+
+	u, err := url.Parse("wss://" + host + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
+	if err != nil {
+		log.Fatalf("Error parsing wss:// websocket URL: %s, %s", builder.MasterURL, err)
+	}
 
 	var conn *websocket.Conn
+	for {
+		var resp *http.Response
+		var err error
+
+		conn, resp, err = dialer.Dial(u.String(), http.Header{
+			"Origin":        []string{"https://" + u.Host},
+			"Authorization": []string{"Bearer " + builder.apiToken},
+		})
+
+		if err != nil {
+			log.Printf("websocket dialer error: %+v: %s", resp, err.Error())
+			time.Sleep(5 * time.Second)
+		} else {
+			defer conn.Close()
+			break
+		}
+	}
 
 	type PodWatch struct {
 		Object struct {
@@ -361,53 +393,13 @@ func (builder DefaultBuilder) PodWatcher() {
 		} `json:"object"`
 	}
 
-	work := func() error {
-		originURL, err := url.Parse(builder.MasterURL + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
-		if err != nil {
-			return err
-		}
-		serviceURL, err := url.Parse("wss://" + originURL.Host + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
-		if err != nil {
-			return err
-		}
-
-		var hdrs http.Header
-		if builder.apiToken != "" {
-			hdrs = map[string][]string{"Authorization": []string{"Bearer " + builder.apiToken}}
-		} else {
-			hdrs = map[string][]string{"Authorization": []string{"Basic " + base64.StdEncoding.EncodeToString([]byte(builder.UserName+":"+builder.Password))}}
-		}
-
-		cfg := websocket.Config{
-			Location:  serviceURL,
-			Origin:    originURL,
-			TlsConfig: &tls.Config{InsecureSkipVerify: true},
-			Header:    hdrs,
-			Version:   websocket.ProtocolVersionHybi13,
-		}
-
-		if conn, err = websocket.DialConfig(&cfg); err != nil {
-			return err
-		}
-		return nil
-	}
-
-	err := retry.New(60, retry.DefaultBackoffFunc).Try(work)
-	if err != nil {
-		Log.Printf("Error opening websocket connection.  Will be unable to reap exited pods.: %v\n", err)
-		return
-	}
-	Log.Print("Watching pods on websocket")
-
-	var msg string
 	for {
-		err := websocket.Message.Receive(conn, &msg)
+		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			Log.Println("Couldn't receive msg " + err.Error())
+			log.Println("read:", err)
+			continue
 		}
+
 		var pod PodWatch
 		if err := json.Unmarshal([]byte(msg), &pod); err != nil {
 			Log.Println(err)

@@ -11,44 +11,60 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/service"
+	"github.com/aws/aws-sdk-go/aws/client"
+	"github.com/aws/aws-sdk-go/aws/request"
 )
 
-func init() {
-	initService = func(s *service.Service) {
-		s.DefaultMaxRetries = 10
-		s.RetryRules = func(r *service.Request) time.Duration {
-			delay := time.Duration(math.Pow(2, float64(r.RetryCount))) * 50
-			return delay * time.Millisecond
-		}
+type retryer struct {
+	client.DefaultRetryer
+}
 
-		s.Handlers.Build.PushBack(disableCompression)
-		s.Handlers.Unmarshal.PushFront(validateCRC32)
+func (d retryer) RetryRules(r *request.Request) time.Duration {
+	delay := time.Duration(math.Pow(2, float64(r.RetryCount))) * 50
+	return delay * time.Millisecond
+}
+
+func init() {
+	initClient = func(c *client.Client) {
+		r := retryer{}
+		if c.Config.MaxRetries == nil || aws.IntValue(c.Config.MaxRetries) == aws.UseServiceDefaultRetries {
+			r.NumMaxRetries = 10
+		} else {
+			r.NumMaxRetries = *c.Config.MaxRetries
+		}
+		c.Retryer = r
+
+		c.Handlers.Build.PushBack(disableCompression)
+		c.Handlers.Unmarshal.PushFront(validateCRC32)
 	}
 }
 
-func drainBody(b io.ReadCloser) (out *bytes.Buffer, err error) {
-	var buf bytes.Buffer
+func drainBody(b io.ReadCloser, length int64) (out *bytes.Buffer, err error) {
+	if length < 0 {
+		length = 0
+	}
+	buf := bytes.NewBuffer(make([]byte, 0, length))
+
 	if _, err = buf.ReadFrom(b); err != nil {
 		return nil, err
 	}
 	if err = b.Close(); err != nil {
 		return nil, err
 	}
-	return &buf, nil
+	return buf, nil
 }
 
-func disableCompression(r *service.Request) {
+func disableCompression(r *request.Request) {
 	r.HTTPRequest.Header.Set("Accept-Encoding", "identity")
 }
 
-func validateCRC32(r *service.Request) {
+func validateCRC32(r *request.Request) {
 	if r.Error != nil {
 		return // already have an error, no need to verify CRC
 	}
 
 	// Checksum validation is off, skip
-	if aws.BoolValue(r.Service.Config.DisableComputeChecksums) {
+	if aws.BoolValue(r.Config.DisableComputeChecksums) {
 		return
 	}
 
@@ -63,7 +79,7 @@ func validateCRC32(r *service.Request) {
 		return // Could not determine CRC value, skip
 	}
 
-	buf, err := drainBody(r.HTTPResponse.Body)
+	buf, err := drainBody(r.HTTPResponse.Body, r.HTTPResponse.ContentLength)
 	if err != nil { // failed to read the response body, skip
 		return
 	}

@@ -8,23 +8,74 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/workspaces"
 )
 
 var _ time.Duration
 var _ bytes.Buffer
 
+func ExampleWorkSpaces_CreateTags() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
+
+	params := &workspaces.CreateTagsInput{
+		ResourceId: aws.String("NonEmptyString"), // Required
+		Tags: []*workspaces.Tag{ // Required
+			{ // Required
+				Key:   aws.String("TagKey"), // Required
+				Value: aws.String("TagValue"),
+			},
+			// More values...
+		},
+	}
+	resp, err := svc.CreateTags(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
 func ExampleWorkSpaces_CreateWorkspaces() {
-	svc := workspaces.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
 
 	params := &workspaces.CreateWorkspacesInput{
 		Workspaces: []*workspaces.WorkspaceRequest{ // Required
 			{ // Required
-				BundleID:    aws.String("BundleId"),    // Required
-				DirectoryID: aws.String("DirectoryId"), // Required
-				UserName:    aws.String("UserName"),    // Required
+				BundleId:                    aws.String("BundleId"),    // Required
+				DirectoryId:                 aws.String("DirectoryId"), // Required
+				UserName:                    aws.String("UserName"),    // Required
+				RootVolumeEncryptionEnabled: aws.Bool(true),
+				Tags: []*workspaces.Tag{
+					{ // Required
+						Key:   aws.String("TagKey"), // Required
+						Value: aws.String("TagValue"),
+					},
+					// More values...
+				},
+				UserVolumeEncryptionEnabled: aws.Bool(true),
+				VolumeEncryptionKey:         aws.String("VolumeEncryptionKey"),
+				WorkspaceProperties: &workspaces.WorkspaceProperties{
+					RunningMode:                         aws.String("RunningMode"),
+					RunningModeAutoStopTimeoutInMinutes: aws.Int64(1),
+				},
 			},
 			// More values...
 		},
@@ -32,29 +83,81 @@ func ExampleWorkSpaces_CreateWorkspaces() {
 	resp, err := svc.CreateWorkspaces(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleWorkSpaces_DeleteTags() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
+
+	params := &workspaces.DeleteTagsInput{
+		ResourceId: aws.String("NonEmptyString"), // Required
+		TagKeys: []*string{ // Required
+			aws.String("NonEmptyString"), // Required
+			// More values...
+		},
+	}
+	resp, err := svc.DeleteTags(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
+func ExampleWorkSpaces_DescribeTags() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
+
+	params := &workspaces.DescribeTagsInput{
+		ResourceId: aws.String("NonEmptyString"), // Required
+	}
+	resp, err := svc.DescribeTags(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleWorkSpaces_DescribeWorkspaceBundles() {
-	svc := workspaces.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
 
 	params := &workspaces.DescribeWorkspaceBundlesInput{
-		BundleIDs: []*string{
+		BundleIds: []*string{
 			aws.String("BundleId"), // Required
 			// More values...
 		},
@@ -64,29 +167,27 @@ func ExampleWorkSpaces_DescribeWorkspaceBundles() {
 	resp, err := svc.DescribeWorkspaceBundles(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleWorkSpaces_DescribeWorkspaceDirectories() {
-	svc := workspaces.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
 
 	params := &workspaces.DescribeWorkspaceDirectoriesInput{
-		DirectoryIDs: []*string{
+		DirectoryIds: []*string{
 			aws.String("DirectoryId"), // Required
 			// More values...
 		},
@@ -95,34 +196,32 @@ func ExampleWorkSpaces_DescribeWorkspaceDirectories() {
 	resp, err := svc.DescribeWorkspaceDirectories(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleWorkSpaces_DescribeWorkspaces() {
-	svc := workspaces.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
 
 	params := &workspaces.DescribeWorkspacesInput{
-		BundleID:    aws.String("BundleId"),
-		DirectoryID: aws.String("DirectoryId"),
+		BundleId:    aws.String("BundleId"),
+		DirectoryId: aws.String("DirectoryId"),
 		Limit:       aws.Int64(1),
 		NextToken:   aws.String("PaginationToken"),
 		UserName:    aws.String("UserName"),
-		WorkspaceIDs: []*string{
+		WorkspaceIds: []*string{
 			aws.String("WorkspaceId"), // Required
 			// More values...
 		},
@@ -130,31 +229,87 @@ func ExampleWorkSpaces_DescribeWorkspaces() {
 	resp, err := svc.DescribeWorkspaces(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleWorkSpaces_DescribeWorkspacesConnectionStatus() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
+
+	params := &workspaces.DescribeWorkspacesConnectionStatusInput{
+		NextToken: aws.String("PaginationToken"),
+		WorkspaceIds: []*string{
+			aws.String("WorkspaceId"), // Required
+			// More values...
+		},
+	}
+	resp, err := svc.DescribeWorkspacesConnectionStatus(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
+func ExampleWorkSpaces_ModifyWorkspaceProperties() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
+
+	params := &workspaces.ModifyWorkspacePropertiesInput{
+		WorkspaceId: aws.String("WorkspaceId"), // Required
+		WorkspaceProperties: &workspaces.WorkspaceProperties{ // Required
+			RunningMode:                         aws.String("RunningMode"),
+			RunningModeAutoStopTimeoutInMinutes: aws.Int64(1),
+		},
+	}
+	resp, err := svc.ModifyWorkspaceProperties(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleWorkSpaces_RebootWorkspaces() {
-	svc := workspaces.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
 
 	params := &workspaces.RebootWorkspacesInput{
 		RebootWorkspaceRequests: []*workspaces.RebootRequest{ // Required
 			{ // Required
-				WorkspaceID: aws.String("WorkspaceId"), // Required
+				WorkspaceId: aws.String("WorkspaceId"), // Required
 			},
 			// More values...
 		},
@@ -162,31 +317,29 @@ func ExampleWorkSpaces_RebootWorkspaces() {
 	resp, err := svc.RebootWorkspaces(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleWorkSpaces_RebuildWorkspaces() {
-	svc := workspaces.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
 
 	params := &workspaces.RebuildWorkspacesInput{
 		RebuildWorkspaceRequests: []*workspaces.RebuildRequest{ // Required
 			{ // Required
-				WorkspaceID: aws.String("WorkspaceId"), // Required
+				WorkspaceId: aws.String("WorkspaceId"), // Required
 			},
 			// More values...
 		},
@@ -194,31 +347,89 @@ func ExampleWorkSpaces_RebuildWorkspaces() {
 	resp, err := svc.RebuildWorkspaces(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleWorkSpaces_StartWorkspaces() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
+
+	params := &workspaces.StartWorkspacesInput{
+		StartWorkspaceRequests: []*workspaces.StartRequest{ // Required
+			{ // Required
+				WorkspaceId: aws.String("WorkspaceId"),
+			},
+			// More values...
+		},
+	}
+	resp, err := svc.StartWorkspaces(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
+func ExampleWorkSpaces_StopWorkspaces() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
+
+	params := &workspaces.StopWorkspacesInput{
+		StopWorkspaceRequests: []*workspaces.StopRequest{ // Required
+			{ // Required
+				WorkspaceId: aws.String("WorkspaceId"),
+			},
+			// More values...
+		},
+	}
+	resp, err := svc.StopWorkspaces(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleWorkSpaces_TerminateWorkspaces() {
-	svc := workspaces.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := workspaces.New(sess)
 
 	params := &workspaces.TerminateWorkspacesInput{
 		TerminateWorkspaceRequests: []*workspaces.TerminateRequest{ // Required
 			{ // Required
-				WorkspaceID: aws.String("WorkspaceId"), // Required
+				WorkspaceId: aws.String("WorkspaceId"), // Required
 			},
 			// More values...
 		},
@@ -226,20 +437,12 @@ func ExampleWorkSpaces_TerminateWorkspaces() {
 	resp, err := svc.TerminateWorkspaces(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }

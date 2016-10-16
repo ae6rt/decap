@@ -8,8 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/elasticbeanstalk"
 )
 
@@ -17,35 +16,66 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleElasticBeanstalk_AbortEnvironmentUpdate() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.AbortEnvironmentUpdateInput{
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		EnvironmentName: aws.String("EnvironmentName"),
 	}
 	resp, err := svc.AbortEnvironmentUpdate(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleElasticBeanstalk_ApplyEnvironmentManagedAction() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
+
+	params := &elasticbeanstalk.ApplyEnvironmentManagedActionInput{
+		ActionId:        aws.String("String"), // Required
+		EnvironmentId:   aws.String("String"),
+		EnvironmentName: aws.String("String"),
+	}
+	resp, err := svc.ApplyEnvironmentManagedAction(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_CheckDNSAvailability() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.CheckDNSAvailabilityInput{
 		CNAMEPrefix: aws.String("DNSCnamePrefix"), // Required
@@ -53,26 +83,54 @@ func ExampleElasticBeanstalk_CheckDNSAvailability() {
 	resp, err := svc.CheckDNSAvailability(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleElasticBeanstalk_ComposeEnvironments() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
+
+	params := &elasticbeanstalk.ComposeEnvironmentsInput{
+		ApplicationName: aws.String("ApplicationName"),
+		GroupName:       aws.String("GroupName"),
+		VersionLabels: []*string{
+			aws.String("VersionLabel"), // Required
+			// More values...
+		},
+	}
+	resp, err := svc.ComposeEnvironments(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_CreateApplication() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.CreateApplicationInput{
 		ApplicationName: aws.String("ApplicationName"), // Required
@@ -81,32 +139,36 @@ func ExampleElasticBeanstalk_CreateApplication() {
 	resp, err := svc.CreateApplication(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_CreateApplicationVersion() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.CreateApplicationVersionInput{
 		ApplicationName:       aws.String("ApplicationName"), // Required
 		VersionLabel:          aws.String("VersionLabel"),    // Required
 		AutoCreateApplication: aws.Bool(true),
 		Description:           aws.String("Description"),
+		Process:               aws.Bool(true),
+		SourceBuildInformation: &elasticbeanstalk.SourceBuildInformation{
+			SourceLocation:   aws.String("SourceLocation"),   // Required
+			SourceRepository: aws.String("SourceRepository"), // Required
+			SourceType:       aws.String("SourceType"),       // Required
+		},
 		SourceBundle: &elasticbeanstalk.S3Location{
 			S3Bucket: aws.String("S3Bucket"),
 			S3Key:    aws.String("S3Key"),
@@ -115,32 +177,30 @@ func ExampleElasticBeanstalk_CreateApplicationVersion() {
 	resp, err := svc.CreateApplicationVersion(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_CreateConfigurationTemplate() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.CreateConfigurationTemplateInput{
 		ApplicationName: aws.String("ApplicationName"),           // Required
 		TemplateName:    aws.String("ConfigurationTemplateName"), // Required
 		Description:     aws.String("Description"),
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		OptionSettings: []*elasticbeanstalk.ConfigurationOptionSetting{
 			{ // Required
 				Namespace:    aws.String("OptionNamespace"),
@@ -159,32 +219,31 @@ func ExampleElasticBeanstalk_CreateConfigurationTemplate() {
 	resp, err := svc.CreateConfigurationTemplate(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_CreateEnvironment() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.CreateEnvironmentInput{
 		ApplicationName: aws.String("ApplicationName"), // Required
-		EnvironmentName: aws.String("EnvironmentName"), // Required
 		CNAMEPrefix:     aws.String("DNSCnamePrefix"),
 		Description:     aws.String("Description"),
+		EnvironmentName: aws.String("EnvironmentName"),
+		GroupName:       aws.String("GroupName"),
 		OptionSettings: []*elasticbeanstalk.ConfigurationOptionSetting{
 			{ // Required
 				Namespace:    aws.String("OptionNamespace"),
@@ -221,51 +280,47 @@ func ExampleElasticBeanstalk_CreateEnvironment() {
 	resp, err := svc.CreateEnvironment(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_CreateStorageLocation() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	var params *elasticbeanstalk.CreateStorageLocationInput
 	resp, err := svc.CreateStorageLocation(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DeleteApplication() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DeleteApplicationInput{
 		ApplicationName:     aws.String("ApplicationName"), // Required
@@ -274,26 +329,24 @@ func ExampleElasticBeanstalk_DeleteApplication() {
 	resp, err := svc.DeleteApplication(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DeleteApplicationVersion() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DeleteApplicationVersionInput{
 		ApplicationName:    aws.String("ApplicationName"), // Required
@@ -303,26 +356,24 @@ func ExampleElasticBeanstalk_DeleteApplicationVersion() {
 	resp, err := svc.DeleteApplicationVersion(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DeleteConfigurationTemplate() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DeleteConfigurationTemplateInput{
 		ApplicationName: aws.String("ApplicationName"),           // Required
@@ -331,26 +382,24 @@ func ExampleElasticBeanstalk_DeleteConfigurationTemplate() {
 	resp, err := svc.DeleteConfigurationTemplate(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DeleteEnvironmentConfiguration() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DeleteEnvironmentConfigurationInput{
 		ApplicationName: aws.String("ApplicationName"), // Required
@@ -359,29 +408,29 @@ func ExampleElasticBeanstalk_DeleteEnvironmentConfiguration() {
 	resp, err := svc.DeleteEnvironmentConfiguration(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DescribeApplicationVersions() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DescribeApplicationVersionsInput{
 		ApplicationName: aws.String("ApplicationName"),
+		MaxRecords:      aws.Int64(1),
+		NextToken:       aws.String("Token"),
 		VersionLabels: []*string{
 			aws.String("VersionLabel"), // Required
 			// More values...
@@ -390,26 +439,24 @@ func ExampleElasticBeanstalk_DescribeApplicationVersions() {
 	resp, err := svc.DescribeApplicationVersions(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DescribeApplications() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DescribeApplicationsInput{
 		ApplicationNames: []*string{
@@ -420,26 +467,24 @@ func ExampleElasticBeanstalk_DescribeApplications() {
 	resp, err := svc.DescribeApplications(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DescribeConfigurationOptions() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DescribeConfigurationOptionsInput{
 		ApplicationName: aws.String("ApplicationName"),
@@ -458,26 +503,24 @@ func ExampleElasticBeanstalk_DescribeConfigurationOptions() {
 	resp, err := svc.DescribeConfigurationOptions(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DescribeConfigurationSettings() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DescribeConfigurationSettingsInput{
 		ApplicationName: aws.String("ApplicationName"), // Required
@@ -487,90 +530,139 @@ func ExampleElasticBeanstalk_DescribeConfigurationSettings() {
 	resp, err := svc.DescribeConfigurationSettings(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DescribeEnvironmentHealth() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DescribeEnvironmentHealthInput{
 		AttributeNames: []*string{
 			aws.String("EnvironmentHealthAttribute"), // Required
 			// More values...
 		},
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		EnvironmentName: aws.String("EnvironmentName"),
 	}
 	resp, err := svc.DescribeEnvironmentHealth(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleElasticBeanstalk_DescribeEnvironmentManagedActionHistory() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
+
+	params := &elasticbeanstalk.DescribeEnvironmentManagedActionHistoryInput{
+		EnvironmentId:   aws.String("EnvironmentId"),
+		EnvironmentName: aws.String("EnvironmentName"),
+		MaxItems:        aws.Int64(1),
+		NextToken:       aws.String("String"),
+	}
+	resp, err := svc.DescribeEnvironmentManagedActionHistory(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
+func ExampleElasticBeanstalk_DescribeEnvironmentManagedActions() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
+
+	params := &elasticbeanstalk.DescribeEnvironmentManagedActionsInput{
+		EnvironmentId:   aws.String("String"),
+		EnvironmentName: aws.String("String"),
+		Status:          aws.String("ActionStatus"),
+	}
+	resp, err := svc.DescribeEnvironmentManagedActions(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DescribeEnvironmentResources() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DescribeEnvironmentResourcesInput{
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		EnvironmentName: aws.String("EnvironmentName"),
 	}
 	resp, err := svc.DescribeEnvironmentResources(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DescribeEnvironments() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DescribeEnvironmentsInput{
 		ApplicationName: aws.String("ApplicationName"),
-		EnvironmentIDs: []*string{
+		EnvironmentIds: []*string{
 			aws.String("EnvironmentId"), // Required
 			// More values...
 		},
@@ -585,35 +677,33 @@ func ExampleElasticBeanstalk_DescribeEnvironments() {
 	resp, err := svc.DescribeEnvironments(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DescribeEvents() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DescribeEventsInput{
 		ApplicationName: aws.String("ApplicationName"),
 		EndTime:         aws.Time(time.Now()),
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		EnvironmentName: aws.String("EnvironmentName"),
 		MaxRecords:      aws.Int64(1),
 		NextToken:       aws.String("Token"),
-		RequestID:       aws.String("RequestId"),
+		RequestId:       aws.String("RequestId"),
 		Severity:        aws.String("EventSeverity"),
 		StartTime:       aws.Time(time.Now()),
 		TemplateName:    aws.String("ConfigurationTemplateName"),
@@ -622,257 +712,240 @@ func ExampleElasticBeanstalk_DescribeEvents() {
 	resp, err := svc.DescribeEvents(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_DescribeInstancesHealth() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.DescribeInstancesHealthInput{
 		AttributeNames: []*string{
 			aws.String("InstancesHealthAttribute"), // Required
 			// More values...
 		},
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		EnvironmentName: aws.String("EnvironmentName"),
 		NextToken:       aws.String("NextToken"),
 	}
 	resp, err := svc.DescribeInstancesHealth(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_ListAvailableSolutionStacks() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	var params *elasticbeanstalk.ListAvailableSolutionStacksInput
 	resp, err := svc.ListAvailableSolutionStacks(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_RebuildEnvironment() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.RebuildEnvironmentInput{
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		EnvironmentName: aws.String("EnvironmentName"),
 	}
 	resp, err := svc.RebuildEnvironment(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_RequestEnvironmentInfo() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.RequestEnvironmentInfoInput{
 		InfoType:        aws.String("EnvironmentInfoType"), // Required
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		EnvironmentName: aws.String("EnvironmentName"),
 	}
 	resp, err := svc.RequestEnvironmentInfo(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_RestartAppServer() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.RestartAppServerInput{
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		EnvironmentName: aws.String("EnvironmentName"),
 	}
 	resp, err := svc.RestartAppServer(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_RetrieveEnvironmentInfo() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.RetrieveEnvironmentInfoInput{
 		InfoType:        aws.String("EnvironmentInfoType"), // Required
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		EnvironmentName: aws.String("EnvironmentName"),
 	}
 	resp, err := svc.RetrieveEnvironmentInfo(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_SwapEnvironmentCNAMEs() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.SwapEnvironmentCNAMEsInput{
-		DestinationEnvironmentID:   aws.String("EnvironmentId"),
+		DestinationEnvironmentId:   aws.String("EnvironmentId"),
 		DestinationEnvironmentName: aws.String("EnvironmentName"),
-		SourceEnvironmentID:        aws.String("EnvironmentId"),
+		SourceEnvironmentId:        aws.String("EnvironmentId"),
 		SourceEnvironmentName:      aws.String("EnvironmentName"),
 	}
 	resp, err := svc.SwapEnvironmentCNAMEs(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_TerminateEnvironment() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.TerminateEnvironmentInput{
-		EnvironmentID:      aws.String("EnvironmentId"),
+		EnvironmentId:      aws.String("EnvironmentId"),
 		EnvironmentName:    aws.String("EnvironmentName"),
+		ForceTerminate:     aws.Bool(true),
 		TerminateResources: aws.Bool(true),
 	}
 	resp, err := svc.TerminateEnvironment(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_UpdateApplication() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.UpdateApplicationInput{
 		ApplicationName: aws.String("ApplicationName"), // Required
@@ -881,26 +954,24 @@ func ExampleElasticBeanstalk_UpdateApplication() {
 	resp, err := svc.UpdateApplication(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_UpdateApplicationVersion() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.UpdateApplicationVersionInput{
 		ApplicationName: aws.String("ApplicationName"), // Required
@@ -910,26 +981,24 @@ func ExampleElasticBeanstalk_UpdateApplicationVersion() {
 	resp, err := svc.UpdateApplicationVersion(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_UpdateConfigurationTemplate() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.UpdateConfigurationTemplateInput{
 		ApplicationName: aws.String("ApplicationName"),           // Required
@@ -956,31 +1025,31 @@ func ExampleElasticBeanstalk_UpdateConfigurationTemplate() {
 	resp, err := svc.UpdateConfigurationTemplate(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_UpdateEnvironment() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.UpdateEnvironmentInput{
+		ApplicationName: aws.String("ApplicationName"),
 		Description:     aws.String("Description"),
-		EnvironmentID:   aws.String("EnvironmentId"),
+		EnvironmentId:   aws.String("EnvironmentId"),
 		EnvironmentName: aws.String("EnvironmentName"),
+		GroupName:       aws.String("GroupName"),
 		OptionSettings: []*elasticbeanstalk.ConfigurationOptionSetting{
 			{ // Required
 				Namespace:    aws.String("OptionNamespace"),
@@ -1010,26 +1079,24 @@ func ExampleElasticBeanstalk_UpdateEnvironment() {
 	resp, err := svc.UpdateEnvironment(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleElasticBeanstalk_ValidateConfigurationSettings() {
-	svc := elasticbeanstalk.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := elasticbeanstalk.New(sess)
 
 	params := &elasticbeanstalk.ValidateConfigurationSettingsInput{
 		ApplicationName: aws.String("ApplicationName"), // Required
@@ -1048,20 +1115,12 @@ func ExampleElasticBeanstalk_ValidateConfigurationSettings() {
 	resp, err := svc.ValidateConfigurationSettings(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }

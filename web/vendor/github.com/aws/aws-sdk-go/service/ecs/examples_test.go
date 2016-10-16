@@ -8,8 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
@@ -17,7 +16,13 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleECS_CreateCluster() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.CreateClusterInput{
 		ClusterName: aws.String("String"),
@@ -25,26 +30,24 @@ func ExampleECS_CreateCluster() {
 	resp, err := svc.CreateCluster(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_CreateService() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.CreateServiceInput{
 		DesiredCount:   aws.Int64(1),         // Required
@@ -52,11 +55,16 @@ func ExampleECS_CreateService() {
 		TaskDefinition: aws.String("String"), // Required
 		ClientToken:    aws.String("String"),
 		Cluster:        aws.String("String"),
+		DeploymentConfiguration: &ecs.DeploymentConfiguration{
+			MaximumPercent:        aws.Int64(1),
+			MinimumHealthyPercent: aws.Int64(1),
+		},
 		LoadBalancers: []*ecs.LoadBalancer{
 			{ // Required
 				ContainerName:    aws.String("String"),
 				ContainerPort:    aws.Int64(1),
 				LoadBalancerName: aws.String("String"),
+				TargetGroupArn:   aws.String("String"),
 			},
 			// More values...
 		},
@@ -65,26 +73,24 @@ func ExampleECS_CreateService() {
 	resp, err := svc.CreateService(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_DeleteCluster() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.DeleteClusterInput{
 		Cluster: aws.String("String"), // Required
@@ -92,26 +98,24 @@ func ExampleECS_DeleteCluster() {
 	resp, err := svc.DeleteCluster(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_DeleteService() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.DeleteServiceInput{
 		Service: aws.String("String"), // Required
@@ -120,26 +124,24 @@ func ExampleECS_DeleteService() {
 	resp, err := svc.DeleteService(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_DeregisterContainerInstance() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.DeregisterContainerInstanceInput{
 		ContainerInstance: aws.String("String"), // Required
@@ -149,26 +151,24 @@ func ExampleECS_DeregisterContainerInstance() {
 	resp, err := svc.DeregisterContainerInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_DeregisterTaskDefinition() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.DeregisterTaskDefinitionInput{
 		TaskDefinition: aws.String("String"), // Required
@@ -176,26 +176,24 @@ func ExampleECS_DeregisterTaskDefinition() {
 	resp, err := svc.DeregisterTaskDefinition(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_DescribeClusters() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.DescribeClustersInput{
 		Clusters: []*string{
@@ -206,26 +204,24 @@ func ExampleECS_DescribeClusters() {
 	resp, err := svc.DescribeClusters(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_DescribeContainerInstances() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.DescribeContainerInstancesInput{
 		ContainerInstances: []*string{ // Required
@@ -237,26 +233,24 @@ func ExampleECS_DescribeContainerInstances() {
 	resp, err := svc.DescribeContainerInstances(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_DescribeServices() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.DescribeServicesInput{
 		Services: []*string{ // Required
@@ -268,26 +262,24 @@ func ExampleECS_DescribeServices() {
 	resp, err := svc.DescribeServices(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_DescribeTaskDefinition() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.DescribeTaskDefinitionInput{
 		TaskDefinition: aws.String("String"), // Required
@@ -295,26 +287,24 @@ func ExampleECS_DescribeTaskDefinition() {
 	resp, err := svc.DescribeTaskDefinition(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_DescribeTasks() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.DescribeTasksInput{
 		Tasks: []*string{ // Required
@@ -326,26 +316,24 @@ func ExampleECS_DescribeTasks() {
 	resp, err := svc.DescribeTasks(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_DiscoverPollEndpoint() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.DiscoverPollEndpointInput{
 		Cluster:           aws.String("String"),
@@ -354,26 +342,24 @@ func ExampleECS_DiscoverPollEndpoint() {
 	resp, err := svc.DiscoverPollEndpoint(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_ListClusters() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.ListClustersInput{
 		MaxResults: aws.Int64(1),
@@ -382,26 +368,24 @@ func ExampleECS_ListClusters() {
 	resp, err := svc.ListClusters(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_ListContainerInstances() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.ListContainerInstancesInput{
 		Cluster:    aws.String("String"),
@@ -411,26 +395,24 @@ func ExampleECS_ListContainerInstances() {
 	resp, err := svc.ListContainerInstances(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_ListServices() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.ListServicesInput{
 		Cluster:    aws.String("String"),
@@ -440,55 +422,52 @@ func ExampleECS_ListServices() {
 	resp, err := svc.ListServices(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_ListTaskDefinitionFamilies() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.ListTaskDefinitionFamiliesInput{
 		FamilyPrefix: aws.String("String"),
 		MaxResults:   aws.Int64(1),
 		NextToken:    aws.String("String"),
+		Status:       aws.String("TaskDefinitionFamilyStatus"),
 	}
 	resp, err := svc.ListTaskDefinitionFamilies(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_ListTaskDefinitions() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.ListTaskDefinitionsInput{
 		FamilyPrefix: aws.String("String"),
@@ -500,26 +479,24 @@ func ExampleECS_ListTaskDefinitions() {
 	resp, err := svc.ListTaskDefinitions(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_ListTasks() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.ListTasksInput{
 		Cluster:           aws.String("String"),
@@ -534,30 +511,35 @@ func ExampleECS_ListTasks() {
 	resp, err := svc.ListTasks(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_RegisterContainerInstance() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.RegisterContainerInstanceInput{
+		Attributes: []*ecs.Attribute{
+			{ // Required
+				Name:  aws.String("String"), // Required
+				Value: aws.String("String"),
+			},
+			// More values...
+		},
 		Cluster:                           aws.String("String"),
-		ContainerInstanceARN:              aws.String("String"),
+		ContainerInstanceArn:              aws.String("String"),
 		InstanceIdentityDocument:          aws.String("String"),
 		InstanceIdentityDocumentSignature: aws.String("String"),
 		TotalResources: []*ecs.Resource{
@@ -583,32 +565,47 @@ func ExampleECS_RegisterContainerInstance() {
 	resp, err := svc.RegisterContainerInstance(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_RegisterTaskDefinition() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{ // Required
 			{ // Required
-				CPU: aws.Int64(1),
 				Command: []*string{
+					aws.String("String"), // Required
+					// More values...
+				},
+				Cpu:               aws.Int64(1),
+				DisableNetworking: aws.Bool(true),
+				DnsSearchDomains: []*string{
+					aws.String("String"), // Required
+					// More values...
+				},
+				DnsServers: []*string{
+					aws.String("String"), // Required
+					// More values...
+				},
+				DockerLabels: map[string]*string{
+					"Key": aws.String("String"), // Required
+					// More values...
+				},
+				DockerSecurityOptions: []*string{
 					aws.String("String"), // Required
 					// More values...
 				},
@@ -624,12 +621,28 @@ func ExampleECS_RegisterTaskDefinition() {
 					// More values...
 				},
 				Essential: aws.Bool(true),
-				Image:     aws.String("String"),
+				ExtraHosts: []*ecs.HostEntry{
+					{ // Required
+						Hostname:  aws.String("String"), // Required
+						IpAddress: aws.String("String"), // Required
+					},
+					// More values...
+				},
+				Hostname: aws.String("String"),
+				Image:    aws.String("String"),
 				Links: []*string{
 					aws.String("String"), // Required
 					// More values...
 				},
-				Memory: aws.Int64(1),
+				LogConfiguration: &ecs.LogConfiguration{
+					LogDriver: aws.String("LogDriver"), // Required
+					Options: map[string]*string{
+						"Key": aws.String("String"), // Required
+						// More values...
+					},
+				},
+				Memory:            aws.Int64(1),
+				MemoryReservation: aws.Int64(1),
 				MountPoints: []*ecs.MountPoint{
 					{ // Required
 						ContainerPath: aws.String("String"),
@@ -647,6 +660,17 @@ func ExampleECS_RegisterTaskDefinition() {
 					},
 					// More values...
 				},
+				Privileged:             aws.Bool(true),
+				ReadonlyRootFilesystem: aws.Bool(true),
+				Ulimits: []*ecs.Ulimit{
+					{ // Required
+						HardLimit: aws.Int64(1),             // Required
+						Name:      aws.String("UlimitName"), // Required
+						SoftLimit: aws.Int64(1),             // Required
+					},
+					// More values...
+				},
+				User: aws.String("String"),
 				VolumesFrom: []*ecs.VolumeFrom{
 					{ // Required
 						ReadOnly:        aws.Bool(true),
@@ -654,10 +678,13 @@ func ExampleECS_RegisterTaskDefinition() {
 					},
 					// More values...
 				},
+				WorkingDirectory: aws.String("String"),
 			},
 			// More values...
 		},
-		Family: aws.String("String"), // Required
+		Family:      aws.String("String"), // Required
+		NetworkMode: aws.String("NetworkMode"),
+		TaskRoleArn: aws.String("String"),
 		Volumes: []*ecs.Volume{
 			{ // Required
 				Host: &ecs.HostVolumeProperties{
@@ -671,26 +698,24 @@ func ExampleECS_RegisterTaskDefinition() {
 	resp, err := svc.RegisterTaskDefinition(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_RunTask() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.RunTaskInput{
 		TaskDefinition: aws.String("String"), // Required
@@ -714,32 +739,31 @@ func ExampleECS_RunTask() {
 				},
 				// More values...
 			},
+			TaskRoleArn: aws.String("String"),
 		},
 		StartedBy: aws.String("String"),
 	}
 	resp, err := svc.RunTask(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_StartTask() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.StartTaskInput{
 		ContainerInstances: []*string{ // Required
@@ -766,60 +790,58 @@ func ExampleECS_StartTask() {
 				},
 				// More values...
 			},
+			TaskRoleArn: aws.String("String"),
 		},
 		StartedBy: aws.String("String"),
 	}
 	resp, err := svc.StartTask(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_StopTask() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.StopTaskInput{
 		Task:    aws.String("String"), // Required
 		Cluster: aws.String("String"),
+		Reason:  aws.String("String"),
 	}
 	resp, err := svc.StopTask(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_SubmitContainerStateChange() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.SubmitContainerStateChangeInput{
 		Cluster:       aws.String("String"),
@@ -841,26 +863,24 @@ func ExampleECS_SubmitContainerStateChange() {
 	resp, err := svc.SubmitContainerStateChange(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_SubmitTaskStateChange() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.SubmitTaskStateChangeInput{
 		Cluster: aws.String("String"),
@@ -871,26 +891,24 @@ func ExampleECS_SubmitTaskStateChange() {
 	resp, err := svc.SubmitTaskStateChange(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_UpdateContainerAgent() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.UpdateContainerAgentInput{
 		ContainerInstance: aws.String("String"), // Required
@@ -899,50 +917,44 @@ func ExampleECS_UpdateContainerAgent() {
 	resp, err := svc.UpdateContainerAgent(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleECS_UpdateService() {
-	svc := ecs.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := ecs.New(sess)
 
 	params := &ecs.UpdateServiceInput{
-		Service:        aws.String("String"), // Required
-		Cluster:        aws.String("String"),
+		Service: aws.String("String"), // Required
+		Cluster: aws.String("String"),
+		DeploymentConfiguration: &ecs.DeploymentConfiguration{
+			MaximumPercent:        aws.Int64(1),
+			MinimumHealthyPercent: aws.Int64(1),
+		},
 		DesiredCount:   aws.Int64(1),
 		TaskDefinition: aws.String("String"),
 	}
 	resp, err := svc.UpdateService(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }

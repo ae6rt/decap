@@ -1,4 +1,4 @@
-// Copyright 2015 CoreOS, Inc.
+// Copyright 2015 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 package raft
 
 import (
+	"bytes"
 	"reflect"
 	"testing"
 	"time"
@@ -42,7 +43,7 @@ func TestNodeStep(t *testing.T) {
 				t.Errorf("%d: cannot receive %s on propc chan", msgt, msgn)
 			}
 		} else {
-			if msgt == raftpb.MsgBeat || msgt == raftpb.MsgHup || msgt == raftpb.MsgUnreachable || msgt == raftpb.MsgSnapStatus {
+			if IsLocalMsg(msgt) {
 				select {
 				case <-n.recvc:
 					t.Errorf("%d: step should ignore %s", msgt, msgn)
@@ -99,8 +100,8 @@ func TestNodeStepUnblock(t *testing.T) {
 				n.done = make(chan struct{})
 			default:
 			}
-		case <-time.After(time.Millisecond * 100):
-			t.Errorf("#%d: failed to unblock step", i)
+		case <-time.After(1 * time.Second):
+			t.Fatalf("#%d: failed to unblock step", i)
 		}
 	}
 }
@@ -137,8 +138,55 @@ func TestNodePropose(t *testing.T) {
 	if msgs[0].Type != raftpb.MsgProp {
 		t.Errorf("msg type = %d, want %d", msgs[0].Type, raftpb.MsgProp)
 	}
-	if !reflect.DeepEqual(msgs[0].Entries[0].Data, []byte("somedata")) {
+	if !bytes.Equal(msgs[0].Entries[0].Data, []byte("somedata")) {
 		t.Errorf("data = %v, want %v", msgs[0].Entries[0].Data, []byte("somedata"))
+	}
+}
+
+// TestNodeReadIndex ensures that node.ReadIndex sends the MsgReadIndex message to the underlying raft.
+// It also ensures that ReadState can be read out through ready chan.
+func TestNodeReadIndex(t *testing.T) {
+	msgs := []raftpb.Message{}
+	appendStep := func(r *raft, m raftpb.Message) {
+		msgs = append(msgs, m)
+	}
+	wrs := []ReadState{{Index: uint64(1), RequestCtx: []byte("somedata")}}
+
+	n := newNode()
+	s := NewMemoryStorage()
+	r := newTestRaft(1, []uint64{1}, 10, 1, s)
+	r.readStates = wrs
+
+	go n.run(r)
+	n.Campaign(context.TODO())
+	for {
+		rd := <-n.Ready()
+		if !reflect.DeepEqual(rd.ReadStates, wrs) {
+			t.Errorf("ReadStates = %v, want %v", rd.ReadStates, wrs)
+		}
+
+		s.Append(rd.Entries)
+
+		if rd.SoftState.Lead == r.id {
+			n.Advance()
+			break
+		}
+		n.Advance()
+	}
+
+	r.step = appendStep
+	wrequestCtx := []byte("somedata2")
+	n.ReadIndex(context.TODO(), wrequestCtx)
+	n.Stop()
+
+	if len(msgs) != 1 {
+		t.Fatalf("len(msgs) = %d, want %d", len(msgs), 1)
+	}
+	if msgs[0].Type != raftpb.MsgReadIndex {
+		t.Errorf("msg type = %d, want %d", msgs[0].Type, raftpb.MsgReadIndex)
+	}
+	if !bytes.Equal(msgs[0].Entries[0].Data, wrequestCtx) {
+		t.Errorf("data = %v, want %v", msgs[0].Entries[0].Data, wrequestCtx)
 	}
 }
 
@@ -180,7 +228,7 @@ func TestNodeProposeConfig(t *testing.T) {
 	if msgs[0].Type != raftpb.MsgProp {
 		t.Errorf("msg type = %d, want %d", msgs[0].Type, raftpb.MsgProp)
 	}
-	if !reflect.DeepEqual(msgs[0].Entries[0].Data, ccdata) {
+	if !bytes.Equal(msgs[0].Entries[0].Data, ccdata) {
 		t.Errorf("data = %v, want %v", msgs[0].Entries[0].Data, ccdata)
 	}
 }
@@ -207,13 +255,12 @@ func TestBlockProposal(t *testing.T) {
 	}
 
 	n.Campaign(context.TODO())
-	testutil.WaitSchedule()
 	select {
 	case err := <-errc:
 		if err != nil {
 			t.Errorf("err = %v, want %v", err, nil)
 		}
-	default:
+	case <-time.After(10 * time.Second):
 		t.Errorf("blocking proposal, want unblocking")
 	}
 }
@@ -225,11 +272,12 @@ func TestNodeTick(t *testing.T) {
 	s := NewMemoryStorage()
 	r := newTestRaft(1, []uint64{1}, 10, 1, s)
 	go n.run(r)
-	elapsed := r.elapsed
+	elapsed := r.electionElapsed
 	n.Tick()
+	testutil.WaitSchedule()
 	n.Stop()
-	if r.elapsed != elapsed+1 {
-		t.Errorf("elapsed = %d, want %d", r.elapsed, elapsed+1)
+	if r.electionElapsed != elapsed+1 {
+		t.Errorf("elapsed = %d, want %d", r.electionElapsed, elapsed+1)
 	}
 }
 
@@ -246,8 +294,9 @@ func TestNodeStop(t *testing.T) {
 		close(donec)
 	}()
 
-	elapsed := r.elapsed
+	elapsed := r.electionElapsed
 	n.Tick()
+	testutil.WaitSchedule()
 	n.Stop()
 
 	select {
@@ -256,13 +305,13 @@ func TestNodeStop(t *testing.T) {
 		t.Fatalf("timed out waiting for node to stop!")
 	}
 
-	if r.elapsed != elapsed+1 {
-		t.Errorf("elapsed = %d, want %d", r.elapsed, elapsed+1)
+	if r.electionElapsed != elapsed+1 {
+		t.Errorf("elapsed = %d, want %d", r.electionElapsed, elapsed+1)
 	}
 	// Further ticks should have no effect, the node is stopped.
 	n.Tick()
-	if r.elapsed != elapsed+1 {
-		t.Errorf("elapsed = %d, want %d", r.elapsed, elapsed+1)
+	if r.electionElapsed != elapsed+1 {
+		t.Errorf("elapsed = %d, want %d", r.electionElapsed, elapsed+1)
 	}
 	// Subsequent Stops should have no effect.
 	n.Stop()
@@ -303,15 +352,12 @@ func TestNodeStart(t *testing.T) {
 	}
 	wants := []Ready{
 		{
-			SoftState: &SoftState{Lead: 1, RaftState: StateLeader},
-			HardState: raftpb.HardState{Term: 2, Commit: 2, Vote: 1},
+			HardState: raftpb.HardState{Term: 1, Commit: 1, Vote: 0},
 			Entries: []raftpb.Entry{
 				{Type: raftpb.EntryConfChange, Term: 1, Index: 1, Data: ccdata},
-				{Term: 2, Index: 2},
 			},
 			CommittedEntries: []raftpb.Entry{
 				{Type: raftpb.EntryConfChange, Term: 1, Index: 1, Data: ccdata},
-				{Term: 2, Index: 2},
 			},
 		},
 		{
@@ -330,7 +376,7 @@ func TestNodeStart(t *testing.T) {
 		MaxInflightMsgs: 256,
 	}
 	n := StartNode(c, []Peer{{ID: 1}})
-	n.Campaign(ctx)
+	defer n.Stop()
 	g := <-n.Ready()
 	if !reflect.DeepEqual(g, wants[0]) {
 		t.Fatalf("#%d: g = %+v,\n             w   %+v", 1, g, wants[0])
@@ -338,6 +384,11 @@ func TestNodeStart(t *testing.T) {
 		storage.Append(g.Entries)
 		n.Advance()
 	}
+
+	n.Campaign(ctx)
+	rd := <-n.Ready()
+	storage.Append(rd.Entries)
+	n.Advance()
 
 	n.Propose(ctx, []byte("foo"))
 	if g2 := <-n.Ready(); !reflect.DeepEqual(g2, wants[1]) {
@@ -379,6 +430,7 @@ func TestNodeRestart(t *testing.T) {
 		MaxInflightMsgs: 256,
 	}
 	n := RestartNode(c)
+	defer n.Stop()
 	if g := <-n.Ready(); !reflect.DeepEqual(g, want) {
 		t.Errorf("g = %+v,\n             w   %+v", g, want)
 	}
@@ -423,6 +475,7 @@ func TestNodeRestartFromSnapshot(t *testing.T) {
 		MaxInflightMsgs: 256,
 	}
 	n := RestartNode(c)
+	defer n.Stop()
 	if g := <-n.Ready(); !reflect.DeepEqual(g, want) {
 		t.Errorf("g = %+v,\n             w   %+v", g, want)
 	} else {
@@ -450,10 +503,15 @@ func TestNodeAdvance(t *testing.T) {
 		MaxInflightMsgs: 256,
 	}
 	n := StartNode(c, []Peer{{ID: 1}})
+	defer n.Stop()
+	rd := <-n.Ready()
+	storage.Append(rd.Entries)
+	n.Advance()
+
 	n.Campaign(ctx)
 	<-n.Ready()
+
 	n.Propose(ctx, []byte("foo"))
-	var rd Ready
 	select {
 	case rd = <-n.Ready():
 		t.Fatalf("unexpected Ready before Advance: %+v", rd)
@@ -463,7 +521,7 @@ func TestNodeAdvance(t *testing.T) {
 	n.Advance()
 	select {
 	case <-n.Ready():
-	case <-time.After(time.Millisecond):
+	case <-time.After(100 * time.Millisecond):
 		t.Errorf("expect Ready after Advance, but there is no Ready available")
 	}
 }

@@ -8,8 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
@@ -17,13 +16,19 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleSTS_AssumeRole() {
-	svc := sts.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := sts.New(sess)
 
 	params := &sts.AssumeRoleInput{
-		RoleARN:         aws.String("arnType"),      // Required
-		RoleSessionName: aws.String("userNameType"), // Required
+		RoleArn:         aws.String("arnType"),             // Required
+		RoleSessionName: aws.String("roleSessionNameType"), // Required
 		DurationSeconds: aws.Int64(1),
-		ExternalID:      aws.String("externalIdType"),
+		ExternalId:      aws.String("externalIdType"),
 		Policy:          aws.String("sessionPolicyDocumentType"),
 		SerialNumber:    aws.String("serialNumberType"),
 		TokenCode:       aws.String("tokenCodeType"),
@@ -31,30 +36,28 @@ func ExampleSTS_AssumeRole() {
 	resp, err := svc.AssumeRole(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleSTS_AssumeRoleWithSAML() {
-	svc := sts.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := sts.New(sess)
 
 	params := &sts.AssumeRoleWithSAMLInput{
-		PrincipalARN:    aws.String("arnType"),           // Required
-		RoleARN:         aws.String("arnType"),           // Required
+		PrincipalArn:    aws.String("arnType"),           // Required
+		RoleArn:         aws.String("arnType"),           // Required
 		SAMLAssertion:   aws.String("SAMLAssertionType"), // Required
 		DurationSeconds: aws.Int64(1),
 		Policy:          aws.String("sessionPolicyDocumentType"),
@@ -62,58 +65,54 @@ func ExampleSTS_AssumeRoleWithSAML() {
 	resp, err := svc.AssumeRoleWithSAML(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleSTS_AssumeRoleWithWebIdentity() {
-	svc := sts.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := sts.New(sess)
 
 	params := &sts.AssumeRoleWithWebIdentityInput{
-		RoleARN:          aws.String("arnType"),         // Required
-		RoleSessionName:  aws.String("userNameType"),    // Required
-		WebIdentityToken: aws.String("clientTokenType"), // Required
+		RoleArn:          aws.String("arnType"),             // Required
+		RoleSessionName:  aws.String("roleSessionNameType"), // Required
+		WebIdentityToken: aws.String("clientTokenType"),     // Required
 		DurationSeconds:  aws.Int64(1),
 		Policy:           aws.String("sessionPolicyDocumentType"),
-		ProviderID:       aws.String("urlType"),
+		ProviderId:       aws.String("urlType"),
 	}
 	resp, err := svc.AssumeRoleWithWebIdentity(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleSTS_DecodeAuthorizationMessage() {
-	svc := sts.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := sts.New(sess)
 
 	params := &sts.DecodeAuthorizationMessageInput{
 		EncodedMessage: aws.String("encodedMessageType"), // Required
@@ -121,26 +120,47 @@ func ExampleSTS_DecodeAuthorizationMessage() {
 	resp, err := svc.DecodeAuthorizationMessage(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
+}
+
+func ExampleSTS_GetCallerIdentity() {
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := sts.New(sess)
+
+	var params *sts.GetCallerIdentityInput
+	resp, err := svc.GetCallerIdentity(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 }
 
 func ExampleSTS_GetFederationToken() {
-	svc := sts.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := sts.New(sess)
 
 	params := &sts.GetFederationTokenInput{
 		Name:            aws.String("userNameType"), // Required
@@ -150,26 +170,24 @@ func ExampleSTS_GetFederationToken() {
 	resp, err := svc.GetFederationToken(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
 
 func ExampleSTS_GetSessionToken() {
-	svc := sts.New(nil)
+	sess, err := session.NewSession()
+	if err != nil {
+		fmt.Println("failed to create session,", err)
+		return
+	}
+
+	svc := sts.New(sess)
 
 	params := &sts.GetSessionTokenInput{
 		DurationSeconds: aws.Int64(1),
@@ -179,20 +197,12 @@ func ExampleSTS_GetSessionToken() {
 	resp, err := svc.GetSessionToken(params)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			// Generic AWS error with Code, Message, and original error (if any)
-			fmt.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				// A service error occurred
-				fmt.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			// This case should never be hit, the SDK should always return an
-			// error which satisfies the awserr.Error interface.
-			fmt.Println(err.Error())
-		}
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
 	}
 
 	// Pretty-print the response data.
-	fmt.Println(awsutil.Prettify(resp))
+	fmt.Println(resp)
 }
