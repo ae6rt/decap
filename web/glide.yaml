@@ -1,28 +1,20 @@
 package: github.com/ae6rt/decap/web
 import:
-- package: github.com/ae6rt/gittools
-  version: v1.0.0
-- package: github.com/ae6rt/retry
-  version: v2.0.0
 - package: github.com/aws/aws-sdk-go
-  version: v0.7.4-4-g8aa49b7
+  version: v1.4.17
   subpackages:
   - aws
   - aws/awserr
   - aws/credentials
   - service/dynamodb
   - service/s3
-- package: github.com/coreos/etcd
+- package: github.com/coreos/etcd/client
   version: v2.2.0-rc.0-5-gfca98c9
-  subpackages:
-  - client
 - package: github.com/julienschmidt/httprouter
   version: v1.1-9-g2ba0f3d
-- package: golang.org/x/net
-  subpackages:
-  - context
-  - websocket
+- package: golang.org/x/net/context
 - package: gopkg.in/inf.v0
+  version: v0.9.0
 - package: github.com/gorilla/websocket
   version: v1.0.0
 testImport:

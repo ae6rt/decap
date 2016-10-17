@@ -6,10 +6,11 @@ import (
 	"strconv"
 
 	"github.com/ae6rt/decap/web/api/v1"
-	"github.com/ae6rt/retry"
+	"github.com/ae6rt/decap/web/retry"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
@@ -30,7 +31,7 @@ func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, 
 	var resp *dynamodb.QueryOutput
 
 	work := func() error {
-		svc := dynamodb.New(c.Config)
+		svc := dynamodb.New(session.New(), c.Config)
 		params := &dynamodb.QueryInput{
 			TableName:              aws.String("decap-build-metadata"),
 			IndexName:              aws.String("project-key-build-start-time-index"),
@@ -117,7 +118,7 @@ func (c AWSStorageService) bytesFromBucket(bucketName, objectKey string) ([]byte
 	var resp *s3.GetObjectOutput
 
 	work := func() error {
-		svc := s3.New(c.Config)
+		svc := s3.New(session.New(), c.Config)
 
 		params := &s3.GetObjectInput{
 			Bucket: aws.String(bucketName),

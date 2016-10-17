@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/ae6rt/decap/web/api/v1"
-	"github.com/ae6rt/gittools"
-	"github.com/ae6rt/retry"
+	"github.com/ae6rt/decap/web/gittools"
+	"github.com/ae6rt/decap/web/retry"
 )
 
 const buildScriptRegex = `build\.sh`
