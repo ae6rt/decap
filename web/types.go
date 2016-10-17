@@ -40,7 +40,7 @@ type DefaultBuilder struct {
 	buildScriptsRepo       string
 	buildScriptsRepoBranch string
 
-	tlsConfig tls.Config
+	tlsConfig *tls.Config
 }
 
 // RepoManagerCredential models the username and password for supported source code repository managers, such as Github or Atlassian Stash.

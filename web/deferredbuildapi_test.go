@@ -44,7 +44,7 @@ func TestGetDeferredBuilds(t *testing.T) {
 		t.Fatalf("Want 1 but got %d\n", len(d.DeferredEvents))
 	}
 	if d.DeferredEvents[0].Hash() != "t1/p1/master" {
-		t.Fatalf("Want t1/p1/master but got %d\n", d.DeferredEvents[0].Hash())
+		t.Fatalf("Want t1/p1/master but got %s\n", d.DeferredEvents[0].Hash())
 	}
 }
 

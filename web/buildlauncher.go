@@ -55,7 +55,7 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 		maxPods:                10,
 		buildScriptsRepo:       buildScriptsRepo,
 		buildScriptsRepoBranch: buildScriptsRepoBranch,
-		tlsConfig:              tlsConfig,
+		tlsConfig:              &tlsConfig,
 	}
 }
 
@@ -350,7 +350,7 @@ func (builder DefaultBuilder) DeletePod(podName string) error {
 
 func (builder DefaultBuilder) PodWatcher() {
 	dialer := websocket.DefaultDialer
-	dialer.TLSClientConfig = &builder.tlsConfig
+	dialer.TLSClientConfig = builder.tlsConfig
 
 	var host string
 	{

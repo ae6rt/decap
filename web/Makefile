@@ -15,11 +15,11 @@ IMAGE=$(DOCKER_USER)/decap:latest
 all: clean binaries 
 
 lint: 
-	go fmt ./...
-	go vet ./...
+	go fmt $(go list ./... | grep -v /vendor/)
+	go vet $(go list ./... | grep -v /vendor/)
 
 test: lint
-	go test -v ./...
+	go test $(go list ./... | grep -v /vendor/)
 
 osx: test
 	CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
@@ -36,3 +36,5 @@ push: container
 
 clean: 
 	go clean
+
+.PHONY: all lint test osx binaries container push clean
