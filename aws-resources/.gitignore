@@ -1,4 +1,3 @@
 aws.log
-delete-world.sh
 aws.credentials
 k8s-decap-secret.yaml

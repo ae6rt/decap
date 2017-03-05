@@ -5,7 +5,7 @@ APPLICATION_NAME="decap"
 AWS_REGION=${AWS_REGION:-us-west-1}
 AWS_PROFILE=${AWS_PROFILE:-decapadmin}
 
-function check() {
+check() {
    local result
 
    type jq 2>&1 > /dev/null
