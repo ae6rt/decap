@@ -33,8 +33,10 @@ func NewDynamoDbLockService(db DynamoDB) DistributedLockService {
 	return DynamoDbLockService{db: db}
 }
 
-// Acquire conditionally puts a lock representation DynamoDb for the given input lock.
-// The operation will fail if the lock exists and is not expired.
+// Acquire conditionally puts a lock representation in DynamoDb for the given input lock.
+// The operation will fail if the lock exists and is not expired.  A locked is deemed good (unexpired)
+// for a finite amount of time, should a process for some reason fail to remove it manually after a
+// branch build is completed.
 func (l DynamoDbLockService) Acquire(lock DistributedLock) error {
 	params := &dynamodb.PutItemInput{
 		TableName: aws.String("decap-buildlocks"),
@@ -46,9 +48,9 @@ func (l DynamoDbLockService) Acquire(lock DistributedLock) error {
 				N: aws.String(fmt.Sprintf("%d", lock.Expires)),
 			},
 		},
-		ConditionExpression: aws.String("attribute_not_exists(#name) OR (#expiresunixtime < :nowunixtime)"),
+		ConditionExpression: aws.String("attribute_not_exists(#lockname) OR (#expiresunixtime < :nowunixtime)"),
 		ExpressionAttributeNames: map[string]*string{
-			"#name":            aws.String("lockname"),
+			"#lockname":        aws.String("lockname"),
 			"#expiresunixtime": aws.String("expiresunixtime"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
@@ -59,8 +61,9 @@ func (l DynamoDbLockService) Acquire(lock DistributedLock) error {
 	}
 
 	if _, err := l.db.PutItem(params); err != nil {
-		return errors.Wrap(err, "Failed to acquire lock "+lock.Key())
+		return errors.Wrap(err, fmt.Sprintf("%T: Failed to acquire lock %s", err, lock.Key()))
 	}
+
 	return nil
 }
 
