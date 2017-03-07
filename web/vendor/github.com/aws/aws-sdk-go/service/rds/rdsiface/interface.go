@@ -25,7 +25,7 @@ import (
 //    // myFunc uses an SDK service client to make a request to
 //    // Amazon Relational Database Service.
 //    func myFunc(svc rdsiface.RDSAPI) bool {
-//        // Make svc.AddSourceIdentifierToSubscription request
+//        // Make svc.AddRoleToDBCluster request
 //    }
 //
 //    func main() {
@@ -41,11 +41,11 @@ import (
 //    type mockRDSClient struct {
 //        rdsiface.RDSAPI
 //    }
-//    func (m *mockRDSClient) AddSourceIdentifierToSubscription(input *rds.AddSourceIdentifierToSubscriptionInput) (*rds.AddSourceIdentifierToSubscriptionOutput, error) {
+//    func (m *mockRDSClient) AddRoleToDBCluster(input *rds.AddRoleToDBClusterInput) (*rds.AddRoleToDBClusterOutput, error) {
 //        // mock response/functionality
 //    }
 //
-//    TestMyFunc(t *testing.T) {
+//    func TestMyFunc(t *testing.T) {
 //        // Setup Test
 //        mockSvc := &mockRDSClient{}
 //
@@ -59,6 +59,10 @@ import (
 // and waiters. Its suggested to use the pattern above for testing, or using
 // tooling to generate mocks to satisfy the interfaces.
 type RDSAPI interface {
+	AddRoleToDBClusterRequest(*rds.AddRoleToDBClusterInput) (*request.Request, *rds.AddRoleToDBClusterOutput)
+
+	AddRoleToDBCluster(*rds.AddRoleToDBClusterInput) (*rds.AddRoleToDBClusterOutput, error)
+
 	AddSourceIdentifierToSubscriptionRequest(*rds.AddSourceIdentifierToSubscriptionInput) (*request.Request, *rds.AddSourceIdentifierToSubscriptionOutput)
 
 	AddSourceIdentifierToSubscription(*rds.AddSourceIdentifierToSubscriptionInput) (*rds.AddSourceIdentifierToSubscriptionOutput, error)
@@ -357,6 +361,10 @@ type RDSAPI interface {
 
 	ModifyDBParameterGroup(*rds.ModifyDBParameterGroupInput) (*rds.DBParameterGroupNameMessage, error)
 
+	ModifyDBSnapshotRequest(*rds.ModifyDBSnapshotInput) (*request.Request, *rds.ModifyDBSnapshotOutput)
+
+	ModifyDBSnapshot(*rds.ModifyDBSnapshotInput) (*rds.ModifyDBSnapshotOutput, error)
+
 	ModifyDBSnapshotAttributeRequest(*rds.ModifyDBSnapshotAttributeInput) (*request.Request, *rds.ModifyDBSnapshotAttributeOutput)
 
 	ModifyDBSnapshotAttribute(*rds.ModifyDBSnapshotAttributeInput) (*rds.ModifyDBSnapshotAttributeOutput, error)
@@ -388,6 +396,10 @@ type RDSAPI interface {
 	RebootDBInstanceRequest(*rds.RebootDBInstanceInput) (*request.Request, *rds.RebootDBInstanceOutput)
 
 	RebootDBInstance(*rds.RebootDBInstanceInput) (*rds.RebootDBInstanceOutput, error)
+
+	RemoveRoleFromDBClusterRequest(*rds.RemoveRoleFromDBClusterInput) (*request.Request, *rds.RemoveRoleFromDBClusterOutput)
+
+	RemoveRoleFromDBCluster(*rds.RemoveRoleFromDBClusterInput) (*rds.RemoveRoleFromDBClusterOutput, error)
 
 	RemoveSourceIdentifierFromSubscriptionRequest(*rds.RemoveSourceIdentifierFromSubscriptionInput) (*request.Request, *rds.RemoveSourceIdentifierFromSubscriptionOutput)
 

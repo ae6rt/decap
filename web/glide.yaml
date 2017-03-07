@@ -1,7 +1,7 @@
 package: github.com/ae6rt/decap/web
 import:
 - package: github.com/aws/aws-sdk-go
-  version: v1.4.17
+  version: v1.7.3
   subpackages:
   - aws
   - aws/awserr
@@ -16,7 +16,8 @@ import:
 - package: gopkg.in/inf.v0
   version: v0.9.0
 - package: github.com/gorilla/websocket
-  version: v1.0.0
+- package: github.com/twinj/uuid
+  version: 0.10.0
 testImport:
 - package: github.com/ae6rt/ziptools
   version: 0e733d9cea2914f8d26004bc575530048d92d063

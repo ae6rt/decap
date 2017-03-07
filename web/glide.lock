@@ -1,57 +1,61 @@
-hash: 5cf794bd171928b2ebefcb1eea43b3da5435cc6122243c21aba3c5392159ff9a
-updated: 2016-10-16T17:40:20.849170438-07:00
+hash: e48c790da290203b7b3463a63a16358c07b4d97ed225cfea06d4ad0464a12ba9
+updated: 2017-03-07T07:10:22.464244392-08:00
 imports:
 - name: github.com/ae6rt/retry
   version: 340ac281720ed4c20c7b1093d9a80618c53177eb
 - name: github.com/aws/aws-sdk-go
-  version: 1b2abe886743dc2bcc78472bfd30a15dc0a61fb8
+  version: 6669bce73b4e3bc922ff5ea3a3983ede26e02b39
   subpackages:
   - aws
   - aws/awserr
-  - aws/credentials
-  - service/dynamodb
-  - service/s3
-  - aws/session
-  - aws/client
-  - aws/corehandlers
-  - aws/credentials/stscreds
-  - aws/defaults
-  - aws/request
-  - private/endpoints
   - aws/awsutil
+  - aws/client
   - aws/client/metadata
-  - aws/signer/v4
-  - private/protocol/jsonrpc
-  - private/waiter
-  - private/protocol
-  - private/protocol/restxml
-  - service/sts
+  - aws/corehandlers
+  - aws/credentials
   - aws/credentials/ec2rolecreds
   - aws/credentials/endpointcreds
+  - aws/credentials/stscreds
+  - aws/defaults
   - aws/ec2metadata
-  - private/protocol/rest
+  - aws/endpoints
+  - aws/request
+  - aws/session
+  - aws/signer/v4
+  - private/protocol
   - private/protocol/json/jsonutil
+  - private/protocol/jsonrpc
   - private/protocol/query
-  - private/protocol/xml/xmlutil
   - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/restxml
+  - private/protocol/xml/xmlutil
+  - private/waiter
+  - service/dynamodb
+  - service/s3
+  - service/sqs
+  - service/sts
 - name: github.com/coreos/etcd
   version: fca98c9071f2d7fc2ece35b68d2322b2c0ed440e
   subpackages:
+  - Godeps/_workspace/src/golang.org/x/net/context
   - client
   - pkg/pathutil
   - pkg/types
 - name: github.com/go-ini/ini
-  version: 6e4869b434bd001f6983749881c7ead3545887d8
+  version: c437d20015c2ab6454b7a66a13109ff0fb99e17a
 - name: github.com/gorilla/websocket
   version: 1f512fc3f05332ba7117626cdfb4e07474e58e60
 - name: github.com/jmespath/go-jmespath
   version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
 - name: github.com/julienschmidt/httprouter
   version: 2ba0f3d499bb3c8d1f47107eb55a597b6619d388
+- name: github.com/pkg/errors
+  version: bfd5150e4e41705ded2129ec33379de1cb90b513
 - name: github.com/twinj/uuid
-  version: 7bbe408d339787c56ec15568c947c0959db1b275
+  version: 89173bcdda19db0eb88aef1e1cb1cb2505561d31
 - name: golang.org/x/net
-  version: 8b4af36cd21a1f85a7484b49feb7c79363106d8e
+  version: d379faa25cbdc04d653984913a2ceb43b0bc46d7
   subpackages:
   - context
 - name: gopkg.in/inf.v0

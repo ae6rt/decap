@@ -45,7 +45,7 @@ import (
 //        // mock response/functionality
 //    }
 //
-//    TestMyFunc(t *testing.T) {
+//    func TestMyFunc(t *testing.T) {
 //        // Setup Test
 //        mockSvc := &mockEMRClient{}
 //
@@ -70,6 +70,10 @@ type EMRAPI interface {
 	AddTagsRequest(*emr.AddTagsInput) (*request.Request, *emr.AddTagsOutput)
 
 	AddTags(*emr.AddTagsInput) (*emr.AddTagsOutput, error)
+
+	CancelStepsRequest(*emr.CancelStepsInput) (*request.Request, *emr.CancelStepsOutput)
+
+	CancelSteps(*emr.CancelStepsInput) (*emr.CancelStepsOutput, error)
 
 	CreateSecurityConfigurationRequest(*emr.CreateSecurityConfigurationInput) (*request.Request, *emr.CreateSecurityConfigurationOutput)
 
@@ -132,6 +136,14 @@ type EMRAPI interface {
 	ModifyInstanceGroupsRequest(*emr.ModifyInstanceGroupsInput) (*request.Request, *emr.ModifyInstanceGroupsOutput)
 
 	ModifyInstanceGroups(*emr.ModifyInstanceGroupsInput) (*emr.ModifyInstanceGroupsOutput, error)
+
+	PutAutoScalingPolicyRequest(*emr.PutAutoScalingPolicyInput) (*request.Request, *emr.PutAutoScalingPolicyOutput)
+
+	PutAutoScalingPolicy(*emr.PutAutoScalingPolicyInput) (*emr.PutAutoScalingPolicyOutput, error)
+
+	RemoveAutoScalingPolicyRequest(*emr.RemoveAutoScalingPolicyInput) (*request.Request, *emr.RemoveAutoScalingPolicyOutput)
+
+	RemoveAutoScalingPolicy(*emr.RemoveAutoScalingPolicyInput) (*emr.RemoveAutoScalingPolicyOutput, error)
 
 	RemoveTagsRequest(*emr.RemoveTagsInput) (*request.Request, *emr.RemoveTagsOutput)
 

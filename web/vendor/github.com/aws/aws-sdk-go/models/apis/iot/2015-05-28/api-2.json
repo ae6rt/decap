@@ -1,6 +1,7 @@
 {
   "version":"2.0",
   "metadata":{
+    "uid":"iot-2015-05-28",
     "apiVersion":"2015-05-28",
     "endpointPrefix":"iot",
     "serviceFullName":"AWS IoT",
@@ -2419,6 +2420,7 @@
       "type":"structure",
       "members":{
         "dynamoDB":{"shape":"DynamoDBAction"},
+        "dynamoDBv2":{"shape":"DynamoDBv2Action"},
         "lambda":{"shape":"LambdaAction"},
         "sns":{"shape":"SnsAction"},
         "sqs":{"shape":"SqsAction"},
@@ -3142,6 +3144,13 @@
         "payloadField":{"shape":"PayloadField"}
       }
     },
+    "DynamoDBv2Action":{
+      "type":"structure",
+      "members":{
+        "roleArn":{"shape":"AwsArn"},
+        "putItem":{"shape":"PutItemInput"}
+      }
+    },
     "DynamoKeyType":{
       "type":"string",
       "enum":[
@@ -3845,6 +3854,13 @@
     "PublicKey":{
       "type":"string",
       "min":1
+    },
+    "PutItemInput":{
+      "type":"structure",
+      "required":["tableName"],
+      "members":{
+        "tableName":{"shape":"TableName"}
+      }
     },
     "QueueUrl":{"type":"string"},
     "RangeKeyField":{"type":"string"},

@@ -16,11 +16,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleIoT_AcceptCertificateTransfer() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -42,11 +38,7 @@ func ExampleIoT_AcceptCertificateTransfer() {
 }
 
 func ExampleIoT_AttachPrincipalPolicy() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -68,11 +60,7 @@ func ExampleIoT_AttachPrincipalPolicy() {
 }
 
 func ExampleIoT_AttachThingPrincipal() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -94,11 +82,7 @@ func ExampleIoT_AttachThingPrincipal() {
 }
 
 func ExampleIoT_CancelCertificateTransfer() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -119,11 +103,7 @@ func ExampleIoT_CancelCertificateTransfer() {
 }
 
 func ExampleIoT_CreateCertificateFromCsr() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -145,11 +125,7 @@ func ExampleIoT_CreateCertificateFromCsr() {
 }
 
 func ExampleIoT_CreateKeysAndCertificate() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -170,11 +146,7 @@ func ExampleIoT_CreateKeysAndCertificate() {
 }
 
 func ExampleIoT_CreatePolicy() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -196,11 +168,7 @@ func ExampleIoT_CreatePolicy() {
 }
 
 func ExampleIoT_CreatePolicyVersion() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -223,11 +191,7 @@ func ExampleIoT_CreatePolicyVersion() {
 }
 
 func ExampleIoT_CreateThing() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -256,11 +220,7 @@ func ExampleIoT_CreateThing() {
 }
 
 func ExampleIoT_CreateThingType() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -288,11 +248,7 @@ func ExampleIoT_CreateThingType() {
 }
 
 func ExampleIoT_CreateTopicRule() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -326,6 +282,12 @@ func ExampleIoT_CreateTopicRule() {
 						RangeKeyField: aws.String("RangeKeyField"),
 						RangeKeyType:  aws.String("DynamoKeyType"),
 						RangeKeyValue: aws.String("RangeKeyValue"),
+					},
+					DynamoDBv2: &iot.DynamoDBv2Action{
+						PutItem: &iot.PutItemInput{
+							TableName: aws.String("TableName"), // Required
+						},
+						RoleArn: aws.String("AwsArn"),
 					},
 					Elasticsearch: &iot.ElasticsearchAction{
 						Endpoint: aws.String("ElasticsearchEndpoint"), // Required
@@ -390,11 +352,7 @@ func ExampleIoT_CreateTopicRule() {
 }
 
 func ExampleIoT_DeleteCACertificate() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -415,11 +373,7 @@ func ExampleIoT_DeleteCACertificate() {
 }
 
 func ExampleIoT_DeleteCertificate() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -440,11 +394,7 @@ func ExampleIoT_DeleteCertificate() {
 }
 
 func ExampleIoT_DeletePolicy() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -465,11 +415,7 @@ func ExampleIoT_DeletePolicy() {
 }
 
 func ExampleIoT_DeletePolicyVersion() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -491,11 +437,7 @@ func ExampleIoT_DeletePolicyVersion() {
 }
 
 func ExampleIoT_DeleteRegistrationCode() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -514,11 +456,7 @@ func ExampleIoT_DeleteRegistrationCode() {
 }
 
 func ExampleIoT_DeleteThing() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -540,11 +478,7 @@ func ExampleIoT_DeleteThing() {
 }
 
 func ExampleIoT_DeleteThingType() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -565,11 +499,7 @@ func ExampleIoT_DeleteThingType() {
 }
 
 func ExampleIoT_DeleteTopicRule() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -590,11 +520,7 @@ func ExampleIoT_DeleteTopicRule() {
 }
 
 func ExampleIoT_DeprecateThingType() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -616,11 +542,7 @@ func ExampleIoT_DeprecateThingType() {
 }
 
 func ExampleIoT_DescribeCACertificate() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -641,11 +563,7 @@ func ExampleIoT_DescribeCACertificate() {
 }
 
 func ExampleIoT_DescribeCertificate() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -666,11 +584,7 @@ func ExampleIoT_DescribeCertificate() {
 }
 
 func ExampleIoT_DescribeEndpoint() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -689,11 +603,7 @@ func ExampleIoT_DescribeEndpoint() {
 }
 
 func ExampleIoT_DescribeThing() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -714,11 +624,7 @@ func ExampleIoT_DescribeThing() {
 }
 
 func ExampleIoT_DescribeThingType() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -739,11 +645,7 @@ func ExampleIoT_DescribeThingType() {
 }
 
 func ExampleIoT_DetachPrincipalPolicy() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -765,11 +667,7 @@ func ExampleIoT_DetachPrincipalPolicy() {
 }
 
 func ExampleIoT_DetachThingPrincipal() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -791,11 +689,7 @@ func ExampleIoT_DetachThingPrincipal() {
 }
 
 func ExampleIoT_DisableTopicRule() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -816,11 +710,7 @@ func ExampleIoT_DisableTopicRule() {
 }
 
 func ExampleIoT_EnableTopicRule() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -841,11 +731,7 @@ func ExampleIoT_EnableTopicRule() {
 }
 
 func ExampleIoT_GetLoggingOptions() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -864,11 +750,7 @@ func ExampleIoT_GetLoggingOptions() {
 }
 
 func ExampleIoT_GetPolicy() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -889,11 +771,7 @@ func ExampleIoT_GetPolicy() {
 }
 
 func ExampleIoT_GetPolicyVersion() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -915,11 +793,7 @@ func ExampleIoT_GetPolicyVersion() {
 }
 
 func ExampleIoT_GetRegistrationCode() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -938,11 +812,7 @@ func ExampleIoT_GetRegistrationCode() {
 }
 
 func ExampleIoT_GetTopicRule() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -963,11 +833,7 @@ func ExampleIoT_GetTopicRule() {
 }
 
 func ExampleIoT_ListCACertificates() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -990,11 +856,7 @@ func ExampleIoT_ListCACertificates() {
 }
 
 func ExampleIoT_ListCertificates() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1017,11 +879,7 @@ func ExampleIoT_ListCertificates() {
 }
 
 func ExampleIoT_ListCertificatesByCA() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1045,11 +903,7 @@ func ExampleIoT_ListCertificatesByCA() {
 }
 
 func ExampleIoT_ListOutgoingCertificates() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1072,11 +926,7 @@ func ExampleIoT_ListOutgoingCertificates() {
 }
 
 func ExampleIoT_ListPolicies() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1099,11 +949,7 @@ func ExampleIoT_ListPolicies() {
 }
 
 func ExampleIoT_ListPolicyPrincipals() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1127,11 +973,7 @@ func ExampleIoT_ListPolicyPrincipals() {
 }
 
 func ExampleIoT_ListPolicyVersions() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1152,11 +994,7 @@ func ExampleIoT_ListPolicyVersions() {
 }
 
 func ExampleIoT_ListPrincipalPolicies() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1180,11 +1018,7 @@ func ExampleIoT_ListPrincipalPolicies() {
 }
 
 func ExampleIoT_ListPrincipalThings() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1207,11 +1041,7 @@ func ExampleIoT_ListPrincipalThings() {
 }
 
 func ExampleIoT_ListThingPrincipals() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1232,11 +1062,7 @@ func ExampleIoT_ListThingPrincipals() {
 }
 
 func ExampleIoT_ListThingTypes() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1259,11 +1085,7 @@ func ExampleIoT_ListThingTypes() {
 }
 
 func ExampleIoT_ListThings() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1288,11 +1110,7 @@ func ExampleIoT_ListThings() {
 }
 
 func ExampleIoT_ListTopicRules() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1316,11 +1134,7 @@ func ExampleIoT_ListTopicRules() {
 }
 
 func ExampleIoT_RegisterCACertificate() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1344,11 +1158,7 @@ func ExampleIoT_RegisterCACertificate() {
 }
 
 func ExampleIoT_RegisterCertificate() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1372,11 +1182,7 @@ func ExampleIoT_RegisterCertificate() {
 }
 
 func ExampleIoT_RejectCertificateTransfer() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1398,11 +1204,7 @@ func ExampleIoT_RejectCertificateTransfer() {
 }
 
 func ExampleIoT_ReplaceTopicRule() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1436,6 +1238,12 @@ func ExampleIoT_ReplaceTopicRule() {
 						RangeKeyField: aws.String("RangeKeyField"),
 						RangeKeyType:  aws.String("DynamoKeyType"),
 						RangeKeyValue: aws.String("RangeKeyValue"),
+					},
+					DynamoDBv2: &iot.DynamoDBv2Action{
+						PutItem: &iot.PutItemInput{
+							TableName: aws.String("TableName"), // Required
+						},
+						RoleArn: aws.String("AwsArn"),
 					},
 					Elasticsearch: &iot.ElasticsearchAction{
 						Endpoint: aws.String("ElasticsearchEndpoint"), // Required
@@ -1500,11 +1308,7 @@ func ExampleIoT_ReplaceTopicRule() {
 }
 
 func ExampleIoT_SetDefaultPolicyVersion() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1526,11 +1330,7 @@ func ExampleIoT_SetDefaultPolicyVersion() {
 }
 
 func ExampleIoT_SetLoggingOptions() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1554,11 +1354,7 @@ func ExampleIoT_SetLoggingOptions() {
 }
 
 func ExampleIoT_TransferCertificate() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1581,11 +1377,7 @@ func ExampleIoT_TransferCertificate() {
 }
 
 func ExampleIoT_UpdateCACertificate() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1608,11 +1400,7 @@ func ExampleIoT_UpdateCACertificate() {
 }
 
 func ExampleIoT_UpdateCertificate() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 
@@ -1634,11 +1422,7 @@ func ExampleIoT_UpdateCertificate() {
 }
 
 func ExampleIoT_UpdateThing() {
-	sess, err := session.NewSession()
-	if err != nil {
-		fmt.Println("failed to create session,", err)
-		return
-	}
+	sess := session.Must(session.NewSession())
 
 	svc := iot.New(sess)
 

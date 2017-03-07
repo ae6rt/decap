@@ -1,94 +1,100 @@
 package uuid
 
+/****************
+ * Date: 21/06/15
+ * Time: 6:46 PM
+ ***************/
+
 import (
-	"errors"
-	"github.com/stretchr/testify/assert"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
 
-type save struct {
-	saved bool
-	store *Store
-	err   error
-	sync.Mutex
+const (
+	saveDuration time.Duration = 3
+)
+
+var (
+	config = StateSaverConfig{SaveReport: true, SaveSchedule: saveDuration * time.Second}
+)
+
+func init() {
+	SetupFileSystemStateSaver(config)
 }
 
-func (o *save) Save(pStore Store) {
-	o.Lock()
-	defer o.Unlock()
-	o.saved = true
-}
+// Tests that the schedule is run on the timeDuration
+func TestUUID_State_saveSchedule(t *testing.T) {
 
-func (o *save) Read() (error, Store) {
-	if o.store != nil {
-		return nil, *o.store
+	if state.saver != nil {
+		count := 0
+
+		now := time.Now()
+		state.next = timestamp() + Timestamp(config.SaveSchedule/100)
+
+		for i := 0; i < 20000; i++ {
+			if timestamp() >= state.next {
+				count++
+			}
+			NewV1()
+			time.Sleep(1 * time.Millisecond)
+		}
+		d := time.Since(now)
+		timesSaved := int(d.Seconds()) / int(saveDuration)
+		if count != timesSaved {
+			t.Errorf("Should be as many saves as %d second increments but got: %d instead of %d", saveDuration, count, timesSaved)
+		}
 	}
-	if o.err != nil {
-		return o.err, Store{}
+}
+
+// Tests that the schedule saves properly when uuid are called in go routines
+func TestUUID_State_saveScheduleGo(t *testing.T) {
+
+	if state.saver != nil {
+
+		size := 5000
+		ids := make([]UUID, size)
+
+		var wg sync.WaitGroup
+		wg.Add(size)
+
+		var count int32
+		mutex := &sync.Mutex{}
+
+		now := time.Now()
+		state.next = timestamp() + Timestamp(config.SaveSchedule/100)
+
+		for i := 0; i < size; i++ {
+			go func(index int) {
+				defer wg.Done()
+				if timestamp() >= state.next {
+					atomic.AddInt32(&count, 1)
+				}
+				u := NewV1()
+				mutex.Lock()
+				ids[index] = u
+				mutex.Unlock()
+				time.Sleep(100 * time.Nanosecond)
+			}(i)
+		}
+		wg.Wait()
+		duration := time.Since(now)
+
+		for j := size - 1; j >= 0; j-- {
+			for k := 0; k < size; k++ {
+				if k == j {
+					continue
+				}
+				if Equal(ids[j], ids[k]) {
+					t.Error("Should not create the same V1 UUID", ids[k], ids[j])
+				}
+			}
+		}
+
+		timesSaved := int(duration.Seconds()) / int(saveDuration)
+		if int(count) != timesSaved {
+			t.Errorf("Should be as many saves as %d second increments but got: %d instead of %d", saveDuration, count, timesSaved)
+		}
 	}
-	return nil, Store{}
-}
-
-func TestRegisterSaver(t *testing.T) {
-	registerTestGenerator(Timestamp(2048), []byte{0xaa})
-
-	saver := &save{store: &Store{}}
-	RegisterSaver(saver)
-
-	assert.NotNil(t, generator.Saver, "Saver should save")
-	registerDefaultGenerator()
-}
-
-func TestSaverRead(t *testing.T) {
-	now, node := registerTestGenerator(Now().Sub(time.Second), []byte{0xaa})
-
-	storageStamp := registerSaver(now.Sub(time.Second*2), node)
-
-	assert.NotNil(t, generator.Saver, "Saver should save")
-	assert.NotNil(t, generator.Store, "Default generator store should not return an empty store")
-	assert.Equal(t, Sequence(2), generator.Store.Sequence, "Successfull read should have actual given sequence")
-	assert.True(t, generator.Store.Timestamp > storageStamp, "Failed read should generate a time")
-	assert.NotEmpty(t, generator.Store.Node, "There should be a node id")
-
-	// Read returns an error
-	_, node = registerTestGenerator(Now(), []byte{0xaa})
-	saver := &save{err: errors.New("Read broken")}
-	RegisterSaver(saver)
-
-	assert.Nil(t, generator.Saver, "Saver should not exist")
-	assert.NotNil(t, generator.Store, "Default generator store should not return an empty store")
-	assert.NotEqual(t, Sequence(0), generator.Sequence, "Failed read should generate a non zero random sequence")
-	assert.True(t, generator.Timestamp > 0, "Failed read should generate a time")
-	assert.Equal(t, node, generator.Node, "There should be a node id")
-	registerDefaultGenerator()
-}
-
-func TestSaverSave(t *testing.T) {
-	registerTestGenerator(Now().Add(1024), nodeBytes)
-
-	saver := &save{}
-	RegisterSaver(saver)
-
-	NewV1()
-
-	saver.Lock()
-	defer saver.Unlock()
-
-	assert.True(t, saver.saved, "Saver should save")
-	registerDefaultGenerator()
-}
-
-func TestStore_String(t *testing.T) {
-	store := &Store{Node: []byte{0xdd, 0xee, 0xff, 0xaa, 0xbb}, Sequence: 2, Timestamp: 3}
-	assert.Equal(t, "Timestamp[2167-05-04 23:34:33.709551916 +0000 UTC]-Sequence[2]-Node[ddeeffaabb]", store.String(), "The output store string should match")
-}
-
-func registerSaver(pStorageStamp Timestamp, pNode Node) (storageStamp Timestamp) {
-	storageStamp = pStorageStamp
-
-	saver := &save{store: &Store{Node: pNode, Sequence: 2, Timestamp: pStorageStamp}}
-	RegisterSaver(saver)
-	return
 }
