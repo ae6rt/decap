@@ -8,11 +8,13 @@ import (
 
 	"github.com/ae6rt/decap/web/uuid"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/pkg/errors"
 )
 
-// SQS models the subset of exported methods we need from the Amazon SQS interface.
+// SQS models the subset of exported methods we need from the greater Amazon SQS interface.
 type SQS interface {
 	CreateQueue(*sqs.CreateQueueInput) (*sqs.CreateQueueOutput, error)
 	ReceiveMessage(*sqs.ReceiveMessageInput) (*sqs.ReceiveMessageOutput, error)
@@ -26,10 +28,21 @@ type SQSDeferralService struct {
 	relay    chan Deferral
 }
 
+// NewSQS creates a new network client for interacting with Amazon SQS.
+func NewSQS(awsAccessKey, awsAccessSecret, awsRegion string) SQS {
+	sess := session.Must(session.NewSession(aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(awsAccessKey, awsAccessSecret, "")).WithRegion(awsRegion).WithMaxRetries(3)))
+	return sqs.New(sess)
+}
+
+// NewSQSDeferralService returns a new build deferral service based on Amazon SQS.
+func NewSQSDeferralService(s SQS, r chan Deferral) DeferralService {
+	return &SQSDeferralService{q: s, relay: r}
+}
+
 // createQueue creates a FIFO deferral queue with the name queueName.
 func (s *SQSDeferralService) createQueue(queueName string) error {
 	params := &sqs.CreateQueueInput{
-		QueueName: aws.String("queueName"),
+		QueueName: aws.String(queueName),
 	}
 
 	resp, err := s.q.CreateQueue(params)
@@ -41,7 +54,8 @@ func (s *SQSDeferralService) createQueue(queueName string) error {
 	return nil
 }
 
-// Resubmit receives messages from the deferral queue and submits them for reexecution.
+// Resubmit receives messages from the deferral queue and submits them for reexecution.  It is intended
+// for this method to be called by a recurring timer.
 func (s *SQSDeferralService) Resubmit() {
 	params := &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(s.queueURL),
@@ -73,8 +87,8 @@ func (s *SQSDeferralService) Resubmit() {
 // Defer defers a build based on project key and branch.
 func (s *SQSDeferralService) Defer(projectKey, branch string) error {
 	params := &sqs.SendMessageInput{
-		MessageBody:  aws.String(uuid.Uuid()),
 		QueueUrl:     aws.String(s.queueURL),
+		MessageBody:  aws.String(uuid.Uuid()),
 		DelaySeconds: aws.Int64(1),
 		MessageAttributes: map[string]*sqs.MessageAttributeValue{
 			"projectkey": {
