@@ -14,3 +14,5 @@ sh create-artifact-table.sh
 sh create-artifact-table-policies.sh
 sh create-buildlocks-table.sh
 sh create-buildlocks-table-policies.sh
+sh create-sqs.sh
+sh create-sqs-policies.sh

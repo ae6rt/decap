@@ -7,4 +7,5 @@ exit -1
 
 sh delete-s3.sh
 sh delete-dynamodb.sh
+sh delete-sqs.sh
 sh delete-user.sh
