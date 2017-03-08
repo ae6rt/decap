@@ -40,7 +40,7 @@ func NewSQSDeferralService(s SQS, r chan Deferral) DeferralService {
 }
 
 // createQueue creates a FIFO deferral queue with the name queueName.
-func (s *SQSDeferralService) createQueue(queueName string) error {
+func (s *SQSDeferralService) CreateQueue(queueName string) error {
 	params := &sqs.CreateQueueInput{
 		QueueName: aws.String(queueName),
 	}
@@ -60,6 +60,9 @@ func (s *SQSDeferralService) Resubmit() {
 	params := &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(s.queueURL),
 		MaxNumberOfMessages: aws.Int64(10),
+		MessageAttributeNames: []*string{
+			aws.String("All"),
+		},
 	}
 	resp, err := s.q.ReceiveMessage(params)
 	if err != nil {
@@ -68,19 +71,23 @@ func (s *SQSDeferralService) Resubmit() {
 	}
 
 	for _, j := range resp.Messages {
-		t := *j.MessageAttributes["unixtime"].StringValue
-		unixtime, err := strconv.ParseInt(t, 10, 64)
+		t := j.MessageAttributes["unixtime"].StringValue
+		unixtime, err := strconv.ParseInt(*t, 10, 64)
 		if err != nil {
 			log.Printf("Cannot parse unix time in Deferral:  %s\n", t)
 			continue
 		}
 
 		// might want to sort by unixtime and dedup before sending to channel
-		s.relay <- Deferral{
+		d := Deferral{
 			ProjectKey: *j.MessageAttributes["projectkey"].StringValue,
 			Branch:     *j.MessageAttributes["branch"].StringValue,
 			UnixTime:   unixtime,
 		}
+
+		//		s.relay <- d
+
+		fmt.Printf("%+v\n", d)
 	}
 }
 
