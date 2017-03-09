@@ -26,7 +26,7 @@ type SQS interface {
 type SQSDeferralService struct {
 	q        SQS
 	queueURL string
-	relay    chan Deferral
+	relay    chan<- Deferral
 }
 
 // NewSQS creates a new network client for interacting with Amazon SQS.
@@ -35,12 +35,14 @@ func NewSQS(awsAccessKey, awsAccessSecret, awsRegion string) SQS {
 	return sqs.New(sess)
 }
 
-// NewSQSDeferralService returns a new build deferral service based on Amazon SQS.
-func NewSQSDeferralService(s SQS, r chan Deferral) DeferralService {
+// NewSQSDeferralService returns a new build deferral service based on Amazon SQS.  The write-only channel of Deferral is
+// used to send Deferral events to an actor that relaunches the deferred build.  Those origin of those events
+// are deferral messages on the SQS message bus.
+func NewSQSDeferralService(s SQS, r chan<- Deferral) DeferralService {
 	return &SQSDeferralService{q: s, relay: r}
 }
 
-// createQueue creates a FIFO deferral queue with the name queueName.
+// CreateQueue creates a deferral queue with the name queueName.
 func (s *SQSDeferralService) CreateQueue(queueName string) error {
 	params := &sqs.CreateQueueInput{
 		QueueName: aws.String(queueName),
@@ -88,10 +90,7 @@ func (s *SQSDeferralService) Resubmit() {
 			UnixTime:   unixtime,
 		}
 
-		// TODO: do not send to channel yet since there are no consumers yet (TBD)
-		if false {
-			s.relay <- d
-		}
+		s.relay <- d
 
 		h := j.ReceiptHandle
 		if err := s.delete(*h); err != nil {

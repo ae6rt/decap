@@ -2,13 +2,21 @@ package deferrals
 
 import (
 	"fmt"
+	"sync"
 	"testing"
-	"time"
 )
 
 func TestDefer(t *testing.T) {
-	sqs := NewSQS(awsCoordinates())
+	var wg sync.WaitGroup
+
 	relay := make(chan Deferral)
+	go func() {
+		msg := <-relay
+		fmt.Printf("@@@ TestDefer() received channel deferral %+v\n", msg)
+		wg.Done()
+	}()
+
+	sqs := NewSQS(awsCoordinates())
 	svc := NewSQSDeferralService(sqs, relay)
 
 	if err := svc.CreateQueue("testq"); err != nil {
@@ -18,12 +26,12 @@ func TestDefer(t *testing.T) {
 	if err := svc.Defer("proj", "feature/foo"); err != nil {
 		t.Error(err)
 	}
+
+	wg.Add(1)
 	fmt.Println("Defer")
 
-	for j := 0; j < 10; j++ {
-		fmt.Println("Resubmit")
-		svc.Resubmit()
-		time.Sleep(2 * time.Second)
-	}
+	fmt.Println("Resubmit")
+	svc.Resubmit()
 
+	wg.Wait()
 }
