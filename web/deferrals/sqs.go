@@ -72,6 +72,7 @@ func (s *SQSDeferralService) Resubmit() {
 	}
 
 	for _, j := range resp.Messages {
+		fmt.Printf("@@@ Resubmit() received message: %+v\n", *j.Body)
 
 		t := j.MessageAttributes["unixtime"].StringValue
 		unixtime, err := strconv.ParseInt(*t, 10, 64)
@@ -87,14 +88,16 @@ func (s *SQSDeferralService) Resubmit() {
 			UnixTime:   unixtime,
 		}
 
-		//		s.relay <- d
+		// TODO: do not send to channel yet since there are no consumers yet (TBD)
+		if false {
+			s.relay <- d
+		}
 
 		h := j.ReceiptHandle
 		if err := s.delete(*h); err != nil {
 			log.Printf("Error deleting message %s: %v\n", *h, err)
 		}
 
-		fmt.Printf("%+v\n", d)
 	}
 }
 
