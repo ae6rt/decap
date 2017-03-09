@@ -17,6 +17,7 @@ import (
 // SQS models the subset of exported methods we need from the greater Amazon SQS interface.
 type SQS interface {
 	CreateQueue(*sqs.CreateQueueInput) (*sqs.CreateQueueOutput, error)
+	DeleteMessage(*sqs.DeleteMessageInput) (*sqs.DeleteMessageOutput, error)
 	ReceiveMessage(*sqs.ReceiveMessageInput) (*sqs.ReceiveMessageOutput, error)
 	SendMessage(*sqs.SendMessageInput) (*sqs.SendMessageOutput, error)
 }
@@ -71,6 +72,7 @@ func (s *SQSDeferralService) Resubmit() {
 	}
 
 	for _, j := range resp.Messages {
+
 		t := j.MessageAttributes["unixtime"].StringValue
 		unixtime, err := strconv.ParseInt(*t, 10, 64)
 		if err != nil {
@@ -86,6 +88,11 @@ func (s *SQSDeferralService) Resubmit() {
 		}
 
 		//		s.relay <- d
+
+		h := j.ReceiptHandle
+		if err := s.delete(*h); err != nil {
+			log.Printf("Error deleting message %s: %v\n", *h, err)
+		}
 
 		fmt.Printf("%+v\n", d)
 	}
@@ -114,4 +121,15 @@ func (s *SQSDeferralService) Defer(projectKey, branch string) error {
 	}
 	_, err := s.q.SendMessage(params)
 	return err
+}
+
+func (s *SQSDeferralService) delete(handle string) error {
+	params := &sqs.DeleteMessageInput{
+		QueueUrl:      aws.String(s.queueURL),
+		ReceiptHandle: aws.String(handle),
+	}
+
+	_, err := s.q.DeleteMessage(params)
+
+	return errors.Wrap(err, "Failed to delete message")
 }
