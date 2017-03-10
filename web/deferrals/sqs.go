@@ -93,10 +93,14 @@ func (s *SQSDeferralService) Resubmit() {
 
 		msgs = append(msgs, d)
 
+		// todo: should we bother retrying the delete()? If it fails, the worst that can happen
+		// is that a build gets requeued on the next queue read.
 		h := j.ReceiptHandle
-		if err := s.delete(*h); err != nil {
-			log.Printf("Error deleting message %s: %v\n", *h, err)
-		}
+		go func() {
+			if err := s.delete(*h); err != nil {
+				log.Printf("Error deleting message %s: %v\n", *h, err)
+			}
+		}()
 	}
 
 	msgs = dedup(msgs)
