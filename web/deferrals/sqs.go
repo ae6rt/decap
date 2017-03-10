@@ -73,6 +73,7 @@ func (s *SQSDeferralService) Resubmit() {
 		return
 	}
 
+	var msgs []Deferral
 	for _, j := range resp.Messages {
 		fmt.Printf("@@@ Resubmit() received message: %+v\n", *j.Body)
 
@@ -90,13 +91,17 @@ func (s *SQSDeferralService) Resubmit() {
 			UnixTime:   unixtime,
 		}
 
-		s.relay <- d
+		msgs = append(msgs, d)
 
 		h := j.ReceiptHandle
 		if err := s.delete(*h); err != nil {
 			log.Printf("Error deleting message %s: %v\n", *h, err)
 		}
+	}
 
+	msgs = dedup(msgs)
+	for _, d := range msgs {
+		s.relay <- d
 	}
 }
 
@@ -134,4 +139,19 @@ func (s *SQSDeferralService) delete(handle string) error {
 	_, err := s.q.DeleteMessage(params)
 
 	return errors.Wrap(err, "Failed to delete message")
+}
+
+// dedup accepts a list of deferrals and deduplicates them with a map, preserving only the unique projectkey/branch elements.
+func dedup(a []Deferral) []Deferral {
+	var sieve = make(map[string]Deferral)
+	for _, d := range a {
+		sieve[d.Key()] = d
+	}
+
+	var results []Deferral
+	for _, v := range sieve {
+		results = append(results, v)
+	}
+
+	return results
 }
