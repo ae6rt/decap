@@ -1,8 +1,40 @@
 package deferrals
 
 import (
+	"sort"
 	"testing"
 )
+
+func TestSortDeferral(t *testing.T) {
+	t.Parallel()
+
+	var tests = []struct {
+		input []Deferral
+		want  []Deferral
+	}{
+		{
+			input: []Deferral{
+				Deferral{ProjectKey: "a", Branch: "1", UnixTime: 10},
+				Deferral{ProjectKey: "b", Branch: "2", UnixTime: 0},
+			},
+			want: []Deferral{
+				Deferral{ProjectKey: "b", Branch: "2"},
+				Deferral{ProjectKey: "a", Branch: "1"},
+			},
+		},
+	}
+
+	for testNumber, test := range tests {
+		a := make([]Deferral, len(test.input), len(test.input))
+		copy(a, test.input)
+		sort.Sort(ByTime(a))
+		for k, v := range test.want {
+			if a[k].Key() != v.Key() {
+				t.Fatalf("Test %d, sort.Sort(%+v) got %v, want %+v\n", testNumber, test.input, a[k], v)
+			}
+		}
+	}
+}
 
 func TestDedup(t *testing.T) {
 	t.Parallel()
@@ -13,17 +45,19 @@ func TestDedup(t *testing.T) {
 	}{
 		{
 			input: []Deferral{
-				Deferral{ProjectKey: "p1", Branch: "feature/p1foo"},
-				Deferral{ProjectKey: "p2", Branch: "feature/p2foo"},
-				Deferral{ProjectKey: "p1", Branch: "feature/p1foo"},
-				Deferral{ProjectKey: "p3", Branch: "feature/p3foo"},
-				Deferral{ProjectKey: "p1", Branch: "feature/p1bar"},
+				Deferral{ProjectKey: "p1", Branch: "feature/p1foo", UnixTime: 10},
+				Deferral{ProjectKey: "p1", Branch: "feature/p1foo", UnixTime: 0},
+				Deferral{ProjectKey: "p1", Branch: "feature/p1foo", UnixTime: 30},
+				Deferral{ProjectKey: "p1", Branch: "feature/p1bar", UnixTime: 50},
+				Deferral{ProjectKey: "p2", Branch: "feature/p2foo", UnixTime: 20},
+				Deferral{ProjectKey: "p3", Branch: "feature/p3foo", UnixTime: 40},
 			},
 			want: []Deferral{
 				Deferral{ProjectKey: "p1", Branch: "feature/p1foo"},
-				Deferral{ProjectKey: "p1", Branch: "feature/p1bar"},
 				Deferral{ProjectKey: "p2", Branch: "feature/p2foo"},
+				Deferral{ProjectKey: "p1", Branch: "feature/p1foo"},
 				Deferral{ProjectKey: "p3", Branch: "feature/p3foo"},
+				Deferral{ProjectKey: "p1", Branch: "feature/p1bar"},
 			},
 		},
 	}
@@ -34,20 +68,10 @@ func TestDedup(t *testing.T) {
 			t.Errorf("Test %d, dedup(%+v) want length %d, got %d\n", testNumber, test.want, len(test.want), len(got))
 		}
 
-		for _, v := range test.want {
-			if !contains(got, v) {
-				t.Errorf("Test %d, dedup(%+v) got %+v should contain %+v\n", testNumber, test.input, got, v)
+		for k, v := range test.want {
+			if got[k].Key() != v.Key() {
+				t.Errorf("Test %d, dedup(%+v) got %s, want %+s\n", testNumber, test.input, got[k].Key(), v.Key())
 			}
 		}
 	}
-
-}
-
-func contains(a []Deferral, d Deferral) bool {
-	for _, v := range a {
-		if v.ProjectKey == d.ProjectKey && v.Branch == d.Branch {
-			return true
-		}
-	}
-	return false
 }

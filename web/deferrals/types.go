@@ -11,5 +11,5 @@ type DeferralService interface {
 type Deferral struct {
 	ProjectKey string
 	Branch     string
-	UnixTime   int64 // there is currently no use for this, but there might be in the future
+	UnixTime   int64
 }

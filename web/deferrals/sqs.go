@@ -3,6 +3,7 @@ package deferrals
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"time"
 
@@ -145,17 +146,28 @@ func (s *SQSDeferralService) delete(handle string) error {
 	return errors.Wrap(err, "Failed to delete message")
 }
 
-// dedup accepts a list of deferrals and deduplicates them with a map, preserving only the unique projectkey/branch elements.
+// ByTime is used to sort Deferrals by Unix time stamp.
+type ByTime []Deferral
+
+func (s ByTime) Len() int {
+	return len(s)
+}
+func (s ByTime) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s ByTime) Less(i, j int) bool {
+	return s[i].UnixTime < s[j].UnixTime
+}
+
 func dedup(a []Deferral) []Deferral {
-	var sieve = make(map[string]Deferral)
-	for _, d := range a {
-		sieve[d.Key()] = d
-	}
-
+	sort.Sort(ByTime(a))
 	var results []Deferral
-	for _, v := range sieve {
-		results = append(results, v)
+	last := ""
+	for _, v := range a {
+		if v.Key() != last {
+			results = append(results, v)
+			last = v.Key()
+		}
 	}
-
 	return results
 }
