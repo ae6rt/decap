@@ -104,6 +104,7 @@ func (s *SQSDeferralService) Resubmit() {
 		}()
 	}
 
+	sort.Sort(ByTime(msgs))
 	msgs = dedup(msgs)
 	for _, d := range msgs {
 		s.relay <- d
@@ -160,8 +161,8 @@ func (s ByTime) Less(i, j int) bool {
 }
 
 func dedup(a []Deferral) []Deferral {
-	sort.Sort(ByTime(a))
 	var results []Deferral
+
 	last := ""
 	for _, v := range a {
 		if v.Key() != last {

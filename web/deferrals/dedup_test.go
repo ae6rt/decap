@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSortDeferral(t *testing.T) {
+func TestSortDeferrals(t *testing.T) {
 	t.Parallel()
 
 	var tests = []struct {
@@ -36,7 +36,7 @@ func TestSortDeferral(t *testing.T) {
 	}
 }
 
-func TestDedup(t *testing.T) {
+func TestDedupDeferrals(t *testing.T) {
 	t.Parallel()
 
 	var tests = []struct {
@@ -44,6 +44,7 @@ func TestDedup(t *testing.T) {
 		want  []Deferral
 	}{
 		{
+			// these get sorted on UnixTime, then uniq'd based on the ProjectKey/Branch tuple
 			input: []Deferral{
 				Deferral{ProjectKey: "p1", Branch: "feature/p1foo", UnixTime: 10},
 				Deferral{ProjectKey: "p1", Branch: "feature/p1foo", UnixTime: 0},
@@ -63,7 +64,11 @@ func TestDedup(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		got := dedup(test.input)
+		a := make([]Deferral, len(test.input), len(test.input))
+		copy(a, test.input)
+
+		sort.Sort(ByTime(a))
+		got := dedup(a)
 		if len(got) != len(test.want) {
 			t.Errorf("Test %d, dedup(%+v) want length %d, got %d\n", testNumber, test.want, len(test.want), len(got))
 		}
