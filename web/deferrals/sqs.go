@@ -40,13 +40,13 @@ func NewSQS(awsAccessKey, awsAccessSecret, awsRegion string) SQS {
 // used to send Deferral events to an actor that relaunches the deferred build.  Those origin of those events
 // are deferral messages on the SQS message bus.  This function creates the backing queue in SQS for use by Defer() and Resubmit().
 func NewSQSDeferralService(queueName string, s SQS, r chan<- Deferral) (DeferralService, error) {
-	f := &SQSDeferralService{sqs: s, relay: r}
-	q, err := f.createQueue(queueName)
+	deferralService := &SQSDeferralService{sqs: s, relay: r}
+	q, err := deferralService.createQueue(queueName)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, fmt.Sprintf("error creating NewSQSDeferralService(%s, %+v, %v)", queueName, s, r))
 	}
-	f.queueURL = q
-	return f, nil
+	deferralService.queueURL = q
+	return deferralService, nil
 }
 
 // Defer defers a build based on project key and branch.
