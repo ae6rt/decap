@@ -2,7 +2,28 @@ package deferrals
 
 import (
 	"os"
+
+	"github.com/aws/aws-sdk-go/service/sqs"
 )
+
+type MockSQS struct {
+}
+
+func (t MockSQS) CreateQueue(f *sqs.CreateQueueInput) (*sqs.CreateQueueOutput, error) {
+	return nil, nil
+}
+
+func (t MockSQS) DeleteMessage(f *sqs.DeleteMessageInput) (*sqs.DeleteMessageOutput, error) {
+	return nil, nil
+}
+
+func (t MockSQS) ReceiveMessage(f *sqs.ReceiveMessageInput) (*sqs.ReceiveMessageOutput, error) {
+	return nil, nil
+}
+
+func (t MockSQS) SendMessage(f *sqs.SendMessageInput) (*sqs.SendMessageOutput, error) {
+	return nil, nil
+}
 
 func awsCoordinates() (string, string, string) {
 	key := os.Getenv("AWS_ACCESS_KEY_ID")

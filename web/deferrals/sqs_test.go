@@ -1,37 +1,34 @@
 package deferrals
 
 import (
-	"fmt"
-	"sync"
 	"testing"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
-func TestDefer(t *testing.T) {
-	var wg sync.WaitGroup
+type CreateNewSQSMock struct {
+	MockSQS
+	param    *sqs.CreateQueueInput
+	queueURL string
+}
 
-	relay := make(chan Deferral)
-	go func() {
-		msg := <-relay
-		fmt.Printf("@@@ TestDefer() received channel deferral %+v\n", msg)
-		wg.Done()
-	}()
+func (t *CreateNewSQSMock) CreateQueue(f *sqs.CreateQueueInput) (*sqs.CreateQueueOutput, error) {
+	t.param = f
+	return &sqs.CreateQueueOutput{QueueUrl: aws.String(t.queueURL)}, nil
+}
 
-	sqs := NewSQS(awsCoordinates())
-	svc := NewSQSDeferralService(sqs, relay)
+func TestCreateNewSQS(t *testing.T) {
+	sqsService := &CreateNewSQSMock{queueURL: "http://www.example.com"}
 
-	if err := svc.CreateQueue("testq"); err != nil {
-		t.Error(err)
+	s, _ := NewSQSDeferralService("foo", sqsService, nil)
+
+	if x, ok := s.(*SQSDeferralService); ok && x.queueURL != sqsService.queueURL {
+		t.Errorf("Want %s, got %s\n", sqsService.queueURL, x.queueURL)
 	}
 
-	if err := svc.Defer("proj", "feature/foo"); err != nil {
-		t.Error(err)
+	if *sqsService.param.QueueName != "foo" {
+		t.Errorf("Want foo, got %s\n", sqsService.param.QueueName)
 	}
 
-	wg.Add(1)
-	fmt.Println("Defer")
-
-	fmt.Println("Resubmit")
-	svc.Resubmit()
-
-	wg.Wait()
 }

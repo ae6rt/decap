@@ -2,7 +2,6 @@ package deferrals
 
 // DeferralService models how builds are deferred and rehydrated for execution.
 type DeferralService interface {
-	CreateQueue(queueName string) error
 	Defer(projectKey, branch string) error
 	Resubmit()
 }

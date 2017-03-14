@@ -25,7 +25,7 @@ type SQS interface {
 
 // SQSDeferralService implements a deferral service on top of Amazon Simple Queue Service.
 type SQSDeferralService struct {
-	q        SQS
+	sqs      SQS
 	queueURL string
 	relay    chan<- Deferral
 }
@@ -38,77 +38,15 @@ func NewSQS(awsAccessKey, awsAccessSecret, awsRegion string) SQS {
 
 // NewSQSDeferralService returns a new build deferral service based on Amazon SQS.  The write-only channel of Deferral is
 // used to send Deferral events to an actor that relaunches the deferred build.  Those origin of those events
-// are deferral messages on the SQS message bus.
-func NewSQSDeferralService(s SQS, r chan<- Deferral) DeferralService {
-	return &SQSDeferralService{q: s, relay: r}
-}
-
-// CreateQueue creates a deferral queue with the name queueName.
-func (s *SQSDeferralService) CreateQueue(queueName string) error {
-	params := &sqs.CreateQueueInput{
-		QueueName: aws.String(queueName),
-	}
-
-	resp, err := s.q.CreateQueue(params)
+// are deferral messages on the SQS message bus.  This function creates the backing queue in SQS for use by Defer() and Resubmit().
+func NewSQSDeferralService(queueName string, s SQS, r chan<- Deferral) (DeferralService, error) {
+	f := &SQSDeferralService{sqs: s, relay: r}
+	q, err := f.createQueue(queueName)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("%T: Error creating queue: %s", err, queueName))
+		return nil, err
 	}
-
-	s.queueURL = *resp.QueueUrl
-	return nil
-}
-
-// Resubmit receives messages from the deferral queue and submits them for reexecution.  It is intended
-// for this method to be called by a recurring timer.
-func (s *SQSDeferralService) Resubmit() {
-	params := &sqs.ReceiveMessageInput{
-		QueueUrl:            aws.String(s.queueURL),
-		MaxNumberOfMessages: aws.Int64(10),
-		MessageAttributeNames: []*string{
-			aws.String("All"),
-		},
-	}
-	resp, err := s.q.ReceiveMessage(params)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	var msgs []Deferral
-	for _, j := range resp.Messages {
-		fmt.Printf("@@@ Resubmit() received message: %+v\n", *j.Body)
-
-		t := j.MessageAttributes["unixtime"].StringValue
-		unixtime, err := strconv.ParseInt(*t, 10, 64)
-		if err != nil {
-			log.Printf("Cannot parse unix time in Deferral:  %s\n", t)
-			continue
-		}
-
-		// might want to sort by unixtime and dedup before sending to channel
-		d := Deferral{
-			ProjectKey: *j.MessageAttributes["projectkey"].StringValue,
-			Branch:     *j.MessageAttributes["branch"].StringValue,
-			UnixTime:   unixtime,
-		}
-
-		msgs = append(msgs, d)
-
-		// todo: should we bother retrying the delete()? If it fails, the worst that can happen
-		// is that a build gets requeued on the next queue read.
-		h := j.ReceiptHandle
-		go func() {
-			if err := s.delete(*h); err != nil {
-				log.Printf("Error deleting message %s: %v\n", *h, err)
-			}
-		}()
-	}
-
-	sort.Sort(ByTime(msgs))
-	msgs = dedup(msgs)
-	for _, d := range msgs {
-		s.relay <- d
-	}
+	f.queueURL = q
+	return f, nil
 }
 
 // Defer defers a build based on project key and branch.
@@ -132,8 +70,68 @@ func (s *SQSDeferralService) Defer(projectKey, branch string) error {
 			},
 		},
 	}
-	_, err := s.q.SendMessage(params)
+	_, err := s.sqs.SendMessage(params)
 	return err
+}
+
+// Resubmit receives messages from the deferral queue and submits them for reexecution.  It is intended
+// for this method to be called by a recurring timer.
+func (s *SQSDeferralService) Resubmit() {
+	params := &sqs.ReceiveMessageInput{
+		QueueUrl:            aws.String(s.queueURL),
+		MaxNumberOfMessages: aws.Int64(10),
+		MessageAttributeNames: []*string{
+			aws.String("All"),
+		},
+	}
+	resp, err := s.sqs.ReceiveMessage(params)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	var msgs []Deferral
+	for _, j := range resp.Messages {
+		t := j.MessageAttributes["unixtime"].StringValue
+		unixtime, err := strconv.ParseInt(*t, 10, 64)
+		if err != nil {
+			log.Printf("Cannot parse unix time in Deferral:  %s\n", t)
+			continue
+		}
+
+		d := Deferral{
+			ProjectKey: *j.MessageAttributes["projectkey"].StringValue,
+			Branch:     *j.MessageAttributes["branch"].StringValue,
+			UnixTime:   unixtime,
+		}
+
+		msgs = append(msgs, d)
+
+		go func(handle string) {
+			if err := s.delete(handle); err != nil {
+				log.Printf("Error deleting message %s: %v\n", handle, err)
+			}
+		}(*j.ReceiptHandle)
+	}
+
+	sort.Sort(ByTime(msgs))
+	msgs = dedup(msgs)
+	for _, d := range msgs {
+		s.relay <- d
+	}
+}
+
+func (s *SQSDeferralService) createQueue(queueName string) (string, error) {
+	params := &sqs.CreateQueueInput{
+		QueueName: aws.String(queueName),
+	}
+
+	resp, err := s.sqs.CreateQueue(params)
+	if err != nil {
+		return "", errors.Wrap(err, fmt.Sprintf("%T: Error creating queue: %s", err, queueName))
+	}
+
+	return *resp.QueueUrl, nil
 }
 
 func (s *SQSDeferralService) delete(handle string) error {
@@ -142,7 +140,7 @@ func (s *SQSDeferralService) delete(handle string) error {
 		ReceiptHandle: aws.String(handle),
 	}
 
-	_, err := s.q.DeleteMessage(params)
+	_, err := s.sqs.DeleteMessage(params)
 
 	return errors.Wrap(err, "Failed to delete message")
 }
