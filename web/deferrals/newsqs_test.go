@@ -30,20 +30,20 @@ func TestCreateNewSQS(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		sqsService := &CreateNewSQSMock{queueURL: test.queueURL}
+		mockSQS := &CreateNewSQSMock{queueURL: test.queueURL}
 
-		s, _ := NewSQSDeferralService(test.queueName, sqsService, nil)
+		deferralService, _ := NewSQSDeferralService(test.queueName, mockSQS, nil)
 
-		if x, ok := s.(*SQSDeferralService); ok {
-			if x.queueURL != sqsService.queueURL {
-				t.Errorf("Want %s, got %s\n", sqsService.queueURL, x.queueURL)
+		if x, ok := deferralService.(*SQSDeferralService); ok {
+			if x.queueURL != mockSQS.queueURL {
+				t.Errorf("Want %s, got %s\n", mockSQS.queueURL, x.queueURL)
 			}
 		} else {
-			t.Fatalf("This test assumes a concrete instance of SQSDeferralService, but found %T\n", s)
+			t.Fatalf("This test assumes a concrete instance of SQSDeferralService, but found %T\n", deferralService)
 		}
 
-		if *sqsService.param.QueueName != test.queueName {
-			t.Errorf("Test %d: want queueName %s, got %s\n", testNumber, test.queueName, sqsService.param.QueueName)
+		if *mockSQS.param.QueueName != test.queueName {
+			t.Errorf("Test %d: want queueName %s, got %s\n", testNumber, test.queueName, mockSQS.param.QueueName)
 		}
 	}
 }

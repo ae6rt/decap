@@ -40,39 +40,39 @@ func TestDefer(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		sqsService := &DeferMock{queueURL: test.wantQueueURL}
+		mockSQS := &DeferMock{queueURL: test.wantQueueURL}
 
-		s, err := NewSQSDeferralService("foo", sqsService, make(chan Deferral))
+		deferralService, err := NewSQSDeferralService("foo", mockSQS, make(chan Deferral))
 		if err != nil {
 			t.Fatalf("Test %d: NewSQSDeferralService() unexpected error: %d\n", testNumber, err)
 		}
 
-		if err := s.Defer(test.wantProjectKey, test.wantBranch); err != nil {
+		if err := deferralService.Defer(test.wantProjectKey, test.wantBranch); err != nil {
 			t.Fatalf("Test %d: Defer() unexpected error: %d\n", testNumber, err)
 		}
 
-		if x, ok := s.(*SQSDeferralService); ok {
-			if x.queueURL != sqsService.queueURL {
-				t.Errorf("Want %s, got %s\n", sqsService.queueURL, x.queueURL)
+		if x, ok := deferralService.(*SQSDeferralService); ok {
+			if x.queueURL != mockSQS.queueURL {
+				t.Errorf("Want %s, got %s\n", mockSQS.queueURL, x.queueURL)
 			}
 		} else {
-			t.Fatalf("This test assumes a concrete instance of SQSDeferralService, but found %T\n", s)
+			t.Fatalf("This test assumes a concrete instance of SQSDeferralService, but found %T\n", deferralService)
 		}
 
-		if *sqsService.createQueueInput.QueueName != test.wantQueueName {
-			t.Errorf("Test %d: want queueName %s, got %s\n", testNumber, test.wantQueueName, *sqsService.createQueueInput.QueueName)
+		if *mockSQS.createQueueInput.QueueName != test.wantQueueName {
+			t.Errorf("Test %d: want queueName %s, got %s\n", testNumber, test.wantQueueName, *mockSQS.createQueueInput.QueueName)
 		}
 
-		if *sqsService.messageInput.MessageAttributes["projectkey"].StringValue != test.wantProjectKey {
-			t.Errorf("Test %d: want projectkey %s, got %s\n", testNumber, test.wantProjectKey, *sqsService.messageInput.MessageAttributes["projectKey"].StringValue)
+		if *mockSQS.messageInput.MessageAttributes["projectkey"].StringValue != test.wantProjectKey {
+			t.Errorf("Test %d: want projectkey %s, got %s\n", testNumber, test.wantProjectKey, *mockSQS.messageInput.MessageAttributes["projectKey"].StringValue)
 		}
 
-		if *sqsService.messageInput.MessageAttributes["branch"].StringValue != test.wantBranch {
-			t.Errorf("Test %d: want branch %s, got %s\n", testNumber, test.wantBranch, *sqsService.messageInput.MessageAttributes["branch"].StringValue)
+		if *mockSQS.messageInput.MessageAttributes["branch"].StringValue != test.wantBranch {
+			t.Errorf("Test %d: want branch %s, got %s\n", testNumber, test.wantBranch, *mockSQS.messageInput.MessageAttributes["branch"].StringValue)
 		}
 
-		if *sqsService.messageInput.MessageAttributes["unixtime"].StringValue == "0" {
-			t.Errorf("Test %d: want unix time not zero, got %s\n", testNumber, *sqsService.messageInput.MessageAttributes["unixtime"].StringValue)
+		if *mockSQS.messageInput.MessageAttributes["unixtime"].StringValue == "0" {
+			t.Errorf("Test %d: want unix time not zero, got %s\n", testNumber, *mockSQS.messageInput.MessageAttributes["unixtime"].StringValue)
 		}
 	}
 }
