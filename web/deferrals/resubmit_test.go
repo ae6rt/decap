@@ -12,16 +12,14 @@ import (
 
 type ResubmitMock struct {
 	MockSQS
-	queueURL         string
-	projectKey       string
-	branch           string
-	receiptHandle    string
-	attributeNames   string
-	deleteMessage    *sqs.DeleteMessageInput
-	createQueueInput *sqs.CreateQueueInput
-	messageInput     *sqs.ReceiveMessageInput
-
-	wg *sync.WaitGroup
+	queueURL            string
+	projectKey          string
+	branch              string
+	receiptHandle       string
+	deleteMessageInput  *sqs.DeleteMessageInput
+	createQueueInput    *sqs.CreateQueueInput
+	receiveMessageInput *sqs.ReceiveMessageInput
+	wg                  *sync.WaitGroup
 }
 
 func (t *ResubmitMock) CreateQueue(f *sqs.CreateQueueInput) (*sqs.CreateQueueOutput, error) {
@@ -30,13 +28,13 @@ func (t *ResubmitMock) CreateQueue(f *sqs.CreateQueueInput) (*sqs.CreateQueueOut
 }
 
 func (t *ResubmitMock) DeleteMessage(f *sqs.DeleteMessageInput) (*sqs.DeleteMessageOutput, error) {
-	t.deleteMessage = f
+	t.deleteMessageInput = f
 	defer t.wg.Done()
 	return &sqs.DeleteMessageOutput{}, nil
 }
 
 func (t *ResubmitMock) ReceiveMessage(f *sqs.ReceiveMessageInput) (*sqs.ReceiveMessageOutput, error) {
-	t.messageInput = f
+	t.receiveMessageInput = f
 	return &sqs.ReceiveMessageOutput{
 		Messages: []*sqs.Message{
 			&sqs.Message{
@@ -124,12 +122,12 @@ func TestResubmit(t *testing.T) {
 		}
 
 		// test delete message effects
-		if *mockSQS.deleteMessage.QueueUrl != test.queueURL {
-			t.Errorf("Test %d: want queue URL %s, got %s\n", testNumber, test.queueURL, mockSQS.deleteMessage.QueueUrl)
+		if *mockSQS.deleteMessageInput.QueueUrl != test.queueURL {
+			t.Errorf("Test %d: want queue URL %s, got %s\n", testNumber, test.queueURL, mockSQS.deleteMessageInput.QueueUrl)
 		}
 
-		if *mockSQS.deleteMessage.ReceiptHandle != test.receiptHandle {
-			t.Errorf("Test %d: want receipt handle %s, got %s\n", testNumber, test.receiptHandle, mockSQS.deleteMessage.ReceiptHandle)
+		if *mockSQS.deleteMessageInput.ReceiptHandle != test.receiptHandle {
+			t.Errorf("Test %d: want receipt handle %s, got %s\n", testNumber, test.receiptHandle, mockSQS.deleteMessageInput.ReceiptHandle)
 		}
 
 		close(deferralChannel)

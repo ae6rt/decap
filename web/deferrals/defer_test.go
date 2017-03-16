@@ -8,7 +8,6 @@ import (
 
 type DeferMock struct {
 	MockSQS
-	queueName        string
 	queueURL         string
 	createQueueInput *sqs.CreateQueueInput
 	messageInput     *sqs.SendMessageInput
