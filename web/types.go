@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/deferrals"
+	"github.com/ae6rt/decap/web/distrlocks"
 	"github.com/ae6rt/decap/web/locks"
 )
 
@@ -31,9 +33,10 @@ type DefaultBuilder struct {
 	AWSAccessSecret string
 	AWSRegion       string
 	Locker          locks.Locker
-
-	apiToken  string
-	apiClient *http.Client
+	LockService     distrlocks.DistributedLockService
+	DeferralService deferrals.DeferralService
+	apiToken        string
+	apiClient       *http.Client
 
 	maxPods int
 

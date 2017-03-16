@@ -15,6 +15,8 @@ import (
 	"net/url"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/deferrals"
+	"github.com/ae6rt/decap/web/distrlocks"
 	"github.com/ae6rt/decap/web/k8stypes"
 	"github.com/ae6rt/decap/web/locks"
 	"github.com/ae6rt/decap/web/uuid"
@@ -22,7 +24,7 @@ import (
 )
 
 // NewBuilder is the constructor for a new default Builder instance.
-func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker locks.Locker, buildScriptsRepo, buildScriptsRepoBranch string) Builder {
+func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker locks.Locker, buildScriptsRepo, buildScriptsRepoBranch string, distributedLocker distrlocks.DistributedLockService, deferralService deferrals.DeferralService) Builder {
 
 	tlsConfig := tls.Config{}
 	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
@@ -48,6 +50,8 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 		UserName:               username,
 		Password:               password,
 		Locker:                 locker,
+		LockService:            distributedLocker,
+		DeferralService:        deferralService,
 		AWSAccessKeyID:         awsKey,
 		AWSAccessSecret:        awsSecret,
 		AWSRegion:              awsRegion,
@@ -103,18 +107,6 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent BuildEvent, buildID, 
 			k8stypes.EnvVar{
 				Name:  "AWS_DEFAULT_REGION",
 				Value: builder.AWSRegion,
-			},
-		},
-		Lifecycle: &k8stypes.Lifecycle{
-			PreStop: &k8stypes.Handler{
-				Exec: &k8stypes.ExecAction{
-					Command: []string{
-						"bctool", "unlock",
-						"--lockservice-base-url", "http://lockservice.decap-system:2379",
-						"--build-id", buildID,
-						"--build-lock-key", lockKey,
-					},
-				},
 			},
 		},
 	}
@@ -242,7 +234,6 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 			continue
 		}
 
-		key := builder.Locker.Key(projectKey, ref)
 		buildID := uuid.Uuid()
 		containers := builder.makeContainers(buildEvent, buildID, ref, projects)
 
@@ -254,29 +245,29 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 			continue
 		}
 
-		locked, err := builder.lockOrDefer(buildEvent, ref, buildID, key)
-		if err != nil {
-			Log.Println(err)
-			continue
-		}
-
-		if !locked {
+		lockObj := distrlocks.NewDistributedLock(projectKey, ref)
+		if err := builder.LockService.Acquire(lockObj); err != nil {
+			Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, ref, err)
+			if err := builder.DeferralService.Defer(projectKey, ref); err != nil {
+				Log.Printf("Failed to defer build: %s/%s\n", projectKey, ref)
+			} else {
+				Log.Printf("Deferred build: %s/%s\n", projectKey, ref)
+			}
 			continue
 		}
 
 		if <-getLogLevelChan == LogDebug {
-			Log.Printf("Acquired lock on build %s with key %s\n", buildID, key)
+			Log.Printf("Acquired lock on build %s for project %s, branch %s\n", buildID, projectKey, ref)
 		}
 
-		created, err := builder.createOrDefer(podBytes, buildEvent, buildID, ref, key)
-		if err != nil {
-			Log.Println(err)
-			continue
+		if err := builder.CreatePod(podBytes); err != nil {
+			if err := builder.LockService.Release(lockObj); err != nil {
+				Log.Printf("Failed to release lock on build %s, project %s, branch %s\n", buildID, projectKey, ref)
+				continue // don't bother trying to defer the build if we've already encountered two errors.
+			}
 		}
 
-		if created {
-			Log.Printf("Created pod=%s\n", buildID)
-		}
+		Log.Printf("Created pod=%s\n", buildID)
 	}
 	return nil
 }

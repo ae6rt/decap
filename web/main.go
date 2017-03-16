@@ -2,11 +2,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/ae6rt/decap/web/deferrals"
+	"github.com/ae6rt/decap/web/distrlocks"
 	"github.com/ae6rt/decap/web/locks"
 	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/julienschmidt/httprouter"
@@ -50,8 +53,21 @@ func init() {
 }
 
 func main() {
+	// new stuff
+	distributedLocker := distrlocks.NewDynamoDbLockService(distrlocks.NewDynamoDB(*awsKey, *awsSecret, *awsRegion))
+	fmt.Println(distributedLocker)
+
+	deferralChannel := make(chan deferrals.Deferral)
+	deferralService, err := deferrals.NewSQSDeferralService("decap-deferrals", deferrals.NewSQS(*awsKey, *awsSecret, *awsRegion), deferralChannel)
+	if err != nil {
+		log.Fatalf("main() failed to create DeferralService: %v\n", err)
+	}
+	fmt.Println(deferralService)
+	// end new stuff
+
 	locker := locks.NewEtcdLocker([]string{"http://localhost:2379"})
-	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch)
+
+	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch, distributedLocker, deferralService)
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
