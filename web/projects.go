@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/ae6rt/decap/web/api/v1"
-	"github.com/ae6rt/decap/web/gittools"
 	"github.com/ae6rt/decap/web/retry"
 )
 
@@ -93,7 +93,7 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]v1.Proj
 		if err != nil {
 			return err
 		}
-		if err := gittools.Clone(scriptsRepo, scriptsRepoBranch, cloneDirectory, true); err != nil {
+		if err := clone(scriptsRepo, scriptsRepoBranch, cloneDirectory, true); err != nil {
 			return err
 		}
 
@@ -258,4 +258,28 @@ func descriptorForTeamProject(data []byte) (v1.ProjectDescriptor, error) {
 	}
 
 	return descriptor, nil
+}
+
+// Clone clones the Git repository at repositoryURL at the given branch into the given directory.  If shallow is true, use --depth 1.
+func clone(repositoryURL, branch, dir string, shallow bool) error {
+	args := []string{"clone"}
+	if shallow {
+		args = append(args, []string{"--depth", "1"}...)
+	}
+	args = append(args, []string{"--branch", branch, repositoryURL, dir}...)
+	return executeShellCommand("git", args)
+}
+
+func executeShellCommand(commandName string, args []string) error {
+	Log.Printf("Executing %s %+v\n", commandName, args)
+	command := exec.Command(commandName, args...)
+	var stdOutErr []byte
+	var err error
+	stdOutErr, err = command.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	Log.Printf("%v\n", string(stdOutErr))
+
+	return nil
 }
