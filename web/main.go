@@ -38,7 +38,7 @@ var (
 	buildGoSDK   string
 )
 
-func init() {
+func main() {
 	flag.Parse()
 	Log.Printf("Version: %s, Commit: %s, Date: %s, Go SDK: %s\n", buildVersion, buildCommit, buildDate, buildGoSDK)
 	if *versionFlag {
@@ -50,9 +50,7 @@ func init() {
 	*awsRegion = kubeSecret("/etc/secrets/aws-region", *awsRegion)
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
-}
 
-func main() {
 	// new stuff
 	distributedLocker := distrlocks.NewDynamoDbLockService(distrlocks.NewDynamoDB(*awsKey, *awsSecret, *awsRegion))
 	fmt.Println(distributedLocker)

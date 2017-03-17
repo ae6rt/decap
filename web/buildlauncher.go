@@ -538,11 +538,11 @@ func (builder DefaultBuilder) Init() error {
 }
 
 func kubeSecret(file string, defaultValue string) string {
-	if v, err := ioutil.ReadFile(file); err != nil {
+	v, err := ioutil.ReadFile(file)
+	if err != nil {
 		Log.Printf("Secret %s not found in the filesystem.  Using default.\n", file)
 		return defaultValue
-	} else {
-		Log.Printf("Successfully read secret %s from the filesystem\n", file)
-		return string(v)
 	}
+	Log.Printf("Successfully read secret %s from the filesystem\n", file)
+	return string(v)
 }
