@@ -13,6 +13,7 @@ import (
 )
 
 func TestArtifactsHandler(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 	req, err := http.NewRequest("POST", "http://example.com", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -44,6 +45,7 @@ func TestArtifactsHandler(t *testing.T) {
 }
 
 func TestArtifactsHandlerManifestOnly(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 	req, err := http.NewRequest("POST", "http://example.com", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -76,6 +78,7 @@ func TestArtifactsHandlerManifestOnly(t *testing.T) {
 }
 
 func TestArtifactsHandlerWithError(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 	req, err := http.NewRequest("POST", "http://example.com", nil)
 	if err != nil {
 		log.Fatal(err)

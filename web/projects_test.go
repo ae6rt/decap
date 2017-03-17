@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 	"testing"
 
@@ -10,6 +11,8 @@ import (
 )
 
 func TestAssembleProjects(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
@@ -44,6 +47,7 @@ func TestAssembleProjects(t *testing.T) {
 }
 
 func TestProject(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
@@ -70,6 +74,8 @@ func TestProject(t *testing.T) {
 }
 
 func TestFindBuildScriptsByRegex(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
@@ -93,6 +99,8 @@ func TestFindBuildScriptsByRegex(t *testing.T) {
 }
 
 func TestFindProjectDescriptorsByRegex(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
@@ -116,6 +124,8 @@ func TestFindProjectDescriptorsByRegex(t *testing.T) {
 }
 
 func TestFindSidecarsByRegex(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
@@ -139,6 +149,8 @@ func TestFindSidecarsByRegex(t *testing.T) {
 }
 
 func TestReadSidecars(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
@@ -164,6 +176,8 @@ func TestReadSidecars(t *testing.T) {
 }
 
 func TestFindByRegexBadRoot(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	_, err := filesByRegex("x", "")
 	if err == nil {
 		t.Fatal("Expecting an error because root is not absolute\n")
@@ -171,6 +185,8 @@ func TestFindByRegexBadRoot(t *testing.T) {
 }
 
 func TestProjectKey(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	r := projectKey("a", "b")
 	if r != "a/b" {
 		t.Fatalf("Want a/b but got %s\n", r)
@@ -178,6 +194,8 @@ func TestProjectKey(t *testing.T) {
 }
 
 func TestTeamProjectFromFile(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	a, b, err := teamProject("/a/b/c/d/x.sh")
 	if err != nil {
 		t.Fatalf("Unexpected error:  %v\n", err)
@@ -193,6 +211,8 @@ func TestTeamProjectFromFile(t *testing.T) {
 }
 
 func TestIndexFilesByTeamProject(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	flist := []string{
 		"/a/b/c/d/build.sh",
 		"/1/2/3/4/build.sh",
@@ -221,6 +241,8 @@ func TestIndexFilesByTeamProject(t *testing.T) {
 }
 
 func TestIndexSidecarsByTeamProject(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	flist := []string{
 		"/a/b/c/d/mysql-sidecar.json",
 		"/a/b/c/d/redis-sidecar.json",

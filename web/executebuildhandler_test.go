@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -12,6 +13,8 @@ import (
 )
 
 func TestExecuteBuild(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	req, err := http.NewRequest("POST", "http://example.com/ae6rt/p1?branch=master", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -50,6 +53,8 @@ func TestExecuteBuild(t *testing.T) {
 }
 
 func TestExecuteBuildNoBranches(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	req, err := http.NewRequest("POST", "http://example.com/ae6rt/p1", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -81,6 +86,8 @@ func TestExecuteBuildNoBranches(t *testing.T) {
 }
 
 func TestExecuteBuildNoSuchProject(t *testing.T) {
+	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
+
 	req, err := http.NewRequest("POST", "http://example.com/ae6rt/p1", nil)
 	if err != nil {
 		log.Fatal(err)
