@@ -19,7 +19,7 @@ lint:
 	go vet $(go list ./... | grep -v /vendor/)
 
 test: lint
-	go test $(go list ./... | grep -v /vendor/)
+	go test -v $(go list ./... | grep -v /vendor/)
 
 osx: test
 	CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 

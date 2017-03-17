@@ -29,7 +29,7 @@ func TestCreatePod(t *testing.T) {
 	}))
 	defer testServer.Close()
 
-	builder := NewBuilder(testServer.URL, "admin", "admin123", "key", "sekrit", "us-west-1", &locks.NoOpLocker{}, "repo", "repobranch")
+	builder := NewBuilder(testServer.URL, "admin", "admin123", "key", "sekrit", "us-west-1", &locks.NoOpLocker{}, "repo", "repobranch", MockDistributedLocker{}, MockDeferralService{})
 	err := builder.CreatePod([]byte(""))
 	if err != nil {
 		t.Fatalf("Unexpected error: %v\n", err)

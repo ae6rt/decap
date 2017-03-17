@@ -107,49 +107,4 @@ func TestMakeBaseContainer(t *testing.T) {
 	if baseContainer.Env[i].Value != "us-west-1" {
 		t.Fatalf("Want us-west-1 but got %v\n", baseContainer.Env[i].Value)
 	}
-
-	stopAction := baseContainer.Lifecycle.PreStop.Exec.Command
-	if len(stopAction) != 8 {
-		t.Fatalf("Want 8 but got %v\n", len(stopAction))
-	}
-
-	i = 0
-	if stopAction[i] != "bctool" {
-		t.Fatalf("Want bctoolt but got %v\n", stopAction[i])
-	}
-
-	i = i + 1
-	if stopAction[i] != "unlock" {
-		t.Fatalf("Want unlock but got %v\n", stopAction[i])
-	}
-
-	i = i + 1
-	if stopAction[i] != "--lockservice-base-url" {
-		t.Fatalf("Want --lockservice-base-url but got %v\n", stopAction[i])
-	}
-
-	i = i + 1
-	if stopAction[i] != "http://lockservice.decap-system:2379" {
-		t.Fatalf("Want http://lockservice.decap-system:2379 but got %v\n", stopAction[i])
-	}
-
-	i = i + 1
-	if stopAction[i] != "--build-id" {
-		t.Fatalf("Want --build-id but got %v\n", stopAction[i])
-	}
-
-	i = i + 1
-	if stopAction[i] != "uuid" {
-		t.Fatalf("Want uuid but got %v\n", stopAction[i])
-	}
-
-	i = i + 1
-	if stopAction[i] != "--build-lock-key" {
-		t.Fatalf("Want --build-lock-key but got %v\n", stopAction[i])
-	}
-
-	i = i + 1
-	if stopAction[i] != "opaquekey" {
-		t.Fatalf("Want opaquekey but got %v\n", stopAction[i])
-	}
 }
