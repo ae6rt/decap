@@ -41,10 +41,10 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 		version = v1.Version{Meta: v1.Meta{Error: err.Error()}}
 		data, _ := json.Marshal(&version)
 		w.WriteHeader(500)
-		w.Write(data)
+		_, _ = w.Write(data)
 		return
 	}
-	w.Write(data)
+	_, _ = w.Write(data)
 }
 
 func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -68,10 +68,10 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		teams := v1.Teams{Meta: v1.Meta{Error: err.Error()}}
 		data, _ := json.Marshal(&teams)
 		w.WriteHeader(500)
-		w.Write(data)
+		_, _ = w.Write(data)
 		return
 	}
-	w.Write(data)
+	_, _ = w.Write(data)
 }
 
 func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -97,10 +97,10 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 		p := v1.Projects{Meta: v1.Meta{Error: err.Error()}}
 		data, _ := json.Marshal(&p)
 		w.WriteHeader(500)
-		w.Write(data)
+		_, _ = w.Write(data)
 		return
 	}
-	w.Write(data)
+	_, _ = w.Write(data)
 }
 
 func DeferredBuildsHandler(builder Builder) httprouter.Handle {
@@ -110,7 +110,7 @@ func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 			deferred, err := builder.DeferredBuilds()
 			if err != nil {
 				w.WriteHeader(500)
-				w.Write(simpleError(err))
+				_, _ = w.Write(simpleError(err))
 				return
 			}
 			squashed, _ := builder.SquashDeferred(deferred)
@@ -119,21 +119,21 @@ func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 			data, err := json.Marshal(&v)
 			if err != nil {
 				w.WriteHeader(500)
-				w.Write(simpleError(err))
+				_, _ = w.Write(simpleError(err))
 				return
 			}
-			w.Write(data)
+			_, _ = w.Write(data)
 		case "POST":
 			key := r.URL.Query().Get("key")
 			if key == "" {
 				w.WriteHeader(400)
-				w.Write(simpleError(fmt.Errorf("Missing or empty key parameter in clear deferred build")))
+				_, _ = w.Write(simpleError(fmt.Errorf("Missing or empty key parameter in clear deferred build")))
 				return
 			}
 			if err := builder.ClearDeferredBuild(key); err != nil {
 				w.WriteHeader(500)
 				data, _ := json.Marshal(&v1.Deferred{Meta: v1.Meta{Error: err.Error()}})
-				w.Write(data)
+				_, _ = w.Write(data)
 			}
 		}
 	}
@@ -147,7 +147,7 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 		if _, present := projectByTeamName(team, project); !present {
 			Log.Printf("Unknown project %s/%s", team, project)
 			w.WriteHeader(404)
-			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, project)))
+			_, _ = w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, project)))
 			return
 		}
 
@@ -155,12 +155,14 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 		if len(branches) == 0 {
 			Log.Println("No branches specified")
 			w.WriteHeader(400)
-			w.Write(simpleError(fmt.Errorf("No branches specified")))
+			_, _ = w.Write(simpleError(fmt.Errorf("No branches specified")))
 			return
 		}
 
 		event := v1.UserBuildEvent{Team_: team, Project_: project, Refs_: branches}
-		go decap.LaunchBuild(event)
+		go func() {
+			_ = decap.LaunchBuild(event)
+		}()
 	}
 }
 
@@ -177,7 +179,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 		if r.Body == nil {
 			Log.Println("Expecting an HTTP entity")
 			w.WriteHeader(400)
-			w.Write(simpleError(fmt.Errorf("Expecting an HTTP entity")))
+			_, _ = w.Write(simpleError(fmt.Errorf("Expecting an HTTP entity")))
 			return
 		}
 
@@ -185,18 +187,18 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 		if err != nil {
 			Log.Println(err)
 			w.WriteHeader(500)
-			w.Write(simpleError(err))
+			_, _ = w.Write(simpleError(err))
 			return
 		}
 		defer func() {
-			r.Body.Close()
+			_ = r.Body.Close()
 		}()
 
 		switch repoManager {
 		case "buildscripts":
 			if p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch); err != nil {
 				w.WriteHeader(500)
-				w.Write(simpleError(err))
+				_, _ = w.Write(simpleError(err))
 			} else {
 				setProjects(p)
 				Log.Println("Build scripts refreshed via post commit hook")
@@ -209,28 +211,34 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 				if err := json.Unmarshal(data, &event); err != nil {
 					Log.Println(err)
 					w.WriteHeader(500)
-					w.Write(simpleError(err))
+					_, _ = w.Write(simpleError(err))
 					return
 				}
-				go decap.LaunchBuild(event)
+				go func() {
+					_ = decap.LaunchBuild(event)
+				}()
+
 			case "push":
 				event := GithubEvent{}
 				if err := json.Unmarshal(data, &event); err != nil {
 					Log.Println(err)
 					w.WriteHeader(500)
-					w.Write(simpleError(err))
+					_, _ = w.Write(simpleError(err))
 					return
 				}
-				go decap.LaunchBuild(event)
+				go func() {
+					_ = decap.LaunchBuild(event)
+				}()
+
 			default:
 				w.WriteHeader(400)
-				w.Write(simpleError(fmt.Errorf("Github hook missing event type header.  See https://developer.github.com/webhooks/#delivery-headers.")))
+				_, _ = w.Write(simpleError(fmt.Errorf("Github hook missing event type header.  See https://developer.github.com/webhooks/#delivery-headers.")))
 				return
 			}
 		default:
 			Log.Printf("repomanager %s not supported\n", repoManager)
 			w.WriteHeader(400)
-			w.Write(simpleError(fmt.Errorf("repomanager %s not supported", repoManager)))
+			_, _ = w.Write(simpleError(fmt.Errorf("repomanager %s not supported", repoManager)))
 			return
 		}
 		w.WriteHeader(200)
@@ -245,7 +253,7 @@ func StopBuildHandler(decap Builder) httprouter.Handle {
 		if err := decap.DeletePod(buildID); err != nil {
 			Log.Println(err)
 			w.WriteHeader(500)
-			w.Write(simpleError(err))
+			_, _ = w.Write(simpleError(err))
 		}
 	}
 }
@@ -259,7 +267,7 @@ func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.
 		project, present := projectByTeamName(team, projectName)
 		if !present {
 			w.WriteHeader(404)
-			w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, projectName)))
+			_, _ = w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, projectName)))
 			return
 		}
 
@@ -273,7 +281,7 @@ func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.
 				Log.Print(err)
 				data, _ := json.Marshal(&v1.Refs{Meta: v1.Meta{Error: err.Error()}})
 				w.WriteHeader(500)
-				w.Write(data)
+				_, _ = w.Write(data)
 				return
 			}
 
@@ -283,15 +291,15 @@ func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.
 				Log.Print(err)
 				data, _ := json.Marshal(&v1.Refs{Meta: v1.Meta{Error: err.Error()}})
 				w.WriteHeader(500)
-				w.Write(data)
+				_, _ = w.Write(data)
 				return
 			}
 
-			w.Write(data)
+			_, _ = w.Write(data)
 			return
 		default:
 			w.WriteHeader(400)
-			w.Write(simpleError(fmt.Errorf("repomanager not supported: %s", repositoryManager)))
+			_, _ = w.Write(simpleError(fmt.Errorf("repomanager not supported: %s", repositoryManager)))
 		}
 	}
 }
@@ -304,7 +312,7 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 		if err != nil {
 			Log.Println(err)
 			w.WriteHeader(500)
-			w.Write(simpleError(err))
+			_, _ = w.Write(simpleError(err))
 			return
 		}
 		if r.Header.Get("Accept") == "text/plain" {
@@ -313,21 +321,21 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 			if err != nil {
 				Log.Println(err)
 				w.WriteHeader(500)
-				w.Write(simpleError(err))
+				_, _ = w.Write(simpleError(err))
 				return
 			}
 			defer func() {
-				source.Close()
+				_ = source.Close()
 			}()
 
 			var outputBuffer = new(bytes.Buffer)
-			io.Copy(outputBuffer, source)
+			_, _ = io.Copy(outputBuffer, source)
 			w.Header().Set("Content-type", "text/plain")
-			w.Write(outputBuffer.Bytes())
+			_, _ = w.Write(outputBuffer.Bytes())
 
 		} else {
 			w.Header().Set("Content-type", "application/x-gzip")
-			w.Write(data)
+			_, _ = w.Write(data)
 		}
 	}
 }
@@ -340,7 +348,7 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 		if err != nil {
 			Log.Println(err)
 			w.WriteHeader(500)
-			w.Write(simpleError(err))
+			_, _ = w.Write(simpleError(err))
 			return
 		}
 		if r.Header.Get("Accept") == "text/plain" {
@@ -350,15 +358,15 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 			if err != nil {
 				Log.Println(err)
 				w.WriteHeader(500)
-				w.Write(simpleError(err))
+				_, _ = w.Write(simpleError(err))
 				return
 			}
 			defer func() {
-				source.Close()
+				_ = source.Close()
 			}()
 
 			var outputBuffer = new(bytes.Buffer)
-			io.Copy(outputBuffer, source)
+			_, _ = io.Copy(outputBuffer, source)
 
 			newData := outputBuffer.Bytes()
 
@@ -374,16 +382,16 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 				if err != nil {
 					Log.Println(err)
 					w.WriteHeader(500)
-					w.Write(simpleError(err))
+					_, _ = w.Write(simpleError(err))
 					return
 				}
 				records = fmt.Sprintf("%s\n%s", records, hdr.Name)
 			}
 			w.Header().Set("Content-type", "text/plain")
-			w.Write([]byte(records))
+			_, _ = w.Write([]byte(records))
 		} else {
 			w.Header().Set("Content-type", "application/x-gzip")
-			w.Write(data)
+			_, _ = w.Write(data)
 		}
 	}
 }
@@ -398,7 +406,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			builds := v1.Builds{Meta: v1.Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
 			w.WriteHeader(400)
-			w.Write(data)
+			_, _ = w.Write(data)
 			return
 		}
 
@@ -407,7 +415,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			builds := v1.Builds{Meta: v1.Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
 			w.WriteHeader(400)
-			w.Write(data)
+			_, _ = w.Write(data)
 			return
 		}
 
@@ -417,7 +425,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			builds := v1.Builds{Meta: v1.Meta{Error: err.Error()}}
 			data, _ := json.Marshal(&builds)
 			w.WriteHeader(502)
-			w.Write(data)
+			_, _ = w.Write(data)
 			return
 		}
 
@@ -428,10 +436,10 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			builds.Meta.Error = err.Error()
 			data, _ := json.Marshal(&builds)
 			w.WriteHeader(500)
-			w.Write(data)
+			_, _ = w.Write(data)
 			return
 		}
-		w.Write(data)
+		_, _ = w.Write(data)
 	}
 }
 
@@ -452,13 +460,13 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 			setShutdownChan <- shutdownState
 		default:
 			w.WriteHeader(400)
-			w.Write(simpleError(fmt.Errorf("Unsupported shutdown state: %v", shutdownState)))
+			_, _ = w.Write(simpleError(fmt.Errorf("Unsupported shutdown state: %v", shutdownState)))
 			return
 		}
 	case "GET":
 		var data []byte
 		data, _ = json.Marshal(&v1.ShutdownState{State: <-getShutdownChan})
-		w.Write(data)
+		_, _ = w.Write(data)
 	}
 }
 
@@ -479,7 +487,7 @@ func LogLevelHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 			setLogLevelChan <- logLevel
 		default:
 			w.WriteHeader(400)
-			w.Write(simpleError(fmt.Errorf("Unsupported log level: %v", logLevel)))
+			_, _ = w.Write(simpleError(fmt.Errorf("Unsupported log level: %v", logLevel)))
 			return
 		}
 		w.WriteHeader(200)

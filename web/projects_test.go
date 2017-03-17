@@ -15,7 +15,7 @@ func TestAssembleProjects(t *testing.T) {
 		t.Fatal(err)
 	}
 	proj, err := assembleProjects("file://"+dir, "master")
-	os.RemoveAll(dir)
+	_ = os.RemoveAll(dir)
 
 	if err != nil {
 		t.Fatal(err)
@@ -50,7 +50,7 @@ func TestProject(t *testing.T) {
 	}
 
 	projects, err := assembleProjects("file://"+dir, "master")
-	os.RemoveAll(dir)
+	_ = os.RemoveAll(dir)
 
 	if err != nil {
 		t.Fatal(err)
@@ -77,11 +77,11 @@ func TestFindBuildScriptsByRegex(t *testing.T) {
 
 	files, err := filesByRegex(dir, buildScriptRegex)
 	if err != nil {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatal(err)
 	}
 	if len(files) != 2 {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 2 but got %d\n", len(files))
 	}
 	for _, v := range files {
@@ -89,7 +89,7 @@ func TestFindBuildScriptsByRegex(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	os.RemoveAll(dir)
+	_ = os.RemoveAll(dir)
 }
 
 func TestFindProjectDescriptorsByRegex(t *testing.T) {
@@ -100,11 +100,11 @@ func TestFindProjectDescriptorsByRegex(t *testing.T) {
 
 	files, err := filesByRegex(dir, projectDescriptorRegex)
 	if err != nil {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatal(err)
 	}
 	if len(files) != 1 {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 1 but got %d\n", len(files))
 	}
 	for _, v := range files {
@@ -112,7 +112,7 @@ func TestFindProjectDescriptorsByRegex(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	os.RemoveAll(dir)
+	_ = os.RemoveAll(dir)
 }
 
 func TestFindSidecarsByRegex(t *testing.T) {
@@ -123,11 +123,11 @@ func TestFindSidecarsByRegex(t *testing.T) {
 
 	files, err := filesByRegex(dir, sideCarRegex)
 	if err != nil {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatal(err)
 	}
 	if len(files) != 3 {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 3 but got %d\n", len(files))
 	}
 	for _, v := range files {
@@ -135,7 +135,7 @@ func TestFindSidecarsByRegex(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	os.RemoveAll(dir)
+	_ = os.RemoveAll(dir)
 }
 
 func TestReadSidecars(t *testing.T) {
@@ -146,21 +146,21 @@ func TestReadSidecars(t *testing.T) {
 
 	files, err := filesByRegex(dir, sideCarRegex)
 	if err != nil {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatal(err)
 	}
 	if len(files) != 3 {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 3 but got %d\n", len(files))
 	}
 
 	arr := readSidecars(files)
 	if len(arr) != 3 {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 3 but got %d\n", len(files))
 	}
 
-	os.RemoveAll(dir)
+	_ = os.RemoveAll(dir)
 }
 
 func TestFindByRegexBadRoot(t *testing.T) {

@@ -119,7 +119,9 @@ func TestProjectRefsGithub(t *testing.T) {
 	data := w.Body.Bytes()
 
 	var b v1.Refs
-	json.Unmarshal(data, &b)
+	if err := json.Unmarshal(data, &b); err != nil {
+		t.Fatalf("Unexpected error: %v\n", err)
+	}
 	if len(b.Refs) != 1 {
 		t.Fatalf("Want 1 but got %d\n", len(b.Refs))
 	}

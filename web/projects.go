@@ -85,7 +85,9 @@ func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]v1.Proj
 		Log.Printf("Clone build-scripts repository...\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
 		defer func() {
-			os.RemoveAll(cloneDirectory)
+			if err := os.RemoveAll(cloneDirectory); err != nil {
+				Log.Printf("assembleProjects(%s,%s) error removing clone directory %s: %v\n", scriptsRepo, scriptsRepoBranch, cloneDirectory, err)
+			}
 		}()
 
 		if err != nil {

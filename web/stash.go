@@ -81,5 +81,9 @@ func (handler StashHandler) handle(w http.ResponseWriter, r *http.Request) {
 		Log.Println(err)
 		return
 	}
-	go handler.decap.LaunchBuild(event)
+	go func() {
+		if err := handler.decap.LaunchBuild(event); err != nil {
+			Log.Printf("Cannot launch build for event %+v: %v\n", event, err)
+		}
+	}()
 }

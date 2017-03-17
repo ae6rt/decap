@@ -18,7 +18,7 @@ func TestAWSS3GetArtifacts(t *testing.T) {
 		if r.URL.Path != "/decap-build-artifacts/buildID" {
 			t.Fatalf("Want /decap-build-artifacts/buildID but got %s\n", r.URL.Path)
 		}
-		w.Write([]byte{0})
+		_, _ = w.Write([]byte{0})
 	}))
 	defer testServer.Close()
 
@@ -42,7 +42,7 @@ func TestAWSS3GetConsoleLogs(t *testing.T) {
 		if r.URL.Path != "/decap-console-logs/buildID" {
 			t.Fatalf("Want /decap-console-logs/buildID but got %s\n", r.URL.Path)
 		}
-		w.Write([]byte{0})
+		_, _ = w.Write([]byte{0})
 	}))
 	defer testServer.Close()
 

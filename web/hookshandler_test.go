@@ -20,12 +20,12 @@ func TestHooksHandlerNoRepoManager(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 	}()
 
 	req, err := http.NewRequest("POST", "http://example.com/hooks/xxx", nil)
 	if err != nil {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		log.Fatal(err)
 	}
 
@@ -38,7 +38,7 @@ func TestHooksHandlerNoRepoManager(t *testing.T) {
 	)
 
 	if w.Code != 400 {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 400 but got %d\n", w.Code)
 	}
 }
@@ -49,12 +49,12 @@ func TestHooksHandlerBuildScripts(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 	}()
 
 	req, err := http.NewRequest("POST", "http://example.com/hooks/xxx", bytes.NewBufferString(""))
 	if err != nil {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		log.Fatal(err)
 	}
 
@@ -69,7 +69,7 @@ func TestHooksHandlerBuildScripts(t *testing.T) {
 	)
 
 	if w.Code != 200 {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 200 but got %d\n", w.Code)
 	}
 }
@@ -80,7 +80,7 @@ func TestHooksHandlerGithub(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 	}()
 
 	req, err := http.NewRequest("POST", "http://example.com/hooks/xxx", bytes.NewBufferString(`
@@ -101,7 +101,7 @@ func TestHooksHandlerGithub(t *testing.T) {
 	req.Header.Set("X-Github-Event", "push")
 
 	if err != nil {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		log.Fatal(err)
 	}
 
@@ -114,7 +114,7 @@ func TestHooksHandlerGithub(t *testing.T) {
 	)
 
 	if w.Code != 200 {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 200 but got %d\n", w.Code)
 	}
 
@@ -135,7 +135,7 @@ func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 	}()
 
 	req, err := http.NewRequest("POST", "http://example.com/hooks/xxx", bytes.NewBufferString(`
@@ -155,7 +155,7 @@ func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
 	))
 
 	if err != nil {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		log.Fatal(err)
 	}
 
@@ -168,7 +168,7 @@ func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
 	)
 
 	if w.Code != 400 {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 400 but got %d\n", w.Code)
 	}
 }

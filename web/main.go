@@ -114,5 +114,5 @@ func main() {
 	}
 
 	Log.Println("decap ready on port 9090...")
-	http.ListenAndServe(":9090", corsWrapper(router))
+	Log.Fatal(http.ListenAndServe(":9090", corsWrapper(router)))
 }

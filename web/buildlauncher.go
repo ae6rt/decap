@@ -194,24 +194,6 @@ func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, k
 	return true, nil
 }
 
-// Attempt to create a build pod on the cluster.  If that fails, clear the lock and defer it.  If it succeeds, clear
-// any deferrals.
-func (builder DefaultBuilder) createOrDefer(data []byte, buildEvent BuildEvent, buildID, ref, key string) (bool, error) {
-	if podError := builder.CreatePod(data); podError != nil {
-		Log.Printf("Failed creating pod: %v\n", podError)
-		if _, err := builder.Locker.Unlock(key, buildID); err != nil {
-			Log.Printf("Failed unlocking build %s after pod creation failed: %v\n", buildID, err)
-			if err = builder.DeferBuild(buildEvent, ref); err != nil {
-				Log.Printf("Failed deferring build %+v for ref %s after failed unlocking after pod creation attempt: %+v\n", buildEvent, ref, err)
-			}
-			return false, err
-		}
-		Log.Printf("Released lock on build %s with key %s because of pod creation error %v\n", buildID, key, podError)
-		return false, podError
-	}
-	return true, nil
-}
-
 // LaunchBuild assembles the pod definition, including the base container and sidecars, and calls
 // for the pod creation in the cluster.
 func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
@@ -291,7 +273,7 @@ func (builder DefaultBuilder) CreatePod(pod []byte) error {
 		return err
 	}
 	defer func() {
-		resp.Body.Close()
+		_ = resp.Body.Close()
 	}()
 
 	if resp.StatusCode != 201 {
@@ -324,7 +306,7 @@ func (builder DefaultBuilder) DeletePod(podName string) error {
 		return err
 	}
 	defer func() {
-		resp.Body.Close()
+		_ = resp.Body.Close()
 	}()
 
 	if resp.StatusCode != 200 {
@@ -371,7 +353,9 @@ func (builder DefaultBuilder) PodWatcher() {
 			log.Printf("websocket dialer error: %+v: %s", resp, err.Error())
 			time.Sleep(5 * time.Second)
 		} else {
-			defer conn.Close()
+			defer func() {
+				_ = conn.Close()
+			}()
 			break
 		}
 	}
@@ -548,7 +532,9 @@ func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 }
 
 func (builder DefaultBuilder) Init() error {
-	return builder.Locker.InitDeferred()
+	//	return builder.Locker.InitDeferred()
+	// todo this method is going away - msp march 2017
+	return nil
 }
 
 func kubeSecret(file string, defaultValue string) string {
