@@ -9,7 +9,7 @@ import (
 )
 
 // See https://confluence.atlassian.com/stash/post-service-webhook-for-stash-393284006.html for payload information.
-// StashEvent models a post-commit hook payload from Atlassian Stash Git SCM
+// StashEvent models a post-commit hook payload from Atlassian Stash Git SCM.  It models the BuildEvent interface.
 type StashEvent struct {
 	Repository StashRepository  `json:"repository"`
 	RefChanges []StashRefChange `json:"refChanges"`

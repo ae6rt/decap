@@ -26,8 +26,11 @@ var (
 	githubClientSecret     = flag.String("github-client-secret", "", "Default Github Client Secret for quering Github repos.  /etc/secrets/github-client-secret in the cluster overrides this.")
 	buildScriptsRepo       = flag.String("build-scripts-repo", "https://github.com/ae6rt/decap-build-scripts.git", "Git repo where userland build scripts are held.")
 	buildScriptsRepoBranch = flag.String("build-scripts-repo-branch", "master", "Branch or revision to use on git repo where userland build scripts are held.")
-	noWebsocket            = flag.Bool("no-websocket", false, "Do not start websocket client that watches pods.")
-	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
+
+	// todo this is a debugging aid and should be handled not so heavy-handed
+	noWebsocket = flag.Bool("no-websocket", false, "Do not start websocket client that watches pods.")
+
+	versionFlag = flag.Bool("version", false, "Print version info and exit.")
 
 	// Log is the logger for package main
 	Log = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
@@ -51,7 +54,7 @@ func main() {
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 
-	// new stuff
+	// new stuff - msp march 2017
 	distributedLocker := distrlocks.NewDynamoDbLockService(distrlocks.NewDynamoDB(*awsKey, *awsSecret, *awsRegion))
 	fmt.Println(distributedLocker)
 
@@ -121,7 +124,7 @@ func main() {
 	// LogLevelHandler toggles debug logging.
 	router.POST("/api/v1/loglevel/:level", LogLevelHandler)
 
-	// The interface for SCM systems to post VCS events.
+	// The interface for external SCM systems to post VCS events through post-commit hooks.
 	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, buildLauncher))
 
 	projects, err := assembleProjects(*buildScriptsRepo, *buildScriptsRepoBranch)

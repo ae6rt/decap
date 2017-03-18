@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// GithubEvent models a github post commit hook payload
+// GithubEvent models a github post commit hook payload.  It implements the BuildEvent interface.
 type GithubEvent struct {
 	Ref        string           `json:"ref"`
 	RefType    string           `json:"ref_type"`
