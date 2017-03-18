@@ -35,10 +35,7 @@ func TestHooksHandlerNoRepoManager(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockDecap := MockBuilder{}
-	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{
-		httprouter.Param{Key: "repomanager", Value: "nosuchmanager"},
-	},
-	)
+	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{httprouter.Param{Key: "repomanager", Value: "nosuchmanager"}})
 
 	if w.Code != 400 {
 		_ = os.RemoveAll(dir)

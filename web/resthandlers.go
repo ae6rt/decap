@@ -340,7 +340,7 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 	}
 }
 
-// Return artifacts gzipped tarball, or file listing in tarball if Accept: text/plain is set
+// ArtifactsHandler returns build artifacts gzipped tarball, or file listing in tarball if Accept: text/plain is set
 func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
@@ -443,6 +443,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 	}
 }
 
+// ShutdownHandler stops the build queue from accepting new build requests.
 func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	switch r.Method {
 	case "POST":
@@ -470,6 +471,7 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 	}
 }
 
+// LogLevelHandler toggles debug logging.
 func LogLevelHandler(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	switch r.Method {
 	case "POST":

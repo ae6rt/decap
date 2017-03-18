@@ -72,23 +72,57 @@ func main() {
 	}
 
 	router := httprouter.New()
+
+	// This serves up the front end webapp.
 	router.ServeFiles("/decap/*filepath", http.Dir("./static"))
-	router.GET("/api/v1/version", VersionHandler)
-	router.GET("/api/v1/projects", ProjectsHandler)
-	router.GET("/api/v1/projects/:team/:project/refs", ProjectRefsHandler(scmManagers))
-	router.GET("/api/v1/builds/:team/:project", BuildsHandler(storageService))
-	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildLauncher))
-	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildLauncher))
-	router.GET("/api/v1/teams", TeamsHandler)
-	router.GET("/api/v1/deferred", DeferredBuildsHandler(buildLauncher))
-	router.POST("/api/v1/deferred", DeferredBuildsHandler(buildLauncher))
-	router.GET("/api/v1/logs/:id", LogHandler(storageService))
-	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(storageService))
-	router.GET("/api/v1/shutdown", ShutdownHandler)
-	router.POST("/api/v1/shutdown/:state", ShutdownHandler)
-	router.POST("/api/v1/loglevel/:level", LogLevelHandler)
-	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, buildLauncher))
+
+	// Set options for frontend webapp.
 	router.OPTIONS("/api/v1/*filepath", HandleOptions)
+
+	// Report backend version.
+	router.GET("/api/v1/version", VersionHandler)
+
+	// Report managed projects
+	router.GET("/api/v1/projects", ProjectsHandler)
+
+	// Report on branches of a given project
+	router.GET("/api/v1/projects/:team/:project/refs", ProjectRefsHandler(scmManagers))
+
+	// Report on historical builds for a given project
+	router.GET("/api/v1/builds/:team/:project", BuildsHandler(storageService))
+
+	// Terminates a running build
+	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildLauncher))
+
+	// Execute a build on demand
+	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildLauncher))
+
+	// Report on teams.  (I think this is a project - msp)
+	router.GET("/api/v1/teams", TeamsHandler)
+
+	// Report on currenly deferred builds.
+	router.GET("/api/v1/deferred", DeferredBuildsHandler(buildLauncher))
+
+	// Remove a build from the deferred builds queue.
+	router.POST("/api/v1/deferred", DeferredBuildsHandler(buildLauncher))
+
+	//	Return gzipped console log, or console log in plain text if Accept: text/plain is set
+	router.GET("/api/v1/logs/:id", LogHandler(storageService))
+
+	// ArtifactsHandler returns build artifacts gzipped tarball, or file listing in tarball if Accept: text/plain is set
+	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(storageService))
+
+	// Return current state of the build queue
+	router.GET("/api/v1/shutdown", ShutdownHandler)
+
+	// ShutdownHandler stops the build queue from accepting new build requests.
+	router.POST("/api/v1/shutdown/:state", ShutdownHandler)
+
+	// LogLevelHandler toggles debug logging.
+	router.POST("/api/v1/loglevel/:level", LogLevelHandler)
+
+	// The interface for SCM systems to post VCS events.
+	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, buildLauncher))
 
 	projects, err := assembleProjects(*buildScriptsRepo, *buildScriptsRepoBranch)
 	if err != nil {
