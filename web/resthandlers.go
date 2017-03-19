@@ -27,6 +27,7 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 	}
 }
 
+// VersionHandler returns the decap server information.
 func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	version := v1.Version{
 		Version: buildVersion,
@@ -47,6 +48,7 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	_, _ = w.Write(data)
 }
 
+// TeamsHandler returns information about managed teams.
 func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	p := getProjects()
 
@@ -74,6 +76,7 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	_, _ = w.Write(data)
 }
 
+// ProjectsHandler returns informtion about managed projects.
 func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	team := r.URL.Query().Get("team")
 	var arr []v1.Project
@@ -103,6 +106,7 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	_, _ = w.Write(data)
 }
 
+// DeferredBuildsHandler returns information about deferred builds.
 func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		switch r.Method {

@@ -244,7 +244,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 
 		if err := builder.CreatePod(podBytes); err != nil {
 			if err := builder.LockService.Release(lockObj); err != nil {
-				Log.Printf("Failed to release lock on build %s, project %s, branch %s\n", buildID, projectKey, ref)
+				Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildID, projectKey, ref)
 				continue // don't bother trying to defer the build if we've already encountered two errors.
 			}
 		}
@@ -321,6 +321,7 @@ func (builder DefaultBuilder) DeletePod(podName string) error {
 	return nil
 }
 
+// Podwatcher watches the k8s master API for pod events.
 func (builder DefaultBuilder) PodWatcher() {
 	dialer := websocket.DefaultDialer
 	dialer.TLSClientConfig = builder.tlsConfig
@@ -408,6 +409,7 @@ func (builder DefaultBuilder) PodWatcher() {
 	}
 }
 
+// DeferBuild puts the build event on the deferral queue.
 func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error {
 	ube := v1.UserBuildEvent{
 		Team_:    event.Team(),
@@ -421,6 +423,7 @@ func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error 
 
 // SquashDeferred takes a in-created-order list of deferred builds and filters out duplicate
 // team + project + branch deferrals, returning the first in the list of each unique build event.
+// @Deprecated - the underlying deferral service will do this deduping.
 func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) ([]v1.UserBuildEvent, []string) {
 
 	events := make([]v1.UserBuildEvent, len(deferrals))
@@ -490,10 +493,13 @@ func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) ([]v1.U
 	return squashed, excluded
 }
 
+// DeferredBuilds returns the current queue of deferred builds.  Deferred builds
+// are deduped, but preserve the time order of unique entries.
 func (builder DefaultBuilder) DeferredBuilds() ([]locks.Deferral, error) {
 	return builder.Locker.DeferredBuilds()
 }
 
+// ClearDeferredBuild removes a deferred build from the deferral queue.
 func (builder DefaultBuilder) ClearDeferredBuild(key string) error {
 	_, err := builder.Locker.ClearDeferred(key)
 	return err
@@ -531,6 +537,8 @@ func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 	}
 }
 
+// Init does preflight builder work.
+// @Deprecated
 func (builder DefaultBuilder) Init() error {
 	//	return builder.Locker.InitDeferred()
 	// todo this method is going away - msp march 2017
