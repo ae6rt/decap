@@ -177,7 +177,7 @@ func simpleError(err error) []byte {
 	return data
 }
 
-// HooksHandler handles SCM events that trigger builds.
+// HooksHandler handles externally originated SCM events that trigger builds.
 func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
@@ -251,8 +251,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 	}
 }
 
-// todo Cleanup with PreStop might help explain to the world the state of the container immediately before termination.
-// See https://godoc.org/github.com/kubernetes/kubernetes/pkg/api/v1#Lifecycle
+// StopBuildHandler deletes the pod executing the specified build ID.
 func StopBuildHandler(decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
@@ -264,7 +263,7 @@ func StopBuildHandler(decap Builder) httprouter.Handle {
 	}
 }
 
-// Handle requests for branches and tags on a project
+// ProjectRefsHandler handles informational requests for branches and tags on a project
 func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")

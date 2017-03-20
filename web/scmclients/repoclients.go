@@ -12,7 +12,7 @@ import (
 	"github.com/ae6rt/retry"
 )
 
-// ScmCoordinates models the data associated with a Git http client.
+// SCMCoordinates models the data associated with a Git http client.
 type SCMCoordinates struct {
 	Username string
 	Password string
