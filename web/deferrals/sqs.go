@@ -5,9 +5,9 @@ import (
 	"log"
 	"sort"
 	"strconv"
+	"sync"
 	"time"
 
-	"github.com/ae6rt/decap/web/uuid"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -19,13 +19,16 @@ import (
 type SQS interface {
 	CreateQueue(*sqs.CreateQueueInput) (*sqs.CreateQueueOutput, error)
 	DeleteMessage(*sqs.DeleteMessageInput) (*sqs.DeleteMessageOutput, error)
+	GetQueueAttributes(*sqs.GetQueueAttributesInput) (*sqs.GetQueueAttributesOutput, error)
 	ReceiveMessage(*sqs.ReceiveMessageInput) (*sqs.ReceiveMessageOutput, error)
 	SendMessage(*sqs.SendMessageInput) (*sqs.SendMessageOutput, error)
 }
 
 // SQSDeferralService implements a deferral service on top of Amazon Simple Queue Service.
 type SQSDeferralService struct {
-	sqs      SQS
+	mutex sync.Mutex
+	sqs   SQS
+
 	queueURL string
 	relay    chan<- Deferral
 }
@@ -49,12 +52,12 @@ func NewSQSDeferralService(queueName string, s SQS, r chan<- Deferral) (Deferral
 	return deferralService, nil
 }
 
-// Defer defers a build based on project key and branch.
-func (s *SQSDeferralService) Defer(projectKey, branch string) error {
+// Defer defers a build based on project key and branch.  The buildID is included for reference and a deduplication device.
+func (s *SQSDeferralService) Defer(projectKey, branch, buildID string) error {
 	params := &sqs.SendMessageInput{
-		QueueUrl:     aws.String(s.queueURL),
-		MessageBody:  aws.String(uuid.Uuid()),
-		DelaySeconds: aws.Int64(1),
+		QueueUrl:               aws.String(s.queueURL),
+		MessageDeduplicationId: aws.String(buildID),
+		DelaySeconds:           aws.Int64(1),
 		MessageAttributes: map[string]*sqs.MessageAttributeValue{
 			"projectkey": {
 				DataType:    aws.String("String"),
@@ -64,12 +67,20 @@ func (s *SQSDeferralService) Defer(projectKey, branch string) error {
 				DataType:    aws.String("String"),
 				StringValue: aws.String(branch),
 			},
+			"buildid": {
+				DataType:    aws.String("String"),
+				StringValue: aws.String(buildID),
+			},
 			"unixtime": {
 				DataType:    aws.String("Number"),
 				StringValue: aws.String(fmt.Sprintf("%d", time.Now().Unix())),
 			},
 		},
 	}
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	_, err := s.sqs.SendMessage(params)
 	return err
 }
@@ -84,6 +95,11 @@ func (s *SQSDeferralService) Resubmit() {
 			aws.String("All"),
 		},
 	}
+
+	// the mutex protects the read and subsequent deletes
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	resp, err := s.sqs.ReceiveMessage(params)
 	if err != nil {
 		log.Println(err)
@@ -91,8 +107,8 @@ func (s *SQSDeferralService) Resubmit() {
 	}
 
 	var msgs []Deferral
-	for _, j := range resp.Messages {
-		t := j.MessageAttributes["unixtime"].StringValue
+	for _, message := range resp.Messages {
+		t := message.MessageAttributes["unixtime"].StringValue
 		unixtime, err := strconv.ParseInt(*t, 10, 64)
 		if err != nil {
 			log.Printf("Cannot parse unix time in Deferral:  %s\n", t)
@@ -100,18 +116,17 @@ func (s *SQSDeferralService) Resubmit() {
 		}
 
 		d := Deferral{
-			ProjectKey: *j.MessageAttributes["projectkey"].StringValue,
-			Branch:     *j.MessageAttributes["branch"].StringValue,
+			ProjectKey: *message.MessageAttributes["projectkey"].StringValue,
+			Branch:     *message.MessageAttributes["branch"].StringValue,
+			BuildID:    *message.MessageAttributes["buildid"].StringValue,
 			UnixTime:   unixtime,
 		}
 
 		msgs = append(msgs, d)
 
-		go func(handle string) {
-			if err := s.delete(handle); err != nil {
-				log.Printf("Error deleting message %s: %v\n", handle, err)
-			}
-		}(*j.ReceiptHandle)
+		if err := s.deleteMessage(*message.ReceiptHandle); err != nil {
+			log.Printf("Error deleting message %s: %v\n", *message.ReceiptHandle, err)
+		}
 	}
 
 	sort.Sort(ByTime(msgs))
@@ -119,6 +134,71 @@ func (s *SQSDeferralService) Resubmit() {
 	for _, d := range msgs {
 		s.relay <- d
 	}
+}
+
+// DeferredBuilds returns the approximate list of deferred builds from SQS.
+func (s *SQSDeferralService) DeferredBuilds() ([]Deferral, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	n, err := s.getVisibleMessagesCount()
+	if err != nil {
+		return nil, errors.Wrap(err, "error retrieving number of visible messages")
+	}
+
+	nMaxMessages := 10
+	reads := n / nMaxMessages
+	if n%10 > 0 {
+		reads++
+	}
+
+	var msgs []Deferral
+
+	for i := 0; i < reads; i++ {
+		params := &sqs.ReceiveMessageInput{
+			QueueUrl:            aws.String(s.queueURL),
+			MaxNumberOfMessages: aws.Int64(int64(nMaxMessages)),
+			MessageAttributeNames: []*string{
+				aws.String("All"),
+			},
+
+			// The message should remain visible to the Resubmit goroutine.
+			VisibilityTimeout: aws.Int64(0),
+		}
+
+		resp, err := s.sqs.ReceiveMessage(params)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		for _, message := range resp.Messages {
+			t := message.MessageAttributes["unixtime"].StringValue
+			unixtime, err := strconv.ParseInt(*t, 10, 64)
+			if err != nil {
+				log.Printf("Cannot parse unix time in Deferral:  %s\n", t)
+				continue
+			}
+
+			d := Deferral{
+				ProjectKey: *message.MessageAttributes["projectkey"].StringValue,
+				Branch:     *message.MessageAttributes["branch"].StringValue,
+				UnixTime:   unixtime,
+				BuildID:    *message.MessageAttributes["buildid"].StringValue,
+			}
+
+			msgs = append(msgs, d)
+
+			if err := s.deleteMessage(*message.ReceiptHandle); err != nil {
+				log.Printf("Error deleting message %s: %v\n", *message.ReceiptHandle, err)
+			}
+		}
+
+		sort.Sort(ByTime(msgs))
+		msgs = dedup(msgs)
+
+	}
+	return msgs, nil
 }
 
 func (s *SQSDeferralService) createQueue(queueName string) (string, error) {
@@ -134,7 +214,7 @@ func (s *SQSDeferralService) createQueue(queueName string) (string, error) {
 	return *resp.QueueUrl, nil
 }
 
-func (s *SQSDeferralService) delete(handle string) error {
+func (s *SQSDeferralService) deleteMessage(handle string) error {
 	params := &sqs.DeleteMessageInput{
 		QueueUrl:      aws.String(s.queueURL),
 		ReceiptHandle: aws.String(handle),
@@ -143,6 +223,28 @@ func (s *SQSDeferralService) delete(handle string) error {
 	_, err := s.sqs.DeleteMessage(params)
 
 	return errors.Wrap(err, "Failed to delete message")
+}
+
+// Get the approximate number of visible messages.
+func (s *SQSDeferralService) getVisibleMessagesCount() (int, error) {
+	params := &sqs.GetQueueAttributesInput{
+		QueueUrl: aws.String(s.queueURL),
+		AttributeNames: []*string{
+			aws.String("ApproximateNumberOfMessages"),
+		},
+	}
+
+	resp, err := s.sqs.GetQueueAttributes(params)
+	if err != nil {
+		return 0, errors.Wrap(err, fmt.Sprintf("%T: Error reading available messages count: %v", s, err))
+	}
+
+	i, err := strconv.Atoi(*resp.Attributes["ApproximateNumberOfMessages"])
+	if err != nil {
+		return 0, err
+	}
+
+	return i, nil
 }
 
 // ByTime is used to sort Deferrals by Unix time stamp.

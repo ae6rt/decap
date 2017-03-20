@@ -180,20 +180,6 @@ func (builder DefaultBuilder) makeContainers(buildEvent BuildEvent, buildID, bra
 	return containers
 }
 
-// Attempt to lock a build.  If that fails, defer it.
-func (builder DefaultBuilder) lockOrDefer(buildEvent BuildEvent, ref, buildID, key string) (bool, error) {
-	if _, err := builder.Locker.Lock(key, buildID); err != nil {
-		Log.Printf("Failed to acquire lock %s on build %s (%+v): %v\n", key, buildID, buildEvent, err)
-		if err = builder.DeferBuild(buildEvent, ref); err != nil {
-			Log.Printf("Failed to defer build %s after failing to acquire a lock on it: %+v\n", buildID, err)
-		} else {
-			Log.Printf("Deferred build: %+v\n", buildID)
-		}
-		return false, err
-	}
-	return true, nil
-}
-
 // LaunchBuild assembles the pod definition, including the base container and sidecars, and calls
 // for the pod creation in the cluster.
 func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
@@ -230,7 +216,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 		lockObj := distrlocks.NewDistributedLock(projectKey, ref)
 		if err := builder.LockService.Acquire(lockObj); err != nil {
 			Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, ref, err)
-			if err := builder.DeferralService.Defer(projectKey, ref); err != nil {
+			if err := builder.DeferralService.Defer(projectKey, ref, buildID); err != nil {
 				Log.Printf("Failed to defer build: %s/%s\n", projectKey, ref)
 			} else {
 				Log.Printf("Deferred build: %s/%s\n", projectKey, ref)

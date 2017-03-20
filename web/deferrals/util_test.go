@@ -13,6 +13,10 @@ func (t MockSQS) CreateQueue(f *sqs.CreateQueueInput) (*sqs.CreateQueueOutput, e
 	return nil, nil
 }
 
+func (t MockSQS) GetQueueAttributes(*sqs.GetQueueAttributesInput) (*sqs.GetQueueAttributesOutput, error) {
+	return nil, nil
+}
+
 func (t MockSQS) DeleteMessage(f *sqs.DeleteMessageInput) (*sqs.DeleteMessageOutput, error) {
 	return nil, nil
 }

@@ -29,12 +29,14 @@ func TestDefer(t *testing.T) {
 		wantQueueURL   string
 		wantProjectKey string
 		wantBranch     string
+		wantBuildID    string
 	}{
 		{
 			wantQueueName:  "foo",
 			wantQueueURL:   "http://example.com",
 			wantProjectKey: "proj",
 			wantBranch:     "issue/1",
+			wantBuildID:    "cf9bc174-96f6-4191-92ee-6355494ebb1e",
 		},
 	}
 
@@ -46,7 +48,7 @@ func TestDefer(t *testing.T) {
 			t.Fatalf("Test %d: NewSQSDeferralService() unexpected error: %d\n", testNumber, err)
 		}
 
-		if err := deferralService.Defer(test.wantProjectKey, test.wantBranch); err != nil {
+		if err := deferralService.Defer(test.wantProjectKey, test.wantBranch, test.wantBuildID); err != nil {
 			t.Fatalf("Test %d: Defer() unexpected error: %d\n", testNumber, err)
 		}
 
@@ -72,6 +74,10 @@ func TestDefer(t *testing.T) {
 
 		if *mockSQS.messageInput.MessageAttributes["unixtime"].StringValue == "0" {
 			t.Errorf("Test %d: want unix time not zero, got %s\n", testNumber, *mockSQS.messageInput.MessageAttributes["unixtime"].StringValue)
+		}
+
+		if *mockSQS.messageInput.MessageDeduplicationId != test.wantBuildID {
+			t.Errorf("Test %d: want message deduplication ID %s, got %s\n", testNumber, test.wantBuildID, *mockSQS.messageInput.MessageDeduplicationId)
 		}
 	}
 }

@@ -18,7 +18,7 @@ func (t MockDistributedLocker) Release(d distrlocks.DistributedLock) error {
 type MockDeferralService struct {
 }
 
-func (t MockDeferralService) Defer(project, branch string) error {
+func (t MockDeferralService) Defer(project, branch, buildID string) error {
 	return nil
 }
 

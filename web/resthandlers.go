@@ -143,6 +143,7 @@ func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 	}
 }
 
+// ExecuteBuildHandler handles user-requested build executions.
 func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
@@ -176,6 +177,7 @@ func simpleError(err error) []byte {
 	return data
 }
 
+// HooksHandler handles SCM events that trigger builds.
 func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
