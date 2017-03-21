@@ -103,17 +103,33 @@ type ShutdownState struct {
 	State string `json:"state"`
 }
 
-// UserBuildEvent models an abstract build, independent of the source code management system that backs it.
+// UserBuildEvent models an abstract build, independent of the source code management system that backs it.  The fields have a trailing _ because this struct has
+// methods with the same name.
 type UserBuildEvent struct {
-	Team_    string         `json:"team"`
-	Project_ string         `json:"project"`
-	Refs_    []string       `json:"refs"`
+	Team_    string   `json:"team"`
+	Project_ string   `json:"project"`
+	Refs_    []string `json:"refs"`
+
+	// TODO this feels wrong being here; a build event does not "have" deferrals.   And a Deferral should not be associated with a locker.  Move the defintion of a Deferral to api/v1/types.go (here).  msp 21March2017
 	Deferral locks.Deferral `json:"deferral"`
 }
 
+// TODO this definition seems strained.  Find out who returns this and who consumes it and probably have those things deal in []Deferral.
 // Deferred models a deferred build.  Builds are deferred when they cannot get a lock on their backing branch.  Decap uses locks
 // to prevent concurrent builds of the same branch.
 type Deferred struct {
 	Meta
 	DeferredEvents []UserBuildEvent `json:"deferred"`
+}
+
+// Deferral models a deferred build.  Any deferral service will deal in this type.
+type Deferral struct {
+	// Project is the project or team to which the build belongs.
+	Project string `json:"project"`
+
+	// Ref is generally the branch to which the build belongs, but could be a git tag.
+	Ref string `json:"ref"`
+
+	// ID is a unique id for an instance, and is expected to be the Build ID (likely a UUID).
+	ID string `json:"id"`
 }
