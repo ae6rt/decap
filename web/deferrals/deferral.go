@@ -34,16 +34,19 @@ func (s ByKey) Less(i, j int) bool {
 
 // Dedup returns unique by-key entries sorted by increasing time.
 func Dedup(arr []v1.UserBuildEvent) []v1.UserBuildEvent {
-	sort.Sort(ByTime(arr))
-	sieve := make(map[string]struct{})
-
 	var results []v1.UserBuildEvent
+
+	sort.Sort(ByKey(arr))
+	last := ""
 	for _, v := range arr {
-		if _, seen := sieve[v.Key()]; !seen {
+		key := v.Key()
+		if key != last {
 			results = append(results, v)
-			sieve[v.Key()] = struct{}{}
+			last = key
 		}
 	}
+
+	sort.Sort(ByTime(results))
 
 	return results
 }
