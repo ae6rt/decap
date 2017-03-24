@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"log"
 	"net/http"
 	"time"
 
@@ -45,7 +46,7 @@ type DefaultBuilder struct {
 
 	tlsConfig *tls.Config
 
-	deferralChannel chan v1.UserBuildEvent
+	logger *log.Logger
 }
 
 // RepoManagerCredential models the username and password for supported source code repository managers, such as Github or Atlassian Stash.

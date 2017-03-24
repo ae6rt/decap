@@ -23,13 +23,12 @@ type DynamoDBDeferralService struct {
 	deferralTable string
 	mutex         sync.Mutex
 	db            DynamoDB
-	relay         chan<- v1.UserBuildEvent
 	logger        *log.Logger
 }
 
 // NewDynamoDBDeferralService is the constructor for a DeferralService built on top of DynamoDB.
-func NewDynamoDBDeferralService(deferralTable string, db DynamoDB, r chan<- v1.UserBuildEvent, log *log.Logger) DeferralService {
-	return &DynamoDBDeferralService{deferralTable: deferralTable, db: db, relay: r, logger: log}
+func NewDynamoDBDeferralService(deferralTable string, db DynamoDB, log *log.Logger) DeferralService {
+	return &DynamoDBDeferralService{deferralTable: deferralTable, logger: log}
 }
 
 // NewDynamoDB creates a new network client for interacting with Amazon DynamoDB
@@ -78,5 +77,6 @@ func (t *DynamoDBDeferralService) Remove(key string) error {
 }
 
 // Resubmit reads deferred builds and resubmits them for launching.
-func (t *DynamoDBDeferralService) Resubmit() {
+func (t *DynamoDBDeferralService) Poll() ([]v1.UserBuildEvent, error) {
+	return nil, nil
 }

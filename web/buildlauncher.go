@@ -23,7 +23,7 @@ import (
 
 // NewBuilder is the constructor for a new default Builder instance.
 func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, buildScriptsRepo, buildScriptsRepoBranch string,
-	distributedLocker distrlocks.DistributedLockService, deferralService deferrals.DeferralService, deferredChannel chan v1.UserBuildEvent) Builder {
+	distributedLocker distrlocks.DistributedLockService, deferralService deferrals.DeferralService, logger *log.Logger) Builder {
 
 	tlsConfig := tls.Config{}
 	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
@@ -56,7 +56,7 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 		buildScriptsRepo:       buildScriptsRepo,
 		buildScriptsRepoBranch: buildScriptsRepoBranch,
 		tlsConfig:              &tlsConfig,
-		deferralChannel:        deferredChannel,
+		logger:                 logger,
 	}
 }
 
@@ -415,9 +415,11 @@ func (builder DefaultBuilder) ClearDeferredBuild(key string) error {
 // LaunchDeferred is wrapped in a goroutine, and reads deferred builds from storage and attempts a relaunch of each.
 func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 	for _ = range ticker {
-		builder.DeferralService.Resubmit()
-
-		for evt := range builder.deferralChannel {
+		deferredBuilds, err := builder.DeferralService.Poll()
+		if err != nil {
+			builder.logger.Printf("error retrieving deferred builds: %v\n", err)
+		}
+		for _, evt := range deferredBuilds {
 			err := builder.LaunchBuild(evt)
 			if err != nil {
 				Log.Printf("Error launching deferred build: %+v\n", err)

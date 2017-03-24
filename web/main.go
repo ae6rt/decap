@@ -8,7 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/distrlocks"
 	"github.com/ae6rt/decap/web/scmclients"
@@ -57,11 +56,10 @@ func main() {
 	distributedLocker := distrlocks.NewDynamoDbLockService(distrlocks.NewDynamoDB(*awsKey, *awsSecret, *awsRegion))
 	fmt.Println(distributedLocker)
 
-	deferralChannel := make(chan v1.UserBuildEvent)
-	deferralService := deferrals.NewDynamoDBDeferralService("decap-deferrals", deferrals.NewDynamoDB(*awsKey, *awsSecret, *awsRegion), deferralChannel, Log)
+	deferralService := deferrals.NewDynamoDBDeferralService("decap-deferrals", deferrals.NewDynamoDB(*awsKey, *awsSecret, *awsRegion), Log)
 	fmt.Println(deferralService)
 
-	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, *buildScriptsRepo, *buildScriptsRepoBranch, distributedLocker, deferralService, deferralChannel)
+	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, *buildScriptsRepo, *buildScriptsRepoBranch, distributedLocker, deferralService, Log)
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
