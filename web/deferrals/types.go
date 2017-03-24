@@ -10,7 +10,7 @@ build.
 A build is deferred when it cannot be successfully scheduled on the build cluster.  When this happens,
 the build event is timestamped and put on a list of builds to run later.
 
-Builds are read from the deferred list and periodically relaunched in the order that they are timestamped.  If two time-consecutive builds in the deferred list have
+Builds are periodically read from the deferred list and relaunched in the order that they are timestamped.  If two time-consecutive builds in the deferred list have
 the same project+branch, these records are deduped and considered one deferred build.  A build is removed from the deferred
 build list the moment it is submitted for relaunch.  If that relaunch also fails, the build is put back onto the deferred list.
 
