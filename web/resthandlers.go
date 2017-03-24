@@ -111,16 +111,16 @@ func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		switch r.Method {
 		case "GET":
+
+			// TODO need to know these are squashed or deduped
 			deferred, err := builder.DeferredBuilds()
 			if err != nil {
 				w.WriteHeader(500)
 				_, _ = w.Write(simpleError(err))
 				return
 			}
-			squashed, _ := builder.SquashDeferred(deferred)
-			var v v1.Deferred
-			v.DeferredEvents = squashed
-			data, err := json.Marshal(&v)
+
+			data, err := json.Marshal(&deferred)
 			if err != nil {
 				w.WriteHeader(500)
 				_, _ = w.Write(simpleError(err))
@@ -136,7 +136,7 @@ func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 			}
 			if err := builder.ClearDeferredBuild(key); err != nil {
 				w.WriteHeader(500)
-				data, _ := json.Marshal(&v1.Deferred{Meta: v1.Meta{Error: err.Error()}})
+				data, _ := json.Marshal(&v1.UserBuildEvent{Meta: v1.Meta{Error: err.Error()}})
 				_, _ = w.Write(data)
 			}
 		}
@@ -164,10 +164,12 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 			return
 		}
 
-		event := v1.UserBuildEvent{Team_: team, Project_: project, Refs_: branches}
-		go func() {
-			_ = decap.LaunchBuild(event)
-		}()
+		for _, b := range branches {
+			event := v1.UserBuildEvent{Team_: team, Project_: project, Ref_: b}
+			go func() {
+				_ = decap.LaunchBuild(event)
+			}()
+		}
 	}
 }
 
@@ -221,7 +223,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 					return
 				}
 				go func() {
-					_ = decap.LaunchBuild(event)
+					_ = decap.LaunchBuild(event.BuildEvent())
 				}()
 
 			case "push":
@@ -233,7 +235,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 					return
 				}
 				go func() {
-					_ = decap.LaunchBuild(event)
+					_ = decap.LaunchBuild(event.BuildEvent())
 				}()
 
 			default:

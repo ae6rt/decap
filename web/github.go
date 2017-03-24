@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"strings"
+
+	"github.com/ae6rt/decap/web/api/v1"
 )
 
-// GithubEvent models a github post commit hook payload.  It implements the BuildEvent interface.
+// GithubEvent models a github post commit hook payload.
 type GithubEvent struct {
 	Ref        string           `json:"ref"`
 	RefType    string           `json:"ref_type"`
@@ -24,6 +25,7 @@ type GithubOwner struct {
 	Name string `json:"name"`
 }
 
+/*
 // Team returns the Github owner
 func (event GithubEvent) Team() string {
 	return event.Repository.Owner.Name
@@ -40,18 +42,40 @@ func (event GithubEvent) Key() string {
 }
 
 // Refs returns the references referenced in a Github push event
-func (event GithubEvent) Refs() []string {
+func (event GithubEvent) Ref() string {
 	switch event.RefType {
 	case "branch":
-		return []string{event.Ref}
+		return event.Ref
 	case "tag":
-		return []string{}
+		return ""
 	default:
-		return []string{strings.ToLower(strings.Replace(event.Ref, "refs/heads/", "", -1))}
+		return strings.ToLower(strings.Replace(event.Ref, "refs/heads/", "", -1))
+	}
+}
+*/
+
+// BuildEvent turns a github event into a generic build event.
+func (event GithubEvent) BuildEvent() v1.UserBuildEvent {
+	var refType string
+
+	switch event.RefType {
+	case "branch":
+		refType = event.Ref
+	case "tag":
+		refType = ""
+	default:
+		refType = strings.ToLower(strings.Replace(event.Ref, "refs/heads/", "", -1))
+	}
+
+	return v1.UserBuildEvent{
+		Team_:    event.Repository.Owner.Name,
+		Project_: event.Repository.Name,
+		Ref_:     refType,
 	}
 }
 
-// Hash is a simple hash function formed from the team name, project name, and references refs.
+// TODO No recollection of why this is needed.  msp march 2017:  Hash is a simple hash function formed from the team name, project name, and references refs.
 func (event GithubEvent) Hash() string {
-	return fmt.Sprintf("%s/%s", event.Key(), strings.Join(event.Refs(), "/"))
+	//	return fmt.Sprintf("%s/%s", event.Key(), strings.Join(event.Ref(), "/"))
+	return "" // ??  best to break it to understand what it does
 }

@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"sort"
 	"time"
 
 	"encoding/json"
@@ -18,13 +17,13 @@ import (
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/distrlocks"
 	"github.com/ae6rt/decap/web/k8stypes"
-	"github.com/ae6rt/decap/web/locks"
 	"github.com/ae6rt/decap/web/uuid"
 	"github.com/gorilla/websocket"
 )
 
 // NewBuilder is the constructor for a new default Builder instance.
-func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, locker locks.Locker, buildScriptsRepo, buildScriptsRepoBranch string, distributedLocker distrlocks.DistributedLockService, deferralService deferrals.DeferralService) Builder {
+func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, buildScriptsRepo, buildScriptsRepoBranch string,
+	distributedLocker distrlocks.DistributedLockService, deferralService deferrals.DeferralService, deferredChannel chan v1.UserBuildEvent) Builder {
 
 	tlsConfig := tls.Config{}
 	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
@@ -38,9 +37,7 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 		Log.Println("Kubernetes master secured with TLS")
 	}
 
-	apiClient := &http.Client{Transport: &http.Transport{
-		TLSClientConfig: &tlsConfig,
-	}}
+	apiClient := &http.Client{Transport: &http.Transport{TLSClientConfig: &tlsConfig}}
 
 	data, _ := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 
@@ -49,7 +46,6 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 		apiToken:               string(data),
 		UserName:               username,
 		Password:               password,
-		Locker:                 locker,
 		LockService:            distributedLocker,
 		DeferralService:        deferralService,
 		AWSAccessKeyID:         awsKey,
@@ -60,6 +56,7 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 		buildScriptsRepo:       buildScriptsRepo,
 		buildScriptsRepoBranch: buildScriptsRepoBranch,
 		tlsConfig:              &tlsConfig,
+		deferralChannel:        deferredChannel,
 	}
 }
 
@@ -182,7 +179,7 @@ func (builder DefaultBuilder) makeContainers(buildEvent BuildEvent, buildID, bra
 
 // LaunchBuild assembles the pod definition, including the base container and sidecars, and calls
 // for the pod creation in the cluster.
-func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
+func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 
 	switch <-getShutdownChan {
 	case BuildQueueClose:
@@ -194,49 +191,49 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent BuildEvent) error {
 	projects := getProjects()
 	project := projects[projectKey]
 
-	for _, ref := range buildEvent.Refs() {
-		if !project.Descriptor.IsRefManaged(ref) {
-			if <-getLogLevelChan == LogDebug {
-				Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", ref, projectKey)
-			}
-			continue
-		}
+	if !project.Descriptor.IsRefManaged(buildEvent.Ref()) {
 
-		buildID := uuid.Uuid()
-		containers := builder.makeContainers(buildEvent, buildID, ref, projects)
-
-		pod := builder.makePod(buildEvent, buildID, ref, containers)
-
-		podBytes, err := json.Marshal(&pod)
-		if err != nil {
-			Log.Println(err)
-			continue
-		}
-
-		lockObj := distrlocks.NewDistributedLock(projectKey, ref)
-		if err := builder.LockService.Acquire(lockObj); err != nil {
-			Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, ref, err)
-			if err := builder.DeferralService.Defer(projectKey, ref, buildID); err != nil {
-				Log.Printf("Failed to defer build: %s/%s\n", projectKey, ref)
-			} else {
-				Log.Printf("Deferred build: %s/%s\n", projectKey, ref)
-			}
-			continue
-		}
-
+		// todo these checks should be done inside the loggr Print* methods
 		if <-getLogLevelChan == LogDebug {
-			Log.Printf("Acquired lock on build %s for project %s, branch %s\n", buildID, projectKey, ref)
+			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref(), projectKey)
 		}
-
-		if err := builder.CreatePod(podBytes); err != nil {
-			if err := builder.LockService.Release(lockObj); err != nil {
-				Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildID, projectKey, ref)
-				continue // don't bother trying to defer the build if we've already encountered two errors.
-			}
-		}
-
-		Log.Printf("Created pod=%s\n", buildID)
+		return nil
 	}
+
+	buildEvent.ID = uuid.Uuid()
+	containers := builder.makeContainers(buildEvent, buildEvent.ID, buildEvent.Ref(), projects)
+
+	pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref(), containers)
+
+	podBytes, err := json.Marshal(&pod)
+	if err != nil {
+		return err
+	}
+
+	lockObj := distrlocks.NewDistributedLock(projectKey, buildEvent.Ref())
+	if err := builder.LockService.Acquire(lockObj); err != nil {
+		Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref(), err)
+		if err := builder.DeferralService.Defer(buildEvent); err != nil {
+			Log.Printf("Failed to defer build: %s/%s\n", projectKey, buildEvent.Ref())
+		} else {
+			Log.Printf("Deferred build: %s/%s\n", projectKey, buildEvent.Ref())
+		}
+		return nil
+	}
+
+	if <-getLogLevelChan == LogDebug {
+		Log.Printf("Acquired lock on build %s for project %s, branch %s\n", buildEvent.ID, projectKey, buildEvent.Ref())
+	}
+
+	if err := builder.CreatePod(podBytes); err != nil {
+		if err := builder.LockService.Release(lockObj); err != nil {
+			Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref())
+			return nil
+		}
+	}
+
+	Log.Printf("Created pod=%s\n", buildEvent.ID)
+
 	return nil
 }
 
@@ -296,13 +293,13 @@ func (builder DefaultBuilder) DeletePod(podName string) error {
 	}()
 
 	if resp.StatusCode != 200 {
-		if data, err := ioutil.ReadAll(resp.Body); err != nil {
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
 			Log.Printf("Error reading non-200 response body: %v\n", err)
 			return err
-		} else {
-			Log.Printf("%s\n", string(data))
-			return nil
 		}
+		Log.Printf("%s\n", string(data))
+		return nil
 	}
 	return nil
 }
@@ -396,139 +393,39 @@ func (builder DefaultBuilder) PodWatcher() {
 }
 
 // DeferBuild puts the build event on the deferral queue.
-func (builder DefaultBuilder) DeferBuild(event BuildEvent, branch string) error {
-	ube := v1.UserBuildEvent{
-		Team_:    event.Team(),
-		Project_: event.Project(),
-		Refs_:    []string{branch},
-	}
-	data, _ := json.Marshal(&ube)
-	_, err := builder.Locker.Defer(data)
-	return err
-}
-
-// SquashDeferred takes a in-created-order list of deferred builds and filters out duplicate
-// team + project + branch deferrals, returning the first in the list of each unique build event.
-// @Deprecated - the underlying deferral service will do this deduping.
-func (builder DefaultBuilder) SquashDeferred(deferrals []locks.Deferral) ([]v1.UserBuildEvent, []string) {
-
-	events := make([]v1.UserBuildEvent, len(deferrals))
-	for i, deferral := range deferrals {
-		var ube v1.UserBuildEvent
-		if err := json.Unmarshal([]byte(deferral.Data), &ube); err != nil {
-			Log.Printf("Error deserializing build event %s: %v\n", deferral.Data, err)
-			continue
-		}
-		ube.Deferral.Key = deferral.Key
-		events[i] = ube
-	}
-
-	// h{n} are hashes, c{n} are in-created-order keys
-	// h1:c1  < keep
-	// h2:c2  < keep
-	// h1:c3  < omit
-	// h2:c4  < omit
-	// h3:c5  < keep
-
-	// find the event hashes
-	hashes := make(map[string]string)
-	for _, v := range events {
-		hashes[v.Hash()] = ""
-	}
-
-	// record the position of the first occurrence of a hash in the time-ordered events
-	positions := make(map[string]int)
-	for k, _ := range hashes {
-		for i, j := range events {
-			if k == j.Hash() {
-				positions[k] = i
-				break
-			}
-		}
-	}
-
-	// extract the hash positions and sort ascending to preserve time ordering
-	slots := make([]int, len(positions))
-	i := 0
-	for _, v := range positions {
-		slots[i] = v
-		i += 1
-	}
-	sort.Ints(slots)
-
-	// extract from events the object at each slot
-	squashed := make([]v1.UserBuildEvent, len(slots))
-	for i, j := range slots {
-		squashed[i] = events[j]
-	}
-
-	// record the deferral key for the omitted events so they can be deleted
-	var excluded []string
-	for i, k := range deferrals {
-		foundIt := false
-		for _, j := range slots {
-			if i == j {
-				foundIt = true
-				break
-			}
-		}
-		if !foundIt {
-			excluded = append(excluded, k.Key)
-		}
-	}
-	return squashed, excluded
+func (builder DefaultBuilder) DeferBuild(event v1.UserBuildEvent) error {
+	return builder.DeferralService.Defer(event)
 }
 
 // DeferredBuilds returns the current queue of deferred builds.  Deferred builds
 // are deduped, but preserve the time order of unique entries.
-func (builder DefaultBuilder) DeferredBuilds() ([]locks.Deferral, error) {
-	return builder.Locker.DeferredBuilds()
+func (builder DefaultBuilder) DeferredBuilds() ([]v1.UserBuildEvent, error) {
+	return builder.DeferralService.List()
 }
 
-// ClearDeferredBuild removes a deferred build from the deferral queue.
+// ClearDeferredBuild removes builds with the given key from the deferral queue.  If more than one
+// build in the queue has this key, they will all be removed.
 func (builder DefaultBuilder) ClearDeferredBuild(key string) error {
-	_, err := builder.Locker.ClearDeferred(key)
-	return err
+	if err := builder.DeferralService.Remove(key); err != nil {
+		return err
+	}
+	return nil
 }
 
 // LaunchDeferred is wrapped in a goroutine, and reads deferred builds from storage and attempts a relaunch of each.
 func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
 	for _ = range ticker {
-		if builds, err := builder.DeferredBuilds(); err != nil {
-			Log.Println(err)
-		} else {
-			squashed, excluded := builder.SquashDeferred(builds)
-			for _, v := range excluded {
-				if err := builder.ClearDeferredBuild(v); err != nil {
-					Log.Printf("Failed to clear deferred build for omitted event %+v: %+v\n", v, err)
-				}
-			}
-			for _, build := range squashed {
-				var err error
-				err = builder.ClearDeferredBuild(build.Deferral.Key)
-				if err != nil {
-					Log.Printf("Failed to clear deferred build, will not launch: %+v: %v\n", build, err)
-					continue
-				}
-				Log.Printf("Cleared deferred build at key %s\n", build.Deferral.Key)
+		builder.DeferralService.Resubmit()
 
-				err = builder.LaunchBuild(build)
-				if err != nil {
-					Log.Printf("Error launching deferred build: %+v\n", err)
-				} else {
-					Log.Printf("Launched deferred build: %+v\n", build)
-				}
+		for evt := range builder.deferralChannel {
+			err := builder.LaunchBuild(evt)
+			if err != nil {
+				Log.Printf("Error launching deferred build: %+v\n", err)
+			} else {
+				Log.Printf("Launched deferred build: %+v\n", evt)
 			}
 		}
 	}
-}
-
-// Init does preflight builder work.
-// @Deprecated
-func (builder DefaultBuilder) Init() error {
-	//	return builder.Locker.InitDeferred()
-	// todo this method is going away - msp march 2017
-	return nil
 }
 
 func kubeSecret(file string, defaultValue string) string {

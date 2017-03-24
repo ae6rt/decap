@@ -20,15 +20,16 @@ type DynamoDB interface {
 
 // DynamoDBDeferralService is the working network deferral service.
 type DynamoDBDeferralService struct {
-	mutex  sync.Mutex
-	db     DynamoDB
-	relay  chan<- v1.UserBuildEvent
-	logger *log.Logger
+	deferralTable string
+	mutex         sync.Mutex
+	db            DynamoDB
+	relay         chan<- v1.UserBuildEvent
+	logger        *log.Logger
 }
 
 // NewDynamoDBDeferralService is the constructor for a DeferralService built on top of DynamoDB.
-func NewDynamoDBDeferralService(db DynamoDB, r chan<- v1.UserBuildEvent, log *log.Logger) DeferralService {
-	return &DynamoDBDeferralService{db: db, relay: r, logger: log}
+func NewDynamoDBDeferralService(deferralTable string, db DynamoDB, r chan<- v1.UserBuildEvent, log *log.Logger) DeferralService {
+	return &DynamoDBDeferralService{deferralTable: deferralTable, db: db, relay: r, logger: log}
 }
 
 // NewDynamoDB creates a new network client for interacting with Amazon DynamoDB

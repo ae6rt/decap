@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/ae6rt/decap/web/api/v1"
 )
 
 // See https://confluence.atlassian.com/stash/post-service-webhook-for-stash-393284006.html for payload information.
@@ -81,9 +83,13 @@ func (handler StashHandler) handle(w http.ResponseWriter, r *http.Request) {
 		Log.Println(err)
 		return
 	}
-	go func() {
-		if err := handler.decap.LaunchBuild(event); err != nil {
-			Log.Printf("Cannot launch build for event %+v: %v\n", event, err)
-		}
-	}()
+
+	for _, v := range event.Refs() {
+		u := v1.UserBuildEvent{Team_: event.Team(), Project_: event.Project(), Ref_: v}
+		go func() {
+			if err := handler.decap.LaunchBuild(u); err != nil {
+				Log.Printf("Cannot launch build for event %+v: %v\n", event, err)
+			}
+		}()
+	}
 }

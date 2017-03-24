@@ -19,7 +19,7 @@ type BuildEvent interface {
 	Team() string
 	Project() string
 	Key() string
-	Refs() []string
+	Ref() string
 	Hash() string
 }
 
@@ -44,6 +44,8 @@ type DefaultBuilder struct {
 	buildScriptsRepoBranch string
 
 	tlsConfig *tls.Config
+
+	deferralChannel chan v1.UserBuildEvent
 }
 
 // RepoManagerCredential models the username and password for supported source code repository managers, such as Github or Atlassian Stash.
@@ -63,14 +65,12 @@ type StorageService interface {
 
 // Builder models the interaction between Decap and Kubernetes and the locking service that locks and defers builds.
 type Builder interface {
-	Init() error
-	LaunchBuild(buildEvent BuildEvent) error
+	LaunchBuild(v1.UserBuildEvent) error
 	CreatePod([]byte) error
 	DeletePod(podName string) error
-	DeferBuild(event BuildEvent, ref string) error
+	DeferBuild(v1.UserBuildEvent) error
 	LaunchDeferred(ticker <-chan time.Time)
 	ClearDeferredBuild(key string) error
-	DeferredBuilds() ([]locks.Deferral, error)
+	DeferredBuilds() ([]v1.UserBuildEvent, error)
 	PodWatcher()
-	SquashDeferred([]locks.Deferral) ([]v1.UserBuildEvent, []string)
 }

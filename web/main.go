@@ -8,9 +8,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/distrlocks"
-	"github.com/ae6rt/decap/web/locks"
 	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/julienschmidt/httprouter"
 )
@@ -54,21 +54,14 @@ func main() {
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 
-	// new stuff - msp march 2017
 	distributedLocker := distrlocks.NewDynamoDbLockService(distrlocks.NewDynamoDB(*awsKey, *awsSecret, *awsRegion))
 	fmt.Println(distributedLocker)
 
-	deferralChannel := make(chan deferrals.Deferral)
-	deferralService, err := deferrals.NewSQSDeferralService("decap-deferrals", deferrals.NewSQS(*awsKey, *awsSecret, *awsRegion), deferralChannel)
-	if err != nil {
-		log.Fatalf("main() failed to create DeferralService: %v\n", err)
-	}
+	deferralChannel := make(chan v1.UserBuildEvent)
+	deferralService := deferrals.NewDynamoDBDeferralService("decap-deferrals", deferrals.NewDynamoDB(*awsKey, *awsSecret, *awsRegion), deferralChannel, Log)
 	fmt.Println(deferralService)
-	// end new stuff
 
-	locker := locks.NewEtcdLocker([]string{"http://localhost:2379"})
-
-	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, locker, *buildScriptsRepo, *buildScriptsRepoBranch, distributedLocker, deferralService)
+	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, *buildScriptsRepo, *buildScriptsRepoBranch, distributedLocker, deferralService, deferralChannel)
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
@@ -134,12 +127,8 @@ func main() {
 
 	// Wrap the deferred launcher like this so we can more easily test LaunchDeferred(c) method.
 	go func() {
-		if err := buildLauncher.Init(); err != nil {
-			Log.Printf("Cannot init builder: %v.  Processing of deferred builds cannot proceed.\n", err)
-		} else {
-			c := time.Tick(1 * time.Minute)
-			buildLauncher.LaunchDeferred(c)
-		}
+		c := time.Tick(1 * time.Minute)
+		buildLauncher.LaunchDeferred(c)
 	}()
 	go projectMux(projects)
 	go logLevelMux(LogDefault)
