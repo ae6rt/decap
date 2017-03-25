@@ -60,9 +60,8 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 	}
 }
 
-func (builder DefaultBuilder) makeBaseContainer(buildEvent BuildEvent, buildID, branch string, projects map[string]v1.Project) k8stypes.Container {
+func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, buildID, branch string, projects map[string]v1.Project) k8stypes.Container {
 	projectKey := buildEvent.Key()
-	lockKey := builder.Locker.Key(projectKey, branch)
 	return k8stypes.Container{
 		Name:  "build-server",
 		Image: projects[projectKey].Descriptor.Image,
@@ -91,7 +90,7 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent BuildEvent, buildID, 
 			},
 			k8stypes.EnvVar{
 				Name:  "BUILD_LOCK_KEY",
-				Value: lockKey,
+				Value: buildEvent.Key(),
 			},
 			k8stypes.EnvVar{
 				Name:  "AWS_ACCESS_KEY_ID",
@@ -167,7 +166,7 @@ func (builder DefaultBuilder) makePod(buildEvent BuildEvent, buildID, branch str
 	}
 }
 
-func (builder DefaultBuilder) makeContainers(buildEvent BuildEvent, buildID, branch string, projects map[string]v1.Project) []k8stypes.Container {
+func (builder DefaultBuilder) makeContainers(buildEvent v1.UserBuildEvent, buildID, branch string, projects map[string]v1.Project) []k8stypes.Container {
 	baseContainer := builder.makeBaseContainer(buildEvent, buildID, branch, projects)
 	sidecars := builder.makeSidecarContainers(buildEvent, projects)
 
@@ -192,8 +191,6 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	project := projects[projectKey]
 
 	if !project.Descriptor.IsRefManaged(buildEvent.Ref()) {
-
-		// todo these checks should be done inside the loggr Print* methods
 		if <-getLogLevelChan == LogDebug {
 			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref(), projectKey)
 		}
@@ -354,6 +351,7 @@ func (builder DefaultBuilder) PodWatcher() {
 
 	for {
 		_, msg, err := conn.ReadMessage()
+
 		if err != nil {
 			log.Println("read:", err)
 			continue
@@ -364,6 +362,7 @@ func (builder DefaultBuilder) PodWatcher() {
 			Log.Println(err)
 			continue
 		}
+
 		var deletePod bool
 		for _, status := range pod.Object.Status.ContainerStatuses {
 			if status.Name == "build-server" && status.State.Terminated != nil && status.State.Terminated.ContainerID != "" {
@@ -371,22 +370,12 @@ func (builder DefaultBuilder) PodWatcher() {
 				break
 			}
 		}
+
 		if deletePod {
-			// Mark the pod as deleted in etcd so subsequent events don't drive a 2nd deletion attempt
-			_, err := builder.Locker.Lock("/pods/"+pod.Object.ObjectMeta.Name, "anyvalue")
-
-			if err == nil {
-				// for now just report on what we would have done vs doing it
-				Log.Printf("Would have deleted pod: %s\n", pod.Object.ObjectMeta.Name)
-				if true {
-					continue
-				}
-
-				if err := builder.DeletePod(pod.Object.ObjectMeta.Name); err != nil {
-					Log.Print(err)
-				} else {
-					Log.Printf("Pod deleted: %s\n", pod.Object.ObjectMeta.Name)
-				}
+			if err := builder.DeletePod(pod.Object.ObjectMeta.Name); err != nil {
+				Log.Print(err)
+			} else {
+				Log.Printf("Pod deleted: %s\n", pod.Object.ObjectMeta.Name)
 			}
 		}
 	}

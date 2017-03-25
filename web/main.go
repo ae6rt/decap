@@ -52,11 +52,11 @@ func main() {
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 
-	distributedLocker := distrlocks.NewDynamoDbLockService(distrlocks.NewDynamoDB(*awsKey, *awsSecret, *awsRegion))
+	lockService := distrlocks.NewDynamoDbLockService(distrlocks.NewDynamoDB(*awsKey, *awsSecret, *awsRegion))
 
 	deferralService := deferrals.NewInMemoryDeferralService(Log)
 
-	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, *buildScriptsRepo, *buildScriptsRepoBranch, distributedLocker, deferralService, Log)
+	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, *buildScriptsRepo, *buildScriptsRepoBranch, lockService, deferralService, Log)
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),

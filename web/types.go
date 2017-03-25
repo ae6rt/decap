@@ -9,7 +9,6 @@ import (
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/distrlocks"
-	"github.com/ae6rt/decap/web/locks"
 )
 
 // TODO distinguish between pushes and branch creation.  Github has a header value that allows these to be differentiated.
@@ -33,7 +32,6 @@ type DefaultBuilder struct {
 	AWSAccessKeyID  string
 	AWSAccessSecret string
 	AWSRegion       string
-	Locker          locks.Locker
 	LockService     distrlocks.DistributedLockService
 	DeferralService deferrals.DeferralService
 	apiToken        string
