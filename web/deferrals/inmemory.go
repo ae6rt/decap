@@ -79,6 +79,7 @@ func (t *InMemoryDeferralService) Remove(id string) error {
 	return nil
 }
 
+// Do not call this outside a mutex.
 func (t *InMemoryDeferralService) copy() []v1.UserBuildEvent {
 	c := make([]v1.UserBuildEvent, len(t.deferrals), len(t.deferrals))
 	copy(c, t.deferrals)

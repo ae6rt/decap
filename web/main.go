@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -54,10 +53,8 @@ func main() {
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 
 	distributedLocker := distrlocks.NewDynamoDbLockService(distrlocks.NewDynamoDB(*awsKey, *awsSecret, *awsRegion))
-	fmt.Println(distributedLocker)
 
-	deferralService := deferrals.NewDynamoDBDeferralService("decap-deferrals", deferrals.NewDynamoDB(*awsKey, *awsSecret, *awsRegion), Log)
-	fmt.Println(deferralService)
+	deferralService := deferrals.NewInMemoryDeferralService(Log)
 
 	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, *buildScriptsRepo, *buildScriptsRepoBranch, distributedLocker, deferralService, Log)
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
