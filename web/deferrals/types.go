@@ -26,10 +26,10 @@ type DeferralService interface {
 	// List lists and dedupes the deferred builds.  Used for presentation in a frontend UI.
 	List() ([]v1.UserBuildEvent, error)
 
-	// Remove removes a build by ID from the deferred list.
-	Remove(id string) error
-
 	// Poll reads and dedups the list of deferred builds, clears the list from backing store and returns the list to the caller.  Called for
 	// purposes of relaunching builds.
 	Poll() ([]v1.UserBuildEvent, error)
+
+	// Remove removes a build by ID from the deferred list.
+	Remove(id string) error
 }
