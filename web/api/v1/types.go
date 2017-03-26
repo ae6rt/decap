@@ -50,6 +50,7 @@ type ProjectDescriptor struct {
 }
 
 // IsRefManaged is used by Decap to determine if a build should be launched as a result of a post-commit hook on a given ref.
+// TODO code does not belong in a types.go file.
 func (d ProjectDescriptor) IsRefManaged(ref string) bool {
 	return d.Regex == nil || d.Regex.MatchString(ref)
 }

@@ -3,6 +3,7 @@ package distrlocks
 import (
 	"testing"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
@@ -41,9 +42,9 @@ func (t *releaseMock) DeleteItem(i *dynamodb.DeleteItemInput) (*dynamodb.DeleteI
 func TestCreateLock(t *testing.T) {
 	dbMock := &acquireMock{}
 	lockService := NewDynamoDbLockService(dbMock)
-	locker := NewDistributedLock("proj", "feature/foo")
+	event := v1.UserBuildEvent{Team_: "proj", Project_: "code", Ref_: "feature/foo"}
 
-	if err := lockService.Acquire(locker); err != nil {
+	if err := lockService.Acquire(event); err != nil {
 		t.Errorf("%v\n", err)
 	}
 
@@ -51,7 +52,7 @@ func TestCreateLock(t *testing.T) {
 		t.Errorf("Want decap-buildlocks, got %s\n", *dbMock.f.TableName)
 	}
 
-	if *dbMock.f.Item["lockname"].S != "proj/feature/foo" {
+	if *dbMock.f.Item["lockname"].S != "proj/code/feature/foo" {
 		t.Errorf("Want proj/feature/foo, got %s\n", *dbMock.f.Item["lockname"].S)
 	}
 }
@@ -59,9 +60,9 @@ func TestCreateLock(t *testing.T) {
 func TestReleaseLock(t *testing.T) {
 	dbMock := &releaseMock{}
 	lockService := NewDynamoDbLockService(dbMock)
-	locker := NewDistributedLock("proj", "feature/foo")
+	event := v1.UserBuildEvent{Team_: "proj", Project_: "code", Ref_: "feature/foo"}
 
-	if err := lockService.Release(locker); err != nil {
+	if err := lockService.Release(event); err != nil {
 		t.Errorf("%v\n", err)
 	}
 
@@ -69,7 +70,7 @@ func TestReleaseLock(t *testing.T) {
 		t.Errorf("Want decap-buildlocks, got %s\n", *dbMock.f.TableName)
 	}
 
-	if *dbMock.f.Key["lockname"].S != "proj/feature/foo" {
+	if *dbMock.f.Key["lockname"].S != "proj/code/feature/foo" {
 		t.Errorf("Want proj/feature/foo, got %s\n", *dbMock.f.Key["lockname"].S)
 	}
 }

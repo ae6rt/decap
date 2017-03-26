@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -37,7 +38,7 @@ func NewDynamoDbLockService(db DynamoDB) DistributedLockService {
 // The operation will fail if the lock exists and is not expired.  A locked is deemed good (unexpired)
 // for a finite amount of time, should a process for some reason fail to remove it manually after a
 // branch build is completed.
-func (l DynamoDbLockService) Acquire(lock DistributedLock) error {
+func (l DynamoDbLockService) Acquire(lock v1.UserBuildEvent) error {
 	params := &dynamodb.PutItemInput{
 		TableName: aws.String("decap-buildlocks"),
 		Item: map[string]*dynamodb.AttributeValue{
@@ -45,7 +46,7 @@ func (l DynamoDbLockService) Acquire(lock DistributedLock) error {
 				S: aws.String(lock.Key()),
 			},
 			"expiresunixtime": {
-				N: aws.String(fmt.Sprintf("%d", lock.Expires)),
+				N: aws.String(fmt.Sprintf("%d", time.Now().Add(3*time.Hour).Unix())),
 			},
 		},
 		ConditionExpression: aws.String("attribute_not_exists(#lockname) OR (#expiresunixtime < :nowunixtime)"),
@@ -68,7 +69,7 @@ func (l DynamoDbLockService) Acquire(lock DistributedLock) error {
 }
 
 // Release removes a lock from the lock table.
-func (l DynamoDbLockService) Release(lock DistributedLock) error {
+func (l DynamoDbLockService) Release(lock v1.UserBuildEvent) error {
 	params := &dynamodb.DeleteItemInput{
 		TableName: aws.String("decap-buildlocks"),
 		Key: map[string]*dynamodb.AttributeValue{

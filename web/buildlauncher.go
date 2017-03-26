@@ -108,7 +108,7 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, bu
 	}
 }
 
-func (builder DefaultBuilder) makeSidecarContainers(buildEvent BuildEvent, projects map[string]v1.Project) []k8stypes.Container {
+func (builder DefaultBuilder) makeSidecarContainers(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) []k8stypes.Container {
 	projectKey := buildEvent.Key()
 	arr := make([]k8stypes.Container, len(projects[projectKey].Sidecars))
 
@@ -124,7 +124,7 @@ func (builder DefaultBuilder) makeSidecarContainers(buildEvent BuildEvent, proje
 	return arr
 }
 
-func (builder DefaultBuilder) makePod(buildEvent BuildEvent, buildID, branch string, containers []k8stypes.Container) k8stypes.Pod {
+func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, branch string, containers []k8stypes.Container) k8stypes.Pod {
 	return k8stypes.Pod{
 		TypeMeta: k8stypes.TypeMeta{
 			Kind:       "Pod",
@@ -207,8 +207,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 		return err
 	}
 
-	lockObj := distrlocks.NewDistributedLock(projectKey, buildEvent.Ref())
-	if err := builder.LockService.Acquire(lockObj); err != nil {
+	if err := builder.LockService.Acquire(buildEvent); err != nil {
 		Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref(), err)
 		if err := builder.DeferralService.Defer(buildEvent); err != nil {
 			Log.Printf("Failed to defer build: %s/%s\n", projectKey, buildEvent.Ref())
@@ -223,7 +222,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	}
 
 	if err := builder.CreatePod(podBytes); err != nil {
-		if err := builder.LockService.Release(lockObj); err != nil {
+		if err := builder.LockService.Release(buildEvent); err != nil {
 			Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref())
 			return nil
 		}

@@ -4,6 +4,7 @@ import "time"
 
 var expires = 3 * time.Hour
 
+/*
 // NewDistributedLock creates a new distributed lock based on the project key and branch.
 func NewDistributedLock(projectKey, branch string) DistributedLock {
 	return DistributedLock{
@@ -17,3 +18,4 @@ func NewDistributedLock(projectKey, branch string) DistributedLock {
 func (lock DistributedLock) Key() string {
 	return lock.Project + "/" + lock.Branch
 }
+*/
