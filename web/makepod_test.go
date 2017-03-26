@@ -5,16 +5,15 @@ import (
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/k8stypes"
-	"github.com/ae6rt/decap/web/locks"
 )
 
 func TestMakePod(t *testing.T) {
 	builder := DefaultBuilder{
-		Locker:                 &locks.NoOpLocker{},
 		buildScriptsRepo:       "repo",
 		buildScriptsRepoBranch: "repobranch",
 	}
-	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
+
+	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Ref_: "master", ID: "uuid"}
 
 	projectMap := map[string]v1.Project{
 		"ae6rt/somelib": v1.Project{
@@ -50,7 +49,7 @@ func TestMakePod(t *testing.T) {
 		},
 	}
 
-	baseContainer := builder.makeBaseContainer(buildEvent, "uuid", "master", projectMap)
+	baseContainer := builder.makeBaseContainer(buildEvent, projectMap)
 	sidecars := builder.makeSidecarContainers(buildEvent, projectMap)
 
 	var arr []k8stypes.Container

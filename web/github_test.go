@@ -26,7 +26,7 @@ func TestGithubEvent(t *testing.T) {
 		return
 	}
 
-	pushEvent := BuildEvent(event)
+	pushEvent := event.BuildEvent()
 
 	if pushEvent.Team() != "ae6rt" {
 		t.Fatalf("Want ae6rt but got %s\n", pushEvent.Team())
@@ -34,18 +34,12 @@ func TestGithubEvent(t *testing.T) {
 	if pushEvent.Project() != "dynamodb-lab" {
 		t.Fatalf("Want dynamodb-lab but got %s\n", pushEvent.Project())
 	}
-	if pushEvent.Key() != "ae6rt/dynamodb-lab" {
-		t.Fatalf("Want ae6rt/dynamodb-lab but got %s\n", pushEvent.Key())
-	}
-	if pushEvent.Hash() != "ae6rt/dynamodb-lab/master" {
-		t.Fatalf("Want ae6rt/dynamodb-lab/master but got %s\n", pushEvent.Hash())
+	if pushEvent.Key() != "ae6rt/dynamodb-lab/master" {
+		t.Fatalf("Want ae6rt/dynamodb-lab/master but got %s\n", pushEvent.Key())
 	}
 
-	branches := pushEvent.Refs()
-	if len(branches) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(branches))
-	}
-	if branches[0] != "master" {
-		t.Fatalf("Want changes but got %s\n", branches[0])
+	branch := pushEvent.Ref()
+	if branch != "master" {
+		t.Fatalf("Want changes but got %s\n", branch)
 	}
 }

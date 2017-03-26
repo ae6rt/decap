@@ -1,20 +1,6 @@
 package main
 
-import (
-	"bytes"
-	"io/ioutil"
-	"log"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"testing"
-	"time"
-
-	"github.com/ae6rt/decap/web/api/v1"
-	"github.com/ae6rt/ziptools"
-	"github.com/julienschmidt/httprouter"
-)
-
+/*
 func TestHooksHandlerNoRepoManager(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
@@ -178,3 +164,4 @@ func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
 		t.Fatalf("Want 400 but got %d\n", w.Code)
 	}
 }
+*/

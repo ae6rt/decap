@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
-	"github.com/ae6rt/decap/web/locks"
 )
 
 func TestMakeBaseContainer(t *testing.T) {
@@ -12,13 +11,13 @@ func TestMakeBaseContainer(t *testing.T) {
 		AWSAccessKeyID:  "key",
 		AWSAccessSecret: "sekrit",
 		AWSRegion:       "us-west-1",
-		Locker:          &locks.NoOpLocker{},
 	}
 
-	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Refs_: []string{"master"}}
-	baseContainer := builder.makeBaseContainer(buildEvent, "uuid", "master", map[string]v1.Project{
-		"ae6rt/somelib": v1.Project{Team: "ae6rt", ProjectName: "somelib", Descriptor: v1.ProjectDescriptor{Image: "magic-image"}, Sidecars: []string{}},
-	})
+	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Ref_: "master", ID: "uuid"}
+	baseContainer := builder.makeBaseContainer(
+		buildEvent,
+		map[string]v1.Project{"ae6rt/somelib": v1.Project{Team: "ae6rt", ProjectName: "somelib", Descriptor: v1.ProjectDescriptor{Image: "magic-image"}, Sidecars: []string{}}},
+	)
 
 	if baseContainer.Name != "build-server" {
 		t.Fatalf("Want build-server but got %v\n", baseContainer.Name)

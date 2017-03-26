@@ -60,7 +60,7 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 	}
 }
 
-func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, buildID, branch string, projects map[string]v1.Project) k8stypes.Container {
+func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) k8stypes.Container {
 	projectKey := buildEvent.Key()
 	return k8stypes.Container{
 		Name:  "build-server",
@@ -78,7 +78,7 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, bu
 		Env: []k8stypes.EnvVar{
 			k8stypes.EnvVar{
 				Name:  "BUILD_ID",
-				Value: buildID,
+				Value: buildEvent.ID,
 			},
 			k8stypes.EnvVar{
 				Name:  "PROJECT_KEY",
@@ -86,7 +86,7 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, bu
 			},
 			k8stypes.EnvVar{
 				Name:  "BRANCH_TO_BUILD",
-				Value: branch,
+				Value: buildEvent.Ref_,
 			},
 			k8stypes.EnvVar{
 				Name:  "BUILD_LOCK_KEY",
@@ -166,8 +166,8 @@ func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, bra
 	}
 }
 
-func (builder DefaultBuilder) makeContainers(buildEvent v1.UserBuildEvent, buildID, branch string, projects map[string]v1.Project) []k8stypes.Container {
-	baseContainer := builder.makeBaseContainer(buildEvent, buildID, branch, projects)
+func (builder DefaultBuilder) makeContainers(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) []k8stypes.Container {
+	baseContainer := builder.makeBaseContainer(buildEvent, projects)
 	sidecars := builder.makeSidecarContainers(buildEvent, projects)
 
 	var containers []k8stypes.Container
@@ -198,7 +198,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	}
 
 	buildEvent.ID = uuid.Uuid()
-	containers := builder.makeContainers(buildEvent, buildEvent.ID, buildEvent.Ref(), projects)
+	containers := builder.makeContainers(buildEvent, projects)
 
 	pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref(), containers)
 

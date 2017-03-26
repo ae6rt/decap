@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/ae6rt/decap/web/locks"
 )
 
 func TestCreatePod(t *testing.T) {
@@ -29,7 +27,7 @@ func TestCreatePod(t *testing.T) {
 	}))
 	defer testServer.Close()
 
-	builder := NewBuilder(testServer.URL, "admin", "admin123", "key", "sekrit", "us-west-1", &locks.NoOpLocker{}, "repo", "repobranch", MockDistributedLocker{}, MockDeferralService{})
+	builder := NewBuilder(testServer.URL, "admin", "admin123", "key", "sekrit", "us-west-1", "repo", "repobranch", MockDistributedLocker{}, MockDeferralService{}, nil)
 	err := builder.CreatePod([]byte(""))
 	if err != nil {
 		t.Fatalf("Unexpected error: %v\n", err)

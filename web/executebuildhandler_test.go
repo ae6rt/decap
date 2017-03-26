@@ -41,6 +41,7 @@ func TestExecuteBuild(t *testing.T) {
 	)
 
 	// Let the goroutine finish.  Yuck.
+	// TODO revisit this - March 2017
 	time.Sleep(500 * time.Millisecond)
 
 	if mockDecap.event.Team() != "ae6rt" {

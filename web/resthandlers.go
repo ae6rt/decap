@@ -111,8 +111,6 @@ func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		switch r.Method {
 		case "GET":
-
-			// TODO need to know these are squashed or deduped
 			deferred, err := builder.DeferredBuilds()
 			if err != nil {
 				w.WriteHeader(500)

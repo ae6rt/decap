@@ -4,18 +4,17 @@ import (
 	"time"
 
 	"github.com/ae6rt/decap/web/api/v1"
-	"github.com/ae6rt/decap/web/locks"
 )
 
 type MockBuilder struct {
-	deferred    []locks.Deferral
-	event       BuildEvent
+	deferred    []v1.UserBuildEvent
+	event       v1.UserBuildEvent
 	buildID     string
 	deferralKey string
 	err         error
 }
 
-func (d *MockBuilder) LaunchBuild(p BuildEvent) error {
+func (d *MockBuilder) LaunchBuild(p v1.UserBuildEvent) error {
 	d.event = p
 	return nil
 }
@@ -25,16 +24,12 @@ func (d *MockBuilder) DeletePod(podName string) error {
 	return nil
 }
 
-func (d *MockBuilder) DeferBuild(event BuildEvent, branch string) error {
+func (d *MockBuilder) DeferBuild(event v1.UserBuildEvent) error {
 	return nil
 }
 
-func (d *MockBuilder) DeferredBuilds() ([]locks.Deferral, error) {
+func (d *MockBuilder) DeferredBuilds() ([]v1.UserBuildEvent, error) {
 	return d.deferred, nil
-}
-
-func (d *MockBuilder) SquashDeferred([]locks.Deferral) ([]v1.UserBuildEvent, []string) {
-	return nil, nil
 }
 
 func (d *MockBuilder) CreatePod(data []byte) error {
