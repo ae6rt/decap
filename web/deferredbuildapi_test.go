@@ -49,7 +49,6 @@ func TestGetDeferredBuilds(t *testing.T) {
 	}
 }
 
-/*
 func TestClearDeferredBuild(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "http://example.com/deferred?key=/1", nil)
@@ -86,6 +85,7 @@ func TestClearDeferredBuildNoKey(t *testing.T) {
 		t.Fatalf("Expected Missing or empty key parameter in clear deferred build but got %s\n", msg)
 	}
 }
+/*
 
 func TestClearDeferredBuildError(t *testing.T) {
 	w := httptest.NewRecorder()

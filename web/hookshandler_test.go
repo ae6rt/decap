@@ -1,6 +1,20 @@
 package main
 
-/*
+import (
+	"bytes"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+	"time"
+
+	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/ziptools"
+	"github.com/julienschmidt/httprouter"
+)
+
 func TestHooksHandlerNoRepoManager(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
@@ -111,11 +125,11 @@ func TestHooksHandlerGithub(t *testing.T) {
 	// Wait for goroutine to run. Yuck.
 	time.Sleep(1000 * time.Millisecond)
 
-	if mockDecap.event.Team() != "ae6rt" {
-		t.Fatalf("Want ae6rt but got %s\n", mockDecap.event.Team())
+	if mockDecap.event.Team_ != "ae6rt" {
+		t.Fatalf("Want ae6rt but got %s\n", mockDecap.event.Team_)
 	}
-	if mockDecap.event.Project() != "dynamodb-lab" {
-		t.Fatalf("Want dynamodb-lab but got %s\n", mockDecap.event.Project())
+	if mockDecap.event.Project_ != "dynamodb-lab" {
+		t.Fatalf("Want dynamodb-lab but got %s\n", mockDecap.event.Project_)
 	}
 }
 
@@ -164,4 +178,3 @@ func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
 		t.Fatalf("Want 400 but got %d\n", w.Code)
 	}
 }
-*/
