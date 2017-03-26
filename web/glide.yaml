@@ -8,16 +8,24 @@ import:
   - aws/credentials
   - service/dynamodb
   - service/s3
-- package: github.com/coreos/etcd/client
+- package: github.com/coreos/etcd
   version: v2.2.0-rc.0-5-gfca98c9
+  subpackages:
+  - client
 - package: github.com/julienschmidt/httprouter
   version: v1.1-9-g2ba0f3d
-- package: golang.org/x/net/context
+- package: golang.org/x/net
+  subpackages:
+  - context
 - package: gopkg.in/inf.v0
   version: v0.9.0
 - package: github.com/gorilla/websocket
 - package: github.com/twinj/uuid
   version: 0.10.0
+- package: k8s.io/client-go
+  version: v2.0.0
+- package: github.com/blang/semver
+  version: v3.5.0
 testImport:
 - package: github.com/ae6rt/ziptools
   version: 0e733d9cea2914f8d26004bc575530048d92d063

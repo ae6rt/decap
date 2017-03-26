@@ -1,14 +1,37 @@
 package distrlocks
 
-import "github.com/ae6rt/decap/web/api/v1"
+import (
+	"fmt"
+
+	"github.com/ae6rt/decap/web/api/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+)
 
 // DefaultLockService queries the k8s master to find out if a pod is building a project+branch.
 type DefaultLockService struct {
-	k8sClient interface{}
+	clientset *kubernetes.Clientset
+}
+
+func NewDefaultLockService() (DistributedLockService, error) {
+	// creates the in-cluster config
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		return nil, err
+	}
+	// creates the clientset
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	return &DefaultLockService{clientset: clientset}, nil
+
 }
 
 // Acquire attempts to acquire a lock on the given object
 func (t *DefaultLockService) Acquire(obj v1.UserBuildEvent) error {
+	fmt.Println(t.clientset)
+
 	return nil
 }
 
