@@ -5,6 +5,7 @@ import (
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"k8s.io/client-go/kubernetes"
+	av1 "k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/rest"
 )
 
@@ -31,15 +32,13 @@ func NewDefaultLockService() (DistributedLockService, error) {
 
 // Acquire attempts to acquire a lock on the given object
 func (t *DefaultLockService) Acquire(obj v1.UserBuildEvent) error {
-	fmt.Println(t.clientset)
-	/*
-		pods, err := t.clientset.CoreV1().Pods("").List(metav1.ListOptions{})
-		if err != nil {
-			return err
-		}
+	pods, err := t.clientset.CoreV1().Pods("decap").List(av1.ListOptions{})
+	if err != nil {
+		return err
+	}
 
-		fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
-	*/
+	fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
+
 	return nil
 }
 
