@@ -1,5 +1,9 @@
 ## Decap Web Service
 
+This project's dependencies are managed by the
+[dep](https://github.com/golang/dep) tool, which is emerging as the
+official Go dependency management tool.
+
 This is the core web service for Decap.  It exposes REST API endoints
 for a web UI frontend, and receives post commit hooks from Github
 (and eventually other repository managers, including Stash and
