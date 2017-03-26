@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -75,7 +76,7 @@ func TestClearDeferredBuildNoKey(t *testing.T) {
 	}
 
 	data, _ := ioutil.ReadAll(w.Body)
-	var d v1.Deferred
+	var d v1.UserBuildEvent
 	if err := json.Unmarshal(data, &d); err != nil {
 		t.Fatalf("Unexpected error: %v\n", err)
 	}
@@ -85,7 +86,6 @@ func TestClearDeferredBuildNoKey(t *testing.T) {
 		t.Fatalf("Expected Missing or empty key parameter in clear deferred build but got %s\n", msg)
 	}
 }
-/*
 
 func TestClearDeferredBuildError(t *testing.T) {
 	w := httptest.NewRecorder()
@@ -98,7 +98,7 @@ func TestClearDeferredBuildError(t *testing.T) {
 	}
 
 	data, _ := ioutil.ReadAll(w.Body)
-	var d v1.Deferred
+	var d v1.UserBuildEvent
 	if err := json.Unmarshal(data, &d); err != nil {
 		t.Fatalf("Unexpected error: %v\n", err)
 	}
@@ -108,4 +108,3 @@ func TestClearDeferredBuildError(t *testing.T) {
 		t.Fatalf("Expected boom build but got %s\n", msg)
 	}
 }
-*/
