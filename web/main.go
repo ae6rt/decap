@@ -52,7 +52,10 @@ func main() {
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 
-	lockService := distrlocks.NewDynamoDbLockService(distrlocks.NewDynamoDB(*awsKey, *awsSecret, *awsRegion))
+	lockService, err := distrlocks.NewDefaultLockService()
+	if err != nil {
+		Log.Fatalf("Cannot create default lock service: %v\n", err)
+	}
 
 	deferralService := deferrals.NewInMemoryDeferralService(Log)
 
