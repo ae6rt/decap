@@ -26,6 +26,9 @@ import:
   version: v2.0.0
 - package: github.com/blang/semver
   version: v3.5.0
+- package: k8s.io/apimachinery
+  subpackages:
+  - pkg/apis/meta/v1
 testImport:
 - package: github.com/ae6rt/ziptools
   version: 0e733d9cea2914f8d26004bc575530048d92d063

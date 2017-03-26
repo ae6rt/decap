@@ -1,21 +1,11 @@
-hash: 41b3634082c898e1ff49812a205c1cc18a45e49b83b6497a5a0c27fd985f5669
-updated: 2017-03-26T10:11:59.214265433-07:00
+hash: d4fa743c009d5bebb3a4c277c84ce669c9f1958a2ae416fcc1fca40f3cbeceaf
+updated: 2017-03-26T10:46:23.773644654-07:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
   subpackages:
   - compute/metadata
   - internal
-- name: github.com/ae6rt/decap
-  version: 095f69217c18b6910f5bd864d9b31dc96777013d
-  subpackages:
-  - web/api/v1
-  - web/k8sresource
-  - web/k8stypes
-  - web/locks
-  - web/retry
-  - web/scmclients
-  - web/uuid
 - name: github.com/ae6rt/retry
   version: 340ac281720ed4c20c7b1093d9a80618c53177eb
 - name: github.com/aws/aws-sdk-go
@@ -81,7 +71,7 @@ imports:
   - digest
   - reference
 - name: github.com/emicklei/go-restful
-  version: 89ef8af493ab468a45a42bb0d89a06fccdd2fb22
+  version: 09691a3b6378b740595c1002f40c34dd5f218a22
   subpackages:
   - log
   - swagger
@@ -109,7 +99,7 @@ imports:
   subpackages:
   - proto
 - name: github.com/google/gofuzz
-  version: bbcb9da2d746f8bdbd6a936686a0a6067ada0ec5
+  version: 44d81051d367757e1c7c6a5a86423ece9afcf63c
 - name: github.com/gorilla/websocket
   version: 1f512fc3f05332ba7117626cdfb4e07474e58e60
 - name: github.com/jmespath/go-jmespath
@@ -135,11 +125,11 @@ imports:
 - name: github.com/PuerkitoBio/urlesc
   version: 5bd2802263f21d8788851d5305584c82a5c75d7e
 - name: github.com/spf13/pflag
-  version: 5ccb023bc27df288a957c5e994cd44fd19619465
+  version: 9ff6c6923cfffbcd502984b8e0c80539a94968b7
 - name: github.com/twinj/uuid
   version: 89173bcdda19db0eb88aef1e1cb1cb2505561d31
 - name: github.com/ugorji/go
-  version: f1f1a805ed361a0e078bb537e4ea78cd37dcf065
+  version: ded73eae5db7e7a0ef6f55aace87a2873c5d2b74
   subpackages:
   - codec
 - name: golang.org/x/net
@@ -187,6 +177,29 @@ imports:
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
 - name: gopkg.in/yaml.v2
   version: 53feefa2559fb8dfa8d81baad31be332c97d6c77
+- name: k8s.io/apimachinery
+  version: 75b8dd260ef0469d96d578705a87cffd0e09dab8
+  subpackages:
+  - pkg/api/resource
+  - pkg/apis/meta/v1
+  - pkg/conversion
+  - pkg/conversion/queryparams
+  - pkg/fields
+  - pkg/labels
+  - pkg/openapi
+  - pkg/runtime
+  - pkg/runtime/schema
+  - pkg/selection
+  - pkg/types
+  - pkg/util/errors
+  - pkg/util/intstr
+  - pkg/util/net
+  - pkg/util/runtime
+  - pkg/util/sets
+  - pkg/util/validation
+  - pkg/util/wait
+  - pkg/watch
+  - third_party/forked/golang/reflect
 - name: k8s.io/client-go
   version: e121606b0d09b2e1c467183ee46217fa85a6b672
   subpackages:

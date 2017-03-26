@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -19,6 +20,7 @@ func NewDefaultLockService() (DistributedLockService, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// creates the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
@@ -31,7 +33,12 @@ func NewDefaultLockService() (DistributedLockService, error) {
 // Acquire attempts to acquire a lock on the given object
 func (t *DefaultLockService) Acquire(obj v1.UserBuildEvent) error {
 	fmt.Println(t.clientset)
+	pods, err := t.clientset.CoreV1().Pods("").List(metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
 
+	fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
 	return nil
 }
 
