@@ -44,8 +44,8 @@ func TestGetDeferredBuilds(t *testing.T) {
 	if len(d) != 1 {
 		t.Fatalf("Want 1 but got %d\n", len(d))
 	}
-	if d[0].Key() != "t1/p1/master" {
-		t.Fatalf("Want t1/p1/master but got %s\n", d[0].Key())
+	if d[0].Lockname() != "t1/p1/master" {
+		t.Fatalf("Want t1/p1/master but got %s\n", d[0].Lockname())
 	}
 }
 

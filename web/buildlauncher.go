@@ -61,7 +61,7 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 }
 
 func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) k8stypes.Container {
-	projectKey := buildEvent.Key()
+	projectKey := buildEvent.ProjectKey()
 	return k8stypes.Container{
 		Name:  "build-server",
 		Image: projects[projectKey].Descriptor.Image,
@@ -90,7 +90,7 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, pr
 			},
 			k8stypes.EnvVar{
 				Name:  "BUILD_LOCK_KEY",
-				Value: buildEvent.Key(),
+				Value: buildEvent.Lockname(),
 			},
 			k8stypes.EnvVar{
 				Name:  "AWS_ACCESS_KEY_ID",
@@ -109,7 +109,7 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, pr
 }
 
 func (builder DefaultBuilder) makeSidecarContainers(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) []k8stypes.Container {
-	projectKey := buildEvent.Key()
+	projectKey := buildEvent.ProjectKey()
 	arr := make([]k8stypes.Container, len(projects[projectKey].Sidecars))
 
 	for i, v := range projects[projectKey].Sidecars {
@@ -135,8 +135,8 @@ func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, bra
 			Namespace: "decap",
 			Labels: map[string]string{
 				"type":    "decap-build",
-				"team":    buildEvent.Team(),
-				"project": buildEvent.Project(),
+				"team":    buildEvent.Team_,
+				"project": buildEvent.Project_,
 				"branch":  branch,
 			},
 		},
@@ -186,13 +186,13 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 		return nil
 	}
 
-	projectKey := buildEvent.Key()
+	projectKey := buildEvent.Lockname()
 	projects := getProjects()
 	project := projects[projectKey]
 
-	if !project.Descriptor.IsRefManaged(buildEvent.Ref()) {
+	if !project.Descriptor.IsRefManaged(buildEvent.Ref_) {
 		if <-getLogLevelChan == LogDebug {
-			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref(), projectKey)
+			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref_, projectKey)
 		}
 		return nil
 	}
@@ -200,7 +200,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	buildEvent.ID = uuid.Uuid()
 	containers := builder.makeContainers(buildEvent, projects)
 
-	pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref(), containers)
+	pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref_, containers)
 
 	podBytes, err := json.Marshal(&pod)
 	if err != nil {
@@ -208,22 +208,22 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	}
 
 	if err := builder.LockService.Acquire(buildEvent); err != nil {
-		Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref(), err)
+		Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref_, err)
 		if err := builder.DeferralService.Defer(buildEvent); err != nil {
-			Log.Printf("Failed to defer build: %s/%s\n", projectKey, buildEvent.Ref())
+			Log.Printf("Failed to defer build: %s/%s\n", projectKey, buildEvent.Ref_)
 		} else {
-			Log.Printf("Deferred build: %s/%s\n", projectKey, buildEvent.Ref())
+			Log.Printf("Deferred build: %s/%s\n", projectKey, buildEvent.Ref_)
 		}
 		return nil
 	}
 
 	if <-getLogLevelChan == LogDebug {
-		Log.Printf("Acquired lock on build %s for project %s, branch %s\n", buildEvent.ID, projectKey, buildEvent.Ref())
+		Log.Printf("Acquired lock on build %s for project %s, branch %s\n", buildEvent.ID, projectKey, buildEvent.Ref_)
 	}
 
 	if err := builder.CreatePod(podBytes); err != nil {
 		if err := builder.LockService.Release(buildEvent); err != nil {
-			Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref())
+			Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref_)
 			return nil
 		}
 	}

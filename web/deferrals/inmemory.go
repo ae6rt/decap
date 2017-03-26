@@ -26,7 +26,7 @@ func (t *InMemoryDeferralService) Defer(event v1.UserBuildEvent) error {
 	defer t.mutex.Unlock()
 
 	// dedup as we go
-	if len(t.deferrals) > 0 && event.Key() == t.deferrals[len(t.deferrals)-1].Key() {
+	if len(t.deferrals) > 0 && event.Lockname() == t.deferrals[len(t.deferrals)-1].Lockname() {
 		return nil
 	}
 

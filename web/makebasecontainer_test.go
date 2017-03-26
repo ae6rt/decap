@@ -14,9 +14,16 @@ func TestMakeBaseContainer(t *testing.T) {
 	}
 
 	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Ref_: "master", ID: "uuid"}
+
 	baseContainer := builder.makeBaseContainer(
 		buildEvent,
-		map[string]v1.Project{"ae6rt/somelib": v1.Project{Team: "ae6rt", ProjectName: "somelib", Descriptor: v1.ProjectDescriptor{Image: "magic-image"}, Sidecars: []string{}}},
+		map[string]v1.Project{
+			"ae6rt/somelib": v1.Project{
+				Team:        "ae6rt",
+				ProjectName: "somelib",
+				Descriptor:  v1.ProjectDescriptor{Image: "magic-image"},
+				Sidecars:    []string{}},
+		},
 	)
 
 	if baseContainer.Name != "build-server" {
@@ -79,7 +86,7 @@ func TestMakeBaseContainer(t *testing.T) {
 	if baseContainer.Env[i].Name != "BUILD_LOCK_KEY" {
 		t.Fatalf("Want BUILD_LOCK_KEY but got %v\n", baseContainer.Env[i].Name)
 	}
-	if baseContainer.Env[i].Value != "opaquekey" {
+	if baseContainer.Env[i].Value != "ae6rt/somelib/master" {
 		t.Fatalf("Want opaquekey but got %v\n", baseContainer.Env[i].Value)
 	}
 

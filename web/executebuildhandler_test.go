@@ -44,11 +44,11 @@ func TestExecuteBuild(t *testing.T) {
 	// TODO revisit this - March 2017
 	time.Sleep(500 * time.Millisecond)
 
-	if mockDecap.event.Team() != "ae6rt" {
-		t.Fatalf("Want ae6rt but got %s\n", mockDecap.event.Team())
+	if mockDecap.event.Team_ != "ae6rt" {
+		t.Fatalf("Want ae6rt but got %s\n", mockDecap.event.Team_)
 	}
-	if mockDecap.event.Project() != "p1" {
-		t.Fatalf("Want p1 but got %s\n", mockDecap.event.Project())
+	if mockDecap.event.Project_ != "p1" {
+		t.Fatalf("Want p1 but got %s\n", mockDecap.event.Project_)
 	}
 
 }

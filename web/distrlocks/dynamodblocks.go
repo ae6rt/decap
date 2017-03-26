@@ -43,7 +43,7 @@ func (l DynamoDbLockService) Acquire(lock v1.UserBuildEvent) error {
 		TableName: aws.String("decap-buildlocks"),
 		Item: map[string]*dynamodb.AttributeValue{
 			"lockname": {
-				S: aws.String(lock.Key()),
+				S: aws.String(lock.Lockname()),
 			},
 			"expiresunixtime": {
 				N: aws.String(fmt.Sprintf("%d", time.Now().Add(3*time.Hour).Unix())),
@@ -62,7 +62,7 @@ func (l DynamoDbLockService) Acquire(lock v1.UserBuildEvent) error {
 	}
 
 	if _, err := l.db.PutItem(params); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("%T: Failed to acquire lock %s", err, lock.Key()))
+		return errors.Wrap(err, fmt.Sprintf("%T: Failed to acquire lock %s", err, lock.Lockname()))
 	}
 
 	return nil
@@ -74,13 +74,13 @@ func (l DynamoDbLockService) Release(lock v1.UserBuildEvent) error {
 		TableName: aws.String("decap-buildlocks"),
 		Key: map[string]*dynamodb.AttributeValue{
 			"lockname": {
-				S: aws.String(lock.Key()),
+				S: aws.String(lock.Lockname()),
 			},
 		},
 	}
 
 	if _, err := l.db.DeleteItem(params); err != nil {
-		return errors.Wrap(err, "Failed to release lock "+lock.Key())
+		return errors.Wrap(err, "Failed to release lock "+lock.Lockname())
 	}
 
 	return nil
