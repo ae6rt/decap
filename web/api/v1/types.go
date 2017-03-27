@@ -105,13 +105,13 @@ type UserBuildEvent struct {
 	Meta
 
 	// Team is the github account owner or BitBucket project key.
-	Team_ string `json:"team"`
+	Team string `json:"team"`
 
 	// Project is the git repository basename.
-	Project_ string `json:"project"`
+	Project string `json:"project"`
 
 	// Ref is the branch or tag to be built.
-	Ref_ string `json:"ref"`
+	Ref string `json:"ref"`
 
 	// ID is an opaque build ID assigned when a build is scheduled.
 	ID string `json:"id"`

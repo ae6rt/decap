@@ -13,7 +13,7 @@ func TestMakeBaseContainer(t *testing.T) {
 		AWSRegion:       "us-west-1",
 	}
 
-	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Ref_: "master", ID: "uuid"}
+	buildEvent := v1.UserBuildEvent{Team: "ae6rt", Project: "somelib", Ref: "master", ID: "uuid"}
 
 	baseContainer := builder.makeBaseContainer(
 		buildEvent,

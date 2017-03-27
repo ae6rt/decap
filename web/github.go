@@ -68,9 +68,9 @@ func (event GithubEvent) BuildEvent() v1.UserBuildEvent {
 	}
 
 	return v1.UserBuildEvent{
-		Team_:    event.Repository.Owner.Name,
-		Project_: event.Repository.Name,
-		Ref_:     refType,
+		Team:    event.Repository.Owner.Name,
+		Project: event.Repository.Name,
+		Ref:     refType,
 	}
 }
 

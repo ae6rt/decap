@@ -13,15 +13,15 @@ func TestDefer(t *testing.T) {
 	}{
 		{
 			events: []v1.UserBuildEvent{
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1"},
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1"},
-				v1.UserBuildEvent{Team_: "t2", Project_: "p666"},
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1"},
+				v1.UserBuildEvent{Team: "t2", Project: "p666"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1"},
 			},
 			wantEvents: []v1.UserBuildEvent{
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1"},
-				v1.UserBuildEvent{Team_: "t2", Project_: "p666"},
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1"},
+				v1.UserBuildEvent{Team: "t2", Project: "p666"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1"},
 			},
 		},
 	}
@@ -50,15 +50,15 @@ func TestRemove(t *testing.T) {
 	}{
 		{
 			events: []v1.UserBuildEvent{
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1", ID: "1"},
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1", ID: "2"},
-				v1.UserBuildEvent{Team_: "t2", Project_: "p666", ID: "3"},
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1", ID: "4"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1", ID: "1"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1", ID: "2"},
+				v1.UserBuildEvent{Team: "t2", Project: "p666", ID: "3"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1", ID: "4"},
 			},
 			removeID: "1",
 			wantEvents: []v1.UserBuildEvent{
-				v1.UserBuildEvent{Team_: "t2", Project_: "p666", ID: "3"},
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1", ID: "4"},
+				v1.UserBuildEvent{Team: "t2", Project: "p666", ID: "3"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1", ID: "4"},
 			},
 		},
 	}
@@ -88,15 +88,15 @@ func TestPoll(t *testing.T) {
 	}{
 		{
 			events: []v1.UserBuildEvent{
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1"},
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1"},
-				v1.UserBuildEvent{Team_: "t2", Project_: "p666"},
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1"},
+				v1.UserBuildEvent{Team: "t2", Project: "p666"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1"},
 			},
 			wantEvents: []v1.UserBuildEvent{
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1"},
-				v1.UserBuildEvent{Team_: "t2", Project_: "p666"},
-				v1.UserBuildEvent{Team_: "t1", Project_: "p1"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1"},
+				v1.UserBuildEvent{Team: "t2", Project: "p666"},
+				v1.UserBuildEvent{Team: "t1", Project: "p1"},
 			},
 		},
 	}

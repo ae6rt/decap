@@ -8,7 +8,7 @@ import (
 
 func TestMakeSidecars(t *testing.T) {
 	k8s := DefaultBuilder{}
-	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Ref_: "master", ID: "uuid"}
+	buildEvent := v1.UserBuildEvent{Team: "ae6rt", Project: "somelib", Ref: "master", ID: "uuid"}
 
 	sidecars := k8s.makeSidecarContainers(buildEvent, map[string]v1.Project{
 		"ae6rt/somelib": v1.Project{

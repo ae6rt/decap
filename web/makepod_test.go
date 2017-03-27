@@ -13,7 +13,7 @@ func TestMakePod(t *testing.T) {
 		buildScriptsRepoBranch: "repobranch",
 	}
 
-	buildEvent := v1.UserBuildEvent{Team_: "ae6rt", Project_: "somelib", Ref_: "master", ID: "uuid"}
+	buildEvent := v1.UserBuildEvent{Team: "ae6rt", Project: "somelib", Ref: "master", ID: "uuid"}
 
 	projectMap := map[string]v1.Project{
 		"ae6rt/somelib": v1.Project{

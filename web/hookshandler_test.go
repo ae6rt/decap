@@ -125,11 +125,11 @@ func TestHooksHandlerGithub(t *testing.T) {
 	// Wait for goroutine to run. Yuck.
 	time.Sleep(1000 * time.Millisecond)
 
-	if mockDecap.event.Team_ != "ae6rt" {
-		t.Fatalf("Want ae6rt but got %s\n", mockDecap.event.Team_)
+	if mockDecap.event.Team != "ae6rt" {
+		t.Fatalf("Want ae6rt but got %s\n", mockDecap.event.Team)
 	}
-	if mockDecap.event.Project_ != "dynamodb-lab" {
-		t.Fatalf("Want dynamodb-lab but got %s\n", mockDecap.event.Project_)
+	if mockDecap.event.Project != "dynamodb-lab" {
+		t.Fatalf("Want dynamodb-lab but got %s\n", mockDecap.event.Project)
 	}
 }
 

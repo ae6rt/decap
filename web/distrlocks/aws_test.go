@@ -42,7 +42,7 @@ func (t *releaseMock) DeleteItem(i *dynamodb.DeleteItemInput) (*dynamodb.DeleteI
 func TestCreateLock(t *testing.T) {
 	dbMock := &acquireMock{}
 	lockService := NewDynamoDbLockService(dbMock)
-	event := v1.UserBuildEvent{Team_: "proj", Project_: "code", Ref_: "feature/foo"}
+	event := v1.UserBuildEvent{Team: "proj", Project: "code", Ref: "feature/foo"}
 
 	if err := lockService.Acquire(event); err != nil {
 		t.Errorf("%v\n", err)
@@ -60,7 +60,7 @@ func TestCreateLock(t *testing.T) {
 func TestReleaseLock(t *testing.T) {
 	dbMock := &releaseMock{}
 	lockService := NewDynamoDbLockService(dbMock)
-	event := v1.UserBuildEvent{Team_: "proj", Project_: "code", Ref_: "feature/foo"}
+	event := v1.UserBuildEvent{Team: "proj", Project: "code", Ref: "feature/foo"}
 
 	if err := lockService.Release(event); err != nil {
 		t.Errorf("%v\n", err)

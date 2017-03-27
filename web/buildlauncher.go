@@ -86,7 +86,7 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, pr
 			},
 			k8stypes.EnvVar{
 				Name:  "BRANCH_TO_BUILD",
-				Value: buildEvent.Ref_,
+				Value: buildEvent.Ref,
 			},
 			k8stypes.EnvVar{
 				Name:  "BUILD_LOCK_KEY",
@@ -135,8 +135,8 @@ func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, bra
 			Namespace: "decap",
 			Labels: map[string]string{
 				"type":     "decap-build",
-				"team":     buildEvent.Team_,
-				"project":  buildEvent.Project_,
+				"team":     buildEvent.Team,
+				"project":  buildEvent.Project,
 				"branch":   branch,
 				"lockname": buildEvent.Lockname(),
 			},
@@ -191,9 +191,9 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	projects := getProjects()
 	project := projects[projectKey]
 
-	if !project.Descriptor.IsRefManaged(buildEvent.Ref_) {
+	if !project.Descriptor.IsRefManaged(buildEvent.Ref) {
 		if <-getLogLevelChan == LogDebug {
-			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref_, projectKey)
+			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref, projectKey)
 		}
 		return nil
 	}
@@ -201,7 +201,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	buildEvent.ID = uuid.Uuid()
 	containers := builder.makeContainers(buildEvent, projects)
 
-	pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref_, containers)
+	pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref, containers)
 
 	podBytes, err := json.Marshal(&pod)
 	if err != nil {
@@ -209,22 +209,22 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	}
 
 	if err := builder.LockService.Acquire(buildEvent); err != nil {
-		Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref_, err)
+		Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref, err)
 		if err := builder.DeferralService.Defer(buildEvent); err != nil {
-			Log.Printf("Failed to defer build: %s/%s\n", projectKey, buildEvent.Ref_)
+			Log.Printf("Failed to defer build: %s/%s\n", projectKey, buildEvent.Ref)
 		} else {
-			Log.Printf("Deferred build: %s/%s\n", projectKey, buildEvent.Ref_)
+			Log.Printf("Deferred build: %s/%s\n", projectKey, buildEvent.Ref)
 		}
 		return nil
 	}
 
 	if <-getLogLevelChan == LogDebug {
-		Log.Printf("Acquired lock on build %s for project %s, branch %s\n", buildEvent.ID, projectKey, buildEvent.Ref_)
+		Log.Printf("Acquired lock on build %s for project %s, branch %s\n", buildEvent.ID, projectKey, buildEvent.Ref)
 	}
 
 	if err := builder.CreatePod(podBytes); err != nil {
 		if err := builder.LockService.Release(buildEvent); err != nil {
-			Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref_)
+			Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref)
 			return nil
 		}
 	}

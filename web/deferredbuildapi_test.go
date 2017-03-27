@@ -24,7 +24,7 @@ func (t DeferredBuildsMock) List() ([]v1.UserBuildEvent, error) {
 func TestGetDeferredBuilds(t *testing.T) {
 
 	deferrals := []v1.UserBuildEvent{
-		v1.UserBuildEvent{Team_: "t1", Project_: "p1", Ref_: "master"},
+		v1.UserBuildEvent{Team: "t1", Project: "p1", Ref: "master"},
 	}
 
 	w := httptest.NewRecorder()

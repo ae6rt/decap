@@ -85,7 +85,7 @@ func (handler StashHandler) handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, v := range event.Refs() {
-		u := v1.UserBuildEvent{Team_: event.Team(), Project_: event.Project(), Ref_: v}
+		u := v1.UserBuildEvent{Team: event.Team(), Project: event.Project(), Ref: v}
 		go func() {
 			if err := handler.decap.LaunchBuild(u); err != nil {
 				Log.Printf("Cannot launch build for event %+v: %v\n", event, err)

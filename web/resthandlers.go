@@ -159,7 +159,7 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 		}
 
 		for _, b := range branches {
-			event := v1.UserBuildEvent{Team_: team, Project_: project, Ref_: b}
+			event := v1.UserBuildEvent{Team: team, Project: project, Ref: b}
 			go func() {
 				_ = decap.LaunchBuild(event)
 			}()
