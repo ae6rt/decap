@@ -1,4 +1,4 @@
-package distrlocks
+package lock
 
 import "github.com/ae6rt/decap/web/api/v1"
 

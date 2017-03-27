@@ -15,15 +15,15 @@ import (
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/deferrals"
-	"github.com/ae6rt/decap/web/distrlocks"
 	"github.com/ae6rt/decap/web/k8stypes"
+	"github.com/ae6rt/decap/web/lock"
 	"github.com/ae6rt/decap/web/uuid"
 	"github.com/gorilla/websocket"
 )
 
 // NewBuilder is the constructor for a new default Builder instance.
 func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion string, buildScriptsRepo, buildScriptsRepoBranch string,
-	distributedLocker distrlocks.DistributedLockService, deferralService deferrals.DeferralService, logger *log.Logger) Builder {
+	distributedLocker lock.DistributedLockService, deferralService deferrals.DeferralService, logger *log.Logger) Builder {
 
 	tlsConfig := tls.Config{}
 	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")

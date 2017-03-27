@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/ae6rt/decap/web/deferrals"
-	"github.com/ae6rt/decap/web/distrlocks"
+	"github.com/ae6rt/decap/web/lock"
 	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/julienschmidt/httprouter"
 )
@@ -52,7 +52,7 @@ func main() {
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 
-	lockService, err := distrlocks.NewDefaultLockService()
+	lockService, err := lock.NewDefaultLockService()
 	if err != nil {
 		Log.Fatalf("Cannot create default lock service: %v\n", err)
 	}

@@ -8,7 +8,7 @@ import (
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/deferrals"
-	"github.com/ae6rt/decap/web/distrlocks"
+	"github.com/ae6rt/decap/web/lock"
 )
 
 // DefaultBuilder models the main interface between Decap and Kubernetes.  This is the location where creating and deleting pods
@@ -20,7 +20,7 @@ type DefaultBuilder struct {
 	AWSAccessKeyID  string
 	AWSAccessSecret string
 	AWSRegion       string
-	LockService     distrlocks.DistributedLockService
+	LockService     lock.DistributedLockService
 	DeferralService deferrals.DeferralService
 	apiToken        string
 	apiClient       *http.Client

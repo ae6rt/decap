@@ -1,4 +1,4 @@
-package distrlocks
+package lock
 
 import (
 	"testing"
