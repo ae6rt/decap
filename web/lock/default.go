@@ -6,7 +6,7 @@ import (
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"k8s.io/client-go/kubernetes"
-	av1 "k8s.io/client-go/pkg/api/v1"
+	k8sapi "k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/rest"
 )
 
@@ -39,7 +39,7 @@ func (t *DefaultLockService) Acquire(obj v1.UserBuildEvent) error {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
-	pods, err := t.clientset.CoreV1().Pods("decap").List(av1.ListOptions{
+	pods, err := t.clientset.CoreV1().Pods("decap").List(k8sapi.ListOptions{
 		LabelSelector: "lockname=" + obj.Lockname(),
 	})
 	if err != nil {
