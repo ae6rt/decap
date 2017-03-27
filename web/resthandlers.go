@@ -20,11 +20,7 @@ func toUint64(value string, dflt uint64) (uint64, error) {
 	if value == "" {
 		return dflt, nil
 	}
-	if i, err := strconv.ParseUint(value, 10, 64); err != nil {
-		return 0, err
-	} else {
-		return i, nil
-	}
+	return strconv.ParseUint(value, 10, 64)
 }
 
 // VersionHandler returns the decap server information.
@@ -169,12 +165,6 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 			}()
 		}
 	}
-}
-
-func simpleError(err error) []byte {
-	m := v1.Meta{Error: err.Error()}
-	data, _ := json.Marshal(&m)
-	return data
 }
 
 // HooksHandler handles externally originated SCM events that trigger builds.
@@ -401,6 +391,7 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 	}
 }
 
+// BuildsHandler handles requests for historical build info.
 func BuildsHandler(storageService StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
@@ -500,4 +491,10 @@ func LogLevelHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 		w.WriteHeader(200)
 		return
 	}
+}
+
+func simpleError(err error) []byte {
+	m := v1.Meta{Error: err.Error()}
+	data, _ := json.Marshal(&m)
+	return data
 }

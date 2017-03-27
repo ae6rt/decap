@@ -59,7 +59,13 @@ func main() {
 
 	deferralService := deferrals.NewInMemoryDeferralService(Log)
 
-	buildLauncher := NewBuilder(*apiServerBaseURL, *apiServerUser, *apiServerPassword, *awsKey, *awsSecret, *awsRegion, *buildScriptsRepo, *buildScriptsRepoBranch, lockService, deferralService, Log)
+	buildLauncher := NewBuilder(
+		*apiServerBaseURL, *apiServerUser, *apiServerPassword,
+		*awsKey, *awsSecret, *awsRegion,
+		*buildScriptsRepo, *buildScriptsRepoBranch,
+		lockService, deferralService, Log,
+	)
+
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
