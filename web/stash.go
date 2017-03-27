@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -55,11 +54,6 @@ func (stash StashEvent) Refs() []string {
 		branches = append(branches, strings.ToLower(strings.Replace(v.RefID, "refs/heads/", "", -1)))
 	}
 	return branches
-}
-
-// Hash returns a hash key for a project for use in identifying unique deferred builds.
-func (stash StashEvent) Hash() string {
-	return fmt.Sprintf("%s/%s", stash.Key(), strings.Join(stash.Refs(), "/"))
 }
 
 // StashHandler handles launching a build for Stash post commit hook events.

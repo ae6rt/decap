@@ -25,35 +25,6 @@ type GithubOwner struct {
 	Name string `json:"name"`
 }
 
-/*
-// Team returns the Github owner
-func (event GithubEvent) Team() string {
-	return event.Repository.Owner.Name
-}
-
-// Project returns the Github repository name
-func (event GithubEvent) Project() string {
-	return event.Repository.Name
-}
-
-// Key returns the team + project hash map key
-func (event GithubEvent) Key() string {
-	return event.Repository.FullName
-}
-
-// Refs returns the references referenced in a Github push event
-func (event GithubEvent) Ref() string {
-	switch event.RefType {
-	case "branch":
-		return event.Ref
-	case "tag":
-		return ""
-	default:
-		return strings.ToLower(strings.Replace(event.Ref, "refs/heads/", "", -1))
-	}
-}
-*/
-
 // BuildEvent turns a github event into a generic build event.
 func (event GithubEvent) BuildEvent() v1.UserBuildEvent {
 	var refType string
@@ -72,10 +43,4 @@ func (event GithubEvent) BuildEvent() v1.UserBuildEvent {
 		Project: event.Repository.Name,
 		Ref:     refType,
 	}
-}
-
-// TODO No recollection of why this is needed.  msp march 2017:  Hash is a simple hash function formed from the team name, project name, and references refs.
-func (event GithubEvent) Hash() string {
-	//	return fmt.Sprintf("%s/%s", event.Key(), strings.Join(event.Ref(), "/"))
-	return "" // ??  best to break it to understand what it does
 }
