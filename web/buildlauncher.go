@@ -13,9 +13,11 @@ import (
 	"encoding/json"
 	"net/url"
 
+	"k8s.io/client-go/pkg/api/unversioned"
+	k8sapi "k8s.io/client-go/pkg/api/v1"
+
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/deferrals"
-	"github.com/ae6rt/decap/web/k8stypes"
 	"github.com/ae6rt/decap/web/lock"
 	"github.com/ae6rt/decap/web/uuid"
 	"github.com/gorilla/websocket"
@@ -60,47 +62,47 @@ func NewBuilder(apiServerURL, username, password, awsKey, awsSecret, awsRegion s
 	}
 }
 
-func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) k8stypes.Container {
+func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) k8sapi.Container {
 	projectKey := buildEvent.ProjectKey()
-	return k8stypes.Container{
+	return k8sapi.Container{
 		Name:  "build-server",
 		Image: projects[projectKey].Descriptor.Image,
-		VolumeMounts: []k8stypes.VolumeMount{
-			k8stypes.VolumeMount{
+		VolumeMounts: []k8sapi.VolumeMount{
+			k8sapi.VolumeMount{
 				Name:      "build-scripts",
 				MountPath: "/home/decap/buildscripts",
 			},
-			k8stypes.VolumeMount{
+			k8sapi.VolumeMount{
 				Name:      "decap-credentials",
 				MountPath: "/etc/secrets",
 			},
 		},
-		Env: []k8stypes.EnvVar{
-			k8stypes.EnvVar{
+		Env: []k8sapi.EnvVar{
+			k8sapi.EnvVar{
 				Name:  "BUILD_ID",
 				Value: buildEvent.ID,
 			},
-			k8stypes.EnvVar{
+			k8sapi.EnvVar{
 				Name:  "PROJECT_KEY",
 				Value: projectKey,
 			},
-			k8stypes.EnvVar{
+			k8sapi.EnvVar{
 				Name:  "BRANCH_TO_BUILD",
 				Value: buildEvent.Ref,
 			},
-			k8stypes.EnvVar{
+			k8sapi.EnvVar{
 				Name:  "BUILD_LOCK_KEY",
 				Value: buildEvent.Lockname(),
 			},
-			k8stypes.EnvVar{
+			k8sapi.EnvVar{
 				Name:  "AWS_ACCESS_KEY_ID",
 				Value: builder.AWSAccessKeyID,
 			},
-			k8stypes.EnvVar{
+			k8sapi.EnvVar{
 				Name:  "AWS_SECRET_ACCESS_KEY",
 				Value: builder.AWSAccessSecret,
 			},
-			k8stypes.EnvVar{
+			k8sapi.EnvVar{
 				Name:  "AWS_DEFAULT_REGION",
 				Value: builder.AWSRegion,
 			},
@@ -108,12 +110,12 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, pr
 	}
 }
 
-func (builder DefaultBuilder) makeSidecarContainers(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) []k8stypes.Container {
+func (builder DefaultBuilder) makeSidecarContainers(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) []k8sapi.Container {
 	projectKey := buildEvent.ProjectKey()
-	arr := make([]k8stypes.Container, len(projects[projectKey].Sidecars))
+	arr := make([]k8sapi.Container, len(projects[projectKey].Sidecars))
 
 	for i, v := range projects[projectKey].Sidecars {
-		var c k8stypes.Container
+		var c k8sapi.Container
 		err := json.Unmarshal([]byte(v), &c)
 		if err != nil {
 			Log.Println(err)
@@ -124,13 +126,13 @@ func (builder DefaultBuilder) makeSidecarContainers(buildEvent v1.UserBuildEvent
 	return arr
 }
 
-func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, branch string, containers []k8stypes.Container) k8stypes.Pod {
-	return k8stypes.Pod{
-		TypeMeta: k8stypes.TypeMeta{
+func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, branch string, containers []k8sapi.Container) k8sapi.Pod {
+	return k8sapi.Pod{
+		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Pod",
 			APIVersion: "v1",
 		},
-		ObjectMeta: k8stypes.ObjectMeta{
+		ObjectMeta: k8sapi.ObjectMeta{
 			Name:      buildID,
 			Namespace: "decap",
 			Labels: map[string]string{
@@ -141,21 +143,21 @@ func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, bra
 				"lockname": buildEvent.Lockname(),
 			},
 		},
-		Spec: k8stypes.PodSpec{
-			Volumes: []k8stypes.Volume{
-				k8stypes.Volume{
+		Spec: k8sapi.PodSpec{
+			Volumes: []k8sapi.Volume{
+				k8sapi.Volume{
 					Name: "build-scripts",
-					VolumeSource: k8stypes.VolumeSource{
-						GitRepo: &k8stypes.GitRepoVolumeSource{
+					VolumeSource: k8sapi.VolumeSource{
+						GitRepo: &k8sapi.GitRepoVolumeSource{
 							Repository: builder.buildScriptsRepo,
 							Revision:   builder.buildScriptsRepoBranch,
 						},
 					},
 				},
-				k8stypes.Volume{
+				k8sapi.Volume{
 					Name: "decap-credentials",
-					VolumeSource: k8stypes.VolumeSource{
-						Secret: &k8stypes.SecretVolumeSource{
+					VolumeSource: k8sapi.VolumeSource{
+						Secret: &k8sapi.SecretVolumeSource{
 							SecretName: "decap-credentials",
 						},
 					},
@@ -167,11 +169,11 @@ func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, bra
 	}
 }
 
-func (builder DefaultBuilder) makeContainers(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) []k8stypes.Container {
+func (builder DefaultBuilder) makeContainers(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) []k8sapi.Container {
 	baseContainer := builder.makeBaseContainer(buildEvent, projects)
 	sidecars := builder.makeSidecarContainers(buildEvent, projects)
 
-	var containers []k8stypes.Container
+	var containers []k8sapi.Container
 	containers = append(containers, baseContainer)
 	containers = append(containers, sidecars...)
 	return containers
@@ -343,9 +345,9 @@ func (builder DefaultBuilder) PodWatcher() {
 
 	type PodWatch struct {
 		Object struct {
-			Meta       k8stypes.TypeMeta   `json:",inline"`
-			ObjectMeta k8stypes.ObjectMeta `json:"metadata,omitempty"`
-			Status     k8stypes.PodStatus  `json:"status"`
+			Meta       unversioned.TypeMeta `json:",inline"`
+			ObjectMeta k8sapi.ObjectMeta    `json:"metadata,omitempty"`
+			Status     k8sapi.PodStatus     `json:"status"`
 		} `json:"object"`
 	}
 
