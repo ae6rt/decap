@@ -24,9 +24,10 @@ test: lint
 osx: test
 	CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
 
-binaries: test 
+binaries: test
+	mkdir -p build/dist/linux
 	CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
-	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-linux-$(ARCH) 
+	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o build/dist/linux/$(NAME)
 
 container: binaries
 	docker build -t $(IMAGE) .
