@@ -30,7 +30,7 @@ func TestGetDeferredBuilds(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "http://example.com/deferred", nil)
 
-	builder := DefaultBuilder{DeferralService: DeferredBuildsMock{list: deferrals}}
+	builder := DefaultBuilder{deferralService: DeferredBuildsMock{list: deferrals}}
 	DeferredBuildsHandler(&builder)(w, req, []httprouter.Param{})
 	if w.Code != 200 {
 		t.Fatalf("Want 200 but got %d\n", w.Code)

@@ -8,9 +8,9 @@ import (
 
 func TestMakeBaseContainer(t *testing.T) {
 	builder := DefaultBuilder{
-		AWSAccessKeyID:  "key",
-		AWSAccessSecret: "sekrit",
-		AWSRegion:       "us-west-1",
+		awsAccessKeyID:  "key",
+		awsAccessSecret: "sekrit",
+		awsRegion:       "us-west-1",
 	}
 
 	buildEvent := v1.UserBuildEvent{Team: "ae6rt", Project: "somelib", Ref: "master", ID: "uuid"}

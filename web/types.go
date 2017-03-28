@@ -14,14 +14,14 @@ import (
 // DefaultBuilder models the main interface between Decap and Kubernetes.  This is the location where creating and deleting pods
 // and locking or deferring builds takes place.
 type DefaultBuilder struct {
-	MasterURL       string
-	UserName        string
-	Password        string
-	AWSAccessKeyID  string
-	AWSAccessSecret string
-	AWSRegion       string
-	LockService     lock.DistributedLockService
-	DeferralService deferrals.DeferralService
+	masterURL       string
+	masterUsername  string
+	masterPassword  string
+	awsAccessKeyID  string
+	awsAccessSecret string
+	awsRegion       string
+	lockService     lock.DistributedLockService
+	deferralService deferrals.DeferralService
 	apiToken        string
 	apiClient       *http.Client
 
