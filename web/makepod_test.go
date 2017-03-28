@@ -3,8 +3,9 @@ package main
 import (
 	"testing"
 
+	k8sapi "k8s.io/client-go/pkg/api/v1"
+
 	"github.com/ae6rt/decap/web/api/v1"
-	"github.com/ae6rt/decap/web/k8stypes"
 )
 
 func TestMakePod(t *testing.T) {
@@ -52,7 +53,7 @@ func TestMakePod(t *testing.T) {
 	baseContainer := builder.makeBaseContainer(buildEvent, projectMap)
 	sidecars := builder.makeSidecarContainers(buildEvent, projectMap)
 
-	var arr []k8stypes.Container
+	var arr []k8sapi.Container
 	arr = append(arr, baseContainer)
 	arr = append(arr, sidecars...)
 
