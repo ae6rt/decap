@@ -29,7 +29,7 @@ func TestCreatePod(t *testing.T) {
 	}))
 	defer testServer.Close()
 
-	builder := NewBuilder("repo", "repobranch", MockDistributedLocker{}, MockDeferralService{}, &kubernetes.Clientset{}, nil)
+	builder := NewBuildLauncher("repo", "repobranch", MockDistributedLocker{}, MockDeferralService{}, &kubernetes.Clientset{}, nil)
 
 	// TODO cannot call this until the k8s client is mocked
 	if false {

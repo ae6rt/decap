@@ -66,3 +66,7 @@ type Builder interface {
 	DeferredBuilds() ([]v1.UserBuildEvent, error)
 	PodWatcher()
 }
+
+// ClusterService models the Kubernetes client interface
+type ClusterService interface {
+}

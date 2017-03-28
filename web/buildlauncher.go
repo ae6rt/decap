@@ -22,8 +22,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// NewBuilder is the constructor for a new default Builder instance.
-func NewBuilder(buildScriptsRepo, buildScriptsRepoBranch string,
+// NewBuildLauncher is the constructor for a new default Builder instance.
+func NewBuildLauncher(buildScriptsRepo, buildScriptsRepoBranch string,
 	distributedLocker lock.DistributedLockService,
 	deferralService deferrals.DeferralService,
 	clientset *kubernetes.Clientset,
@@ -105,6 +105,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 }
 
 // CreatePod creates a pod in the Kubernetes cluster
+// TODO: this build-job pod will fail to run if the AWS creds are not injected as Secrets.  They had been in env vars.
 func (builder DefaultBuilder) CreatePod(pod *k8sapi.Pod) error {
 	_, err := builder.clientset.CoreV1().Pods("decap").Create(pod)
 	return err

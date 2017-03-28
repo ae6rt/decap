@@ -7,9 +7,6 @@ import (
 	"os"
 	"time"
 
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/lock"
 	"github.com/ae6rt/decap/web/scmclients"
@@ -57,21 +54,17 @@ func main() {
 
 	deferralService := deferrals.NewInMemoryDeferralService(Log)
 
-	// TODO sense in-cluster vs out-cluster
-	config, err := rest.InClusterConfig()
+	k8sClient, err := NewKubernetesClient()
 	if err != nil {
-		Log.Fatalf("Cannot create kubernetes client: %v\n", err)
-	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		Log.Fatalf("Cannot create kubernetes client: %v\n", err)
+		Log.Fatalf("Cannot create Kubernetes client: %v\n", err)
 	}
 
-	lockService := lock.NewDefaultLockService(clientset)
+	lockService := lock.NewDefaultLockService(k8sClient)
 
-	buildLauncher := NewBuilder(*buildScriptsRepo, *buildScriptsRepoBranch, lockService, deferralService, clientset, Log)
+	buildLauncher := NewBuildLauncher(*buildScriptsRepo, *buildScriptsRepoBranch, lockService, deferralService, k8sClient, Log)
 
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
+
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
 	}
