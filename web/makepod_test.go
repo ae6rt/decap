@@ -57,7 +57,7 @@ func TestMakePod(t *testing.T) {
 	arr = append(arr, baseContainer)
 	arr = append(arr, sidecars...)
 
-	pod := builder.makePod(buildEvent, "uuid", "master", arr)
+	pod := builder.makePod(buildEvent, arr)
 
 	if pod.ObjectMeta.Name != "uuid" {
 		t.Fatalf("Want uuid but got %v\n", pod.ObjectMeta.Name)

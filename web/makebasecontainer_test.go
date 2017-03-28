@@ -54,7 +54,7 @@ func TestMakeBaseContainer(t *testing.T) {
 		t.Fatalf("Want /etc/secrets but got %s\n", baseContainer.VolumeMounts[i].MountPath)
 	}
 
-	if len(baseContainer.Env) != 7 {
+	if len(baseContainer.Env) != 4 {
 		t.Fatalf("Want 7 but got %v\n", len(baseContainer.Env))
 	}
 
@@ -88,29 +88,5 @@ func TestMakeBaseContainer(t *testing.T) {
 	}
 	if baseContainer.Env[i].Value != "ae6rt/somelib/master" {
 		t.Fatalf("Want opaquekey but got %v\n", baseContainer.Env[i].Value)
-	}
-
-	i = i + 1
-	if baseContainer.Env[i].Name != "AWS_ACCESS_KEY_ID" {
-		t.Fatalf("Want AWS_ACCESS_KEY_ID but got %v\n", baseContainer.Env[i].Name)
-	}
-	if baseContainer.Env[i].Value != "key" {
-		t.Fatalf("Want key but got %v\n", baseContainer.Env[i].Value)
-	}
-
-	i = i + 1
-	if baseContainer.Env[i].Name != "AWS_SECRET_ACCESS_KEY" {
-		t.Fatalf("Want AWS_SECRET_ACCESS_KEY but got %v\n", baseContainer.Env[i].Name)
-	}
-	if baseContainer.Env[i].Value != "sekrit" {
-		t.Fatalf("Want sekrit but got %v\n", baseContainer.Env[i].Value)
-	}
-
-	i = i + 1
-	if baseContainer.Env[i].Name != "AWS_DEFAULT_REGION" {
-		t.Fatalf("Want AWS_DEFAULT_REGION but got %v\n", baseContainer.Env[i].Name)
-	}
-	if baseContainer.Env[i].Value != "us-west-1" {
-		t.Fatalf("Want us-west-1 but got %v\n", baseContainer.Env[i].Value)
 	}
 }

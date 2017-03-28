@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	k8sapi "k8s.io/client-go/pkg/api/v1"
 )
 
 type MockBuilder struct {
@@ -32,7 +33,7 @@ func (d *MockBuilder) DeferredBuilds() ([]v1.UserBuildEvent, error) {
 	return d.deferred, nil
 }
 
-func (d *MockBuilder) CreatePod(data []byte) error {
+func (d *MockBuilder) CreatePod(pod *k8sapi.Pod) error {
 	return nil
 }
 

@@ -4,6 +4,10 @@ set -ux
 
 env | sort
 
+readonly AWS_ACCESS_KEY_ID=$(cat /var/run/kubernetes/secrets/aws-key)
+readonly AWS_SECRET_ACCESS_KEY=$(cat /var/run/kubernetes/secrets/aws-secret)
+readonly AWS_DEFAULT_REGION=$(cat /var/run/kubernetes/secrets/aws-region)
+
 if [ $# -eq 0 ]; then
 
    TAR=archive.tar

@@ -69,12 +69,7 @@ func main() {
 
 	lockService := lock.NewDefaultLockService(clientset)
 
-	buildLauncher := NewBuilder(
-		*apiServerBaseURL, *apiServerUser, *apiServerPassword,
-		*awsKey, *awsSecret, *awsRegion,
-		*buildScriptsRepo, *buildScriptsRepoBranch,
-		lockService, deferralService, Log, clientset,
-	)
+	buildLauncher := NewBuilder(*buildScriptsRepo, *buildScriptsRepoBranch, lockService, deferralService, clientset, Log)
 
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 	scmManagers := map[string]scmclients.SCMClient{

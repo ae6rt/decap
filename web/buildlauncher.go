@@ -23,12 +23,11 @@ import (
 )
 
 // NewBuilder is the constructor for a new default Builder instance.
-func NewBuilder(
-	apiServerURL, username, password, awsKey, awsSecret, awsRegion string,
-	buildScriptsRepo, buildScriptsRepoBranch string,
+func NewBuilder(buildScriptsRepo, buildScriptsRepoBranch string,
 	distributedLocker lock.DistributedLockService,
 	deferralService deferrals.DeferralService,
-	logger *log.Logger, clientset *kubernetes.Clientset) Builder {
+	clientset *kubernetes.Clientset,
+	logger *log.Logger) Builder {
 
 	tlsConfig := tls.Config{}
 	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
@@ -42,21 +41,9 @@ func NewBuilder(
 		Log.Println("Kubernetes master secured with TLS")
 	}
 
-	apiClient := &http.Client{Transport: &http.Transport{TLSClientConfig: &tlsConfig}}
-
-	data, _ := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
-
 	return DefaultBuilder{
-		masterURL:              apiServerURL,
-		apiToken:               string(data),
-		masterUsername:         username,
-		masterPassword:         password,
 		lockService:            distributedLocker,
 		deferralService:        deferralService,
-		awsAccessKeyID:         awsKey,
-		awsAccessSecret:        awsSecret,
-		awsRegion:              awsRegion,
-		apiClient:              apiClient,
 		maxPods:                10,
 		buildScriptsRepo:       buildScriptsRepo,
 		buildScriptsRepoBranch: buildScriptsRepoBranch,
@@ -88,9 +75,6 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	}
 
 	buildEvent.ID = uuid.Uuid()
-	containers := builder.makeContainers(buildEvent, projects)
-
-	//pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref, containers)
 
 	if err := builder.lockService.Acquire(buildEvent); err != nil {
 		Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref, err)
@@ -106,7 +90,8 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 		Log.Printf("Acquired lock on build %s for project %s, branch %s\n", buildEvent.ID, projectKey, buildEvent.Ref)
 	}
 
-	pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref, containers)
+	containers := builder.makeContainers(buildEvent, projects)
+	pod := builder.makePod(buildEvent, containers)
 	if err := builder.CreatePod(pod); err != nil {
 		if err := builder.lockService.Release(buildEvent); err != nil {
 			Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref)
@@ -291,18 +276,6 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, pr
 				Name:  "BUILD_LOCK_KEY",
 				Value: buildEvent.Lockname(),
 			},
-			k8sapi.EnvVar{
-				Name:  "AWS_ACCESS_KEY_ID",
-				Value: builder.awsAccessKeyID,
-			},
-			k8sapi.EnvVar{
-				Name:  "AWS_SECRET_ACCESS_KEY",
-				Value: builder.awsAccessSecret,
-			},
-			k8sapi.EnvVar{
-				Name:  "AWS_DEFAULT_REGION",
-				Value: builder.awsRegion,
-			},
 		},
 	}
 }
@@ -323,20 +296,20 @@ func (builder DefaultBuilder) makeSidecarContainers(buildEvent v1.UserBuildEvent
 	return arr
 }
 
-func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, branch string, containers []k8sapi.Container) *k8sapi.Pod {
+func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, containers []k8sapi.Container) *k8sapi.Pod {
 	return &k8sapi.Pod{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Pod",
 			APIVersion: "v1",
 		},
 		ObjectMeta: k8sapi.ObjectMeta{
-			Name:      buildID,
+			Name:      buildEvent.ID,
 			Namespace: "decap",
 			Labels: map[string]string{
 				"type":     "decap-build",
 				"team":     buildEvent.Team,
 				"project":  buildEvent.Project,
-				"branch":   branch,
+				"branch":   buildEvent.Ref,
 				"lockname": buildEvent.Lockname(),
 			},
 		},
