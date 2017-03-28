@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"crypto/tls"
 	"crypto/x509"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,6 +11,7 @@ import (
 	"encoding/json"
 	"net/url"
 
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api/unversioned"
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 
@@ -29,7 +28,7 @@ func NewBuilder(
 	buildScriptsRepo, buildScriptsRepoBranch string,
 	distributedLocker lock.DistributedLockService,
 	deferralService deferrals.DeferralService,
-	logger *log.Logger) Builder {
+	logger *log.Logger, clientset *kubernetes.Clientset) Builder {
 
 	tlsConfig := tls.Config{}
 	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
@@ -63,6 +62,7 @@ func NewBuilder(
 		buildScriptsRepoBranch: buildScriptsRepoBranch,
 		tlsConfig:              &tlsConfig,
 		logger:                 logger,
+		clientset:              clientset,
 	}
 }
 
@@ -90,12 +90,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	buildEvent.ID = uuid.Uuid()
 	containers := builder.makeContainers(buildEvent, projects)
 
-	pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref, containers)
-
-	podBytes, err := json.Marshal(&pod)
-	if err != nil {
-		return err
-	}
+	//pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref, containers)
 
 	if err := builder.lockService.Acquire(buildEvent); err != nil {
 		Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref, err)
@@ -111,7 +106,8 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 		Log.Printf("Acquired lock on build %s for project %s, branch %s\n", buildEvent.ID, projectKey, buildEvent.Ref)
 	}
 
-	if err := builder.CreatePod(podBytes); err != nil {
+	pod := builder.makePod(buildEvent, buildEvent.ID, buildEvent.Ref, containers)
+	if err := builder.CreatePod(pod); err != nil {
 		if err := builder.lockService.Release(buildEvent); err != nil {
 			Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref)
 			return nil
@@ -124,70 +120,15 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 }
 
 // CreatePod creates a pod in the Kubernetes cluster
-func (builder DefaultBuilder) CreatePod(pod []byte) error {
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/namespaces/decap/pods", builder.masterURL), bytes.NewReader(pod))
-	if err != nil {
-		Log.Println(err)
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	if builder.apiToken != "" {
-		req.Header.Set("Authorization", "Bearer "+builder.apiToken)
-	} else {
-		req.SetBasicAuth(builder.masterUsername, builder.masterPassword)
-	}
-
-	resp, err := builder.apiClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-
-	if resp.StatusCode != 201 {
-		if data, err := ioutil.ReadAll(resp.Body); err != nil {
-			Log.Printf("Error reading non-201 response body: %v\n", err)
-			return err
-		} else {
-			Log.Printf("%s\n", string(data))
-			return nil
-		}
-	}
-	return nil
+func (builder DefaultBuilder) CreatePod(pod *k8sapi.Pod) error {
+	_, err := builder.clientset.CoreV1().Pods("decap").Create(pod)
+	return err
 }
 
 // DeletePod removes the Pod from the Kubernetes cluster
 func (builder DefaultBuilder) DeletePod(podName string) error {
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/namespaces/decap/pods/%s", builder.masterURL, podName), nil)
-	if err != nil {
-		Log.Println(err)
-		return err
-	}
-	if builder.apiToken != "" {
-		req.Header.Set("Authorization", "Bearer "+builder.apiToken)
-	} else {
-		req.SetBasicAuth(builder.masterUsername, builder.masterPassword)
-	}
-
-	resp, err := builder.apiClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-
-	if resp.StatusCode != 200 {
-		data, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			Log.Printf("Error reading non-200 response body: %v\n", err)
-			return err
-		}
-		Log.Printf("%s\n", string(data))
-		return nil
-	}
-	return nil
+	err := builder.clientset.CoreV1().Pods("decap").Delete(podName, &k8sapi.DeleteOptions{})
+	return err
 }
 
 // Podwatcher watches the k8s master API for pod events.
@@ -382,8 +323,8 @@ func (builder DefaultBuilder) makeSidecarContainers(buildEvent v1.UserBuildEvent
 	return arr
 }
 
-func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, branch string, containers []k8sapi.Container) k8sapi.Pod {
-	return k8sapi.Pod{
+func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, buildID, branch string, containers []k8sapi.Container) *k8sapi.Pod {
+	return &k8sapi.Pod{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Pod",
 			APIVersion: "v1",

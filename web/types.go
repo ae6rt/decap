@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"time"
 
+	"k8s.io/client-go/kubernetes"
+	k8sapi "k8s.io/client-go/pkg/api/v1"
+
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/lock"
@@ -33,6 +36,8 @@ type DefaultBuilder struct {
 	tlsConfig *tls.Config
 
 	logger *log.Logger
+
+	clientset *kubernetes.Clientset
 }
 
 // RepoManagerCredential models the username and password for supported source code repository managers, such as Github or Atlassian Stash.
@@ -53,7 +58,7 @@ type StorageService interface {
 // Builder models the interaction between Decap and Kubernetes and the locking service that locks and defers builds.
 type Builder interface {
 	LaunchBuild(v1.UserBuildEvent) error
-	CreatePod([]byte) error
+	CreatePod(*k8sapi.Pod) error
 	DeletePod(podName string) error
 	DeferBuild(v1.UserBuildEvent) error
 	LaunchDeferred(ticker <-chan time.Time)

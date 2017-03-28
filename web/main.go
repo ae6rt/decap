@@ -7,6 +7,9 @@ import (
 	"os"
 	"time"
 
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/lock"
 	"github.com/ae6rt/decap/web/scmclients"
@@ -52,18 +55,25 @@ func main() {
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 
-	lockService, err := lock.NewDefaultLockService()
+	deferralService := deferrals.NewInMemoryDeferralService(Log)
+
+	// TODO sense in-cluster vs out-cluster
+	config, err := rest.InClusterConfig()
 	if err != nil {
-		Log.Fatalf("Cannot create default lock service: %v\n", err)
+		Log.Fatalf("Cannot create kubernetes client: %v\n", err)
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		Log.Fatalf("Cannot create kubernetes client: %v\n", err)
 	}
 
-	deferralService := deferrals.NewInMemoryDeferralService(Log)
+	lockService := lock.NewDefaultLockService(clientset)
 
 	buildLauncher := NewBuilder(
 		*apiServerBaseURL, *apiServerUser, *apiServerPassword,
 		*awsKey, *awsSecret, *awsRegion,
 		*buildScriptsRepo, *buildScriptsRepoBranch,
-		lockService, deferralService, Log,
+		lockService, deferralService, Log, clientset,
 	)
 
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
