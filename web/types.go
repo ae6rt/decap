@@ -37,7 +37,7 @@ type DefaultBuilder struct {
 
 	logger *log.Logger
 
-	clientset *kubernetes.Clientset
+	k8sClient *kubernetes.Clientset
 }
 
 // RepoManagerCredential models the username and password for supported source code repository managers, such as Github or Atlassian Stash.

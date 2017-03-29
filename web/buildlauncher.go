@@ -1,15 +1,11 @@
 package main
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"time"
 
 	"encoding/json"
-	"net/url"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api/unversioned"
@@ -19,27 +15,14 @@ import (
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/lock"
 	"github.com/ae6rt/decap/web/uuid"
-	"github.com/gorilla/websocket"
 )
 
 // NewBuildLauncher is the constructor for a new default Builder instance.
 func NewBuildLauncher(buildScriptsRepo, buildScriptsRepoBranch string,
 	distributedLocker lock.DistributedLockService,
 	deferralService deferrals.DeferralService,
-	clientset *kubernetes.Clientset,
+	k8sClient *kubernetes.Clientset,
 	logger *log.Logger) Builder {
-
-	tlsConfig := tls.Config{}
-	caCert, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
-	if err != nil {
-		Log.Printf("Skipping Kubernetes master TLS verify: %v\n", err)
-		tlsConfig.InsecureSkipVerify = true
-	} else {
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
-		tlsConfig.RootCAs = caCertPool
-		Log.Println("Kubernetes master secured with TLS")
-	}
 
 	return DefaultBuilder{
 		lockService:            distributedLocker,
@@ -47,9 +30,8 @@ func NewBuildLauncher(buildScriptsRepo, buildScriptsRepoBranch string,
 		maxPods:                10,
 		buildScriptsRepo:       buildScriptsRepo,
 		buildScriptsRepoBranch: buildScriptsRepoBranch,
-		tlsConfig:              &tlsConfig,
 		logger:                 logger,
-		clientset:              clientset,
+		k8sClient:              k8sClient,
 	}
 }
 
@@ -107,91 +89,41 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 // CreatePod creates a pod in the Kubernetes cluster
 // TODO: this build-job pod will fail to run if the AWS creds are not injected as Secrets.  They had been in env vars.
 func (builder DefaultBuilder) CreatePod(pod *k8sapi.Pod) error {
-	_, err := builder.clientset.CoreV1().Pods("decap").Create(pod)
+	_, err := builder.k8sClient.CoreV1().Pods("decap").Create(pod)
 	return err
 }
 
 // DeletePod removes the Pod from the Kubernetes cluster
 func (builder DefaultBuilder) DeletePod(podName string) error {
-	err := builder.clientset.CoreV1().Pods("decap").Delete(podName, &k8sapi.DeleteOptions{})
+	err := builder.k8sClient.CoreV1().Pods("decap").Delete(podName, &k8sapi.DeleteOptions{})
 	return err
 }
 
 // Podwatcher watches the k8s master API for pod events.
 func (builder DefaultBuilder) PodWatcher() {
-	dialer := websocket.DefaultDialer
-	dialer.TLSClientConfig = builder.tlsConfig
-
-	var host string
-	{
-		u, err := url.Parse(builder.masterURL)
-		if err != nil {
-			log.Fatalf("Error parsing master host URL: %s, %s", builder.masterURL, err)
-		}
-		host = u.Host
-	}
-
-	u, err := url.Parse("wss://" + host + "/api/v1/watch/namespaces/decap/pods?watch=true&labelSelector=type=decap-build")
-	if err != nil {
-		log.Fatalf("Error parsing wss:// websocket URL: %s, %s", builder.masterURL, err)
-	}
-
-	var conn *websocket.Conn
 	for {
-		var resp *http.Response
-		var err error
-
-		conn, resp, err = dialer.Dial(u.String(), http.Header{
-			"Origin":        []string{"https://" + u.Host},
-			"Authorization": []string{"Bearer " + builder.apiToken},
+		watched, err := builder.k8sClient.Pods("decap").Watch(k8sapi.ListOptions{
+			LabelSelector: "type=decap-build",
 		})
-
 		if err != nil {
-			log.Printf("websocket dialer error: %+v: %s", resp, err.Error())
-			time.Sleep(5 * time.Second)
-		} else {
-			defer func() {
-				_ = conn.Close()
-			}()
-			break
-		}
-	}
-
-	type PodWatch struct {
-		Object struct {
-			Meta       unversioned.TypeMeta `json:",inline"`
-			ObjectMeta k8sapi.ObjectMeta    `json:"metadata,omitempty"`
-			Status     k8sapi.PodStatus     `json:"status"`
-		} `json:"object"`
-	}
-
-	for {
-		_, msg, err := conn.ReadMessage()
-
-		if err != nil {
-			log.Println("read:", err)
+			Log.Printf("Error watching cluster: %v\n", err)
 			continue
 		}
 
-		var pod PodWatch
-		if err := json.Unmarshal([]byte(msg), &pod); err != nil {
-			Log.Println(err)
-			continue
-		}
-
-		var deletePod bool
-		for _, status := range pod.Object.Status.ContainerStatuses {
-			if status.Name == "build-server" && status.State.Terminated != nil && status.State.Terminated.ContainerID != "" {
-				deletePod = true
-				break
+		events := watched.ResultChan()
+		for event := range events {
+			pod := event.Object.(*k8sapi.Pod)
+			var deletePod bool
+			for _, v := range pod.Status.ContainerStatuses {
+				if v.Name == "build-server" && v.State.Terminated != nil && v.State.Terminated.ContainerID != "" {
+					deletePod = true
+					break
+				}
 			}
-		}
-
-		if deletePod {
-			if err := builder.DeletePod(pod.Object.ObjectMeta.Name); err != nil {
-				Log.Print(err)
-			} else {
-				Log.Printf("Pod deleted: %s\n", pod.Object.ObjectMeta.Name)
+			if deletePod {
+				if err := builder.k8sClient.Pods("decap").Delete(pod.Name, nil); err != nil {
+					Log.Printf("Error deleting build-server pod: %v\n", err)
+				}
 			}
 		}
 	}
