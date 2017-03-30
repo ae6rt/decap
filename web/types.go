@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"k8s.io/client-go/kubernetes"
+	k8s1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 
 	"github.com/ae6rt/decap/web/api/v1"
@@ -37,7 +37,7 @@ type DefaultBuilder struct {
 
 	logger *log.Logger
 
-	k8sClient *kubernetes.Clientset
+	podsGetter k8s1.PodsGetter
 }
 
 // RepoManagerCredential models the username and password for supported source code repository managers, such as Github or Atlassian Stash.

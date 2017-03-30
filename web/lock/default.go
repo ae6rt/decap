@@ -5,20 +5,20 @@ import (
 	"sync"
 
 	"github.com/ae6rt/decap/web/api/v1"
-	"k8s.io/client-go/kubernetes"
+	k8s2 "k8s.io/client-go/kubernetes/typed/core/v1"
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 )
 
 // DefaultLockService queries the k8s master to find out if a pod is building a project+branch.
 type DefaultLockService struct {
-	mutex     sync.Mutex
-	clientset *kubernetes.Clientset
+	mutex      sync.Mutex
+	podsGetter k8s2.PodsGetter
 }
 
 // NewDefaultLockService defines a lock service with an Acquqire method that simply queries
 // k8s master for whether a build is running with the input v1.UserBuildEvent's lockname.
-func NewDefaultLockService(clientset *kubernetes.Clientset) DistributedLockService {
-	return &DefaultLockService{clientset: clientset}
+func NewDefaultLockService(clientset k8s2.PodsGetter) DistributedLockService {
+	return &DefaultLockService{podsGetter: clientset}
 }
 
 // Acquire attempts to acquire a lock on the given object
@@ -26,7 +26,7 @@ func (t *DefaultLockService) Acquire(obj v1.UserBuildEvent) error {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
-	pods, err := t.clientset.CoreV1().Pods("decap").List(k8sapi.ListOptions{
+	pods, err := t.podsGetter.Pods("decap").List(k8sapi.ListOptions{
 		LabelSelector: "lockname=" + obj.Lockname(),
 	})
 	if err != nil {
