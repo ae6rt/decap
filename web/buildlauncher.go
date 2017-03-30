@@ -30,8 +30,8 @@ func NewBuildLauncher(buildScriptsRepo, buildScriptsRepoBranch string,
 		maxPods:                10,
 		buildScriptsRepo:       buildScriptsRepo,
 		buildScriptsRepoBranch: buildScriptsRepoBranch,
-		logger:                 logger,
 		podsGetter:             podsGetter,
+		logger:                 logger,
 	}
 }
 

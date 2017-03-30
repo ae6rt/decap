@@ -70,3 +70,9 @@ type Builder interface {
 // ClusterService models the Kubernetes client interface
 type ClusterService interface {
 }
+
+// BuildScriptsRepo models where the build scripts are held
+type BuildScriptsRepo struct {
+	URL    string
+	Branch string
+}
