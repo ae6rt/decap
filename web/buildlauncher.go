@@ -27,10 +27,10 @@ func NewBuildLauncher(buildScriptsRepo, buildScriptsRepoBranch string,
 	return DefaultBuilder{
 		lockService:            distributedLocker,
 		deferralService:        deferralService,
-		maxPods:                10,
 		buildScriptsRepo:       buildScriptsRepo,
 		buildScriptsRepoBranch: buildScriptsRepoBranch,
 		podsGetter:             podsGetter,
+		maxPods:                10,
 		logger:                 logger,
 	}
 }
