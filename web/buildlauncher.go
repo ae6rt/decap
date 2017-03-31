@@ -18,20 +18,14 @@ import (
 )
 
 // NewBuildLauncher is the constructor for a new default Builder instance.
-func NewBuildLauncher(buildScriptsRepo, buildScriptsRepoBranch string,
-	distributedLocker lock.DistributedLockService,
-	deferralService deferrals.DeferralService,
-	podsGetter k8s2.PodsGetter,
-	logger *log.Logger) Builder {
-
+func NewBuildLauncher(buildScripts BuildScripts, distributedLocker lock.DistributedLockService, deferralService deferrals.DeferralService, podsGetter k8s2.PodsGetter, logger *log.Logger) Builder {
 	return DefaultBuilder{
-		lockService:            distributedLocker,
-		deferralService:        deferralService,
-		buildScriptsRepo:       buildScriptsRepo,
-		buildScriptsRepoBranch: buildScriptsRepoBranch,
-		podsGetter:             podsGetter,
-		maxPods:                10,
-		logger:                 logger,
+		lockService:     distributedLocker,
+		deferralService: deferralService,
+		podsGetter:      podsGetter,
+		buildScripts:    buildScripts,
+		maxPods:         10,
+		logger:          logger,
 	}
 }
 
@@ -252,8 +246,8 @@ func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, containers [
 					Name: "build-scripts",
 					VolumeSource: k8sapi.VolumeSource{
 						GitRepo: &k8sapi.GitRepoVolumeSource{
-							Repository: builder.buildScriptsRepo,
-							Revision:   builder.buildScriptsRepoBranch,
+							Repository: builder.buildScripts.URL,
+							Revision:   builder.buildScripts.Branch,
 						},
 					},
 				},

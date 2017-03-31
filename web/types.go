@@ -1,9 +1,7 @@
 package main
 
 import (
-	"crypto/tls"
 	"log"
-	"net/http"
 	"time"
 
 	k8s1 "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -17,27 +15,12 @@ import (
 // DefaultBuilder models the main interface between Decap and Kubernetes.  This is the location where creating and deleting pods
 // and locking or deferring builds takes place.
 type DefaultBuilder struct {
-	masterURL       string
-	masterUsername  string
-	masterPassword  string
-	awsAccessKeyID  string
-	awsAccessSecret string
-	awsRegion       string
 	lockService     lock.DistributedLockService
 	deferralService deferrals.DeferralService
-	apiToken        string
-	apiClient       *http.Client
-
-	maxPods int
-
-	buildScriptsRepo       string
-	buildScriptsRepoBranch string
-
-	tlsConfig *tls.Config
-
-	logger *log.Logger
-
-	podsGetter k8s1.PodsGetter
+	maxPods         int
+	buildScripts    BuildScripts
+	podsGetter      k8s1.PodsGetter
+	logger          *log.Logger
 }
 
 // RepoManagerCredential models the username and password for supported source code repository managers, such as Github or Atlassian Stash.
@@ -72,7 +55,7 @@ type ClusterService interface {
 }
 
 // BuildScriptsRepo models where the build scripts are held
-type BuildScriptsRepo struct {
+type BuildScripts struct {
 	URL    string
 	Branch string
 }

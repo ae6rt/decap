@@ -61,7 +61,9 @@ func main() {
 
 	lockService := lock.NewDefaultLockService(k8sClient)
 
-	buildLauncher := NewBuildLauncher(*buildScriptsRepo, *buildScriptsRepoBranch, lockService, deferralService, k8sClient, Log)
+	buildScripts := BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepo}
+
+	buildLauncher := NewBuildLauncher(buildScripts, lockService, deferralService, k8sClient, Log)
 
 	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
 
@@ -127,7 +129,6 @@ func main() {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
 
-	// Wrap the deferred launcher like this so we can more easily test LaunchDeferred(c) method.
 	go func() {
 		c := time.Tick(1 * time.Minute)
 		buildLauncher.LaunchDeferred(c)

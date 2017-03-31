@@ -9,10 +9,7 @@ import (
 )
 
 func TestMakePod(t *testing.T) {
-	builder := DefaultBuilder{
-		buildScriptsRepo:       "repo",
-		buildScriptsRepoBranch: "repobranch",
-	}
+	builder := DefaultBuilder{buildScripts: BuildScripts{URL: "repo", Branch: "repobranch"}}
 
 	buildEvent := v1.UserBuildEvent{Team: "ae6rt", Project: "somelib", Ref: "master", ID: "uuid"}
 

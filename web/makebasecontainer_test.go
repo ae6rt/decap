@@ -7,11 +7,7 @@ import (
 )
 
 func TestMakeBaseContainer(t *testing.T) {
-	builder := DefaultBuilder{
-		awsAccessKeyID:  "key",
-		awsAccessSecret: "sekrit",
-		awsRegion:       "us-west-1",
-	}
+	builder := DefaultBuilder{}
 
 	buildEvent := v1.UserBuildEvent{Team: "ae6rt", Project: "somelib", Ref: "master", ID: "uuid"}
 
@@ -55,7 +51,7 @@ func TestMakeBaseContainer(t *testing.T) {
 	}
 
 	if len(baseContainer.Env) != 4 {
-		t.Fatalf("Want 7 but got %v\n", len(baseContainer.Env))
+		t.Fatalf("Want 4 but got %v\n", len(baseContainer.Env))
 	}
 
 	i = 0

@@ -71,6 +71,6 @@ func (t podGetter) Pods(namespace string) k8s2.PodInterface {
 }
 
 func TestK8sMock(t *testing.T) {
-	buildLauncher := NewBuildLauncher("", "", nil, nil, podGetter{}, nil)
+	buildLauncher := NewBuildLauncher(BuildScripts{}, nil, nil, podGetter{}, nil)
 	fmt.Println(buildLauncher)
 }
