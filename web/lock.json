@@ -1,5 +1,5 @@
 {
-    "memo": "56ecc36923df2814bb2214014515e5b0e7e4d1888701fd98a190f5dbc0381eda",
+    "memo": "4eea5da37eeae06977706d902c96ec7a9baa4b69065093ead7bdca44a6f2c1df",
     "projects": [
         {
             "name": "cloud.google.com/go",
@@ -223,9 +223,17 @@
             ]
         },
         {
-            "name": "github.com/gorilla/websocket",
-            "version": "v1.1.0",
-            "revision": "3ab3a8b8831546bd18fd182c20687ca853b2bb13",
+            "name": "github.com/howeyc/gopass",
+            "branch": "master",
+            "revision": "bf9dde6d0d2c004a008c27aaee91170c786f6db8",
+            "packages": [
+                "."
+            ]
+        },
+        {
+            "name": "github.com/imdario/mergo",
+            "version": "0.2.2",
+            "revision": "3e95a51e0639b4cf372f2ccf74c86749d747fbdc",
             "packages": [
                 "."
             ]
@@ -313,6 +321,14 @@
             ]
         },
         {
+            "name": "golang.org/x/crypto",
+            "branch": "master",
+            "revision": "3cb07270c9455e8ad27956a70891c962d121a228",
+            "packages": [
+                "ssh/terminal"
+            ]
+        },
+        {
             "name": "golang.org/x/net",
             "branch": "master",
             "revision": "6c23252515492caf9b228a9d5cabcdbde29f7f82",
@@ -337,6 +353,14 @@
                 "internal",
                 "jws",
                 "jwt"
+            ]
+        },
+        {
+            "name": "golang.org/x/sys",
+            "branch": "master",
+            "revision": "9a7256cb28ed514b4e1e5f68959914c4c28a92e0",
+            "packages": [
+                "unix"
             ]
         },
         {
@@ -493,6 +517,7 @@
                 "pkg/util/errors",
                 "pkg/util/flowcontrol",
                 "pkg/util/framer",
+                "pkg/util/homedir",
                 "pkg/util/integer",
                 "pkg/util/intstr",
                 "pkg/util/json",
@@ -515,7 +540,11 @@
                 "plugin/pkg/client/auth/gcp",
                 "plugin/pkg/client/auth/oidc",
                 "rest",
+                "tools/auth",
+                "tools/clientcmd",
                 "tools/clientcmd/api",
+                "tools/clientcmd/api/latest",
+                "tools/clientcmd/api/v1",
                 "tools/metrics",
                 "transport"
             ]
