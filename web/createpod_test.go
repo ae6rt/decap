@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"k8s.io/client-go/kubernetes"
 )
 
 func TestCreatePod(t *testing.T) {
@@ -29,14 +27,11 @@ func TestCreatePod(t *testing.T) {
 	}))
 	defer testServer.Close()
 
-	builder := NewBuildLauncher(BuildScripts{URL: "repo", Branch: "repobranch"}, MockDistributedLocker{}, MockDeferralService{}, &kubernetes.Clientset{}, nil)
+	builder := NewBuildLauncher(BuildScripts{URL: "repo", Branch: "repobranch"}, MockDistributedLocker{}, MockDeferralService{}, &podGetter{}, nil)
 
-	// TODO cannot call this until the k8s client is mocked
-	if false {
-		err := builder.CreatePod(nil)
-		if err != nil {
-			t.Fatalf("Unexpected error: %v\n", err)
-		}
+	err := builder.CreatePod(nil)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v\n", err)
 	}
 
 }
