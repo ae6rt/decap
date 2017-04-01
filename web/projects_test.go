@@ -17,7 +17,7 @@ func TestAssembleProjects(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proj, err := assembleProjects("file://"+dir, "master")
+	proj, err := assembleProjects(BuildScripts{URL: "file://" + dir, Branch: "master"})
 	_ = os.RemoveAll(dir)
 
 	if err != nil {
@@ -53,7 +53,7 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projects, err := assembleProjects("file://"+dir, "master")
+	projects, err := assembleProjects(BuildScripts{URL: "file://" + dir, Branch: "master"})
 	_ = os.RemoveAll(dir)
 
 	if err != nil {

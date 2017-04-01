@@ -35,7 +35,7 @@ func TestHooksHandlerNoRepoManager(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockDecap := MockBuilder{}
-	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{httprouter.Param{Key: "repomanager", Value: "nosuchmanager"}})
+	HooksHandler(BuildScripts{URL: "file://" + dir, Branch: "master"}, &mockDecap)(w, req, []httprouter.Param{httprouter.Param{Key: "repomanager", Value: "nosuchmanager"}})
 
 	if w.Code != 400 {
 		_ = os.RemoveAll(dir)
@@ -65,7 +65,7 @@ func TestHooksHandlerBuildScripts(t *testing.T) {
 	projectSetChan = make(chan map[string]v1.Project, 1)
 
 	mockDecap := MockBuilder{}
-	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{
+	HooksHandler(BuildScripts{URL: "file://" + dir, Branch: "master"}, &mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "repomanager", Value: "buildscripts"},
 	},
 	)
@@ -112,7 +112,7 @@ func TestHooksHandlerGithub(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockDecap := MockBuilder{}
-	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{
+	HooksHandler(BuildScripts{URL: "file://" + dir, Branch: "master"}, &mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "repomanager", Value: "github"},
 	},
 	)
@@ -168,7 +168,7 @@ func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	mockDecap := MockBuilder{}
-	HooksHandler("file://"+dir, "master", &mockDecap)(w, req, []httprouter.Param{
+	HooksHandler(BuildScripts{URL: "file://" + dir, Branch: "master"}, &mockDecap)(w, req, []httprouter.Param{
 		httprouter.Param{Key: "repomanager", Value: "github"},
 	},
 	)

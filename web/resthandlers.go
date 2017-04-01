@@ -168,7 +168,7 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 }
 
 // HooksHandler handles externally originated SCM events that trigger builds.
-func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) httprouter.Handle {
+func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
 
@@ -192,7 +192,7 @@ func HooksHandler(buildScriptsRepo, buildScriptsBranch string, decap Builder) ht
 
 		switch repoManager {
 		case "buildscripts":
-			if p, err := assembleProjects(buildScriptsRepo, buildScriptsBranch); err != nil {
+			if p, err := assembleProjects(buildScripts); err != nil {
 				w.WriteHeader(500)
 				_, _ = w.Write(simpleError(err))
 			} else {

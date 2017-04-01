@@ -79,21 +79,21 @@ func filesByRegex(root, expression string) ([]string, error) {
 	return files, nil
 }
 
-func assembleProjects(scriptsRepo, scriptsRepoBranch string) (map[string]v1.Project, error) {
+func assembleProjects(buildScripts BuildScripts) (map[string]v1.Project, error) {
 	projects := make(map[string]v1.Project, 0)
 	work := func() error {
 		Log.Printf("Clone build-scripts repository...\n")
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
 		defer func() {
 			if err := os.RemoveAll(cloneDirectory); err != nil {
-				Log.Printf("assembleProjects(%s,%s) error removing clone directory %s: %v\n", scriptsRepo, scriptsRepoBranch, cloneDirectory, err)
+				Log.Printf("assembleProjects(%v) error removing clone directory %s: %v\n", buildScripts, cloneDirectory, err)
 			}
 		}()
 
 		if err != nil {
 			return err
 		}
-		if err := clone(scriptsRepo, scriptsRepoBranch, cloneDirectory, true); err != nil {
+		if err := clone(buildScripts.URL, buildScripts.Branch, cloneDirectory, true); err != nil {
 			return err
 		}
 

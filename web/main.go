@@ -25,8 +25,9 @@ var (
 	buildScriptsRepo       = flag.String("build-scripts-repo", "https://github.com/ae6rt/decap-build-scripts.git", "Git repo where userland build scripts are held.")
 	buildScriptsRepoBranch = flag.String("build-scripts-repo-branch", "master", "Branch or revision to use on git repo where userland build scripts are held.")
 
-	// todo this is a debugging aid and should be handled not so heavy-handed
-	noWebsocket = flag.Bool("no-websocket", false, "Do not start websocket client that watches pods.")
+	// This is a developer-mode flag that allows you to not start the cluster-watcher.  You might want to avoid starting the watcher
+	// because you are smoketesting testing the user-facing REST API, which may not need interaction with the watcher.
+	noPodWatcher = flag.Bool("no-podwatcher", false, "Do not start k8s podwatcher.")
 
 	versionFlag = flag.Bool("version", false, "Print version info and exit.")
 
@@ -122,9 +123,9 @@ func main() {
 	router.POST("/api/v1/loglevel/:level", LogLevelHandler)
 
 	// The interface for external SCM systems to post VCS events through post-commit hooks.
-	router.POST("/hooks/:repomanager", HooksHandler(*buildScriptsRepo, *buildScriptsRepoBranch, buildLauncher))
+	router.POST("/hooks/:repomanager", HooksHandler(buildScripts, buildLauncher))
 
-	projects, err := assembleProjects(*buildScriptsRepo, *buildScriptsRepoBranch)
+	projects, err := assembleProjects(buildScripts)
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
@@ -136,7 +137,7 @@ func main() {
 	go projectMux(projects)
 	go logLevelMux(LogDefault)
 	go shutdownMux(BuildQueueOpen)
-	if !*noWebsocket {
+	if !*noPodWatcher {
 		go buildLauncher.PodWatcher()
 	}
 
