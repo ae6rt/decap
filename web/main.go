@@ -64,9 +64,10 @@ func main() {
 
 	buildScripts := BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepo}
 
-	buildLauncher := NewBuildLauncher(buildScripts, lockService, deferralService, k8sClient, Log)
+	buildLauncher := NewBuildLauncher(k8sClient, buildScripts, lockService, deferralService, Log)
 
-	storageService := NewAWSStorageService(*awsKey, *awsSecret, *awsRegion)
+	awsCredential := AWSCredential{accessKey: *awsKey, accessSecret: *awsSecret, region: *awsRegion}
+	storageService := NewAWSStorageService(awsCredential)
 
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),

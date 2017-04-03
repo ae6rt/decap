@@ -2,14 +2,14 @@ package main
 
 import "github.com/ae6rt/decap/web/api/v1"
 
-type MockDistributedLocker struct {
+type MockLockService struct {
 }
 
-func (t MockDistributedLocker) Acquire(event v1.UserBuildEvent) error {
+func (t MockLockService) Acquire(event v1.UserBuildEvent) error {
 	return nil
 }
 
-func (t MockDistributedLocker) Release(event v1.UserBuildEvent) error {
+func (t MockLockService) Release(event v1.UserBuildEvent) error {
 	return nil
 }
 

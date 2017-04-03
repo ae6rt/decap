@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	k8s1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	k8sv1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 
 	"github.com/ae6rt/decap/web/api/v1"
@@ -15,12 +15,12 @@ import (
 // DefaultBuilder models the main interface between Decap and Kubernetes.  This is the location where creating and deleting pods
 // and locking or deferring builds takes place.
 type DefaultBuilder struct {
-	lockService     lock.DistributedLockService
-	deferralService deferrals.DeferralService
-	maxPods         int
-	buildScripts    BuildScripts
-	podsGetter      k8s1.PodsGetter
-	logger          *log.Logger
+	lockService      lock.DistributedLockService
+	deferralService  deferrals.DeferralService
+	maxPods          int
+	buildScripts     BuildScripts
+	kubernetesClient k8sv1.PodsGetter
+	logger           *log.Logger
 }
 
 // RepoManagerCredential models the username and password for supported source code repository managers, such as Github or Atlassian Stash.
@@ -58,4 +58,17 @@ type ClusterService interface {
 type BuildScripts struct {
 	URL    string
 	Branch string
+}
+
+// KubernetesClient is the subset we need of the full client API
+type KubernetesClient interface {
+	k8sv1.PodsGetter
+	k8sv1.SecretsGetter
+}
+
+// AWSCredentials encapsulates the set of Decap AWS credentials
+type AWSCredential struct {
+	accessKey    string
+	accessSecret string
+	region       string
 }

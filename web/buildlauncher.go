@@ -7,7 +7,6 @@ import (
 
 	"encoding/json"
 
-	k8s2 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/pkg/api/unversioned"
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 
@@ -18,14 +17,20 @@ import (
 )
 
 // NewBuildLauncher is the constructor for a new default Builder instance.
-func NewBuildLauncher(buildScripts BuildScripts, distributedLocker lock.DistributedLockService, deferralService deferrals.DeferralService, podsGetter k8s2.PodsGetter, logger *log.Logger) Builder {
+func NewBuildLauncher(
+	kubernetesClient KubernetesClient,
+	buildScripts BuildScripts,
+	distributedLocker lock.DistributedLockService,
+	deferralService deferrals.DeferralService,
+	logger *log.Logger,
+) Builder {
 	return DefaultBuilder{
-		lockService:     distributedLocker,
-		deferralService: deferralService,
-		podsGetter:      podsGetter,
-		buildScripts:    buildScripts,
-		maxPods:         10,
-		logger:          logger,
+		lockService:      distributedLocker,
+		deferralService:  deferralService,
+		kubernetesClient: kubernetesClient,
+		buildScripts:     buildScripts,
+		maxPods:          10,
+		logger:           logger,
 	}
 }
 
@@ -83,20 +88,20 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 // CreatePod creates a pod in the Kubernetes cluster
 // TODO: this build-job pod will fail to run if the AWS creds are not injected as Secrets.  They had been in env vars.
 func (builder DefaultBuilder) CreatePod(pod *k8sapi.Pod) error {
-	_, err := builder.podsGetter.Pods("decap").Create(pod)
+	_, err := builder.kubernetesClient.Pods("decap").Create(pod)
 	return err
 }
 
 // DeletePod removes the Pod from the Kubernetes cluster
 func (builder DefaultBuilder) DeletePod(podName string) error {
-	err := builder.podsGetter.Pods("decap").Delete(podName, &k8sapi.DeleteOptions{})
+	err := builder.kubernetesClient.Pods("decap").Delete(podName, &k8sapi.DeleteOptions{})
 	return err
 }
 
 // Podwatcher watches the k8s master API for pod events.
 func (builder DefaultBuilder) PodWatcher() {
 	for {
-		watched, err := builder.podsGetter.Pods("decap").Watch(k8sapi.ListOptions{
+		watched, err := builder.kubernetesClient.Pods("decap").Watch(k8sapi.ListOptions{
 			LabelSelector: "type=decap-build",
 		})
 		if err != nil {
@@ -115,7 +120,7 @@ func (builder DefaultBuilder) PodWatcher() {
 				}
 			}
 			if deletePod {
-				if err := builder.podsGetter.Pods("decap").Delete(pod.Name, nil); err != nil {
+				if err := builder.kubernetesClient.Pods("decap").Delete(pod.Name, nil); err != nil {
 					Log.Printf("Error deleting build-server pod: %v\n", err)
 				}
 			}

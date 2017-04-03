@@ -21,8 +21,8 @@ type AWSStorageService struct {
 }
 
 // NewAWSStorageService returns a StorageService implemented on top of AWS
-func NewAWSStorageService(key, secret, region string) StorageService {
-	return AWSStorageService{aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(key, secret, "")).WithRegion(region).WithMaxRetries(3)}
+func NewAWSStorageService(awsCredential AWSCredential) StorageService {
+	return AWSStorageService{aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(awsCredential.accessKey, awsCredential.accessSecret, "")).WithRegion(awsCredential.region).WithMaxRetries(3)}
 }
 
 // GetBuildsByProject returns logical builds by team / project.

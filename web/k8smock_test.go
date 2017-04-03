@@ -1,7 +1,7 @@
 package main
 
 import (
-	k8s2 "k8s.io/client-go/kubernetes/typed/core/v1"
+	k8sv1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/pkg/apis/policy/v1beta1"
@@ -9,7 +9,7 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-// Mock the Kubernetes PodGetter interface
+// Mock the Kubernetes Client interface
 
 type podOps struct {
 }
@@ -65,6 +65,57 @@ func (t podOps) GetLogs(name string, opts *v1.PodLogOptions) *rest.Request {
 type podGetter struct {
 }
 
-func (t podGetter) Pods(namespace string) k8s2.PodInterface {
+func (t podGetter) Pods(namespace string) k8sv1.PodInterface {
 	return podOps{}
+}
+
+// ##############
+// Secrets Getter
+// ##############
+
+type secretsGetter struct {
+}
+
+func (t secretsGetter) Secrets(namespace string) k8sv1.SecretInterface {
+	return secretOps{}
+}
+
+type secretOps struct {
+}
+
+func (t secretOps) Create(*v1.Secret) (*v1.Secret, error) {
+	return nil, nil
+}
+
+func (t secretOps) Update(*v1.Secret) (*v1.Secret, error) {
+	return nil, nil
+}
+
+func (t secretOps) Delete(name string, options *v1.DeleteOptions) error {
+	return nil
+}
+
+func (t secretOps) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
+	return nil
+}
+
+func (t secretOps) Get(name string) (*v1.Secret, error) {
+	return nil, nil
+}
+
+func (t secretOps) List(options v1.ListOptions) (*v1.SecretList, error) {
+	return nil, nil
+}
+
+func (t secretOps) Watch(options v1.ListOptions) (watch.Interface, error) {
+	return nil, nil
+}
+
+func (t secretOps) Patch(name string, pt api.PatchType, data []byte, subresources ...string) (result *v1.Secret, err error) {
+	return nil, nil
+}
+
+type mockK8sClient struct {
+	podGetter
+	secretsGetter
 }

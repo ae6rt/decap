@@ -6,12 +6,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-
-	k8sv1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
 // NewKubernetesClient returns a new client.
-func NewKubernetesClient() (k8sv1.PodsGetter, error) {
+func NewKubernetesClient() (KubernetesClient, error) {
 
 	var cfg *rest.Config
 	var err error
