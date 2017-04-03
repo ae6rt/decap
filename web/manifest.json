@@ -1,13 +1,7 @@
 {
     "dependencies": {
-        "github.com/ae6rt/retry": {
-            "branch": "master"
-        },
         "github.com/aws/aws-sdk-go": {
             "version": "v1.8.2"
-        },
-        "github.com/gorilla/websocket": {
-            "version": "v1.1.0"
         },
         "github.com/julienschmidt/httprouter": {
             "version": "v1.1"

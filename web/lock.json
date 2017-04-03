@@ -1,5 +1,5 @@
 {
-    "memo": "4eea5da37eeae06977706d902c96ec7a9baa4b69065093ead7bdca44a6f2c1df",
+    "memo": "849a21d980598012c21ef966698fc725791ab72079a28ab7267c399a178c2985",
     "projects": [
         {
             "name": "cloud.google.com/go",
@@ -22,14 +22,6 @@
             "name": "github.com/PuerkitoBio/urlesc",
             "branch": "master",
             "revision": "bbf7a2afc14f93e1e0a5c06df524fbd75e5031e5",
-            "packages": [
-                "."
-            ]
-        },
-        {
-            "name": "github.com/ae6rt/retry",
-            "branch": "master",
-            "revision": "340ac281720ed4c20c7b1093d9a80618c53177eb",
             "packages": [
                 "."
             ]

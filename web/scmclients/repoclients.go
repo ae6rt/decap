@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/ae6rt/decap/web/api/v1"
-	"github.com/ae6rt/retry"
+	"github.com/ae6rt/decap/web/retry"
 )
 
 // SCMCoordinates models the data associated with a Git http client.
