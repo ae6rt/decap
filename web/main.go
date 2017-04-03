@@ -26,7 +26,7 @@ var (
 	buildScriptsRepoBranch = flag.String("build-scripts-repo-branch", "master", "Branch or revision to use on git repo where userland build scripts are held.")
 
 	// This is a developer-mode flag that allows you to not start the cluster-watcher.  You might want to avoid starting the watcher
-	// because you are smoketesting testing the user-facing REST API, which may not need interaction with the watcher.
+	// because you are smoketesting the user-facing REST API, which may not need interaction with the watcher.
 	noPodWatcher = flag.Bool("no-podwatcher", false, "Do not start k8s podwatcher.")
 
 	versionFlag = flag.Bool("version", false, "Print version info and exit.")
