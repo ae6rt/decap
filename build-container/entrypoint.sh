@@ -31,12 +31,15 @@ if [ $# -eq 0 ]; then
    	tar czf /tmp/${TAR}.gz .
    popd
 
+   # Store the build artifacts
    bctool s3put --aws-access-key-id ${AWS_ACCESS_KEY_ID} --aws-secret-access-key ${AWS_SECRET_ACCESS_KEY} --aws-region ${AWS_DEFAULT_REGION} \
 	--bucket-name decap-build-artifacts --build-id ${BUILD_ID} --content-type application/x-gzip --filename /tmp/${TAR}.gz 
 
+   # Store the console log
    bctool s3put --aws-access-key-id ${AWS_ACCESS_KEY_ID} --aws-secret-access-key ${AWS_SECRET_ACCESS_KEY} --aws-region ${AWS_DEFAULT_REGION} \
 	--bucket-name decap-console-logs  --build-id ${BUILD_ID} --content-type application/x-gzip --filename ${CONSOLE}.gz
 
+   # Store the build metadata
    bctool record-build-metadata  --aws-access-key-id ${AWS_ACCESS_KEY_ID} --aws-secret-access-key ${AWS_SECRET_ACCESS_KEY} --aws-region ${AWS_DEFAULT_REGION} \
 	--table-name decap-build-metadata  --build-id ${BUILD_ID}  --project-key ${PROJECT_KEY} --branch ${BRANCH_TO_BUILD} \
 	--build-start-time ${START} --build-duration ${DURATION} --build-result ${BUILD_EXITCODE} 

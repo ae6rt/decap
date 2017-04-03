@@ -10,6 +10,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/spf13/cobra"
@@ -39,6 +40,12 @@ var awsAccessSecret string
 var awsRegion string
 
 var Log *log.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+
+/*
+func NewAWSStorageService(awsCredential AWSCredential) StorageService {
+	return AWSStorageService{aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(awsCredential.accessKey, awsCredential.accessSecret, "")).WithRegion(awsCredential.region).WithMaxRetries(3)}
+}
+*/
 
 var awsConfig = func() *aws.Config {
 	return aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(awsAccessKey, awsAccessSecret, "")).WithRegion(awsRegion).WithMaxRetries(3)
@@ -77,7 +84,7 @@ var unlockBuildCmd = &cobra.Command{
 			return
 		}
 		defer func() {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 		}()
 
 		data, err := ioutil.ReadAll(resp.Body)
@@ -105,7 +112,8 @@ var putS3Cmd = &cobra.Command{
 		if debug {
 			Log.Printf("%+v\n", config)
 		}
-		svc := s3.New(config)
+
+		svc := s3.New(session.New(), config)
 		data, err := ioutil.ReadFile(fileName)
 		if err != nil {
 			Log.Fatal(err)
@@ -141,7 +149,7 @@ var recordBuildCmd = &cobra.Command{
 		if debug {
 			Log.Printf("%+v\n", config)
 		}
-		svc := dynamodb.New(config)
+		svc := dynamodb.New(session.New(), config)
 		params := &dynamodb.PutItemInput{
 			TableName: aws.String(tableName),
 			Item: map[string]*dynamodb.AttributeValue{
@@ -209,5 +217,7 @@ func main() {
 	BCToolCmd.AddCommand(putS3Cmd)
 	BCToolCmd.AddCommand(recordBuildCmd)
 
-	BCToolCmd.Execute()
+	if err := BCToolCmd.Execute(); err != nil {
+		Log.Println(err)
+	}
 }
