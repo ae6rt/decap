@@ -78,7 +78,7 @@ func (gh GithubClient) GetRefs(owner, repository string) ([]v1.Ref, error) {
 				return err
 			}
 			defer func() {
-				response.Body.Close()
+				_ = response.Body.Close()
 			}()
 
 			if response.StatusCode != http.StatusOK {

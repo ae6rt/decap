@@ -11,21 +11,24 @@ COMMIT_ID := $(shell git rev-parse --short HEAD 2>/dev/null || echo $$COMMIT_ID)
 SDK_INFO := $(shell go version)
 LD_FLAGS := '-X "main.buildVersion=$(VERSION)" -X "main.buildCommit=$(COMMIT_ID)" -X "main.buildDate=$(DATE)" -X "main.buildGoSDK=$(SDK_INFO)"'
 IMAGE=$(DOCKER_USER)/decap:latest
+SOURCES:=$(shell go list ./... | grep -v vendor/)
 
 all: clean binaries 
 
 lint: 
-	go fmt $(go list ./... | grep -v /vendor/)
-	go vet $(go list ./... | grep -v /vendor/)
+	@go fmt ${SOURCES}
+	@go vet ${SOURCES}
+	@type errcheck >/dev/null 2>&1 || go get github.com/kisielk/errcheck
+	@errcheck ${SOURCES}
 
 test: lint
-	go test -v $(go list ./... | grep -v /vendor/)
+	go test -v ${SOURCES}
 
 osx: test
 	CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
 
 binaries: test
-	mkdir -p build/dist/linux
+	@mkdir -p build/dist/linux
 	CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
 	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o build/dist/linux/$(NAME)
 
@@ -36,6 +39,6 @@ push: container
 	docker push  $(IMAGE)
 
 clean: 
-	go clean
+	@go clean
 
 .PHONY: all lint test osx binaries container push clean

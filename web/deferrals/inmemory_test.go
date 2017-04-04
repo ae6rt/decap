@@ -36,7 +36,7 @@ func TestDefer(t *testing.T) {
 
 		for k, v := range test.wantEvents {
 			if got[k].Lockname() != v.Lockname() {
-				t.Errorf("Test %d: want %s, got %s\n", testNumber, v, got[k].Lockname())
+				t.Errorf("Test %d: want %v, got %s\n", testNumber, v, got[k].Lockname())
 			}
 		}
 	}
@@ -75,7 +75,7 @@ func TestRemove(t *testing.T) {
 
 		for k, v := range test.wantEvents {
 			if got[k].Lockname() != v.Lockname() {
-				t.Errorf("Test %d: want %s, got %s\n", testNumber, v, got[k].Lockname())
+				t.Errorf("Test %d: want %v, got %s\n", testNumber, v, got[k].Lockname())
 			}
 		}
 	}
@@ -111,7 +111,7 @@ func TestPoll(t *testing.T) {
 
 		for k, v := range test.wantEvents {
 			if got[k].Lockname() != v.Lockname() {
-				t.Errorf("Test %d: want %s, got %s\n", testNumber, v, got[k].Lockname())
+				t.Errorf("Test %d: want %v, got %s\n", testNumber, v, got[k].Lockname())
 			}
 		}
 
