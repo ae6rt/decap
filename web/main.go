@@ -62,7 +62,7 @@ func main() {
 
 	lockService := lock.NewDefaultLockService(k8sClient)
 
-	buildScripts := BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepo}
+	buildScripts := BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepoBranch}
 
 	buildLauncher := NewBuildLauncher(k8sClient, buildScripts, lockService, deferralService, Log)
 

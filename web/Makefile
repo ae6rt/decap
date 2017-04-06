@@ -32,6 +32,8 @@ binary-darwin: test
 	@mkdir -p build/dist/darwin
 	GOOS=darwin CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
 
+binaries: binary-linux binary-darwin
+
 image: binary-linux
 	docker build -t $(IMAGE) .
 
