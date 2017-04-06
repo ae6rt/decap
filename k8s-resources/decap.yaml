@@ -7,6 +7,7 @@
         protocol: "TCP"
         targetPort: 9090
         port: 9090
+        nodePort: 31000
     selector: 
       name: "decap"
   apiVersion: "v1"
@@ -14,8 +15,8 @@
     name: "decap"
     namespace: "decap-system"
 ---
-  apiVersion: "v1"
-  kind: "ReplicationController"
+  apiVersion: extensions/v1beta1
+  kind: Deployment
   metadata: 
     labels: 
       name: "decap"
@@ -24,7 +25,8 @@
   spec: 
     replicas: 1
     selector: 
-      name: "decap"
+      matchLabels:
+        name: "decap"
     template: 
       metadata: 
         namespace: "decap-system"

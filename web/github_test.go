@@ -37,9 +37,7 @@ func TestGithubEvent(t *testing.T) {
 	if pushEvent.Lockname() != "ae6rt/dynamodb-lab/master" {
 		t.Fatalf("Want ae6rt/dynamodb-lab/master but got %s\n", pushEvent.Lockname())
 	}
-
-	branch := pushEvent.Ref
-	if branch != "master" {
-		t.Fatalf("Want changes but got %s\n", branch)
+	if pushEvent.Ref != "master" {
+		t.Fatalf("Want master but got %s\n", pushEvent.Ref)
 	}
 }
