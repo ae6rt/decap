@@ -10,13 +10,16 @@ import (
 
 // NewKubernetesClient returns a new client.
 func NewKubernetesClient() (KubernetesClient, error) {
-
 	var cfg *rest.Config
 	var err error
 
-	cfg, err = clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
-	if err != nil {
+	if os.Getenv("KUBERNETES_SERVICE_HOST") != "" {
 		cfg, err = rest.InClusterConfig()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		cfg, err = clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 		if err != nil {
 			return nil, err
 		}

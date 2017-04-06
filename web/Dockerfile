@@ -1,12 +1,12 @@
-FROM centos:7.1.1503
+FROM centos:7.3.1611
 
 MAINTAINER Mark Petrovic <mspetrovic@gmail.com>
 
-RUN yum update -y && yum install -y git bind-utils
+RUN yum install -y git bind-utils
 
 COPY static/ /static/
-COPY decap-linux-amd64 /
+COPY build/dist/linux/decap /
 
-ENTRYPOINT ["/decap-linux-amd64"]
+ENTRYPOINT ["/decap"]
 
 COPY Dockerfile /opt/decap/

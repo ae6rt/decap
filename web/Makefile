@@ -5,7 +5,7 @@ DOCKER_USER := ae6rt
 
 NAME := decap
 ARCH := amd64
-VERSION := 0.1
+VERSION := 0.2
 DATE := $(shell date)
 COMMIT_ID := $(shell git rev-parse --short HEAD 2>/dev/null || echo $$COMMIT_ID)
 SDK_INFO := $(shell go version)
@@ -24,18 +24,18 @@ lint:
 test: lint
 	go test -v ${SOURCES}
 
-osx: test
-	CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
-
-binaries: test
+binary-linux: test
 	@mkdir -p build/dist/linux
-	CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
 	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o build/dist/linux/$(NAME)
 
-container: binaries
+binary-darwin: test
+	@mkdir -p build/dist/darwin
+	GOOS=darwin CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
+
+image: binary-linux
 	docker build -t $(IMAGE) .
 
-push: container
+push: image
 	docker push  $(IMAGE)
 
 clean: 
