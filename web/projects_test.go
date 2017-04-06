@@ -13,7 +13,7 @@ import (
 func TestAssembleProjects(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,7 +48,7 @@ func TestAssembleProjects(t *testing.T) {
 
 func TestProject(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +76,7 @@ func TestProject(t *testing.T) {
 func TestFindBuildScriptsByRegex(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +101,7 @@ func TestFindBuildScriptsByRegex(t *testing.T) {
 func TestFindProjectDescriptorsByRegex(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,7 +126,7 @@ func TestFindProjectDescriptorsByRegex(t *testing.T) {
 func TestFindSidecarsByRegex(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -151,7 +151,7 @@ func TestFindSidecarsByRegex(t *testing.T) {
 func TestReadSidecars(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}

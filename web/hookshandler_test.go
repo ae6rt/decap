@@ -18,7 +18,7 @@ import (
 func TestHooksHandlerNoRepoManager(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func TestHooksHandlerNoRepoManager(t *testing.T) {
 func TestHooksHandlerBuildScripts(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +79,7 @@ func TestHooksHandlerBuildScripts(t *testing.T) {
 func TestHooksHandlerGithub(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,7 +136,7 @@ func TestHooksHandlerGithub(t *testing.T) {
 func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
 	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dir, err := ziptools.Unzip("test-data/buildscripts-repo.zip")
+	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}

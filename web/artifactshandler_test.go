@@ -19,7 +19,7 @@ func TestArtifactsHandler(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	data, err := ioutil.ReadFile("test-data/sample.tar.gz")
+	data, err := ioutil.ReadFile("testdata/sample.tar.gz")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -52,7 +52,7 @@ func TestArtifactsHandlerManifestOnly(t *testing.T) {
 	}
 	req.Header.Set("Accept", "text/plain")
 
-	data, err := ioutil.ReadFile("test-data/sample.tar.gz")
+	data, err := ioutil.ReadFile("testdata/sample.tar.gz")
 	if err != nil {
 		t.Fatal(err)
 	}

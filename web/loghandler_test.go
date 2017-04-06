@@ -69,7 +69,7 @@ func TestLogHandlerUncompressed(t *testing.T) {
 	}
 	req.Header.Set("Accept", "text/plain")
 
-	data, err := ioutil.ReadFile("test-data/log.gz")
+	data, err := ioutil.ReadFile("testdata/log.gz")
 	if err != nil {
 		t.Fatal(err)
 	}
