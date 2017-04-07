@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"strings"
 	"time"
 
 	"encoding/json"
@@ -279,4 +280,15 @@ func (builder DefaultBuilder) makeContainers(buildEvent v1.UserBuildEvent, proje
 	containers = append(containers, baseContainer)
 	containers = append(containers, sidecars...)
 	return containers
+}
+
+func asLabel(s string) string {
+	forbidden := []string{".", "-", "/"}
+	t := s
+	for _, v := range forbidden {
+		t = strings.Replace(t, v, "_", -1)
+		t = strings.Replace(t, v, "_", -1)
+		t = strings.Replace(t, v, "_", -1)
+	}
+	return t
 }
