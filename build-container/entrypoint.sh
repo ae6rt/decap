@@ -4,9 +4,9 @@ set -ux
 
 env | sort
 
-readonly AWS_ACCESS_KEY_ID=$(cat /var/run/kubernetes/secrets/aws-key)
-readonly AWS_SECRET_ACCESS_KEY=$(cat /var/run/kubernetes/secrets/aws-secret)
-readonly AWS_DEFAULT_REGION=$(cat /var/run/kubernetes/secrets/aws-region)
+readonly AWS_ACCESS_KEY_ID=$(cat /etc/secrets/aws-key)
+readonly AWS_SECRET_ACCESS_KEY=$(cat /etc/secrets/aws-secret)
+readonly AWS_DEFAULT_REGION=$(cat /etc/secrets/aws-region)
 
 if [ $# -eq 0 ]; then
 

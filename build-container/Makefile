@@ -26,10 +26,10 @@ binaries: test
 	GOOS=darwin GOARCH=$(ARCH) go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH)
 	GOOS=linux GOARCH=$(ARCH) go build -ldflags $(LD_FLAGS) -o $(NAME)-linux-$(ARCH)
 
-container: binaries
+image: binaries
 	docker build -t $(IMAGE):latest .  
 	docker tag $(IMAGE):latest ${IMAGE}:${VERSION}
 
-push: container
+push: image
 	docker push $(IMAGE):latest
 	docker push $(IMAGE):${VERSION}
