@@ -3,7 +3,6 @@ package main
 import (
 	"io/ioutil"
 	"log"
-	"strings"
 	"time"
 
 	"encoding/json"
@@ -12,6 +11,7 @@ import (
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/clusterutil"
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/lock"
 	"github.com/ae6rt/decap/web/uuid"
@@ -240,10 +240,10 @@ func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, containers [
 			Namespace: "decap",
 			Labels: map[string]string{
 				"type":     "decap-build",
-				"team":     asLabel(buildEvent.Team),
-				"project":  asLabel(buildEvent.Project),
-				"branch":   asLabel(buildEvent.Ref),
-				"lockname": asLabel(buildEvent.Lockname()),
+				"team":     clusterutil.AsLabel(buildEvent.Team),
+				"project":  clusterutil.AsLabel(buildEvent.Project),
+				"branch":   clusterutil.AsLabel(buildEvent.Ref),
+				"lockname": clusterutil.AsLabel(buildEvent.Lockname()),
 			},
 		},
 		Spec: k8sapi.PodSpec{
@@ -280,15 +280,4 @@ func (builder DefaultBuilder) makeContainers(buildEvent v1.UserBuildEvent, proje
 	containers = append(containers, baseContainer)
 	containers = append(containers, sidecars...)
 	return containers
-}
-
-func asLabel(s string) string {
-	forbidden := []string{".", "-", "/"}
-	t := s
-	for _, v := range forbidden {
-		t = strings.Replace(t, v, "_", -1)
-		t = strings.Replace(t, v, "_", -1)
-		t = strings.Replace(t, v, "_", -1)
-	}
-	return t
 }

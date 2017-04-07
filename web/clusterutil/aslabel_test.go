@@ -1,4 +1,4 @@
-package main
+package clusterutil
 
 import "testing"
 
@@ -20,16 +20,12 @@ func TestAsLabel(t *testing.T) {
 			expect: "a_b",
 		},
 		{
-			in:     "a-b",
-			expect: "a_b",
-		},
-		{
 			in:     "a_b",
 			expect: "a_b",
 		},
 	}
 	for testNumber, test := range tests {
-		if got := asLabel(test.in); got != test.expect {
+		if got := AsLabel(test.in); got != test.expect {
 			t.Errorf("Test %d: asLabel(%s) want %s, got %s\n", testNumber, test.in, test.expect, got)
 		}
 	}
