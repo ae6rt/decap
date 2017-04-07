@@ -240,10 +240,10 @@ func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, containers [
 			Namespace: "decap",
 			Labels: map[string]string{
 				"type":     "decap-build",
-				"team":     buildEvent.Team,
-				"project":  buildEvent.Project,
-				"branch":   buildEvent.Ref,
-				"lockname": buildEvent.Lockname(),
+				"team":     asLabel(buildEvent.Team),
+				"project":  asLabel(buildEvent.Project),
+				"branch":   asLabel(buildEvent.Ref),
+				"lockname": asLabel(buildEvent.Lockname()),
 			},
 		},
 		Spec: k8sapi.PodSpec{
