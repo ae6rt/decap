@@ -13,7 +13,7 @@ import (
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/scmclients"
-	"github.com/ae6rt/decap/web/storageservice"
+	"github.com/ae6rt/decap/web/storage"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -301,7 +301,7 @@ func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.
 }
 
 // Return gzipped console log, or console log in plain text if Accept: text/plain is set
-func LogHandler(buildStore storageservice.StorageService) httprouter.Handle {
+func LogHandler(buildStore storage.StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
 		data, err := buildStore.GetConsoleLog(buildID)
@@ -337,7 +337,7 @@ func LogHandler(buildStore storageservice.StorageService) httprouter.Handle {
 }
 
 // ArtifactsHandler returns build artifacts gzipped tarball, or file listing in tarball if Accept: text/plain is set
-func ArtifactsHandler(buildStore storageservice.StorageService) httprouter.Handle {
+func ArtifactsHandler(buildStore storage.StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
 		data, err := buildStore.GetArtifacts(buildID)
@@ -393,7 +393,7 @@ func ArtifactsHandler(buildStore storageservice.StorageService) httprouter.Handl
 }
 
 // BuildsHandler handles requests for historical build info.
-func BuildsHandler(buildStore storageservice.StorageService) httprouter.Handle {
+func BuildsHandler(buildStore storage.StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		project := params.ByName("project")

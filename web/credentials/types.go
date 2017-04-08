@@ -1,4 +1,4 @@
-package aws
+package credentials
 
 // AWSCredential encapsulates the set of Decap AWS credentials
 type AWSCredential struct {

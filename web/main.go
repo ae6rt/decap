@@ -7,11 +7,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/ae6rt/decap/web/aws"
+	"github.com/ae6rt/decap/web/credentials"
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/lock"
 	"github.com/ae6rt/decap/web/scmclients"
-	"github.com/ae6rt/decap/web/storageservice"
+	"github.com/ae6rt/decap/web/storage"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -68,8 +68,8 @@ func main() {
 
 	buildLauncher := NewBuildLauncher(k8sClient, buildScripts, lockService, deferralService, Log)
 
-	awsCredential := aws.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}
-	buildStore := storageservice.NewAWS(awsCredential, Log)
+	awsCredential := credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}
+	buildStore := storage.NewAWS(awsCredential, Log)
 
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithub("https://api.github.com", *githubClientID, *githubClientSecret),

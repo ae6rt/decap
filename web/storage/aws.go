@@ -1,4 +1,4 @@
-package storageservice
+package storage
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/ae6rt/decap/web/api/v1"
-	aws1 "github.com/ae6rt/decap/web/aws"
+	decapcreds "github.com/ae6rt/decap/web/credentials"
 	"github.com/ae6rt/decap/web/retry"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -24,7 +24,7 @@ type AWSStorageService struct {
 }
 
 // NewAWS returns a StorageService implemented on top of AWS
-func NewAWS(awsCredential aws1.AWSCredential, Log *log.Logger) StorageService {
+func NewAWS(awsCredential decapcreds.AWSCredential, Log *log.Logger) StorageService {
 	return AWSStorageService{
 		Config: aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(awsCredential.AccessKey, awsCredential.AccessSecret, "")).WithRegion(awsCredential.Region).WithMaxRetries(3),
 		Log:    Log}
