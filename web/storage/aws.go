@@ -8,78 +8,82 @@ import (
 
 	"github.com/ae6rt/decap/web/api/v1"
 	decapcreds "github.com/ae6rt/decap/web/credentials"
-	"github.com/ae6rt/decap/web/retry"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/pkg/errors"
 )
 
-// AWSStorageService is a container for holding AWS configuration
-type AWSStorageService struct {
-	Log        *log.Logger
-	credential decapcreds.AWSCredential
+// S3 models the subset of all Amazon S3 that we need.
+type S3 interface {
+	GetObject(*s3.GetObjectInput) (*s3.GetObjectOutput, error)
+}
+
+// DB models the subset of DynamoDb that we need.
+type DB interface {
+	Query(*dynamodb.QueryInput) (*dynamodb.QueryOutput, error)
+}
+
+// DefaultStorageService is the default working storage service, which is based on Amazon S3 and DynamoDb.
+type DefaultStorageService struct {
+	db      DB
+	buckets S3
+
+	Log *log.Logger
 }
 
 // NewAWS returns a StorageService implemented on top of AWS
-func NewAWS(awsCredential decapcreds.AWSCredential, Log *log.Logger) StorageService {
-	return AWSStorageService{
-		credential: awsCredential,
-		Log:        Log}
+func NewAWS(credential decapcreds.AWSCredential, Log *log.Logger) Service {
+	sess := session.Must(session.NewSession(
+		aws.NewConfig().WithCredentials(
+			credentials.NewStaticCredentials(credential.AccessKey, credential.AccessSecret, ""),
+		).WithRegion(credential.Region).WithMaxRetries(3)),
+	)
+
+	return DefaultStorageService{
+		db:      dynamodb.New(sess),
+		buckets: s3.New(sess),
+		Log:     Log,
+	}
 }
 
 // GetBuildsByProject returns logical builds by team / project.
-func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, limit uint64) ([]v1.Build, error) {
-
-	var resp *dynamodb.QueryOutput
-
-	work := func() error {
-
-		// this needs to move to a ctor-like function.  msp april 2017
-		sess := session.Must(session.NewSession(aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(c.credential.AccessKey, c.credential.AccessSecret, "")).WithRegion(c.credential.Region).WithMaxRetries(3)))
-
-		svc := dynamodb.New(sess)
-		params := &dynamodb.QueryInput{
-			TableName:              aws.String("decap-build-metadata"),
-			IndexName:              aws.String("project-key-build-start-time-index"),
-			KeyConditionExpression: aws.String("#pkey = :pkey and #bst > :since"),
-			ExpressionAttributeNames: map[string]*string{
-				"#pkey": aws.String("project-key"),
-				"#bst":  aws.String("build-start-time"),
+func (c DefaultStorageService) GetBuildsByProject(project v1.Project, since uint64, limit uint64) ([]v1.Build, error) {
+	params := &dynamodb.QueryInput{
+		TableName:              aws.String("decap-build-metadata"),
+		IndexName:              aws.String("project-key-build-start-time-index"),
+		KeyConditionExpression: aws.String("#pkey = :pkey and #bst > :since"),
+		ExpressionAttributeNames: map[string]*string{
+			"#pkey": aws.String("project-key"),
+			"#bst":  aws.String("build-start-time"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":pkey": {
+				S: aws.String(project.Key()),
 			},
-			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-				":pkey": {
-					S: aws.String(project.Key()),
-				},
-				":since": {
-					N: aws.String(fmt.Sprintf("%d", since)),
-				},
+			":since": {
+				N: aws.String(fmt.Sprintf("%d", since)),
 			},
-			ScanIndexForward: aws.Bool(false),
-			Limit:            aws.Int64(int64(limit)),
-		}
-
-		var err error
-		resp, err = svc.Query(params)
-
-		if err != nil {
-			if awsErr, ok := err.(awserr.Error); ok {
-				c.Log.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-				if reqErr, ok := err.(awserr.RequestFailure); ok {
-					c.Log.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-				}
-			} else {
-				c.Log.Println(err.Error())
-			}
-			return err
-		}
-		return nil
+		},
+		ScanIndexForward: aws.Bool(false),
+		Limit:            aws.Int64(int64(limit)),
 	}
-	err := retry.New(3, retry.DefaultBackoffFunc).Try(work)
+
+	resp, err := c.db.Query(params)
+
 	if err != nil {
-		return nil, err
+		if awsErr, ok := err.(awserr.Error); ok {
+			c.Log.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				c.Log.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
+			}
+		} else {
+			c.Log.Println(err.Error())
+		}
+		return nil, errors.Wrap(err, fmt.Sprintf("Error retrieving build information for project %s\n", project.Key()))
 	}
 
 	var builds []v1.Build
@@ -107,47 +111,32 @@ func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, 
 		}
 		builds = append(builds, build)
 	}
+
 	return builds, nil
+}
+
+func (c DefaultStorageService) bytesFromBucket(bucketName, objectKey string) ([]byte, error) {
+	params := &s3.GetObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+	}
+
+	resp, err := c.buckets.GetObject(params)
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("Error retrieving object %s from bucket %s\n", bucketName, objectKey))
+	}
+
+	return ioutil.ReadAll(resp.Body)
 }
 
 // GetArtifacts returns the file manifest of artifacts tar file if the Accept: text/plain header
 // is set.  Otherwise returns the build artifacts as a gzipped tar file.
-func (c AWSStorageService) GetArtifacts(buildID string) ([]byte, error) {
+func (c DefaultStorageService) GetArtifacts(buildID string) ([]byte, error) {
 	return c.bytesFromBucket("decap-build-artifacts", buildID)
 }
 
 // GetConsoleLog returns console logs in plain text if the Accept: text/plain header
 // is set.  Otherwise returns the console log as a gzipped archive.
-func (c AWSStorageService) GetConsoleLog(buildID string) ([]byte, error) {
+func (c DefaultStorageService) GetConsoleLog(buildID string) ([]byte, error) {
 	return c.bytesFromBucket("decap-console-logs", buildID)
-}
-
-func (c AWSStorageService) bytesFromBucket(bucketName, objectKey string) ([]byte, error) {
-
-	var resp *s3.GetObjectOutput
-
-	work := func() error {
-		// this needs to move to a ctor-like function.  msp april 2017
-		sess := session.Must(session.NewSession(aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(c.credential.AccessKey, c.credential.AccessSecret, "")).WithRegion(c.credential.Region).WithMaxRetries(3)))
-
-		svc := s3.New(sess)
-
-		params := &s3.GetObjectInput{
-			Bucket: aws.String(bucketName),
-			Key:    aws.String(objectKey),
-		}
-
-		var err error
-		if resp, err = svc.GetObject(params); err != nil {
-			c.Log.Println(err.Error())
-			return err
-		}
-		return nil
-	}
-
-	if err := retry.New(3, retry.DefaultBackoffFunc).Try(work); err != nil {
-		return nil, err
-	}
-
-	return ioutil.ReadAll(resp.Body)
 }

@@ -301,7 +301,7 @@ func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.
 }
 
 // Return gzipped console log, or console log in plain text if Accept: text/plain is set
-func LogHandler(buildStore storage.StorageService) httprouter.Handle {
+func LogHandler(buildStore storage.Service) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
 		data, err := buildStore.GetConsoleLog(buildID)
@@ -337,7 +337,7 @@ func LogHandler(buildStore storage.StorageService) httprouter.Handle {
 }
 
 // ArtifactsHandler returns build artifacts gzipped tarball, or file listing in tarball if Accept: text/plain is set
-func ArtifactsHandler(buildStore storage.StorageService) httprouter.Handle {
+func ArtifactsHandler(buildStore storage.Service) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
 		data, err := buildStore.GetArtifacts(buildID)
@@ -393,7 +393,7 @@ func ArtifactsHandler(buildStore storage.StorageService) httprouter.Handle {
 }
 
 // BuildsHandler handles requests for historical build info.
-func BuildsHandler(buildStore storage.StorageService) httprouter.Handle {
+func BuildsHandler(buildStore storage.Service) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		project := params.ByName("project")
