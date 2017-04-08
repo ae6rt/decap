@@ -19,15 +19,15 @@ import (
 
 // AWSStorageService is a container for holding AWS configuration
 type AWSStorageService struct {
-	Config *aws.Config
-	Log    *log.Logger
+	Log        *log.Logger
+	credential decapcreds.AWSCredential
 }
 
 // NewAWS returns a StorageService implemented on top of AWS
 func NewAWS(awsCredential decapcreds.AWSCredential, Log *log.Logger) StorageService {
 	return AWSStorageService{
-		Config: aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(awsCredential.AccessKey, awsCredential.AccessSecret, "")).WithRegion(awsCredential.Region).WithMaxRetries(3),
-		Log:    Log}
+		credential: awsCredential,
+		Log:        Log}
 }
 
 // GetBuildsByProject returns logical builds by team / project.
@@ -36,7 +36,11 @@ func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, 
 	var resp *dynamodb.QueryOutput
 
 	work := func() error {
-		svc := dynamodb.New(session.New(), c.Config)
+
+		// this needs to move to a ctor-like function.  msp april 2017
+		sess := session.Must(session.NewSession(aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(c.credential.AccessKey, c.credential.AccessSecret, "")).WithRegion(c.credential.Region).WithMaxRetries(3)))
+
+		svc := dynamodb.New(sess)
 		params := &dynamodb.QueryInput{
 			TableName:              aws.String("decap-build-metadata"),
 			IndexName:              aws.String("project-key-build-start-time-index"),
@@ -123,7 +127,10 @@ func (c AWSStorageService) bytesFromBucket(bucketName, objectKey string) ([]byte
 	var resp *s3.GetObjectOutput
 
 	work := func() error {
-		svc := s3.New(session.New(), c.Config)
+		// this needs to move to a ctor-like function.  msp april 2017
+		sess := session.Must(session.NewSession(aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(c.credential.AccessKey, c.credential.AccessSecret, "")).WithRegion(c.credential.Region).WithMaxRetries(3)))
+
+		svc := s3.New(sess)
 
 		params := &s3.GetObjectInput{
 			Bucket: aws.String(bucketName),
