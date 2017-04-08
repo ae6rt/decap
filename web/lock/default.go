@@ -18,7 +18,7 @@ type DefaultLockService struct {
 
 // NewDefault defines a lock service with an Acquqire method that simply queries
 // k8s master for whether a build is running with the input v1.UserBuildEvent's lockname.
-func NewDefault(clientset k8s2.PodsGetter) DistributedLockService {
+func NewDefault(clientset k8s2.PodsGetter) LockService {
 	return &DefaultLockService{podsGetter: clientset}
 }
 

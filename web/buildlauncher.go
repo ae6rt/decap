@@ -21,7 +21,7 @@ import (
 func NewBuildLauncher(
 	kubernetesClient KubernetesClient,
 	buildScripts BuildScripts,
-	distributedLocker lock.DistributedLockService,
+	distributedLocker lock.LockService,
 	deferralService deferrals.DeferralService,
 	logger *log.Logger,
 ) Builder {

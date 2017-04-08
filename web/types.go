@@ -15,7 +15,7 @@ import (
 // DefaultBuilder models the main interface between Decap and Kubernetes.  This is the location where creating and deleting pods
 // and locking or deferring builds takes place.
 type DefaultBuilder struct {
-	lockService      lock.DistributedLockService
+	lockService      lock.LockService
 	deferralService  deferrals.DeferralService
 	maxPods          int
 	buildScripts     BuildScripts

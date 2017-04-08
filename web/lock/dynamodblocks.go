@@ -30,7 +30,7 @@ func NewDynamoDB(awsAccessKey, awsAccessSecret, awsRegion string) DynamoDB {
 }
 
 // NewDynamoDbLockService creates a new distributed lock service on top of DynamoDb.
-func NewDynamoDbLockService(db DynamoDB) DistributedLockService {
+func NewDynamoDbLockService(db DynamoDB) LockService {
 	return DynamoDbLockService{db: db}
 }
 
