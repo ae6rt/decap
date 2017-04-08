@@ -7,9 +7,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/ae6rt/decap/web/aws"
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/lock"
 	"github.com/ae6rt/decap/web/scmclients"
+	"github.com/ae6rt/decap/web/storageservice"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -53,24 +55,24 @@ func main() {
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 
-	deferralService := deferrals.NewInMemoryDeferralService(Log)
+	deferralService := deferrals.NewDefault(Log)
 
 	k8sClient, err := NewKubernetesClient()
 	if err != nil {
 		Log.Fatalf("Cannot create Kubernetes client: %v\n", err)
 	}
 
-	lockService := lock.NewDefaultLockService(k8sClient)
+	lockService := lock.NewDefault(k8sClient)
 
 	buildScripts := BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepoBranch}
 
 	buildLauncher := NewBuildLauncher(k8sClient, buildScripts, lockService, deferralService, Log)
 
-	awsCredential := AWSCredential{accessKey: *awsKey, accessSecret: *awsSecret, region: *awsRegion}
-	storageService := NewAWSStorageService(awsCredential)
+	awsCredential := aws.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}
+	buildStore := storageservice.NewAWS(awsCredential, Log)
 
 	scmManagers := map[string]scmclients.SCMClient{
-		"github": scmclients.NewGithubClient("https://api.github.com", *githubClientID, *githubClientSecret),
+		"github": scmclients.NewGithub("https://api.github.com", *githubClientID, *githubClientSecret),
 	}
 
 	router := httprouter.New()
@@ -91,7 +93,7 @@ func main() {
 	router.GET("/api/v1/projects/:team/:project/refs", ProjectRefsHandler(scmManagers))
 
 	// Report on historical builds for a given project
-	router.GET("/api/v1/builds/:team/:project", BuildsHandler(storageService))
+	router.GET("/api/v1/builds/:team/:project", BuildsHandler(buildStore))
 
 	// Terminates a running build
 	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildLauncher))
@@ -109,10 +111,10 @@ func main() {
 	router.POST("/api/v1/deferred", DeferredBuildsHandler(buildLauncher))
 
 	//	Return gzipped console log, or console log in plain text if Accept: text/plain is set
-	router.GET("/api/v1/logs/:id", LogHandler(storageService))
+	router.GET("/api/v1/logs/:id", LogHandler(buildStore))
 
 	// ArtifactsHandler returns build artifacts gzipped tarball, or file listing in tarball if Accept: text/plain is set
-	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(storageService))
+	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(buildStore))
 
 	// Return current state of the build queue
 	router.GET("/api/v1/shutdown", ShutdownHandler)

@@ -27,7 +27,7 @@ func TestDefer(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		d := NewInMemoryDeferralService(nil)
+		d := NewDefault(nil)
 		for _, e := range test.events {
 			_ = d.Defer(e)
 		}
@@ -64,7 +64,7 @@ func TestRemove(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		d := NewInMemoryDeferralService(nil)
+		d := NewDefault(nil)
 		for _, e := range test.events {
 			_ = d.Defer(e)
 		}
@@ -102,7 +102,7 @@ func TestPoll(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		d := NewInMemoryDeferralService(nil)
+		d := NewDefault(nil)
 		for _, e := range test.events {
 			_ = d.Defer(e)
 		}

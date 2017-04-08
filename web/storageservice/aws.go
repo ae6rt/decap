@@ -1,11 +1,13 @@
-package main
+package storageservice
 
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"strconv"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	aws1 "github.com/ae6rt/decap/web/aws"
 	"github.com/ae6rt/decap/web/retry"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -18,11 +20,14 @@ import (
 // AWSStorageService is a container for holding AWS configuration
 type AWSStorageService struct {
 	Config *aws.Config
+	Log    *log.Logger
 }
 
-// NewAWSStorageService returns a StorageService implemented on top of AWS
-func NewAWSStorageService(awsCredential AWSCredential) StorageService {
-	return AWSStorageService{aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(awsCredential.accessKey, awsCredential.accessSecret, "")).WithRegion(awsCredential.region).WithMaxRetries(3)}
+// NewAWS returns a StorageService implemented on top of AWS
+func NewAWS(awsCredential aws1.AWSCredential, Log *log.Logger) StorageService {
+	return AWSStorageService{
+		Config: aws.NewConfig().WithCredentials(credentials.NewStaticCredentials(awsCredential.AccessKey, awsCredential.AccessSecret, "")).WithRegion(awsCredential.Region).WithMaxRetries(3),
+		Log:    Log}
 }
 
 // GetBuildsByProject returns logical builds by team / project.
@@ -42,7 +47,7 @@ func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, 
 			},
 			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 				":pkey": {
-					S: aws.String(projectKey(project.Team, project.ProjectName)),
+					S: aws.String(project.Key()),
 				},
 				":since": {
 					N: aws.String(fmt.Sprintf("%d", since)),
@@ -57,12 +62,12 @@ func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, 
 
 		if err != nil {
 			if awsErr, ok := err.(awserr.Error); ok {
-				Log.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
+				c.Log.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
 				if reqErr, ok := err.(awserr.RequestFailure); ok {
-					Log.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
+					c.Log.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
 				}
 			} else {
-				Log.Println(err.Error())
+				c.Log.Println(err.Error())
 			}
 			return err
 		}
@@ -77,15 +82,15 @@ func (c AWSStorageService) GetBuildsByProject(project v1.Project, since uint64, 
 	for _, v := range resp.Items {
 		buildDuration, err := strconv.ParseUint(*v["build-duration"].N, 10, 64)
 		if err != nil {
-			Log.Printf("Error converting build-duration to ordinal value: %v\n", err)
+			c.Log.Printf("Error converting build-duration to ordinal value: %v\n", err)
 		}
 		buildResult, err := strconv.ParseInt(*v["build-result"].N, 10, 32)
 		if err != nil {
-			Log.Printf("Error converting build-result to ordinal value: %v\n", err)
+			c.Log.Printf("Error converting build-result to ordinal value: %v\n", err)
 		}
 		buildTime, err := strconv.ParseUint(*v["build-start-time"].N, 10, 64)
 		if err != nil {
-			Log.Printf("Error converting build-start-time to ordinal value: %v\n", err)
+			c.Log.Printf("Error converting build-start-time to ordinal value: %v\n", err)
 		}
 
 		build := v1.Build{
@@ -127,7 +132,7 @@ func (c AWSStorageService) bytesFromBucket(bucketName, objectKey string) ([]byte
 
 		var err error
 		if resp, err = svc.GetObject(params); err != nil {
-			Log.Println(err.Error())
+			c.Log.Println(err.Error())
 			return err
 		}
 		return nil

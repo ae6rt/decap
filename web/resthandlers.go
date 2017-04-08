@@ -13,6 +13,7 @@ import (
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/scmclients"
+	"github.com/ae6rt/decap/web/storageservice"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -300,10 +301,10 @@ func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.
 }
 
 // Return gzipped console log, or console log in plain text if Accept: text/plain is set
-func LogHandler(storageService StorageService) httprouter.Handle {
+func LogHandler(buildStore storageservice.StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
-		data, err := storageService.GetConsoleLog(buildID)
+		data, err := buildStore.GetConsoleLog(buildID)
 		if err != nil {
 			Log.Println(err)
 			w.WriteHeader(500)
@@ -336,10 +337,10 @@ func LogHandler(storageService StorageService) httprouter.Handle {
 }
 
 // ArtifactsHandler returns build artifacts gzipped tarball, or file listing in tarball if Accept: text/plain is set
-func ArtifactsHandler(storageService StorageService) httprouter.Handle {
+func ArtifactsHandler(buildStore storageservice.StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
-		data, err := storageService.GetArtifacts(buildID)
+		data, err := buildStore.GetArtifacts(buildID)
 		if err != nil {
 			Log.Println(err)
 			w.WriteHeader(500)
@@ -392,7 +393,7 @@ func ArtifactsHandler(storageService StorageService) httprouter.Handle {
 }
 
 // BuildsHandler handles requests for historical build info.
-func BuildsHandler(storageService StorageService) httprouter.Handle {
+func BuildsHandler(buildStore storageservice.StorageService) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		project := params.ByName("project")
@@ -415,7 +416,7 @@ func BuildsHandler(storageService StorageService) httprouter.Handle {
 			return
 		}
 
-		buildList, err := storageService.GetBuildsByProject(v1.Project{Team: team, ProjectName: project}, since, limit)
+		buildList, err := buildStore.GetBuildsByProject(v1.Project{Team: team, ProjectName: project}, since, limit)
 
 		if err != nil {
 			builds := v1.Builds{Meta: v1.Meta{Error: err.Error()}}

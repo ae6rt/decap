@@ -1,4 +1,4 @@
-package main
+package storageservice
 
 import (
 	"encoding/json"
@@ -24,7 +24,9 @@ func TestAWSS3GetArtifacts(t *testing.T) {
 
 	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials("key", "secret", "")).WithRegion("region").WithMaxRetries(3).WithEndpoint(testServer.URL).WithS3ForcePathStyle(true)
 
-	c := AWSStorageService{config}
+	// todo we can do better testing than this - msp april 2017
+	// Redesign this AWSStorageService type to accept interfaces the model S3 and Dynamo.  See https://github.com/ae6rt/decap/blob/develop/web/lock/dynamodblocks.go
+	c := AWSStorageService{Config: config, Log: nil}
 	data, err := c.GetArtifacts("buildID")
 	if err != nil {
 		t.Fatal(err)
@@ -48,7 +50,7 @@ func TestAWSS3GetConsoleLogs(t *testing.T) {
 
 	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials("key", "secret", "")).WithRegion("region").WithMaxRetries(3).WithEndpoint(testServer.URL).WithS3ForcePathStyle(true)
 
-	c := AWSStorageService{config}
+	c := AWSStorageService{Config: config, Log: nil}
 	data, err := c.GetConsoleLog("buildID")
 	if err != nil {
 		t.Fatal(err)
@@ -91,7 +93,7 @@ func TestDynamoDbGetBuilds(t *testing.T) {
 	defer testServer.Close()
 
 	config := aws.NewConfig().WithCredentials(credentials.NewStaticCredentials("key", "secret", "")).WithRegion("region").WithMaxRetries(3).WithEndpoint(testServer.URL)
-	c := AWSStorageService{config}
+	c := AWSStorageService{Config: config, Log: nil}
 
 	_, err := c.GetBuildsByProject(v1.Project{Team: "ae6rt", ProjectName: "somelib"}, 0, 1)
 	if err != nil {

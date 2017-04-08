@@ -53,7 +53,7 @@ type SCMClient interface {
 	GetRefs(team, repository string) ([]v1.Ref, error)
 }
 
-func NewGithubClient(baseURL, clientID, clientSecret string) SCMClient {
+func NewGithub(baseURL, clientID, clientSecret string) SCMClient {
 	return GithubClient{SCMCoordinates{BaseURL: baseURL, Username: clientID, Password: clientSecret, httpClient: &http.Client{}}}
 }
 

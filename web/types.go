@@ -30,14 +30,6 @@ type RepoManagerCredential struct {
 	Password string
 }
 
-// StorageService models the interaction between Decap and the persistent storage engine that stores build console logs, artifacts, and specific
-// build metadata.
-type StorageService interface {
-	GetBuildsByProject(project v1.Project, sinceUnixTime uint64, limit uint64) ([]v1.Build, error)
-	GetArtifacts(buildID string) ([]byte, error)
-	GetConsoleLog(buildID string) ([]byte, error)
-}
-
 // Builder models the interaction between Decap and Kubernetes and the locking service that locks and defers builds.
 type Builder interface {
 	LaunchBuild(v1.UserBuildEvent) error
@@ -64,11 +56,4 @@ type BuildScripts struct {
 type KubernetesClient interface {
 	k8sv1.PodsGetter
 	k8sv1.SecretsGetter
-}
-
-// AWSCredentials encapsulates the set of Decap AWS credentials
-type AWSCredential struct {
-	accessKey    string
-	accessSecret string
-	region       string
 }

@@ -15,8 +15,8 @@ type InMemoryDeferralService struct {
 	logger *log.Logger
 }
 
-// NewInMemoryDeferralService is the constructor for a DeferralService maintained in memory.
-func NewInMemoryDeferralService(log *log.Logger) DeferralService {
+// NewDefault is the constructor for a DeferralService maintained in memory.
+func NewDefault(log *log.Logger) DeferralService {
 	return &InMemoryDeferralService{logger: log}
 }
 
