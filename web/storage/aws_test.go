@@ -1,119 +1,225 @@
 package storage
 
-// these tests need a complete rework after the storage service is redesigned to accept interfaces.  msp april 2017
+import (
+	"bytes"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"testing"
 
-/*
-func TestAWSS3GetArtifacts(t *testing.T) {
-	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/decap-build-artifacts/buildID" {
-			t.Fatalf("Want /decap-build-artifacts/buildID but got %s\n", r.URL.Path)
-		}
-		_, _ = w.Write([]byte{0})
-	}))
-	defer testServer.Close()
+	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/s3"
+)
 
-	credential := decapcred.AWSCredential{AccessKey: "key", AccessSecret: "secret", Region: ""}
-	// todo we can do better testing than this - msp april 2017
-	// Redesign this AWSStorageService type to accept interfaces the model S3 and Dynamo.  See https://github.com/ae6rt/decap/blob/develop/web/lock/dynamodblocks.go
-	c := AWSStorageService{credential: credential, Log: nil}
-
-	data, err := c.GetArtifacts("buildID")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(data) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(data))
-	}
-	if data[0] != 0 {
-		t.Fatalf("Want 0 but got %d\n", data[0])
-	}
+type MockDynamoDB struct {
+	captureInput *dynamodb.QueryInput
+	output       *dynamodb.QueryOutput
+	forceError   bool
 }
 
-func TestAWSS3GetConsoleLogs(t *testing.T) {
-	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/decap-console-logs/buildID" {
-			t.Fatalf("Want /decap-console-logs/buildID but got %s\n", r.URL.Path)
-		}
-		_, _ = w.Write([]byte{0})
-	}))
-	defer testServer.Close()
+func (t *MockDynamoDB) Query(in *dynamodb.QueryInput) (*dynamodb.QueryOutput, error) {
+	t.captureInput = in
+	var err error
+	if t.forceError {
+		err = errors.New("forced error")
+	}
+	return t.output, err
+}
 
-	credential := decapcred.AWSCredential{AccessKey: "key", AccessSecret: "secret", Region: ""}
-	// todo we can do better testing than this - msp april 2017
-	// Redesign this AWSStorageService type to accept interfaces the model S3 and Dynamo.  See https://github.com/ae6rt/decap/blob/develop/web/lock/dynamodblocks.go
-	c := AWSStorageService{credential: credential, Log: nil}
+type MockS3 struct {
+	captureInput *s3.GetObjectInput
+	output       *s3.GetObjectOutput
+	forceError   bool
+}
 
-	data, err := c.GetConsoleLog("buildID")
-	if err != nil {
-		t.Fatal(err)
+func (t *MockS3) GetObject(in *s3.GetObjectInput) (*s3.GetObjectOutput, error) {
+	t.captureInput = in
+	var err error
+	if t.forceError {
+		err = errors.New("forced error")
 	}
-	if len(data) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(data))
-	}
-	if data[0] != 0 {
-		t.Fatalf("Want 0 but got %d\n", data[0])
-	}
+	return t.output, err
 }
 
 func TestDynamoDbGetBuilds(t *testing.T) {
-
-	type F struct {
-		AttrV struct {
-			Key struct {
-				S string `json:"S"`
-			} `json:":pkey"`
-			Since struct {
-				N string `json:"N"`
-			} `json:":since"`
-		} `json:"ExpressionAttributeValues"`
-		IndexName              string `json:"IndexName"`
-		KeyConditionExpression string `json:"KeyConditionExpression"`
-		Limit                  int    `json:"Limit"`
-		ScanIndexForward       bool   `json:"ScanIndexForward"`
-		TableName              string `json:"TableName"`
+	var tests = []struct {
+		inProject  v1.Project
+		inSince    uint64
+		inLimit    int64
+		output     *dynamodb.QueryOutput
+		want       []v1.Build
+		forceError bool
+	}{
+		{
+			inProject: v1.Project{
+				Team:        "ae6rt",
+				ProjectName: "proj",
+			},
+			inSince: 0,
+			inLimit: 100,
+			output: &dynamodb.QueryOutput{
+				Items: []map[string]*dynamodb.AttributeValue{
+					map[string]*dynamodb.AttributeValue{
+						"build-id":         &dynamodb.AttributeValue{S: aws.String("id")},
+						"project-key":      &dynamodb.AttributeValue{S: aws.String("ae6rt/proj")},
+						"branch":           &dynamodb.AttributeValue{S: aws.String("issue/32")},
+						"build-duration":   &dynamodb.AttributeValue{N: aws.String("2")},
+						"build-result":     &dynamodb.AttributeValue{N: aws.String("0")},
+						"build-start-time": &dynamodb.AttributeValue{N: aws.String("99")},
+					},
+				},
+			},
+			want: []v1.Build{
+				v1.Build{
+					ID:         "id",
+					ProjectKey: "ae6rt/proj",
+					Branch:     "issue/32",
+					Duration:   2,
+					Result:     0,
+					UnixTime:   99,
+				},
+			},
+		},
+		{
+			forceError: true,
+		},
 	}
 
-	var v F
-	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, _ := ioutil.ReadAll(r.Body)
-		err := json.Unmarshal(body, &v)
-		if err != nil {
-			t.Fatal(err)
+	for testNumber, test := range tests {
+		db := &MockDynamoDB{output: test.output, forceError: test.forceError}
+		service := DefaultStorageService{db: db}
+		got, err := service.GetBuildsByProject(test.inProject, test.inSince, uint64(test.inLimit))
+		if test.forceError {
+			if err == nil {
+				t.Errorf("Test %d: expecting an error\n", testNumber)
+			}
+			continue
+		} else if err != nil {
+			t.Errorf("Test %d: unexpected error %v\n", testNumber, err)
 		}
-		fmt.Fprintf(w, "")
-	}))
-	defer testServer.Close()
 
-	credential := decapcred.AWSCredential{AccessKey: "key", AccessSecret: "secret", Region: ""}
-	// todo we can do better testing than this - msp april 2017
-	// Redesign this AWSStorageService type to accept interfaces the model S3 and Dynamo.  See https://github.com/ae6rt/decap/blob/develop/web/lock/dynamodblocks.go
-	c := AWSStorageService{credential: credential, Log: nil}
+		if len(got) != len(test.want) {
+			t.Errorf("Test %d: GetBuildsByProject(%v,%d,%d) want %+v, got %+v\n", testNumber, test.inProject, test.inSince, test.inLimit, test.want, got)
+		}
 
-	_, err := c.GetBuildsByProject(v1.Project{Team: "ae6rt", ProjectName: "somelib"}, 0, 1)
-	if err != nil {
-		t.Fatal(err)
-	}
+		for k, v := range test.want {
+			if v.ID != got[k].ID {
+				t.Errorf("Test %d: want %v, got %v\n", testNumber, v.ID, got[k].ID)
+			}
+			if v.ProjectKey != got[k].ProjectKey {
+				t.Errorf("Test %d: want %v, got %v\n", testNumber, v.ProjectKey, got[k].ProjectKey)
+			}
+			if v.Branch != got[k].Branch {
+				t.Errorf("Test %d: want %v, got %v\n", testNumber, v.Branch, got[k].Branch)
+			}
+			if v.Duration != got[k].Duration {
+				t.Errorf("Test %d: want %v, got %v\n", testNumber, v.Duration, got[k].Duration)
+			}
+			if v.Result != got[k].Result {
+				t.Errorf("Test %d: want %v, got %v\n", testNumber, v.Result, got[k].Result)
+			}
+			if v.UnixTime != got[k].UnixTime {
+				t.Errorf("Test %d: want %v, got %v\n", testNumber, v.UnixTime, got[k].UnixTime)
+			}
+		}
 
-	if v.AttrV.Key.S != "ae6rt/somelib" {
-		t.Fatalf("Want ae6rt/somelib but got %s\n", v.AttrV.Key.S)
-	}
-	if v.AttrV.Since.N != "0" {
-		t.Fatalf("Want 0 but got %s\n", v.AttrV.Since.N)
-	}
-	if v.IndexName != "project-key-build-start-time-index" {
-		t.Fatalf("Want project-key-build-start-time-index but got %s\n", v.IndexName)
-	}
-	if v.KeyConditionExpression != "#pkey = :pkey and #bst > :since" {
-		t.Fatalf("Want #pkey = :pkey and #bst > :since but got %s\n", v.KeyConditionExpression)
-	}
-	if v.Limit != 1 {
-		t.Fatalf("Want 1 but got %d\n", v.Limit)
-	}
-	if v.ScanIndexForward {
-		t.Fatal("Want false")
-	}
-	if v.TableName != "decap-build-metadata" {
-		t.Fatalf("Want decap-build-metadata but got %s\n", v.TableName)
+		// Verify input capture
+		if *db.captureInput.ExpressionAttributeNames["#pkey"] != "project-key" {
+			t.Errorf("Test %d: want #pkey = %s, got %s\n", testNumber, "project-key", *db.captureInput.ExpressionAttributeNames["#pkey"])
+		}
+		if *db.captureInput.ExpressionAttributeNames["#bst"] != "build-start-time" {
+			t.Errorf("Test %d: want #bst = %s, got %s\n", testNumber, "build-start-time", *db.captureInput.ExpressionAttributeNames["#bst"])
+		}
+
+		if *db.captureInput.ExpressionAttributeValues[":pkey"].S != test.inProject.Key() {
+			t.Errorf("Test %d: want :pkey = %s, got %s\n", testNumber, test.inProject.Key(), *db.captureInput.ExpressionAttributeValues[":pkey"].S)
+		}
+		if *db.captureInput.ExpressionAttributeValues[":since"].N != fmt.Sprintf("%d", test.inSince) {
+			t.Errorf("Test %d: want :since = %s, got %s\n", testNumber, fmt.Sprintf("%d", test.inSince), *db.captureInput.ExpressionAttributeValues[":since"].N)
+		}
+
+		if *db.captureInput.Limit != test.inLimit {
+			t.Errorf("Test %d: want Limit = %d, got %d\n", testNumber, test.inLimit, *db.captureInput.Limit)
+		}
 	}
 }
-*/
+
+func TestS3(t *testing.T) {
+	var tests = []struct {
+		inBuildID  string
+		bucketName string
+		output     *s3.GetObjectOutput
+		want       []byte
+		forceError bool
+	}{
+		{
+			bucketName: "decap-build-artifacts",
+			inBuildID:  "id",
+			output: &s3.GetObjectOutput{
+				Body: ioutil.NopCloser(bytes.NewBuffer([]byte{2})),
+			},
+			want: []byte{2},
+		},
+		{
+			bucketName: "decap-console-logs",
+			inBuildID:  "id",
+			output: &s3.GetObjectOutput{
+				Body: ioutil.NopCloser(bytes.NewBuffer([]byte{2})),
+			},
+			want: []byte{2},
+		},
+		{
+			bucketName: "decap-console-logs",
+			forceError: true,
+		},
+		{
+			bucketName: "decap-build-artifacts",
+			forceError: true,
+		},
+	}
+
+	for testNumber, test := range tests {
+		buckets := &MockS3{output: test.output, forceError: test.forceError}
+		service := DefaultStorageService{buckets: buckets}
+
+		var data []byte
+		var err error
+
+		switch test.bucketName {
+		case "decap-build-artifacts":
+			data, err = service.GetArtifacts(test.inBuildID)
+		case "decap-console-logs":
+			data, err = service.GetConsoleLog(test.inBuildID)
+		}
+
+		if test.forceError {
+			if err == nil {
+				t.Errorf("Test %d: expecting an error\n", testNumber)
+			}
+			continue
+		} else if err != nil {
+			t.Errorf("Test %d: unexpected error %v\n", testNumber, err)
+			continue
+		}
+
+		if len(data) != len(test.want) {
+			t.Errorf("Test %d, want %d, got %d\n", testNumber, len(test.want), len(data))
+		}
+
+		for k, v := range test.want {
+			if data[k] != v {
+				t.Errorf("Test %d: want test.want[%d]=%v, got %v\n", testNumber, k, v, data[k])
+			}
+		}
+
+		// Verify capture input
+		if *buckets.captureInput.Bucket != test.bucketName {
+			t.Errorf("Test %d: want bucket name == %s, got %s\n", testNumber, test.bucketName, *buckets.captureInput.Bucket)
+		}
+		if *buckets.captureInput.Key != test.inBuildID {
+			t.Errorf("Test %d: want bucket key %s, got %s\n", testNumber, test.inBuildID, *buckets.captureInput.Key)
+		}
+	}
+}

@@ -9,7 +9,6 @@ import (
 	"github.com/ae6rt/decap/web/api/v1"
 	decapcreds "github.com/ae6rt/decap/web/credentials"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -31,12 +30,11 @@ type DB interface {
 type DefaultStorageService struct {
 	db      DB
 	buckets S3
-
-	Log *log.Logger
+	logger  *log.Logger
 }
 
-// NewAWS returns a StorageService implemented on top of AWS
-func NewAWS(credential decapcreds.AWSCredential, Log *log.Logger) Service {
+// NewAWS returns a StorageService implemented on top of Amazon S3 and DynamoDb.
+func NewAWS(credential decapcreds.AWSCredential, logger *log.Logger) Service {
 	sess := session.Must(session.NewSession(
 		aws.NewConfig().WithCredentials(
 			credentials.NewStaticCredentials(credential.AccessKey, credential.AccessSecret, ""),
@@ -46,7 +44,7 @@ func NewAWS(credential decapcreds.AWSCredential, Log *log.Logger) Service {
 	return DefaultStorageService{
 		db:      dynamodb.New(sess),
 		buckets: s3.New(sess),
-		Log:     Log,
+		logger:  logger,
 	}
 }
 
@@ -73,16 +71,7 @@ func (c DefaultStorageService) GetBuildsByProject(project v1.Project, since uint
 	}
 
 	resp, err := c.db.Query(params)
-
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			c.Log.Println(awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				c.Log.Println(reqErr.Code(), reqErr.Message(), reqErr.StatusCode(), reqErr.RequestID())
-			}
-		} else {
-			c.Log.Println(err.Error())
-		}
 		return nil, errors.Wrap(err, fmt.Sprintf("Error retrieving build information for project %s\n", project.Key()))
 	}
 
@@ -90,15 +79,15 @@ func (c DefaultStorageService) GetBuildsByProject(project v1.Project, since uint
 	for _, v := range resp.Items {
 		buildDuration, err := strconv.ParseUint(*v["build-duration"].N, 10, 64)
 		if err != nil {
-			c.Log.Printf("Error converting build-duration to ordinal value: %v\n", err)
+			c.logger.Printf("Error converting build-duration to ordinal value: %v\n", err)
 		}
 		buildResult, err := strconv.ParseInt(*v["build-result"].N, 10, 32)
 		if err != nil {
-			c.Log.Printf("Error converting build-result to ordinal value: %v\n", err)
+			c.logger.Printf("Error converting build-result to ordinal value: %v\n", err)
 		}
 		buildTime, err := strconv.ParseUint(*v["build-start-time"].N, 10, 64)
 		if err != nil {
-			c.Log.Printf("Error converting build-start-time to ordinal value: %v\n", err)
+			c.logger.Printf("Error converting build-start-time to ordinal value: %v\n", err)
 		}
 
 		build := v1.Build{
@@ -115,20 +104,6 @@ func (c DefaultStorageService) GetBuildsByProject(project v1.Project, since uint
 	return builds, nil
 }
 
-func (c DefaultStorageService) bytesFromBucket(bucketName, objectKey string) ([]byte, error) {
-	params := &s3.GetObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(objectKey),
-	}
-
-	resp, err := c.buckets.GetObject(params)
-	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Error retrieving object %s from bucket %s\n", bucketName, objectKey))
-	}
-
-	return ioutil.ReadAll(resp.Body)
-}
-
 // GetArtifacts returns the file manifest of artifacts tar file if the Accept: text/plain header
 // is set.  Otherwise returns the build artifacts as a gzipped tar file.
 func (c DefaultStorageService) GetArtifacts(buildID string) ([]byte, error) {
@@ -139,4 +114,19 @@ func (c DefaultStorageService) GetArtifacts(buildID string) ([]byte, error) {
 // is set.  Otherwise returns the console log as a gzipped archive.
 func (c DefaultStorageService) GetConsoleLog(buildID string) ([]byte, error) {
 	return c.bytesFromBucket("decap-console-logs", buildID)
+}
+
+func (c DefaultStorageService) bytesFromBucket(bucketName, objectKey string) ([]byte, error) {
+	params := &s3.GetObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+	}
+
+	resp, err := c.buckets.GetObject(params)
+
+	if err != nil {
+		return nil, errors.Wrap(err, fmt.Sprintf("Error retrieving object %s from bucket %s\n", bucketName, objectKey))
+	}
+
+	return ioutil.ReadAll(resp.Body)
 }
