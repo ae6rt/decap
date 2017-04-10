@@ -15,17 +15,20 @@ SOURCES:=$(shell go list ./... | grep -v vendor/)
 
 all: clean binaries 
 
-lint: 
+lint:
+	@echo Linting...
 	@go fmt ${SOURCES}
 	@go vet ${SOURCES}
 	@type errcheck >/dev/null 2>&1 || go get github.com/kisielk/errcheck
 	@errcheck ${SOURCES}
 
 test: lint
-	go test -v ${SOURCES}
+	@echo Running tests...
+	@go test ${SOURCES}
 
 binary-linux: test
 	@mkdir -p build/dist/linux
+	@echo Build binary
 	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o build/dist/linux/$(NAME)
 
 binary-darwin: test

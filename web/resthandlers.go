@@ -42,6 +42,7 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 		_, _ = w.Write(data)
 		return
 	}
+
 	_, _ = w.Write(data)
 }
 
@@ -70,6 +71,7 @@ func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		_, _ = w.Write(data)
 		return
 	}
+
 	_, _ = w.Write(data)
 }
 
@@ -100,6 +102,7 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 		_, _ = w.Write(data)
 		return
 	}
+
 	_, _ = w.Write(data)
 }
 
@@ -121,6 +124,7 @@ func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 				_, _ = w.Write(simpleError(err))
 				return
 			}
+			w.Header().Set("Content-type", "application/json")
 			_, _ = w.Write(data)
 		case "POST":
 			key := r.URL.Query().Get("key")
@@ -194,6 +198,7 @@ func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 		switch repoManager {
 		case "buildscripts":
 			if p, err := assembleProjects(buildScripts); err != nil {
+				w.Header().Set("Content-type", "application/json")
 				w.WriteHeader(500)
 				_, _ = w.Write(simpleError(err))
 			} else {
@@ -207,6 +212,7 @@ func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 				event := GithubEvent{}
 				if err := json.Unmarshal(data, &event); err != nil {
 					Log.Println(err)
+					w.Header().Set("Content-type", "application/json")
 					w.WriteHeader(500)
 					_, _ = w.Write(simpleError(err))
 					return
@@ -218,6 +224,7 @@ func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 			case "push":
 				event := GithubEvent{}
 				if err := json.Unmarshal(data, &event); err != nil {
+					w.Header().Set("Content-type", "application/json")
 					Log.Println(err)
 					w.WriteHeader(500)
 					_, _ = w.Write(simpleError(err))
@@ -248,6 +255,7 @@ func StopBuildHandler(decap Builder) httprouter.Handle {
 		buildID := params.ByName("id")
 		if err := decap.DeletePod(buildID); err != nil {
 			Log.Println(err)
+			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(500)
 			_, _ = w.Write(simpleError(err))
 		}
@@ -262,6 +270,7 @@ func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.
 
 		project, present := projectByTeamName(team, projectName)
 		if !present {
+			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(404)
 			_, _ = w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, projectName)))
 			return
@@ -294,6 +303,7 @@ func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.
 			_, _ = w.Write(data)
 			return
 		default:
+			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(400)
 			_, _ = w.Write(simpleError(fmt.Errorf("repomanager not supported: %s", repositoryManager)))
 		}
@@ -398,6 +408,8 @@ func BuildsHandler(buildStore storage.Service) httprouter.Handle {
 		team := params.ByName("team")
 		project := params.ByName("project")
 
+		w.Header().Set("Content-type", "application/json")
+
 		since, err := toUint64(r.URL.Query().Get("since"), 0)
 		if err != nil {
 			builds := v1.Builds{Meta: v1.Meta{Error: err.Error()}}
@@ -457,12 +469,14 @@ func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 			}
 			setShutdownChan <- shutdownState
 		default:
+			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(400)
 			_, _ = w.Write(simpleError(fmt.Errorf("Unsupported shutdown state: %v", shutdownState)))
 			return
 		}
 	case "GET":
 		var data []byte
+		w.Header().Set("Content-type", "application/json")
 		data, _ = json.Marshal(&v1.ShutdownState{State: <-getShutdownChan})
 		_, _ = w.Write(data)
 	}
@@ -485,6 +499,7 @@ func LogLevelHandler(w http.ResponseWriter, r *http.Request, params httprouter.P
 			}
 			setLogLevelChan <- logLevel
 		default:
+			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(400)
 			_, _ = w.Write(simpleError(fmt.Errorf("Unsupported log level: %v", logLevel)))
 			return
