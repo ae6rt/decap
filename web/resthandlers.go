@@ -231,7 +231,9 @@ func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 					return
 				}
 				go func() {
-					_ = decap.LaunchBuild(event.BuildEvent())
+					if err := decap.LaunchBuild(event.BuildEvent()); err != nil {
+						Log.Printf("Error launching build for event %+v: %v\n", event, err)
+					}
 				}()
 
 			default:

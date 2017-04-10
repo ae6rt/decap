@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"time"
@@ -45,9 +46,13 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 		return nil
 	}
 
-	projectKey := buildEvent.Lockname()
+	projectKey := buildEvent.ProjectKey()
 	projects := getProjects()
-	project := projects[projectKey]
+	project, ok := projects[projectKey]
+
+	if !ok {
+		return fmt.Errorf("Project %s is missing from build scripts repository.\n", projectKey)
+	}
 
 	if !project.Descriptor.IsRefManaged(buildEvent.Ref) {
 		if <-getLogLevelChan == LogDebug {
@@ -111,6 +116,7 @@ func (builder DefaultBuilder) PodWatcher() {
 		}
 
 		events := watched.ResultChan()
+
 		for event := range events {
 			pod := event.Object.(*k8sapi.Pod)
 			var deletePod bool
