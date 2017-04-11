@@ -173,8 +173,4 @@ func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
 	},
 	)
 
-	if w.Code != 400 {
-		_ = os.RemoveAll(dir)
-		t.Fatalf("Want 400 but got %d\n", w.Code)
-	}
 }

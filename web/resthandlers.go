@@ -203,44 +203,34 @@ func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 				_, _ = w.Write(simpleError(err))
 			} else {
 				setProjects(p)
+
 				Log.Println("Build scripts refreshed via post commit hook")
 			}
 		case "github":
+			// There is no point in returning anything other than 200 OK to Github, as they can't do anything about non-2xx responses anyway.
+
+			var event GithubEvent
+
 			eventType := r.Header.Get("X-Github-Event")
 			switch eventType {
 			case "create":
-				event := GithubEvent{}
-				if err := json.Unmarshal(data, &event); err != nil {
-					Log.Println(err)
-					w.Header().Set("Content-type", "application/json")
-					w.WriteHeader(500)
-					_, _ = w.Write(simpleError(err))
-					return
-				}
-				go func() {
-					_ = decap.LaunchBuild(event.BuildEvent())
-				}()
-
 			case "push":
-				event := GithubEvent{}
-				if err := json.Unmarshal(data, &event); err != nil {
-					w.Header().Set("Content-type", "application/json")
-					Log.Println(err)
-					w.WriteHeader(500)
-					_, _ = w.Write(simpleError(err))
-					return
-				}
-				go func() {
-					if err := decap.LaunchBuild(event.BuildEvent()); err != nil {
-						Log.Printf("Error launching build for event %+v: %v\n", event, err)
-					}
-				}()
-
 			default:
-				w.WriteHeader(400)
-				_, _ = w.Write(simpleError(fmt.Errorf("Github hook missing event type header.  See https://developer.github.com/webhooks/#delivery-headers.")))
+				Log.Printf("Unhandled Github event type <%s>.  See https://developer.github.com/webhooks/#delivery-headers.", eventType)
 				return
 			}
+
+			if err := json.Unmarshal(data, &event); err != nil {
+				Log.Printf("Error unmarshaling Github event: %v\n", err)
+				return
+			}
+
+			go func() {
+				if err := decap.LaunchBuild(event.BuildEvent()); err != nil {
+					Log.Printf("Error launching build for event %+v: %v\n", event, err)
+				}
+			}()
+
 		default:
 			Log.Printf("repomanager %s not supported\n", repoManager)
 			w.WriteHeader(400)
