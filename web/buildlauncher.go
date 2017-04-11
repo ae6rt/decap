@@ -86,7 +86,7 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 		}
 	}
 
-	Log.Printf("Created pod=%s\n", buildEvent.ID)
+	Log.Printf("Created pod %s\n", buildEvent.ID)
 
 	return nil
 }
@@ -106,6 +106,9 @@ func (builder DefaultBuilder) DeletePod(podName string) error {
 
 // Podwatcher watches the k8s master API for pod events.
 func (builder DefaultBuilder) PodWatcher() {
+
+	deleted := make(map[string]struct{})
+
 	for {
 		watched, err := builder.kubernetesClient.Pods("decap").Watch(k8sapi.ListOptions{
 			LabelSelector: "type=decap-build",
@@ -119,16 +122,22 @@ func (builder DefaultBuilder) PodWatcher() {
 
 		for event := range events {
 			pod := event.Object.(*k8sapi.Pod)
-			var deletePod bool
+
+			deletePod := false
 			for _, v := range pod.Status.ContainerStatuses {
 				if v.Name == "build-server" && v.State.Terminated != nil && v.State.Terminated.ContainerID != "" {
 					deletePod = true
 					break
 				}
 			}
-			if deletePod {
+
+			// Delete the build pod if it has not already bene deleted.
+			if _, present := deleted[pod.Name]; !present && deletePod {
 				if err := builder.kubernetesClient.Pods("decap").Delete(pod.Name, nil); err != nil {
 					Log.Printf("Error deleting build-server pod: %v\n", err)
+				} else {
+					deleted[pod.Name] = struct{}{}
+					Log.Printf("Deleted pod %s\n", pod.Name)
 				}
 			}
 		}
