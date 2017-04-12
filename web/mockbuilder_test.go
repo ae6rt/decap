@@ -7,6 +7,39 @@ import (
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 )
 
+type BaseLauncherMock struct {
+}
+
+func (d *BaseLauncherMock) LaunchBuild(p v1.UserBuildEvent) error {
+	return nil
+}
+
+func (d *BaseLauncherMock) DeletePod(podName string) error {
+	return nil
+}
+
+func (d *BaseLauncherMock) DeferBuild(event v1.UserBuildEvent) error {
+	return nil
+}
+
+func (d *BaseLauncherMock) DeferredBuilds() ([]v1.UserBuildEvent, error) {
+	return nil, nil
+}
+
+func (d *BaseLauncherMock) CreatePod(pod *k8sapi.Pod) error {
+	return nil
+}
+
+func (d *BaseLauncherMock) PodWatcher() {
+}
+
+func (d *BaseLauncherMock) LaunchDeferred(ticker <-chan time.Time) {
+}
+
+func (d *BaseLauncherMock) ClearDeferredBuild(key string) error {
+	return nil
+}
+
 type MockBuilder struct {
 	deferred    []v1.UserBuildEvent
 	event       v1.UserBuildEvent
