@@ -57,3 +57,9 @@ type KubernetesClient interface {
 	k8sv1.PodsGetter
 	k8sv1.SecretsGetter
 }
+
+// ProjectManager is the interface to the build scripts repository.
+type ProjectManager interface {
+	Assemble() (map[string]v1.Project, error)
+	Set(map[string]v1.Project)
+}

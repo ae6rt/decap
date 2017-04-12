@@ -173,7 +173,7 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 }
 
 // HooksHandler handles externally originated SCM events that trigger builds or build-scripts repository refreshes.
-func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
+func HooksHandler(projectManager ProjectManager, decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
 
@@ -195,14 +195,14 @@ func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 
 		switch repoManager {
 		case "buildscripts":
-			if p, err := assembleProjects(buildScripts); err != nil {
+			p, err := projectManager.Assemble()
+			if err != nil {
 				Log.Printf("Error refreshing build scripts: %v\n", err)
 				w.WriteHeader(500)
 				return
-			} else {
-				setProjects(p)
-				Log.Println("Build scripts refreshed.")
 			}
+			projectManager.Set(p)
+			Log.Println("Build scripts refreshed.")
 		case "github":
 			var event GithubEvent
 

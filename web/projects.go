@@ -22,6 +22,26 @@ const sideCarRegex = `^.+-sidecar\.json`
 var projectSetChan = make(chan map[string]v1.Project)
 var projectGetChan = make(chan map[string]v1.Project)
 
+// DefaultProjectManager is the live, working projects manager that clones the build scripts repo and returns associated information.
+type DefaultProjectManager struct {
+	buildScripts BuildScripts
+}
+
+// Assemble assembles the build scripts repo into a manageable API.
+func (t DefaultProjectManager) Assemble() (map[string]v1.Project, error) {
+	return assembleProjects(t.buildScripts)
+}
+
+// Set sets the project object on the internal store.  This could probably be improved.
+func (t DefaultProjectManager) Set(projects map[string]v1.Project) {
+	setProjects(projects)
+}
+
+// NewDefaultProjectManager returns the working project manager.
+func NewDefaultProjectManager(buildScripts BuildScripts) ProjectManager {
+	return DefaultProjectManager{buildScripts: buildScripts}
+}
+
 func projectMux(initialValue map[string]v1.Project) {
 	t := initialValue
 	Log.Print("Project channel mux running")

@@ -66,6 +66,8 @@ func main() {
 
 	buildScripts := BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepoBranch}
 
+	projectManager := NewDefaultProjectManager(buildScripts)
+
 	buildLauncher := NewBuildLauncher(k8sClient, buildScripts, lockService, deferralService, Log)
 
 	awsCredential := credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}
@@ -126,9 +128,9 @@ func main() {
 	router.POST("/api/v1/loglevel/:level", LogLevelHandler)
 
 	// The interface for external SCM systems to post VCS events through post-commit hooks.
-	router.POST("/hooks/:repomanager", HooksHandler(buildScripts, buildLauncher))
+	router.POST("/hooks/:repomanager", HooksHandler(projectManager, buildLauncher))
 
-	projects, err := assembleProjects(buildScripts)
+	projects, err := projectManager.Assemble()
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
