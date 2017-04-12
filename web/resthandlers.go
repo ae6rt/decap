@@ -172,7 +172,7 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 	}
 }
 
-// HooksHandler handles externally originated SCM events that trigger builds.
+// HooksHandler handles externally originated SCM events that trigger builds or build-scripts repository refreshes.
 func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
@@ -180,15 +180,13 @@ func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 		if r.Body == nil {
 			Log.Println("Expecting an HTTP entity")
 			w.WriteHeader(400)
-			_, _ = w.Write(simpleError(fmt.Errorf("Expecting an HTTP entity")))
 			return
 		}
 
 		data, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			Log.Println(err)
-			w.WriteHeader(500)
-			_, _ = w.Write(simpleError(err))
+			Log.Printf("Error reading hook payload: %v\n", err)
+			w.WriteHeader(400)
 			return
 		}
 		defer func() {
@@ -198,17 +196,14 @@ func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 		switch repoManager {
 		case "buildscripts":
 			if p, err := assembleProjects(buildScripts); err != nil {
-				w.Header().Set("Content-type", "application/json")
+				Log.Printf("Error refreshing build scripts: %v\n", err)
 				w.WriteHeader(500)
-				_, _ = w.Write(simpleError(err))
+				return
 			} else {
 				setProjects(p)
-
-				Log.Println("Build scripts refreshed via post commit hook")
+				Log.Println("Build scripts refreshed.")
 			}
 		case "github":
-			// There is no point in returning anything other than 200 OK to Github, as they can't do anything about non-2xx responses anyway.
-
 			var event GithubEvent
 
 			eventType := r.Header.Get("X-Github-Event")
@@ -217,26 +212,29 @@ func HooksHandler(buildScripts BuildScripts, decap Builder) httprouter.Handle {
 			case "push":
 			default:
 				Log.Printf("Unhandled Github event type <%s>.  See https://developer.github.com/webhooks/#delivery-headers.", eventType)
+				w.WriteHeader(400)
 				return
 			}
 
 			if err := json.Unmarshal(data, &event); err != nil {
 				Log.Printf("Error unmarshaling Github event: %v\n", err)
+				w.WriteHeader(500)
 				return
 			}
 
 			go func() {
 				if err := decap.LaunchBuild(event.BuildEvent()); err != nil {
 					Log.Printf("Error launching build for event %+v: %v\n", event, err)
+					w.WriteHeader(500)
+					return
 				}
 			}()
-
 		default:
 			Log.Printf("repomanager %s not supported\n", repoManager)
 			w.WriteHeader(400)
-			_, _ = w.Write(simpleError(fmt.Errorf("repomanager %s not supported", repoManager)))
 			return
 		}
+
 		w.WriteHeader(200)
 	}
 }

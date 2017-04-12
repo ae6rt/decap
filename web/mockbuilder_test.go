@@ -40,6 +40,7 @@ func (d *BaseLauncherMock) ClearDeferredBuild(key string) error {
 	return nil
 }
 
+// deprecated
 type MockBuilder struct {
 	deferred    []v1.UserBuildEvent
 	event       v1.UserBuildEvent

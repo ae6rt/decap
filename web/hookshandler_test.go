@@ -34,33 +34,42 @@ func (t *HooksHandlerGithub) LaunchBuild(event v1.UserBuildEvent) error {
 
 func TestHooksHandlerGithub(t *testing.T) {
 	var tests = []struct {
-		payload        string
-		wantProjectKey string
-		wantRef        string
+		eventType            string
+		repositoryType       string
+		HTTPHeaders          map[string][]string
+		payload              string
+		wantProjectKey       string
+		wantRef              string
+		wantHTTPResponseCode int
 	}{
 		{
-
-			payload: `{
-  "ref": "refs/heads/master",
-  "repository": {
-    "id": 35129377,
-    "name": "dynamodb-lab",
-    "full_name": "ae6rt/dynamodb-lab",
-    "owner": {
-      "name": "ae6rt",
-      "email": "ae6rt@users.noreply.github.com"
-    }
-  }
-}`,
-			wantProjectKey: "ae6rt/dynamodb-lab",
-			wantRef:        "master",
+			repositoryType:       "github",
+			HTTPHeaders:          map[string][]string{"X-Github-Event": []string{"create"}},
+			payload:              `{"ref":"refs/heads/master","repository":{"name":"dynamodb-lab","full_name":"ae6rt/dynamodb-lab","owner":{"name":"ae6rt","email":"ae6rt@users.noreply.github.com"}}}`,
+			wantProjectKey:       "ae6rt/dynamodb-lab",
+			wantRef:              "master",
+			wantHTTPResponseCode: 200,
+		},
+		{
+			repositoryType:       "github",
+			HTTPHeaders:          map[string][]string{"X-Github-Event": []string{"push"}},
+			payload:              `{"ref":"refs/heads/master","repository":{"name":"dynamodb-lab","full_name":"ae6rt/dynamodb-lab","owner":{"name":"ae6rt","email":"ae6rt@users.noreply.github.com"}}}`,
+			wantProjectKey:       "ae6rt/dynamodb-lab",
+			wantRef:              "master",
+			wantHTTPResponseCode: 200,
+		},
+		{
+			repositoryType:       "github",
+			HTTPHeaders:          map[string][]string{"X-Github-Event": []string{"<unsupported>"}},
+			payload:              `{}`,
+			wantHTTPResponseCode: 400,
 		},
 	}
 	for testNumber, test := range tests {
 		Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 		req, _ := http.NewRequest("POST", "http://example.com/hooks", bytes.NewBufferString(test.payload))
-		req.Header.Set("X-Github-Event", "push")
+		req.Header = test.HTTPHeaders
 
 		w := httptest.NewRecorder()
 
@@ -68,7 +77,15 @@ func TestHooksHandlerGithub(t *testing.T) {
 		launcher := &HooksHandlerGithub{wg: &wg}
 
 		wg.Add(1)
-		HooksHandler(BuildScripts{}, launcher)(w, req, []httprouter.Param{httprouter.Param{Key: "repomanager", Value: "github"}})
+		HooksHandler(BuildScripts{}, launcher)(w, req, []httprouter.Param{httprouter.Param{Key: "repomanager", Value: test.repositoryType}})
+
+		if w.Code != test.wantHTTPResponseCode {
+			t.Errorf("Test %d: want %d, got %d\n", testNumber, test.wantHTTPResponseCode, w.Code)
+		}
+
+		if test.wantHTTPResponseCode != 200 {
+			return
+		}
 
 		wg.Wait()
 
@@ -82,35 +99,9 @@ func TestHooksHandlerGithub(t *testing.T) {
 	}
 }
 
-/*
 func TestHooksHandlerNoRepoManager(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() {
-		_ = os.RemoveAll(dir)
-	}()
-
-	req, err := http.NewRequest("POST", "http://example.com/hooks/xxx", nil)
-	if err != nil {
-		_ = os.RemoveAll(dir)
-		log.Fatal(err)
-	}
-
-	w := httptest.NewRecorder()
-
-	mockDecap := BaseBuilderMock{}
-	HooksHandler(BuildScripts{URL: "file://" + dir, Branch: "master"}, &mockDecap)(w, req, []httprouter.Param{httprouter.Param{Key: "repomanager", Value: "nosuchmanager"}})
-
-	if w.Code != 400 {
-		_ = os.RemoveAll(dir)
-		t.Fatalf("Want 400 but got %d\n", w.Code)
-	}
 }
-*/
 
 /*
 func TestHooksHandlerBuildScripts(t *testing.T) {
@@ -144,49 +135,5 @@ func TestHooksHandlerBuildScripts(t *testing.T) {
 		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 200 but got %d\n", w.Code)
 	}
-}
-*/
-
-/*
-func TestHooksHandlerGithubNoEventTypeHeader(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
-	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() {
-		_ = os.RemoveAll(dir)
-	}()
-
-	req, err := http.NewRequest("POST", "http://example.com/hooks/xxx", bytes.NewBufferString(`
-{
-  "ref": "refs/heads/master",
-  "repository": {
-    "id": 35129377,
-    "name": "dynamodb-lab",
-    "full_name": "ae6rt/dynamodb-lab",
-    "owner": {
-      "name": "ae6rt",
-      "email": "ae6rt@users.noreply.github.com"
-    }
-  }
-}
-`,
-	))
-
-	if err != nil {
-		_ = os.RemoveAll(dir)
-		log.Fatal(err)
-	}
-
-	w := httptest.NewRecorder()
-
-	mockDecap := BaseBuilderMock{}
-	HooksHandler(BuildScripts{URL: "file://" + dir, Branch: "master"}, &mockDecap)(w, req, []httprouter.Param{
-		httprouter.Param{Key: "repomanager", Value: "github"},
-	},
-	)
-
 }
 */
