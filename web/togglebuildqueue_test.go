@@ -37,7 +37,7 @@ func TestToggleBuildQueue(t *testing.T) {
 		getShutdownChan <- "any incumbent value will do to avoid blocking on the channel read"
 
 		buildManager := &DefaultBuildManager{logger: log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)}
-		handler := ShutIt(buildManager)
+		handler := ShutdownHandler(buildManager)
 
 		w := httptest.NewRecorder()
 

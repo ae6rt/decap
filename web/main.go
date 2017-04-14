@@ -113,10 +113,10 @@ func main() {
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(buildStore))
 
 	// Return current state of the build queue
-	router.GET("/api/v1/shutdown", ShutIt(buildManager))
+	router.GET("/api/v1/shutdown", ShutdownHandler(buildManager))
 
 	// ShutdownHandler stops the build queue from accepting new build requests.
-	router.POST("/api/v1/shutdown/:state", ShutIt(buildManager))
+	router.POST("/api/v1/shutdown/:state", ShutdownHandler(buildManager))
 
 	// LogLevelHandler toggles debug logging.
 	router.POST("/api/v1/loglevel/:level", LogLevelHandler)

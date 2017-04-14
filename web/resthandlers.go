@@ -107,11 +107,11 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 }
 
 // DeferredBuildsHandler returns information about deferred builds.
-func DeferredBuildsHandler(builder BuildManager) httprouter.Handle {
+func DeferredBuildsHandler(buildManager BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		switch r.Method {
 		case "GET":
-			deferred, err := builder.DeferredBuilds()
+			deferred, err := buildManager.DeferredBuilds()
 			if err != nil {
 				w.WriteHeader(500)
 				_, _ = w.Write(simpleError(err))
@@ -133,7 +133,7 @@ func DeferredBuildsHandler(builder BuildManager) httprouter.Handle {
 				_, _ = w.Write(simpleError(fmt.Errorf("Missing or empty key parameter in clear deferred build")))
 				return
 			}
-			if err := builder.ClearDeferredBuild(key); err != nil {
+			if err := buildManager.ClearDeferredBuild(key); err != nil {
 				w.WriteHeader(500)
 				data, _ := json.Marshal(&v1.UserBuildEvent{Meta: v1.Meta{Error: err.Error()}})
 				_, _ = w.Write(data)
@@ -143,7 +143,7 @@ func DeferredBuildsHandler(builder BuildManager) httprouter.Handle {
 }
 
 // ExecuteBuildHandler handles user-requested build executions.
-func ExecuteBuildHandler(decap BuildManager) httprouter.Handle {
+func ExecuteBuildHandler(buildManager BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		project := params.ByName("project")
@@ -166,14 +166,14 @@ func ExecuteBuildHandler(decap BuildManager) httprouter.Handle {
 		for _, b := range branches {
 			event := v1.UserBuildEvent{Team: team, Project: project, Ref: b}
 			go func() {
-				_ = decap.LaunchBuild(event)
+				_ = buildManager.LaunchBuild(event)
 			}()
 		}
 	}
 }
 
 // HooksHandler handles externally originated SCM events that trigger builds or build-scripts repository refreshes.
-func HooksHandler(projectManager ProjectManager, decap BuildManager) httprouter.Handle {
+func HooksHandler(projectManager ProjectManager, buildManager BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
 
@@ -223,7 +223,7 @@ func HooksHandler(projectManager ProjectManager, decap BuildManager) httprouter.
 			}
 
 			go func() {
-				if err := decap.LaunchBuild(event.BuildEvent()); err != nil {
+				if err := buildManager.LaunchBuild(event.BuildEvent()); err != nil {
 					Log.Printf("Error launching build for event %+v: %v\n", event, err)
 					w.WriteHeader(500)
 					return
@@ -240,10 +240,10 @@ func HooksHandler(projectManager ProjectManager, decap BuildManager) httprouter.
 }
 
 // StopBuildHandler deletes the pod executing the specified build ID.
-func StopBuildHandler(decap BuildManager) httprouter.Handle {
+func StopBuildHandler(buildManager BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
-		if err := decap.DeletePod(buildID); err != nil {
+		if err := buildManager.DeletePod(buildID); err != nil {
 			Log.Println(err)
 			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(500)
@@ -442,8 +442,8 @@ func BuildsHandler(buildStore storage.Service) httprouter.Handle {
 	}
 }
 
-// ShutIt
-func ShutIt(buildManager BuildManager) httprouter.Handle {
+// ShutdownHandler
+func ShutdownHandler(buildManager BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		switch r.Method {
 		case "POST":
