@@ -16,9 +16,6 @@ import (
 )
 
 var (
-	apiServerBaseURL       = flag.String("api-server-base-url", "https://kubernetes.default", "Kubernetes API server base URL")
-	apiServerUser          = flag.String("api-server-username", "admin", "Kubernetes API server username to use if no service acccount API token is present.")
-	apiServerPassword      = flag.String("api-server-password", "admin123", "Kubernetes API server password to use if no service acccount API token is present.")
 	awsKey                 = flag.String("aws-access-key", "", "Default decap AWS access key.  /etc/secrets/aws-key in the cluster overrides this.")
 	awsSecret              = flag.String("aws-secret-key", "", "Default decap AWS access secret.  /etc/secrets/aws-secret in the cluster overrides this.")
 	awsRegion              = flag.String("aws-region", "us-west-1", "Default decap AWS region.  /etc/secrets/aws-region in the cluster overrides this.")
@@ -26,16 +23,13 @@ var (
 	githubClientSecret     = flag.String("github-client-secret", "", "Default Github Client Secret for quering Github repos.  /etc/secrets/github-client-secret in the cluster overrides this.")
 	buildScriptsRepo       = flag.String("build-scripts-repo", "https://github.com/ae6rt/decap-build-scripts.git", "Git repo where userland build scripts are held.")
 	buildScriptsRepoBranch = flag.String("build-scripts-repo-branch", "master", "Branch or revision to use on git repo where userland build scripts are held.")
+	noPodWatcher           = flag.Bool("no-podwatcher", false, "Do not start k8s podwatcher, for dev mode purposes.")
+	versionFlag            = flag.Bool("version", false, "Print version info and exit.")
+)
 
-	// This is a developer-mode flag that allows you to not start the cluster-watcher.  You might want to avoid starting the watcher
-	// because you are smoketesting the user-facing REST API, which may not need interaction with the watcher.
-	noPodWatcher = flag.Bool("no-podwatcher", false, "Do not start k8s podwatcher.")
-
-	versionFlag = flag.Bool("version", false, "Print version info and exit.")
-
-	// Log is the logger for package main
-	Log = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
-
+var (
+	// Log is the global logger.
+	Log          = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 	buildVersion string
 	buildCommit  string
 	buildDate    string
@@ -68,7 +62,7 @@ func main() {
 
 	projectManager := NewDefaultProjectManager(buildScripts)
 
-	buildLauncher := NewBuildLauncher(k8sClient, buildScripts, lockService, deferralService, Log)
+	buildManager := NewBuildManager(k8sClient, projectManager, lockService, deferralService, Log)
 
 	awsCredential := credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}
 	buildStore := storage.NewAWS(awsCredential, Log)
@@ -98,19 +92,19 @@ func main() {
 	router.GET("/api/v1/builds/:team/:project", BuildsHandler(buildStore))
 
 	// Terminates a running build
-	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildLauncher))
+	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildManager))
 
 	// Execute a build on demand
-	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildLauncher))
+	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildManager))
 
 	// Report on teams.  (I think this is a project - msp)
 	router.GET("/api/v1/teams", TeamsHandler)
 
 	// Report on currenly deferred builds.
-	router.GET("/api/v1/deferred", DeferredBuildsHandler(buildLauncher))
+	router.GET("/api/v1/deferred", DeferredBuildsHandler(buildManager))
 
 	// Remove a build from the deferred builds queue.
-	router.POST("/api/v1/deferred", DeferredBuildsHandler(buildLauncher))
+	router.POST("/api/v1/deferred", DeferredBuildsHandler(buildManager))
 
 	//	Return gzipped console log, or console log in plain text if Accept: text/plain is set
 	router.GET("/api/v1/logs/:id", LogHandler(buildStore))
@@ -119,16 +113,16 @@ func main() {
 	router.GET("/api/v1/artifacts/:id", ArtifactsHandler(buildStore))
 
 	// Return current state of the build queue
-	router.GET("/api/v1/shutdown", ShutdownHandler)
+	router.GET("/api/v1/shutdown", ShutIt(buildManager))
 
 	// ShutdownHandler stops the build queue from accepting new build requests.
-	router.POST("/api/v1/shutdown/:state", ShutdownHandler)
+	router.POST("/api/v1/shutdown/:state", ShutIt(buildManager))
 
 	// LogLevelHandler toggles debug logging.
 	router.POST("/api/v1/loglevel/:level", LogLevelHandler)
 
 	// The interface for external SCM systems to post VCS events through post-commit hooks.
-	router.POST("/hooks/:repomanager", HooksHandler(projectManager, buildLauncher))
+	router.POST("/hooks/:repomanager", HooksHandler(projectManager, buildManager))
 
 	projects, err := projectManager.Assemble()
 	if err != nil {
@@ -137,13 +131,13 @@ func main() {
 
 	go func() {
 		c := time.Tick(1 * time.Minute)
-		buildLauncher.LaunchDeferred(c)
+		buildManager.LaunchDeferred(c)
 	}()
 	go projectMux(projects)
 	go logLevelMux(LogDefault)
 	go shutdownMux(BuildQueueOpen)
 	if !*noPodWatcher {
-		go buildLauncher.PodWatcher()
+		go buildManager.PodWatcher()
 	}
 
 	Log.Println("decap ready on port 9090...")

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"time"
 
@@ -18,19 +17,19 @@ import (
 	"github.com/ae6rt/decap/web/uuid"
 )
 
-// NewBuildLauncher is the constructor for a new default Builder instance.
-func NewBuildLauncher(
+// NewBuildManager is the constructor for a new default Builder instance.
+func NewBuildManager(
 	kubernetesClient KubernetesClient,
-	buildScripts BuildScripts,
+	projectManager ProjectManager,
 	distributedLocker lock.LockService,
 	deferralService deferrals.DeferralService,
 	logger *log.Logger,
-) Builder {
-	return DefaultBuilder{
+) BuildManager {
+	return DefaultBuildManager{
 		lockService:      distributedLocker,
 		deferralService:  deferralService,
 		kubernetesClient: kubernetesClient,
-		buildScripts:     buildScripts,
+		projectManager:   projectManager,
 		maxPods:          10,
 		logger:           logger,
 	}
@@ -38,15 +37,15 @@ func NewBuildLauncher(
 
 // LaunchBuild assembles the pod definition, including the base container and sidecars, and calls
 // for the pod creation in the cluster.
-func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
+func (t DefaultBuildManager) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 
-	switch <-getShutdownChan {
-	case BuildQueueClose:
-		Log.Printf("Build queue closed: %+v\n", buildEvent)
+	if !t.QueueIsOpen() {
+		t.logger.Printf("Build queue closed: %+v\n", buildEvent)
 		return nil
 	}
 
 	projectKey := buildEvent.ProjectKey()
+
 	projects := getProjects()
 	project, ok := projects[projectKey]
 
@@ -55,66 +54,62 @@ func (builder DefaultBuilder) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	}
 
 	if !project.Descriptor.IsRefManaged(buildEvent.Ref) {
-		if <-getLogLevelChan == LogDebug {
-			Log.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref, projectKey)
-		}
+		t.logger.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref, projectKey)
 		return nil
 	}
 
 	buildEvent.ID = uuid.Uuid()
 
-	if err := builder.lockService.Acquire(buildEvent); err != nil {
-		Log.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref, err)
-		if err := builder.deferralService.Defer(buildEvent); err != nil {
-			Log.Printf("Failed to defer build: %s/%s\n", projectKey, buildEvent.Ref)
+	if err := t.lockService.Acquire(buildEvent); err != nil {
+		t.logger.Printf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref, err)
+		if err := t.deferralService.Defer(buildEvent); err != nil {
+			t.logger.Printf("Failed to defer build: %s/%s\n", projectKey, buildEvent.Ref)
 		} else {
-			Log.Printf("Deferred build: %s/%s\n", projectKey, buildEvent.Ref)
+			t.logger.Printf("Deferred build: %s/%s\n", projectKey, buildEvent.Ref)
 		}
 		return nil
 	}
 
-	if <-getLogLevelChan == LogDebug {
-		Log.Printf("Acquired lock on build %s for project %s, branch %s\n", buildEvent.ID, projectKey, buildEvent.Ref)
-	}
+	t.logger.Printf("Acquired lock on build %s for project %s, branch %s\n", buildEvent.ID, projectKey, buildEvent.Ref)
 
-	containers := builder.makeContainers(buildEvent, projects)
-	pod := builder.makePod(buildEvent, containers)
-	if err := builder.CreatePod(pod); err != nil {
-		if err := builder.lockService.Release(buildEvent); err != nil {
-			Log.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref)
+	containers := t.makeContainers(buildEvent)
+	pod := t.makePod(buildEvent, containers)
+	if err := t.CreatePod(pod); err != nil {
+		if err := t.lockService.Release(buildEvent); err != nil {
+			t.logger.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref)
 			return nil
 		}
 	}
 
-	Log.Printf("Created pod %s\n", buildEvent.ID)
+	t.logger.Printf("Created pod %s\n", buildEvent.ID)
 
 	return nil
 }
 
 // CreatePod creates a pod in the Kubernetes cluster
 // TODO: this build-job pod will fail to run if the AWS creds are not injected as Secrets.  They had been in env vars.
-func (builder DefaultBuilder) CreatePod(pod *k8sapi.Pod) error {
-	_, err := builder.kubernetesClient.Pods("decap").Create(pod)
+func (t DefaultBuildManager) CreatePod(pod *k8sapi.Pod) error {
+	_, err := t.kubernetesClient.Pods("decap").Create(pod)
 	return err
 }
 
 // DeletePod removes the Pod from the Kubernetes cluster
-func (builder DefaultBuilder) DeletePod(podName string) error {
-	err := builder.kubernetesClient.Pods("decap").Delete(podName, &k8sapi.DeleteOptions{})
+func (t DefaultBuildManager) DeletePod(podName string) error {
+	err := t.kubernetesClient.Pods("decap").Delete(podName, &k8sapi.DeleteOptions{})
 	return err
 }
 
 // Podwatcher watches the k8s master API for pod events.
-func (builder DefaultBuilder) PodWatcher() {
+func (t DefaultBuildManager) PodWatcher() {
 
 	deleted := make(map[string]struct{})
 
 	for {
-		watched, err := builder.kubernetesClient.Pods("decap").Watch(k8sapi.ListOptions{
+		watched, err := t.kubernetesClient.Pods("decap").Watch(k8sapi.ListOptions{
 			LabelSelector: "type=decap-build",
 		})
 		if err != nil {
-			Log.Printf("Error watching cluster: %v\n", err)
+			t.logger.Printf("Error watching cluster: %v\n", err)
 			continue
 		}
 
@@ -133,11 +128,11 @@ func (builder DefaultBuilder) PodWatcher() {
 
 			// Delete the build pod if it has not already bene deleted.
 			if _, present := deleted[pod.Name]; !present && deletePod {
-				if err := builder.kubernetesClient.Pods("decap").Delete(pod.Name, nil); err != nil {
-					Log.Printf("Error deleting build-server pod: %v\n", err)
+				if err := t.kubernetesClient.Pods("decap").Delete(pod.Name, nil); err != nil {
+					t.logger.Printf("Error deleting build-server pod: %v\n", err)
 				} else {
 					deleted[pod.Name] = struct{}{}
-					Log.Printf("Deleted pod %s\n", pod.Name)
+					t.logger.Printf("Deleted pod %s\n", pod.Name)
 				}
 			}
 		}
@@ -145,58 +140,49 @@ func (builder DefaultBuilder) PodWatcher() {
 }
 
 // DeferBuild puts the build event on the deferral queue.
-func (builder DefaultBuilder) DeferBuild(event v1.UserBuildEvent) error {
-	return builder.deferralService.Defer(event)
+func (t DefaultBuildManager) DeferBuild(event v1.UserBuildEvent) error {
+	return t.deferralService.Defer(event)
 }
 
 // DeferredBuilds returns the current queue of deferred builds.  Deferred builds
 // are deduped, but preserve the time order of unique entries.
-func (builder DefaultBuilder) DeferredBuilds() ([]v1.UserBuildEvent, error) {
-	return builder.deferralService.List()
+func (t DefaultBuildManager) DeferredBuilds() ([]v1.UserBuildEvent, error) {
+	return t.deferralService.List()
 }
 
 // ClearDeferredBuild removes builds with the given key from the deferral queue.  If more than one
 // build in the queue has this key, they will all be removed.
-func (builder DefaultBuilder) ClearDeferredBuild(key string) error {
-	if err := builder.deferralService.Remove(key); err != nil {
+func (t DefaultBuildManager) ClearDeferredBuild(key string) error {
+	if err := t.deferralService.Remove(key); err != nil {
 		return err
 	}
 	return nil
 }
 
 // LaunchDeferred is wrapped in a goroutine, and reads deferred builds from storage and attempts a relaunch of each.
-func (builder DefaultBuilder) LaunchDeferred(ticker <-chan time.Time) {
+func (t DefaultBuildManager) LaunchDeferred(ticker <-chan time.Time) {
 	for _ = range ticker {
-		deferredBuilds, err := builder.deferralService.Poll()
+		deferredBuilds, err := t.deferralService.Poll()
 		if err != nil {
-			builder.logger.Printf("error retrieving deferred builds: %v\n", err)
+			t.logger.Printf("error retrieving deferred builds: %v\n", err)
 		}
 		for _, evt := range deferredBuilds {
-			err := builder.LaunchBuild(evt)
+			err := t.LaunchBuild(evt)
 			if err != nil {
-				Log.Printf("Error launching deferred build: %+v\n", err)
+				t.logger.Printf("Error launching deferred build: %+v\n", err)
 			} else {
-				Log.Printf("Launched deferred build: %+v\n", evt)
+				t.logger.Printf("Launched deferred build: %+v\n", evt)
 			}
 		}
 	}
 }
 
-func kubeSecret(file string, defaultValue string) string {
-	v, err := ioutil.ReadFile(file)
-	if err != nil {
-		Log.Printf("Secret %s not found in the filesystem.  Using default.\n", file)
-		return defaultValue
-	}
-	Log.Printf("Successfully read secret %s from the filesystem\n", file)
-	return string(v)
-}
-
-func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) k8sapi.Container {
+func (t DefaultBuildManager) makeBaseContainer(buildEvent v1.UserBuildEvent) k8sapi.Container {
 	projectKey := buildEvent.ProjectKey()
+
 	return k8sapi.Container{
 		Name:  "build-server",
-		Image: projects[projectKey].Descriptor.Image,
+		Image: t.projectManager.Get(projectKey).Descriptor.Image,
 		VolumeMounts: []k8sapi.VolumeMount{
 			k8sapi.VolumeMount{
 				Name:      "build-scripts",
@@ -220,6 +206,8 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, pr
 				Name:  "BRANCH_TO_BUILD",
 				Value: buildEvent.Ref,
 			},
+
+			// todo Builds do not manage their own locks now.  Can this be removed?  msp april 2017
 			k8sapi.EnvVar{
 				Name:  "BUILD_LOCK_KEY",
 				Value: buildEvent.Lockname(),
@@ -228,15 +216,18 @@ func (builder DefaultBuilder) makeBaseContainer(buildEvent v1.UserBuildEvent, pr
 	}
 }
 
-func (builder DefaultBuilder) makeSidecarContainers(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) []k8sapi.Container {
+func (t DefaultBuildManager) makeSidecarContainers(buildEvent v1.UserBuildEvent) []k8sapi.Container {
 	projectKey := buildEvent.ProjectKey()
-	arr := make([]k8sapi.Container, len(projects[projectKey].Sidecars))
 
-	for i, v := range projects[projectKey].Sidecars {
+	sidecars := t.projectManager.Get(projectKey).Sidecars
+
+	arr := make([]k8sapi.Container, len(sidecars))
+
+	for i, v := range sidecars {
 		var c k8sapi.Container
 		err := json.Unmarshal([]byte(v), &c)
 		if err != nil {
-			Log.Println(err)
+			t.logger.Println(err)
 			continue
 		}
 		arr[i] = c
@@ -244,7 +235,7 @@ func (builder DefaultBuilder) makeSidecarContainers(buildEvent v1.UserBuildEvent
 	return arr
 }
 
-func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, containers []k8sapi.Container) *k8sapi.Pod {
+func (t DefaultBuildManager) makePod(buildEvent v1.UserBuildEvent, containers []k8sapi.Container) *k8sapi.Pod {
 	return &k8sapi.Pod{
 		TypeMeta: unversioned.TypeMeta{
 			Kind:       "Pod",
@@ -267,8 +258,8 @@ func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, containers [
 					Name: "build-scripts",
 					VolumeSource: k8sapi.VolumeSource{
 						GitRepo: &k8sapi.GitRepoVolumeSource{
-							Repository: builder.buildScripts.URL,
-							Revision:   builder.buildScripts.Branch,
+							Repository: t.projectManager.RepositoryURL(),
+							Revision:   t.projectManager.RepositoryBranch(),
 						},
 					},
 				},
@@ -287,12 +278,27 @@ func (builder DefaultBuilder) makePod(buildEvent v1.UserBuildEvent, containers [
 	}
 }
 
-func (builder DefaultBuilder) makeContainers(buildEvent v1.UserBuildEvent, projects map[string]v1.Project) []k8sapi.Container {
-	baseContainer := builder.makeBaseContainer(buildEvent, projects)
-	sidecars := builder.makeSidecarContainers(buildEvent, projects)
+func (t DefaultBuildManager) makeContainers(buildEvent v1.UserBuildEvent) []k8sapi.Container {
+	baseContainer := t.makeBaseContainer(buildEvent)
+	sidecars := t.makeSidecarContainers(buildEvent)
 
 	var containers []k8sapi.Container
 	containers = append(containers, baseContainer)
 	containers = append(containers, sidecars...)
 	return containers
+}
+
+// QueueIsOpen returns true if the build queue is open; false otherwise.
+func (t DefaultBuildManager) QueueIsOpen() bool {
+	return <-getShutdownChan == "open"
+}
+
+func (t DefaultBuildManager) OpenQueue() {
+	setShutdownChan <- BuildQueueOpen
+	t.logger.Println("Build queue is open.")
+}
+
+func (t DefaultBuildManager) CloseQueue() {
+	setShutdownChan <- BuildQueueClose
+	t.logger.Println("Build queue is closed.")
 }

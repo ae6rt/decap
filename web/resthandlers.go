@@ -107,7 +107,7 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 }
 
 // DeferredBuildsHandler returns information about deferred builds.
-func DeferredBuildsHandler(builder Builder) httprouter.Handle {
+func DeferredBuildsHandler(builder BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		switch r.Method {
 		case "GET":
@@ -143,7 +143,7 @@ func DeferredBuildsHandler(builder Builder) httprouter.Handle {
 }
 
 // ExecuteBuildHandler handles user-requested build executions.
-func ExecuteBuildHandler(decap Builder) httprouter.Handle {
+func ExecuteBuildHandler(decap BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		project := params.ByName("project")
@@ -173,7 +173,7 @@ func ExecuteBuildHandler(decap Builder) httprouter.Handle {
 }
 
 // HooksHandler handles externally originated SCM events that trigger builds or build-scripts repository refreshes.
-func HooksHandler(projectManager ProjectManager, decap Builder) httprouter.Handle {
+func HooksHandler(projectManager ProjectManager, decap BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
 
@@ -240,7 +240,7 @@ func HooksHandler(projectManager ProjectManager, decap Builder) httprouter.Handl
 }
 
 // StopBuildHandler deletes the pod executing the specified build ID.
-func StopBuildHandler(decap Builder) httprouter.Handle {
+func StopBuildHandler(decap BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")
 		if err := decap.DeletePod(buildID); err != nil {
@@ -442,33 +442,38 @@ func BuildsHandler(buildStore storage.Service) httprouter.Handle {
 	}
 }
 
-// ShutdownHandler stops the build queue from accepting new build requests.
-func ShutdownHandler(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	switch r.Method {
-	case "POST":
-		shutdownState := params.ByName("state")
-		switch shutdownState {
-		case BuildQueueClose:
-			if <-getShutdownChan == BuildQueueOpen {
-				Log.Printf("Shutdown state changed to %s\n", shutdownState)
+// ShutIt
+func ShutIt(buildManager BuildManager) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		switch r.Method {
+		case "POST":
+			shutdownState := params.ByName("state")
+			switch shutdownState {
+			case BuildQueueClose:
+				buildManager.OpenQueue()
+			case BuildQueueOpen:
+				buildManager.CloseQueue()
+			default:
+				w.Header().Set("Content-type", "application/json")
+				w.WriteHeader(400)
+				_, _ = w.Write(simpleError(fmt.Errorf("Unsupported shutdown state: %v.  Valid states are [%s|%s]", shutdownState, BuildQueueOpen, BuildQueueClose)))
+				return
 			}
-			setShutdownChan <- shutdownState
-		case BuildQueueOpen:
-			if <-getShutdownChan == BuildQueueClose {
-				Log.Printf("Shutdown state changed to %s\n", shutdownState)
+		case "GET":
+			var state string
+
+			switch buildManager.QueueIsOpen() {
+			case true:
+				state = BuildQueueOpen
+			case false:
+				state = BuildQueueClose
 			}
-			setShutdownChan <- shutdownState
-		default:
+			var data []byte
 			w.Header().Set("Content-type", "application/json")
-			w.WriteHeader(400)
-			_, _ = w.Write(simpleError(fmt.Errorf("Unsupported shutdown state: %v", shutdownState)))
-			return
+
+			data, _ = json.Marshal(&v1.ShutdownState{State: state})
+			_, _ = w.Write(data)
 		}
-	case "GET":
-		var data []byte
-		w.Header().Set("Content-type", "application/json")
-		data, _ = json.Marshal(&v1.ShutdownState{State: <-getShutdownChan})
-		_, _ = w.Write(data)
 	}
 }
 

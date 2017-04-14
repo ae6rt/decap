@@ -37,6 +37,25 @@ func (t DefaultProjectManager) Set(projects map[string]v1.Project) {
 	setProjects(projects)
 }
 
+// Get returns the project by key.
+func (t DefaultProjectManager) Get(projectKey string) *v1.Project {
+	p, ok := getProjects()[projectKey]
+	if !ok {
+		return nil
+	}
+	return &p
+}
+
+// RepositoryURL returns the URL of the underlying projects repository.
+func (t DefaultProjectManager) RepositoryURL() string {
+	return t.buildScripts.URL
+}
+
+// RepositoryBranch returns the branch of the underlying repository.
+func (t DefaultProjectManager) RepositoryBranch() string {
+	return t.buildScripts.Branch
+}
+
 // NewDefaultProjectManager returns the working project manager.
 func NewDefaultProjectManager(buildScripts BuildScripts) ProjectManager {
 	return DefaultProjectManager{buildScripts: buildScripts}

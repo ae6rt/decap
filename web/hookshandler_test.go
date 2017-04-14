@@ -15,7 +15,7 @@ import (
 )
 
 type HooksLauncher struct {
-	BaseLauncherMock
+	BuildManagerBaseMock
 	wg           *sync.WaitGroup
 	captureEvent v1.UserBuildEvent
 	forceError   bool
@@ -36,6 +36,7 @@ type ProjectsMock struct {
 	ProjectManagerBaseMock
 	assembled bool
 	set       bool
+	get       bool
 }
 
 func (t *ProjectsMock) Assemble() (map[string]v1.Project, error) {

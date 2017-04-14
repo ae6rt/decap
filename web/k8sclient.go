@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"os"
 
 	"k8s.io/client-go/kubernetes"
@@ -27,4 +28,14 @@ func NewKubernetesClient() (KubernetesClient, error) {
 
 	clientset, err := kubernetes.NewForConfig(cfg)
 	return clientset.CoreV1(), err
+}
+
+func kubeSecret(file string, defaultValue string) string {
+	v, err := ioutil.ReadFile(file)
+	if err != nil {
+		Log.Printf("Secret %s not found in the filesystem.  Using default.\n", file)
+		return defaultValue
+	}
+	Log.Printf("Successfully read secret %s from the filesystem\n", file)
+	return string(v)
 }
