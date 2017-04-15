@@ -46,10 +46,8 @@ func (t DefaultBuildManager) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 
 	projectKey := buildEvent.ProjectKey()
 
-	projects := getProjects()
-	project, ok := projects[projectKey]
-
-	if !ok {
+	project := t.projectManager.Get(projectKey)
+	if project == nil {
 		return fmt.Errorf("Project %s is missing from build scripts repository.\n", projectKey)
 	}
 

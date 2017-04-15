@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -143,21 +144,15 @@ func DeferredBuildsHandler(buildManager BuildManager) httprouter.Handle {
 }
 
 // ExecuteBuildHandler handles user-requested build executions.
-func ExecuteBuildHandler(buildManager BuildManager) httprouter.Handle {
+func ExecuteBuildHandler(buildManager BuildManager, logger *log.Logger) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		project := params.ByName("project")
 
-		if _, present := projectByTeamName(team, project); !present {
-			Log.Printf("Unknown project %s/%s", team, project)
-			w.WriteHeader(404)
-			_, _ = w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, project)))
-			return
-		}
-
 		branches := r.URL.Query()["branch"]
+
 		if len(branches) == 0 {
-			Log.Println("No branches specified")
+			logger.Println("No branches specified.")
 			w.WriteHeader(400)
 			_, _ = w.Write(simpleError(fmt.Errorf("No branches specified")))
 			return
@@ -166,26 +161,29 @@ func ExecuteBuildHandler(buildManager BuildManager) httprouter.Handle {
 		for _, b := range branches {
 			event := v1.UserBuildEvent{Team: team, Project: project, Ref: b}
 			go func() {
-				_ = buildManager.LaunchBuild(event)
+				if err := buildManager.LaunchBuild(event); err != nil {
+					logger.Printf("Error launching build: %v\n", err)
+				}
 			}()
 		}
+		w.WriteHeader(200)
 	}
 }
 
 // HooksHandler handles externally originated SCM events that trigger builds or build-scripts repository refreshes.
-func HooksHandler(projectManager ProjectManager, buildManager BuildManager) httprouter.Handle {
+func HooksHandler(projectManager ProjectManager, buildManager BuildManager, logger *log.Logger) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
 
 		if r.Body == nil {
-			Log.Println("Expecting an HTTP entity")
+			logger.Println("Expecting an HTTP entity")
 			w.WriteHeader(400)
 			return
 		}
 
 		data, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			Log.Printf("Error reading hook payload: %v\n", err)
+			logger.Printf("Error reading hook payload: %v\n", err)
 			w.WriteHeader(400)
 			return
 		}
@@ -197,12 +195,12 @@ func HooksHandler(projectManager ProjectManager, buildManager BuildManager) http
 		case "buildscripts":
 			p, err := projectManager.Assemble()
 			if err != nil {
-				Log.Printf("Error refreshing build scripts: %v\n", err)
+				logger.Printf("Error refreshing build scripts: %v\n", err)
 				w.WriteHeader(500)
 				return
 			}
 			projectManager.Set(p)
-			Log.Println("Build scripts refreshed.")
+			logger.Println("Build scripts refreshed.")
 		case "github":
 			var event GithubEvent
 
@@ -211,26 +209,26 @@ func HooksHandler(projectManager ProjectManager, buildManager BuildManager) http
 			case "create":
 			case "push":
 			default:
-				Log.Printf("Unhandled Github event type <%s>.  See https://developer.github.com/webhooks/#delivery-headers.", eventType)
+				logger.Printf("Unhandled Github event type <%s>.  See https://developer.github.com/webhooks/#delivery-headers.", eventType)
 				w.WriteHeader(400)
 				return
 			}
 
 			if err := json.Unmarshal(data, &event); err != nil {
-				Log.Printf("Error unmarshaling Github event: %v\n", err)
+				logger.Printf("Error unmarshaling Github event: %v\n", err)
 				w.WriteHeader(500)
 				return
 			}
 
 			go func() {
 				if err := buildManager.LaunchBuild(event.BuildEvent()); err != nil {
-					Log.Printf("Error launching build for event %+v: %v\n", event, err)
+					logger.Printf("Error launching build for event %+v: %v\n", event, err)
 					w.WriteHeader(500)
 					return
 				}
 			}()
 		default:
-			Log.Printf("repomanager %s not supported\n", repoManager)
+			logger.Printf("repomanager %s not supported\n", repoManager)
 			w.WriteHeader(400)
 			return
 		}
@@ -240,6 +238,7 @@ func HooksHandler(projectManager ProjectManager, buildManager BuildManager) http
 }
 
 // StopBuildHandler deletes the pod executing the specified build ID.
+// todo inject a logger
 func StopBuildHandler(buildManager BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		buildID := params.ByName("id")

@@ -14,14 +14,14 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type HooksLauncher struct {
+type HooksManager struct {
 	BuildManagerBaseMock
 	wg           *sync.WaitGroup
 	captureEvent v1.UserBuildEvent
 	forceError   bool
 }
 
-func (t *HooksLauncher) LaunchBuild(event v1.UserBuildEvent) error {
+func (t *HooksManager) LaunchBuild(event v1.UserBuildEvent) error {
 	defer t.wg.Done()
 
 	var err error
@@ -32,19 +32,19 @@ func (t *HooksLauncher) LaunchBuild(event v1.UserBuildEvent) error {
 	return err
 }
 
-type ProjectsMock struct {
+type HooksProjects struct {
 	ProjectManagerBaseMock
 	assembled bool
 	set       bool
 	get       bool
 }
 
-func (t *ProjectsMock) Assemble() (map[string]v1.Project, error) {
+func (t *HooksProjects) Assemble() (map[string]v1.Project, error) {
 	t.assembled = true
 	return nil, nil
 }
 
-func (t *ProjectsMock) Set(map[string]v1.Project) {
+func (t *HooksProjects) Set(map[string]v1.Project) {
 	t.set = true
 }
 
@@ -95,11 +95,11 @@ func TestHooksHandler(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		var wg sync.WaitGroup
-		launcher := &HooksLauncher{wg: &wg}
-		projectManager := &ProjectsMock{}
+		launcher := &HooksManager{wg: &wg}
+		projectManager := &HooksProjects{}
 
 		wg.Add(1)
-		HooksHandler(projectManager, launcher)(w, req, []httprouter.Param{httprouter.Param{Key: "repomanager", Value: test.endpoint}})
+		HooksHandler(projectManager, launcher, Log)(w, req, []httprouter.Param{httprouter.Param{Key: "repomanager", Value: test.endpoint}})
 
 		if w.Code != test.wantHTTPResponseCode {
 			t.Errorf("Test %d: want %d, got %d\n", testNumber, test.wantHTTPResponseCode, w.Code)

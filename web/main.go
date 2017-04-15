@@ -49,12 +49,13 @@ func main() {
 	*githubClientID = kubeSecret("/etc/secrets/github-client-id", *githubClientID)
 	*githubClientSecret = kubeSecret("/etc/secrets/github-client-secret", *githubClientSecret)
 
-	deferralService := deferrals.NewDefault(Log)
+	// Create collaborating services.
 
 	k8sClient, err := NewKubernetesClient()
 	if err != nil {
 		Log.Fatalf("Cannot create Kubernetes client: %v\n", err)
 	}
+	deferralService := deferrals.NewDefault(Log)
 
 	lockService := lock.NewDefault(k8sClient)
 
@@ -65,11 +66,14 @@ func main() {
 	buildManager := NewBuildManager(k8sClient, projectManager, lockService, deferralService, Log)
 
 	awsCredential := credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}
+
 	buildStore := storage.NewAWS(awsCredential, Log)
 
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithub("https://api.github.com", *githubClientID, *githubClientSecret),
 	}
+
+	// Setup HTTP routing
 
 	router := httprouter.New()
 
@@ -95,7 +99,7 @@ func main() {
 	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildManager))
 
 	// Execute a build on demand
-	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildManager))
+	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildManager, Log))
 
 	// Report on teams.  (I think this is a project - msp)
 	router.GET("/api/v1/teams", TeamsHandler)
@@ -122,7 +126,7 @@ func main() {
 	router.POST("/api/v1/loglevel/:level", LogLevelHandler)
 
 	// The interface for external SCM systems to post VCS events through post-commit hooks.
-	router.POST("/hooks/:repomanager", HooksHandler(projectManager, buildManager))
+	router.POST("/hooks/:repomanager", HooksHandler(projectManager, buildManager, Log))
 
 	projects, err := projectManager.Assemble()
 	if err != nil {

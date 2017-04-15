@@ -1,111 +1,87 @@
 package main
 
-// todo @@@ testme
-/*
+import (
+	"errors"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"sync"
+	"testing"
+
+	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/julienschmidt/httprouter"
+)
+
+type ExecManager struct {
+	BuildManagerBaseMock
+	wg           *sync.WaitGroup
+	captureEvent v1.UserBuildEvent
+	forceError   bool
+}
+
+func (t *ExecManager) LaunchBuild(event v1.UserBuildEvent) error {
+	defer t.wg.Done()
+	var err error
+	if t.forceError {
+		err = errors.New("Forced error")
+	}
+	t.captureEvent = event
+	return err
+}
+
 func TestExecuteBuild(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
-	req, err := http.NewRequest("POST", "http://example.com/ae6rt/p1?branch=master", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	projectGetChan = make(chan map[string]v1.Project, 1)
-	projectGetChan <- map[string]v1.Project{
-		"ae6rt/p1": v1.Project{
-			Team: "ae6rt",
+	var tests = []struct {
+		team             string
+		project          string
+		ref              string
+		wantHTTPResponse int
+	}{
+		{
+			team:             "ae6rt",
+			project:          "p1",
+			ref:              "?branch=master&branch=develop",
+			wantHTTPResponse: 200,
 		},
-		"wn0owp/p2": v1.Project{
-			Team: "wn0owp",
-		},
-	}
-
-	w := httptest.NewRecorder()
-
-	mockDecap := MockBuilder{}
-
-	ExecuteBuildHandler(&mockDecap)(w, req, []httprouter.Param{
-		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "project", Value: "p1"},
-	},
-	)
-
-	// Let the goroutine finish.  Yuck.
-	// TODO revisit this - March 2017
-	time.Sleep(500 * time.Millisecond)
-
-	if mockDecap.event.Team != "ae6rt" {
-		t.Fatalf("Want ae6rt but got %s\n", mockDecap.event.Team)
-	}
-	if mockDecap.event.Project != "p1" {
-		t.Fatalf("Want p1 but got %s\n", mockDecap.event.Project)
-	}
-
-}
-
-func TestExecuteBuildNoBranches(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
-	req, err := http.NewRequest("POST", "http://example.com/ae6rt/p1", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	projectGetChan = make(chan map[string]v1.Project, 1)
-	projectGetChan <- map[string]v1.Project{
-		"ae6rt/p1": v1.Project{
-			Team: "ae6rt",
-		},
-		"wn0owp/p2": v1.Project{
-			Team: "wn0owp",
+		{
+			team:             "ae6rt",
+			project:          "p1",
+			wantHTTPResponse: 400,
 		},
 	}
+	for testNumber, test := range tests {
+		Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-	w := httptest.NewRecorder()
+		req, err := http.NewRequest("POST", "http://example.com/api/v1/builds/"+test.team+"/"+test.project+test.ref, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	mockDecap := MockBuilder{}
+		w := httptest.NewRecorder()
 
-	ExecuteBuildHandler(&mockDecap)(w, req, []httprouter.Param{
-		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "project", Value: "p1"},
-	},
-	)
+		var wg sync.WaitGroup
+		buildManager := ExecManager{wg: &wg}
 
-	if w.Code != 400 {
-		t.Fatalf("Want 400 but got %d\n", w.Code)
+		wg.Add(strings.Count(test.ref, "branch="))
+
+		ExecuteBuildHandler(&buildManager, Log)(w, req, []httprouter.Param{httprouter.Param{Key: "team", Value: test.team}, httprouter.Param{Key: "project", Value: test.project}})
+
+		if w.Code != test.wantHTTPResponse {
+			t.Errorf("Test %d: want %d, got %d\n", testNumber, test.wantHTTPResponse, w.Code)
+		}
+
+		if w.Code != 200 {
+			continue
+		}
+
+		wg.Wait()
+
+		if buildManager.captureEvent.Team != test.team {
+			t.Errorf("Test %d: Want %s but got %s\n", testNumber, test.team, buildManager.captureEvent.Team)
+		}
+		if buildManager.captureEvent.Project != test.project {
+			t.Errorf("Test %d: Want %s but got %s\n", testNumber, test.project, buildManager.captureEvent.Project)
+		}
 	}
 }
-
-func TestExecuteBuildNoSuchProject(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
-	req, err := http.NewRequest("POST", "http://example.com/ae6rt/p1", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	projectGetChan = make(chan map[string]v1.Project, 1)
-	projectGetChan <- map[string]v1.Project{
-		"ae6rt/p1": v1.Project{
-			Team: "ae6rt",
-		},
-		"wn0owp/p2": v1.Project{
-			Team: "wn0owp",
-		},
-	}
-
-	w := httptest.NewRecorder()
-
-	mockDecap := MockBuilder{}
-
-	ExecuteBuildHandler(&mockDecap)(w, req, []httprouter.Param{
-		httprouter.Param{Key: "team", Value: "blah"},
-		httprouter.Param{Key: "project", Value: "p1"},
-	},
-	)
-
-	if w.Code != 404 {
-		t.Fatalf("Want 404 but got %d\n", w.Code)
-	}
-}
-*/

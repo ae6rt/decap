@@ -51,6 +51,7 @@ func (d *BuildManagerBaseMock) CloseQueue() {
 }
 
 // deprecated
+/*
 type MockBuilder struct {
 	deferred    []v1.UserBuildEvent
 	event       v1.UserBuildEvent
@@ -99,3 +100,4 @@ func (d *MockBuilder) ClearDeferredBuild(key string) error {
 	d.deferralKey = key
 	return d.err
 }
+*/
