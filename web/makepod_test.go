@@ -106,12 +106,18 @@ func TestMakePod(t *testing.T) {
 			t.Errorf("Test %d: want repo but got %v\n", testNumber, volume.VolumeSource.Secret.SecretName)
 		}
 
-		if len(pod.Spec.Containers) != 1+len(sidecars) {
-			t.Errorf("Test %d: want %d but got %v\n", testNumber, 1+len(sidecars), len(pod.Spec.Containers))
-		}
-
 		if pod.Spec.RestartPolicy != "Never" {
 			t.Errorf("Test %d: want Never but got %v\n", testNumber, pod.Spec.RestartPolicy)
+		}
+
+		// Test side car assembly
+		if len(pod.Spec.Containers) != 1+len(sidecars) {
+			t.Errorf("Test %d: want sidecar length %d, got %v\n", testNumber, 1+len(sidecars), len(pod.Spec.Containers))
+		}
+		for k, v := range []string{"mysql", "rabbitmq"} {
+			if pod.Spec.Containers[k+1].Name != v {
+				t.Errorf("Test %d: want %s, got %s\n", testNumber, v, pod.Spec.Containers[k+1].Name)
+			}
 		}
 	}
 }
