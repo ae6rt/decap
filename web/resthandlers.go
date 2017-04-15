@@ -110,6 +110,8 @@ func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 // DeferredBuildsHandler returns information about deferred builds.
 func DeferredBuildsHandler(buildManager BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		w.Header().Set("Content-type", "application/json")
+
 		switch r.Method {
 		case "GET":
 			deferred, err := buildManager.DeferredBuilds()
@@ -125,13 +127,12 @@ func DeferredBuildsHandler(buildManager BuildManager) httprouter.Handle {
 				_, _ = w.Write(simpleError(err))
 				return
 			}
-			w.Header().Set("Content-type", "application/json")
 			_, _ = w.Write(data)
 		case "POST":
 			key := r.URL.Query().Get("key")
 			if key == "" {
 				w.WriteHeader(400)
-				_, _ = w.Write(simpleError(fmt.Errorf("Missing or empty key parameter in clear deferred build")))
+				_, _ = w.Write(simpleError(fmt.Errorf("Missing or empty key parameter in clear deferred build.")))
 				return
 			}
 			if err := buildManager.ClearDeferredBuild(key); err != nil {
