@@ -11,3 +11,15 @@ func (t *ProjectManagerBaseMock) Assemble() (map[string]v1.Project, error) {
 
 func (t *ProjectManagerBaseMock) Set(map[string]v1.Project) {
 }
+
+func (t *HooksProjects) Get(key string) *v1.Project {
+	return nil
+}
+
+func (t *ProjectManagerBaseMock) RepositoryURL() string {
+	return ""
+}
+
+func (t *ProjectManagerBaseMock) RepositoryBranch() string {
+	return ""
+}

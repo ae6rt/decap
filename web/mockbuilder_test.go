@@ -7,40 +7,51 @@ import (
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 )
 
-type BaseLauncherMock struct {
+type BuildManagerBaseMock struct {
 }
 
-func (d *BaseLauncherMock) LaunchBuild(p v1.UserBuildEvent) error {
+func (d *BuildManagerBaseMock) LaunchBuild(p v1.UserBuildEvent) error {
 	return nil
 }
 
-func (d *BaseLauncherMock) DeletePod(podName string) error {
+func (d *BuildManagerBaseMock) DeletePod(podName string) error {
 	return nil
 }
 
-func (d *BaseLauncherMock) DeferBuild(event v1.UserBuildEvent) error {
+func (d *BuildManagerBaseMock) DeferBuild(event v1.UserBuildEvent) error {
 	return nil
 }
 
-func (d *BaseLauncherMock) DeferredBuilds() ([]v1.UserBuildEvent, error) {
+func (d *BuildManagerBaseMock) DeferredBuilds() ([]v1.UserBuildEvent, error) {
 	return nil, nil
 }
 
-func (d *BaseLauncherMock) CreatePod(pod *k8sapi.Pod) error {
+func (d *BuildManagerBaseMock) CreatePod(pod *k8sapi.Pod) error {
 	return nil
 }
 
-func (d *BaseLauncherMock) PodWatcher() {
+func (d *BuildManagerBaseMock) PodWatcher() {
 }
 
-func (d *BaseLauncherMock) LaunchDeferred(ticker <-chan time.Time) {
+func (d *BuildManagerBaseMock) LaunchDeferred(ticker <-chan time.Time) {
 }
 
-func (d *BaseLauncherMock) ClearDeferredBuild(key string) error {
+func (d *BuildManagerBaseMock) ClearDeferredBuild(key string) error {
 	return nil
+}
+
+func (d *BuildManagerBaseMock) QueueIsOpen() bool {
+	return true
+}
+
+func (d *BuildManagerBaseMock) OpenQueue() {
+}
+
+func (d *BuildManagerBaseMock) CloseQueue() {
 }
 
 // deprecated
+/*
 type MockBuilder struct {
 	deferred    []v1.UserBuildEvent
 	event       v1.UserBuildEvent
@@ -52,6 +63,10 @@ type MockBuilder struct {
 func (d *MockBuilder) LaunchBuild(p v1.UserBuildEvent) error {
 	d.event = p
 	return nil
+}
+
+func (d *MockBuilder) QueueIsOpen() bool {
+	return true
 }
 
 func (d *MockBuilder) DeletePod(podName string) error {
@@ -85,3 +100,4 @@ func (d *MockBuilder) ClearDeferredBuild(key string) error {
 	d.deferralKey = key
 	return d.err
 }
+*/

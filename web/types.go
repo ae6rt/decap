@@ -12,13 +12,13 @@ import (
 	"github.com/ae6rt/decap/web/lock"
 )
 
-// DefaultBuilder models the main interface between Decap and Kubernetes.  This is the location where creating and deleting pods
+// DefaultBuildManager models the main interface between Decap and Kubernetes.  This is the location where creating and deleting pods
 // and locking or deferring builds takes place.
-type DefaultBuilder struct {
+type DefaultBuildManager struct {
 	lockService      lock.LockService
 	deferralService  deferrals.DeferralService
 	maxPods          int
-	buildScripts     BuildScripts
+	projectManager   ProjectManager
 	kubernetesClient k8sv1.PodsGetter
 	logger           *log.Logger
 }
@@ -30,8 +30,8 @@ type RepoManagerCredential struct {
 	Password string
 }
 
-// Builder models the interaction between Decap and Kubernetes and the locking service that locks and defers builds.
-type Builder interface {
+// BuildManager models the interaction between Decap and Kubernetes and the locking service that locks and defers builds.
+type BuildManager interface {
 	LaunchBuild(v1.UserBuildEvent) error
 	CreatePod(*k8sapi.Pod) error
 	DeletePod(podName string) error
@@ -39,6 +39,9 @@ type Builder interface {
 	LaunchDeferred(ticker <-chan time.Time)
 	ClearDeferredBuild(key string) error
 	DeferredBuilds() ([]v1.UserBuildEvent, error)
+	QueueIsOpen() bool
+	CloseQueue()
+	OpenQueue()
 	PodWatcher()
 }
 
@@ -61,5 +64,8 @@ type KubernetesClient interface {
 // ProjectManager is the interface to the build scripts repository.
 type ProjectManager interface {
 	Assemble() (map[string]v1.Project, error)
+	Get(key string) *v1.Project
 	Set(map[string]v1.Project)
+	RepositoryURL() string
+	RepositoryBranch() string
 }

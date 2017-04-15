@@ -58,7 +58,7 @@ func (stash StashEvent) Refs() []string {
 
 // StashHandler handles launching a build for Stash post commit hook events.
 type StashHandler struct {
-	decap Builder
+	decap BuildManager
 }
 
 // The http handler for handling Stash post commit hook events.

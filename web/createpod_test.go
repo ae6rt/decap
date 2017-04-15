@@ -27,7 +27,8 @@ func TestCreatePod(t *testing.T) {
 	}))
 	defer testServer.Close()
 
-	builder := NewBuildLauncher(&mockK8sClient{}, BuildScripts{URL: "repo", Branch: "repobranch"}, MockLockService{}, MockDeferralService{}, nil)
+	projectManager := DefaultProjectManager{}
+	builder := NewBuildManager(&mockK8sClient{}, projectManager, MockLockService{}, MockDeferralService{}, nil)
 
 	err := builder.CreatePod(nil)
 	if err != nil {
