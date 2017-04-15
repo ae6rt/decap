@@ -137,8 +137,7 @@ func DeferredBuildsHandler(buildManager BuildManager) httprouter.Handle {
 			}
 			if err := buildManager.ClearDeferredBuild(key); err != nil {
 				w.WriteHeader(500)
-				data, _ := json.Marshal(&v1.UserBuildEvent{Meta: v1.Meta{Error: err.Error()}})
-				_, _ = w.Write(data)
+				_, _ = w.Write(simpleError(err))
 			}
 		}
 	}

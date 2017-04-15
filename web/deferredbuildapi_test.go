@@ -15,15 +15,25 @@ import (
 type DeferredBuildsMock struct {
 	DeferralServiceBaseMock
 	list       []v1.UserBuildEvent
+	captureKey string
 	forceError bool
 }
 
-func (t DeferredBuildsMock) List() ([]v1.UserBuildEvent, error) {
+func (t *DeferredBuildsMock) List() ([]v1.UserBuildEvent, error) {
 	var err error
 	if t.forceError {
 		err = errors.New("forced error")
 	}
 	return t.list, err
+}
+
+func (t *DeferredBuildsMock) Remove(key string) error {
+	t.captureKey = key
+	var err error
+	if t.forceError {
+		err = errors.New("forced error")
+	}
+	return err
 }
 
 func TestGetDeferredBuilds(t *testing.T) {
@@ -49,7 +59,7 @@ func TestGetDeferredBuilds(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", "http://example.com/deferred", nil)
 
-		deferralService := DeferredBuildsMock{list: test.deferrals, forceError: test.forceError}
+		deferralService := &DeferredBuildsMock{list: test.deferrals, forceError: test.forceError}
 		buildManager := &DefaultBuildManager{deferralService: deferralService}
 
 		DeferredBuildsHandler(buildManager)(w, req, []httprouter.Param{})
@@ -84,20 +94,52 @@ func TestGetDeferredBuilds(t *testing.T) {
 	}
 }
 
-/*
 func TestClearDeferredBuild(t *testing.T) {
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "http://example.com/deferred?key=/1", nil)
-
-	mockBuilder := MockBuilder{}
-	DeferredBuildsHandler(&mockBuilder)(w, req, []httprouter.Param{})
-	if w.Code != 200 {
-		t.Fatalf("Want 200 but got %d\n", w.Code)
+	var tests = []struct {
+		key              string
+		wantHTTPResponse int
+		forceError       bool
+	}{
+		{
+			key:              "abc",
+			wantHTTPResponse: 200,
+		},
+		{
+			key:              "",
+			wantHTTPResponse: 400,
+		},
+		{
+			key:              "abc",
+			wantHTTPResponse: 500,
+			forceError:       true,
+		},
 	}
 
-	if mockBuilder.deferralKey != "/1" {
-		t.Fatalf("Want /1 but got %s\n", mockBuilder.deferralKey)
+	for testNumber, test := range tests {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "http://example.com/deferred?key="+test.key, nil)
+
+		deferralService := &DeferredBuildsMock{forceError: test.forceError}
+		buildManager := &DefaultBuildManager{deferralService: deferralService}
+
+		DeferredBuildsHandler(buildManager)(w, req, []httprouter.Param{})
+
+		if w.Code != test.wantHTTPResponse {
+			t.Errorf("Test %d: want %d but got %d\n", testNumber, test.wantHTTPResponse, w.Code)
+		}
+
+		if w.Header().Get("Content-type") != "application/json" {
+			t.Errorf("Test %d: want application/json but got %s\n", testNumber, w.Header().Get("Content-type"))
+		}
+
+		switch w.Code {
+		case 200:
+			if deferralService.captureKey != test.key {
+				t.Errorf("Test %d: want %s, got %s\n", testNumber, test.key, deferralService.captureKey)
+			}
+		case 400:
+		case 500:
+		default:
+		}
 	}
 }
-
-*/
