@@ -7,6 +7,7 @@ import (
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 )
 
+// BuildManager
 type BuildManagerBaseMock struct {
 }
 
@@ -50,54 +51,59 @@ func (d *BuildManagerBaseMock) OpenQueue() {
 func (d *BuildManagerBaseMock) CloseQueue() {
 }
 
-// deprecated
-/*
-type MockBuilder struct {
-	deferred    []v1.UserBuildEvent
-	event       v1.UserBuildEvent
-	buildID     string
-	deferralKey string
-	err         error
+// ProjectManager
+type ProjectManagerBaseMock struct {
 }
 
-func (d *MockBuilder) LaunchBuild(p v1.UserBuildEvent) error {
-	d.event = p
+func (t *ProjectManagerBaseMock) Assemble() (map[string]v1.Project, error) {
+	return nil, nil
+}
+
+func (t *ProjectManagerBaseMock) Set(map[string]v1.Project) {
+}
+
+func (t *HooksProjects) Get(key string) *v1.Project {
 	return nil
 }
 
-func (d *MockBuilder) QueueIsOpen() bool {
-	return true
+func (t *ProjectManagerBaseMock) RepositoryURL() string {
+	return ""
 }
 
-func (d *MockBuilder) DeletePod(podName string) error {
-	d.buildID = podName
+func (t *ProjectManagerBaseMock) RepositoryBranch() string {
+	return ""
+}
+
+// DeferralService
+
+type DeferralServiceBaseMock struct {
+}
+
+func (t DeferralServiceBaseMock) Defer(event v1.UserBuildEvent) error {
 	return nil
 }
 
-func (d *MockBuilder) DeferBuild(event v1.UserBuildEvent) error {
+func (t DeferralServiceBaseMock) Poll() ([]v1.UserBuildEvent, error) {
+	return nil, nil
+}
+
+func (t DeferralServiceBaseMock) List() ([]v1.UserBuildEvent, error) {
+	return nil, nil
+}
+
+func (t DeferralServiceBaseMock) Remove(id string) error {
 	return nil
 }
 
-func (d *MockBuilder) DeferredBuilds() ([]v1.UserBuildEvent, error) {
-	return d.deferred, nil
+// LockService
+
+type LockserviceBaseMock struct {
 }
 
-func (d *MockBuilder) CreatePod(pod *k8sapi.Pod) error {
+func (t LockserviceBaseMock) Acquire(event v1.UserBuildEvent) error {
 	return nil
 }
 
-func (d *MockBuilder) Init() error {
+func (t LockserviceBaseMock) Release(event v1.UserBuildEvent) error {
 	return nil
 }
-
-func (d *MockBuilder) PodWatcher() {
-}
-
-func (d *MockBuilder) LaunchDeferred(ticker <-chan time.Time) {
-}
-
-func (d *MockBuilder) ClearDeferredBuild(key string) error {
-	d.deferralKey = key
-	return d.err
-}
-*/

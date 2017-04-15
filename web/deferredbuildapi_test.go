@@ -13,7 +13,7 @@ import (
 )
 
 type DeferredBuildsMock struct {
-	MockDeferralService
+	DeferralServiceBaseMock
 	list       []v1.UserBuildEvent
 	forceError bool
 }
@@ -53,6 +53,7 @@ func TestGetDeferredBuilds(t *testing.T) {
 		buildManager := &DefaultBuildManager{deferralService: deferralService}
 
 		DeferredBuildsHandler(buildManager)(w, req, []httprouter.Param{})
+
 		if w.Code != test.wantHTTPResponse {
 			t.Errorf("Test %d: want %d but got %d\n", testNumber, test.wantHTTPResponse, w.Code)
 		}
@@ -61,24 +62,24 @@ func TestGetDeferredBuilds(t *testing.T) {
 			t.Errorf("Test %d: want application/json but got %s\n", testNumber, w.Header().Get("Content-type"))
 		}
 
-		if w.Code != 200 {
-			continue
-		}
-
-		data, _ := ioutil.ReadAll(w.Body)
-		var gotEvents []v1.UserBuildEvent
-		if err := json.Unmarshal(data, &gotEvents); err != nil {
-			t.Errorf("Unexpected error: %v\n", err)
-		}
-
-		if len(gotEvents) != len(test.deferrals) {
-			t.Errorf("Test %d: want %d but got %d\n", testNumber, len(test.deferrals), len(gotEvents))
-		}
-
-		for k, v := range test.deferrals {
-			if gotEvents[k].Lockname() != v.Lockname() {
-				t.Errorf("Test %d: want %s but got %s\n", testNumber, v.Lockname(), gotEvents[k].Lockname())
+		switch w.Code {
+		case 200:
+			data, _ := ioutil.ReadAll(w.Body)
+			var gotEvents []v1.UserBuildEvent
+			if err := json.Unmarshal(data, &gotEvents); err != nil {
+				t.Errorf("Unexpected error: %v\n", err)
 			}
+
+			if len(gotEvents) != len(test.deferrals) {
+				t.Errorf("Test %d: want %d but got %d\n", testNumber, len(test.deferrals), len(gotEvents))
+			}
+
+			for k, v := range test.deferrals {
+				if gotEvents[k].Lockname() != v.Lockname() {
+					t.Errorf("Test %d: want %s but got %s\n", testNumber, v.Lockname(), gotEvents[k].Lockname())
+				}
+			}
+		default:
 		}
 	}
 }
