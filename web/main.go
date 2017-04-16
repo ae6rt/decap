@@ -59,15 +59,11 @@ func main() {
 
 	lockService := lock.NewDefault(k8sClient)
 
-	buildScripts := BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepoBranch}
-
-	projectManager := NewDefaultProjectManager(buildScripts)
+	projectManager := NewDefaultProjectManager(BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepoBranch})
 
 	buildManager := NewBuildManager(k8sClient, projectManager, lockService, deferralService, Log)
 
-	awsCredential := credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}
-
-	buildStore := storage.NewAWS(awsCredential, Log)
+	buildStore := storage.NewAWS(credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}, Log)
 
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithub("https://api.github.com", *githubClientID, *githubClientSecret),
