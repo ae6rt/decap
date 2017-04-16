@@ -96,7 +96,7 @@ func main() {
 	router.GET("/api/v1/builds/:team/:project", BuildsHandler(buildStore))
 
 	// Terminates a running build
-	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildManager))
+	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildManager, Log))
 
 	// Execute a build on demand
 	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildManager, Log))

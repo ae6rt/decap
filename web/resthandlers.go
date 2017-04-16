@@ -239,14 +239,15 @@ func HooksHandler(projectManager ProjectManager, buildManager BuildManager, logg
 
 // StopBuildHandler deletes the pod executing the specified build ID.
 // todo inject a logger
-func StopBuildHandler(buildManager BuildManager) httprouter.Handle {
+func StopBuildHandler(buildManager BuildManager, logger *log.Logger) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		w.Header().Set("Content-type", "application/json")
+
 		buildID := params.ByName("id")
 		if err := buildManager.DeletePod(buildID); err != nil {
-			Log.Println(err)
-			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(500)
 			_, _ = w.Write(simpleError(err))
+			return
 		}
 	}
 }
