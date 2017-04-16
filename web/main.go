@@ -59,15 +59,11 @@ func main() {
 
 	lockService := lock.NewDefault(k8sClient)
 
-	buildScripts := BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepoBranch}
-
-	projectManager := NewDefaultProjectManager(buildScripts)
+	projectManager := NewDefaultProjectManager(BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepoBranch})
 
 	buildManager := NewBuildManager(k8sClient, projectManager, lockService, deferralService, Log)
 
-	awsCredential := credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}
-
-	buildStore := storage.NewAWS(awsCredential, Log)
+	buildStore := storage.NewAWS(credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}, Log)
 
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithub("https://api.github.com", *githubClientID, *githubClientSecret),
@@ -96,7 +92,7 @@ func main() {
 	router.GET("/api/v1/builds/:team/:project", BuildsHandler(buildStore))
 
 	// Terminates a running build
-	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildManager))
+	router.DELETE("/api/v1/builds/:id", StopBuildHandler(buildManager, Log))
 
 	// Execute a build on demand
 	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildManager, Log))
@@ -128,22 +124,31 @@ func main() {
 	// The interface for external SCM systems to post VCS events through post-commit hooks.
 	router.POST("/hooks/:repomanager", HooksHandler(projectManager, buildManager, Log))
 
+	// Misc preflight stuff
+
 	projects, err := projectManager.Assemble()
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
 
+	// Start watching for deferred builds to relaunch
+
 	go func() {
 		c := time.Tick(1 * time.Minute)
 		buildManager.LaunchDeferred(c)
 	}()
+
+	// Start various muxes
 	go projectMux(projects)
 	go logLevelMux(LogDefault)
 	go shutdownMux(BuildQueueOpen)
+
+	// Start the pod watcher, which is responsible for deleting finished build pods.
 	if !*noPodWatcher {
 		go buildManager.PodWatcher()
 	}
 
+	// Start the server.
 	Log.Println("decap ready on port 9090...")
 	Log.Fatal(http.ListenAndServe(":9090", corsWrapper(router)))
 }

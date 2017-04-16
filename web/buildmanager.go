@@ -52,8 +52,7 @@ func (t DefaultBuildManager) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	}
 
 	if !project.Descriptor.IsRefManaged(buildEvent.Ref) {
-		t.logger.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref, projectKey)
-		return nil
+		return fmt.Errorf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref, projectKey)
 	}
 
 	buildEvent.ID = uuid.Uuid()
@@ -72,6 +71,7 @@ func (t DefaultBuildManager) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 
 	containers := t.makeContainers(buildEvent)
 	pod := t.makePod(buildEvent, containers)
+
 	if err := t.CreatePod(pod); err != nil {
 		if err := t.lockService.Release(buildEvent); err != nil {
 			t.logger.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref)
@@ -291,11 +291,13 @@ func (t DefaultBuildManager) QueueIsOpen() bool {
 	return <-getShutdownChan == "open"
 }
 
+// OpenQueue opens the build queue
 func (t DefaultBuildManager) OpenQueue() {
 	setShutdownChan <- BuildQueueOpen
 	t.logger.Println("Build queue is open.")
 }
 
+// CloseQueue closes the build queue
 func (t DefaultBuildManager) CloseQueue() {
 	setShutdownChan <- BuildQueueClose
 	t.logger.Println("Build queue is closed.")

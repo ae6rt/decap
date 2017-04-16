@@ -2,6 +2,7 @@ package main
 
 import "github.com/ae6rt/decap/web/api/v1"
 
+// todo this mock needs to be broken down into a base mock, then test-specific mocks that embed it. msp apr 2017
 type MockStorageService struct {
 	project       v1.Project
 	sinceUnixTime uint64
