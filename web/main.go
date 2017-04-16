@@ -124,22 +124,31 @@ func main() {
 	// The interface for external SCM systems to post VCS events through post-commit hooks.
 	router.POST("/hooks/:repomanager", HooksHandler(projectManager, buildManager, Log))
 
+	// Misc preflight stuff
+
 	projects, err := projectManager.Assemble()
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
 
+	// Start watching for deferred builds to relaunch
+
 	go func() {
 		c := time.Tick(1 * time.Minute)
 		buildManager.LaunchDeferred(c)
 	}()
+
+	// Start various muxes
 	go projectMux(projects)
 	go logLevelMux(LogDefault)
 	go shutdownMux(BuildQueueOpen)
+
+	// Start the pod watcher, which is responsible for deleting finished build pods.
 	if !*noPodWatcher {
 		go buildManager.PodWatcher()
 	}
 
+	// Start the server.
 	Log.Println("decap ready on port 9090...")
 	Log.Fatal(http.ListenAndServe(":9090", corsWrapper(router)))
 }
