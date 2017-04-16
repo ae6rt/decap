@@ -52,8 +52,7 @@ func (t DefaultBuildManager) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	}
 
 	if !project.Descriptor.IsRefManaged(buildEvent.Ref) {
-		t.logger.Printf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref, projectKey)
-		return nil
+		return fmt.Errorf("Ref %s is not managed on project %s.  Not launching a build.\n", buildEvent.Ref, projectKey)
 	}
 
 	buildEvent.ID = uuid.Uuid()

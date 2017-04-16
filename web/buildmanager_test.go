@@ -62,11 +62,12 @@ q}
 
 type BuildManagerProjectManagerMock struct {
 	ProjectManagerBaseMock
-	project v1.Project
+	projects map[string]v1.Project
 }
 
-func (t *BuildManagerProjectManagerMock) Get(k string) *v1.Project {
-	return &t.project
+func (t *BuildManagerProjectManagerMock) Get(key string) *v1.Project {
+	v := t.projects[key]
+	return &v
 }
 
 type BuildManagerLockServiceMock struct {
@@ -79,9 +80,13 @@ type BuildManagerKuberenetesClientMock struct {
 
 func TestBuildManagerLaunchBuild(t *testing.T) {
 	var tests = []struct {
-		event v1.UserBuildEvent
+		event    v1.UserBuildEvent
+		projects map[string]v1.Project
 	}{
 		{
+			projects: map[string]v1.Project{
+				"ae6rt/p1": v1.Project{Team: "ae6rt", ProjectName: "p1"},
+			},
 			event: v1.UserBuildEvent{Team: "ae6rt", Project: "p1", Ref: "master"},
 		},
 	}
