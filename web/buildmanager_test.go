@@ -7,42 +7,9 @@ import (
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	k8scorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	k8sapi "k8s.io/client-go/pkg/api/v1"
 )
-
-type DeferredBuildsMock struct {
-	DeferralServiceBaseMock
-	list         []v1.UserBuildEvent
-	deferThis    v1.UserBuildEvent
-	captureKey   string
-	captureEvent v1.UserBuildEvent
-	forceError   bool
-}
-
-func (t *DeferredBuildsMock) Defer(e v1.UserBuildEvent) error {
-	t.captureEvent = e
-	var err error
-	if t.forceError {
-		err = errors.New("forced error")
-	}
-	return err
-}
-
-func (t *DeferredBuildsMock) List() ([]v1.UserBuildEvent, error) {
-	var err error
-	if t.forceError {
-		err = errors.New("forced error")
-	}
-	return t.list, err
-}
-
-func (t *DeferredBuildsMock) Remove(key string) error {
-	t.captureKey = key
-	var err error
-	if t.forceError {
-		err = errors.New("forced error")
-	}
-	return err
-}
 
 /*
 type BuildManager interface {
@@ -57,44 +24,107 @@ xx	DeferredBuilds() ([]v1.UserBuildEvent, error)
 	CloseQueue()
 	OpenQueue()
 	PodWatcher()
-q}
+}
 */
 
-type BuildManagerProjectManagerMock struct {
+type LaunchBuildDeferralService struct {
+	DeferralServiceBaseMock
+	captureDeferEvent v1.UserBuildEvent
+	forceErrors       deferralServiceErrors
+}
+
+func (t *LaunchBuildDeferralService) Defer(e v1.UserBuildEvent) error {
+	t.captureDeferEvent = e
+	var err error
+	if t.forceErrors.deferral {
+		err = errors.New("forced error")
+	}
+	return err
+}
+
+type LaunchBuildProjectManager struct {
 	ProjectManagerBaseMock
 	projects map[string]v1.Project
 }
 
-func (t *BuildManagerProjectManagerMock) Get(key string) *v1.Project {
+func (t *LaunchBuildProjectManager) Get(key string) *v1.Project {
 	v := t.projects[key]
 	return &v
 }
 
-type BuildManagerLockServiceMock struct {
+type LaunchBuildLockService struct {
 	LockserviceBaseMock
+	captureEvent v1.UserBuildEvent
+	forceErrors  lockServiceErrors
 }
 
-type BuildManagerKuberenetesClientMock struct {
+func (t *LaunchBuildLockService) Acquire(e v1.UserBuildEvent) error {
+	t.captureEvent = e
+	var err error
+	if t.forceErrors.acquire {
+		err = errors.New("forced error")
+	}
+	return err
+}
+
+type LaunchBuildKubernetesClient struct {
 	KubernetesClientBaseMock
+	podsGetter *LaunchBuildPodsGetter
+}
+
+func (t *LaunchBuildKubernetesClient) Pods(ns string) k8scorev1.PodInterface {
+	return t.podsGetter
+}
+
+type LaunchBuildPodsGetter struct {
+	podOps
+	capturePod *k8sapi.Pod
+	forceError bool
+}
+
+func (t *LaunchBuildPodsGetter) Create(pod *k8sapi.Pod) (*k8sapi.Pod, error) {
+	t.capturePod = pod
+	var err error
+	if t.forceError {
+		err = errors.New("forced error")
+	}
+	return nil, err
+}
+
+type lockServiceErrors struct {
+	acquire bool
+	release bool
+}
+
+type deferralServiceErrors struct {
+	deferral bool
+}
+
+type collaboratorErrors struct {
+	lockservice lockServiceErrors
+	deferralServiceErrors
 }
 
 func TestBuildManagerLaunchBuild(t *testing.T) {
 	var tests = []struct {
-		event    v1.UserBuildEvent
-		projects map[string]v1.Project
+		event              v1.UserBuildEvent
+		projects           map[string]v1.Project
+		collaboratorErrors collaboratorErrors
 	}{
 		{
 			projects: map[string]v1.Project{
 				"ae6rt/p1": v1.Project{Team: "ae6rt", ProjectName: "p1"},
 			},
-			event: v1.UserBuildEvent{Team: "ae6rt", Project: "p1", Ref: "master"},
+			event:              v1.UserBuildEvent{Team: "ae6rt", Project: "p1", Ref: "master"},
+			collaboratorErrors: collaboratorErrors{},
 		},
 	}
+
 	for testNumber, test := range tests {
-		projectManager := &BuildManagerProjectManagerMock{}
-		deferralService := &DeferredBuildsMock{}
-		lockService := &BuildManagerLockServiceMock{}
-		kubernetesClient := &BuildManagerKuberenetesClientMock{}
+		deferralService := &LaunchBuildDeferralService{}
+		lockService := &LaunchBuildLockService{}
+		projectManager := &LaunchBuildProjectManager{}
+		kubernetesClient := &LaunchBuildKubernetesClient{podsGetter: &LaunchBuildPodsGetter{}}
 
 		buildManager := DefaultBuildManager{
 			deferralService:  deferralService,
@@ -113,7 +143,50 @@ func TestBuildManagerLaunchBuild(t *testing.T) {
 		if err != nil {
 			t.Errorf("Test %d: unexpected error: %v\n", testNumber, err)
 		}
+
+		if lockService.captureEvent.ProjectKey() != test.event.ProjectKey() {
+			t.Errorf("Test %d: want %s, got %s\n", testNumber, test.event.ProjectKey(), lockService.captureEvent.ProjectKey())
+		}
+
+		if kubernetesClient.podsGetter.capturePod == nil {
+			t.Errorf("Test %d: expecting non-nil pod.\n", testNumber)
+		}
 	}
+}
+
+type GetDeferredBuildsDeferralService struct {
+	DeferralServiceBaseMock
+	list         []v1.UserBuildEvent
+	deferThis    v1.UserBuildEvent
+	captureKey   string
+	captureEvent v1.UserBuildEvent
+	forceError   bool
+}
+
+func (t *GetDeferredBuildsDeferralService) Defer(e v1.UserBuildEvent) error {
+	t.captureEvent = e
+	var err error
+	if t.forceError {
+		err = errors.New("forced error")
+	}
+	return err
+}
+
+func (t *GetDeferredBuildsDeferralService) List() ([]v1.UserBuildEvent, error) {
+	var err error
+	if t.forceError {
+		err = errors.New("forced error")
+	}
+	return t.list, err
+}
+
+func (t *GetDeferredBuildsDeferralService) Remove(key string) error {
+	t.captureKey = key
+	var err error
+	if t.forceError {
+		err = errors.New("forced error")
+	}
+	return err
 }
 
 // Test the default build manager public API
@@ -133,7 +206,7 @@ func TestBuildManagerGetDeferredBuilds(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		deferralService := &DeferredBuildsMock{list: test.events, forceError: test.forceError}
+		deferralService := &GetDeferredBuildsDeferralService{list: test.events, forceError: test.forceError}
 		buildManager := DefaultBuildManager{deferralService: deferralService}
 
 		got, err := buildManager.DeferredBuilds()
@@ -170,7 +243,7 @@ func TestBuildManagerDeferBuild(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		deferralService := &DeferredBuildsMock{deferThis: test.event, forceError: test.forceError}
+		deferralService := &GetDeferredBuildsDeferralService{deferThis: test.event, forceError: test.forceError}
 		buildManager := DefaultBuildManager{deferralService: deferralService}
 
 		err := buildManager.DeferBuild(test.event)

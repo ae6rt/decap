@@ -71,6 +71,7 @@ func (t DefaultBuildManager) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 
 	containers := t.makeContainers(buildEvent)
 	pod := t.makePod(buildEvent, containers)
+
 	if err := t.CreatePod(pod); err != nil {
 		if err := t.lockService.Release(buildEvent); err != nil {
 			t.logger.Printf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref)
