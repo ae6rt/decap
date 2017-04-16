@@ -36,17 +36,22 @@ type Project struct {
 type ProjectDescriptor struct {
 	// Image is the container image the associated project should be built in.
 	Image string `json:"buildImage"`
+
 	// RepoManager is the source code management system the project source is contained in.
 	RepoManager string `json:"repoManager"`
+
 	// RepoURL is largely informational for the human managing this project.  It is currently unused by Decap.
 	RepoURL string `json:"repoUrl"`
+
 	// RepoDescription is a human readable description of this project.
 	RepoDescription string `json:"repoDescription"`
+
 	// ManagedRegexStr is a regular expression that defines which refs (branches and tags) is willing to build as a result of
 	// a post-commit hook.  Manual builds are not subject to this regex.
 	ManagedRefRegexStr string `json:"managedRefRegex"`
+
 	// The formal regex associated with ManagedRefRegexStr above.
-	Regex *regexp.Regexp
+	Regex *regexp.Regexp `json:"-"`
 }
 
 // IsRefManaged is used by Decap to determine if a build should be launched as a result of a post-commit hook on a given ref.
