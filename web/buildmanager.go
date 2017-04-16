@@ -100,6 +100,8 @@ func (t DefaultBuildManager) DeletePod(podName string) error {
 // Podwatcher watches the k8s master API for pod events.
 func (t DefaultBuildManager) PodWatcher() {
 
+	Log.Printf("Starting pod watcher")
+
 	deleted := make(map[string]struct{})
 
 	for {
@@ -124,14 +126,14 @@ func (t DefaultBuildManager) PodWatcher() {
 				}
 			}
 
-			// Delete the build pod if it has not already bene deleted.
+			// Try to elete the build pod if it has not already been deleted.
 			if _, present := deleted[pod.Name]; !present && deletePod {
 				if err := t.kubernetesClient.Pods("decap").Delete(pod.Name, nil); err != nil {
 					t.logger.Printf("Error deleting build-server pod: %v\n", err)
 				} else {
-					deleted[pod.Name] = struct{}{}
 					t.logger.Printf("Deleted pod %s\n", pod.Name)
 				}
+				deleted[pod.Name] = struct{}{}
 			}
 		}
 	}

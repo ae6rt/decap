@@ -1,13 +1,16 @@
 #!/bin/sh
 
-# Simulate a push event from github.  This assumes decap listens on a nodePort 192.168.99.100:31000.  The IP address reflects a minikube cluster.
+# Simulate a push event from github.  IP address defaults to minikube cluster.
 
 set -ux
 
-readonly OWNER=ae6rt
-readonly PROJECT=decap-simple-project
+SERVER=${SERVER:=192.168.99.100}
+PORT=${PORT:=31000}
 
-cat <<EOF | curl -v -i -X POST -H"X-Github-Event: push" -H"Content-type: application/json" -d @- http://192.168.99.100:31000/hooks/github
+OWNER=ae6rt
+PROJECT=decap-simple-project
+
+cat <<EOF | curl -v -i -X POST -H"X-Github-Event: push" -H"Content-type: application/json" -d @- http://${SERVER}:${PORT}/hooks/github
 {
     "ref": "refs/heads/master", 
     "repository": {
