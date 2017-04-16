@@ -70,7 +70,7 @@ func (t *ProjectManagerBaseMock) Assemble() (map[string]v1.Project, error) {
 func (t *ProjectManagerBaseMock) Set(map[string]v1.Project) {
 }
 
-func (t *HooksProjects) Get(key string) *v1.Project {
+func (t *ProjectManagerBaseMock) Get(key string) *v1.Project {
 	return nil
 }
 

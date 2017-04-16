@@ -2,7 +2,8 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"io/ioutil"
+	"log"
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
@@ -61,6 +62,11 @@ q}
 
 type BuildManagerProjectManagerMock struct {
 	ProjectManagerBaseMock
+	project v1.Project
+}
+
+func (t *BuildManagerProjectManagerMock) Get(k string) *v1.Project {
+	return &t.project
 }
 
 type BuildManagerLockServiceMock struct {
@@ -80,7 +86,28 @@ func TestBuildManagerLaunchBuild(t *testing.T) {
 		},
 	}
 	for testNumber, test := range tests {
-		fmt.Println(testNumber, test)
+		projectManager := &BuildManagerProjectManagerMock{}
+		deferralService := &DeferredBuildsMock{}
+		lockService := &BuildManagerLockServiceMock{}
+		kubernetesClient := &BuildManagerKuberenetesClientMock{}
+
+		buildManager := DefaultBuildManager{
+			deferralService:  deferralService,
+			lockService:      lockService,
+			projectManager:   projectManager,
+			kubernetesClient: kubernetesClient,
+			logger:           log.New(ioutil.Discard, "", 0),
+		}
+
+		// hack
+		getShutdownChan = make(chan string, 1)
+		getShutdownChan <- BuildQueueOpen
+		// hack
+
+		err := buildManager.LaunchBuild(test.event)
+		if err != nil {
+			t.Errorf("Test %d: unexpected error: %v\n", testNumber, err)
+		}
 	}
 }
 

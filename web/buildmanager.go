@@ -291,11 +291,13 @@ func (t DefaultBuildManager) QueueIsOpen() bool {
 	return <-getShutdownChan == "open"
 }
 
+// OpenQueue opens the build queue
 func (t DefaultBuildManager) OpenQueue() {
 	setShutdownChan <- BuildQueueOpen
 	t.logger.Println("Build queue is open.")
 }
 
+// CloseQueue closes the build queue
 func (t DefaultBuildManager) CloseQueue() {
 	setShutdownChan <- BuildQueueClose
 	t.logger.Println("Build queue is closed.")
