@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -33,7 +34,8 @@ func NewKubernetesClient() (KubernetesClient, error) {
 func kubeSecret(file string, defaultValue string) string {
 	v, err := ioutil.ReadFile(file)
 	if err != nil {
-		Log.Printf("Secret %s not found in the filesystem.  Using default.\n", file)
+		parts := strings.Split(file, "/")
+		Log.Printf("Using command line default %s\n", parts[len(parts)-1])
 		return defaultValue
 	}
 	Log.Printf("Successfully read secret %s from the filesystem\n", file)
