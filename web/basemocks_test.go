@@ -3,6 +3,14 @@ package main
 import (
 	"time"
 
+	k8scorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	"k8s.io/client-go/rest"
+
+	"k8s.io/client-go/pkg/api"
+	k8sapiv1 "k8s.io/client-go/pkg/api/v1"
+	"k8s.io/client-go/pkg/apis/policy/v1beta1"
+	"k8s.io/client-go/pkg/watch"
+
 	"github.com/ae6rt/decap/web/api/v1"
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 )
@@ -106,4 +114,120 @@ func (t LockserviceBaseMock) Acquire(event v1.UserBuildEvent) error {
 
 func (t LockserviceBaseMock) Release(event v1.UserBuildEvent) error {
 	return nil
+}
+
+// Kubernetes client
+
+type podOps struct {
+}
+
+func (t podOps) Create(pod *k8sapiv1.Pod) (*k8sapiv1.Pod, error) {
+	return nil, nil
+}
+
+func (t podOps) Update(pod *k8sapiv1.Pod) (*k8sapiv1.Pod, error) {
+	return nil, nil
+}
+
+func (t podOps) UpdateStatus(pod *k8sapiv1.Pod) (*k8sapiv1.Pod, error) {
+	return nil, nil
+}
+
+func (t podOps) Delete(name string, options *k8sapiv1.DeleteOptions) error {
+	return nil
+}
+
+func (t podOps) DeleteCollection(options *k8sapiv1.DeleteOptions, listOptions k8sapiv1.ListOptions) error {
+	return nil
+}
+
+func (t podOps) Get(name string) (*k8sapiv1.Pod, error) {
+	return nil, nil
+}
+
+func (t podOps) List(options k8sapiv1.ListOptions) (*k8sapiv1.PodList, error) {
+	return nil, nil
+}
+
+func (t podOps) Watch(options k8sapiv1.ListOptions) (watch.Interface, error) {
+	return nil, nil
+}
+
+func (t podOps) Patch(name string, pt api.PatchType, data []byte, subresources ...string) (result *k8sapiv1.Pod, err error) {
+	return nil, nil
+}
+
+func (t podOps) Bind(binding *k8sapiv1.Binding) error {
+	return nil
+}
+
+func (t podOps) Evict(eviction *v1beta1.Eviction) error {
+	return nil
+}
+
+func (t podOps) GetLogs(name string, opts *k8sapiv1.PodLogOptions) *rest.Request {
+	return nil
+}
+
+type podGetter struct {
+}
+
+func (t podGetter) Pods(namespace string) k8scorev1.PodInterface {
+	return podOps{}
+}
+
+// ##############
+// Secrets Getter
+// ##############
+
+type secretsGetter struct {
+}
+
+func (t secretsGetter) Secrets(namespace string) k8scorev1.SecretInterface {
+	return secretOps{}
+}
+
+type secretOps struct {
+}
+
+func (t secretOps) Create(*k8sapiv1.Secret) (*k8sapiv1.Secret, error) {
+	return nil, nil
+}
+
+func (t secretOps) Update(*k8sapiv1.Secret) (*k8sapiv1.Secret, error) {
+	return nil, nil
+}
+
+func (t secretOps) Delete(name string, options *k8sapiv1.DeleteOptions) error {
+	return nil
+}
+
+func (t secretOps) DeleteCollection(options *k8sapiv1.DeleteOptions, listOptions k8sapiv1.ListOptions) error {
+	return nil
+}
+
+func (t secretOps) Get(name string) (*k8sapiv1.Secret, error) {
+	return nil, nil
+}
+
+func (t secretOps) List(options k8sapiv1.ListOptions) (*k8sapiv1.SecretList, error) {
+	return nil, nil
+}
+
+func (t secretOps) Watch(options k8sapiv1.ListOptions) (watch.Interface, error) {
+	return nil, nil
+}
+
+func (t secretOps) Patch(name string, pt api.PatchType, data []byte, subresources ...string) (result *k8sapiv1.Secret, err error) {
+	return nil, nil
+}
+
+type mockK8sClient struct {
+	podGetter
+	secretsGetter
+}
+
+type KubernetesClientBaseMock struct {
+	podGetter
+	secretsGetter
 }

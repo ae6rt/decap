@@ -12,14 +12,14 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type DeferredBuildsMock struct {
-	DeferralServiceBaseMock
+type DeferredBuildManagerMock struct {
+	BuildManagerBaseMock
 	list       []v1.UserBuildEvent
 	captureKey string
 	forceError bool
 }
 
-func (t *DeferredBuildsMock) List() ([]v1.UserBuildEvent, error) {
+func (t *DeferredBuildManagerMock) DeferredBuilds() ([]v1.UserBuildEvent, error) {
 	var err error
 	if t.forceError {
 		err = errors.New("forced error")
@@ -27,12 +27,12 @@ func (t *DeferredBuildsMock) List() ([]v1.UserBuildEvent, error) {
 	return t.list, err
 }
 
-func (t *DeferredBuildsMock) Remove(key string) error {
-	t.captureKey = key
+func (t *DeferredBuildManagerMock) ClearDeferredBuild(key string) error {
 	var err error
 	if t.forceError {
 		err = errors.New("forced error")
 	}
+	t.captureKey = key
 	return err
 }
 
@@ -59,8 +59,7 @@ func TestGetDeferredBuilds(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", "http://example.com/deferred", nil)
 
-		deferralService := &DeferredBuildsMock{list: test.deferrals, forceError: test.forceError}
-		buildManager := &DefaultBuildManager{deferralService: deferralService}
+		buildManager := &DeferredBuildManagerMock{list: test.deferrals, forceError: test.forceError}
 
 		DeferredBuildsHandler(buildManager)(w, req, []httprouter.Param{})
 
@@ -119,9 +118,7 @@ func TestClearDeferredBuild(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("POST", "http://example.com/deferred?key="+test.key, nil)
 
-		deferralService := &DeferredBuildsMock{forceError: test.forceError}
-		buildManager := &DefaultBuildManager{deferralService: deferralService}
-
+		buildManager := &DeferredBuildManagerMock{forceError: test.forceError}
 		DeferredBuildsHandler(buildManager)(w, req, []httprouter.Param{})
 
 		if w.Code != test.wantHTTPResponse {
@@ -134,8 +131,8 @@ func TestClearDeferredBuild(t *testing.T) {
 
 		switch w.Code {
 		case 200:
-			if deferralService.captureKey != test.key {
-				t.Errorf("Test %d: want %s, got %s\n", testNumber, test.key, deferralService.captureKey)
+			if buildManager.captureKey != test.key {
+				t.Errorf("Test %d: want %s, got %s\n", testNumber, test.key, buildManager.captureKey)
 			}
 		case 400:
 		case 500:
