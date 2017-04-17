@@ -10,6 +10,7 @@ import (
 	"github.com/ae6rt/decap/web/credentials"
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/lock"
+	"github.com/ae6rt/decap/web/projects"
 	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/ae6rt/decap/web/storage"
 	"github.com/julienschmidt/httprouter"
@@ -59,7 +60,7 @@ func main() {
 
 	lockService := lock.NewDefault(k8sClient)
 
-	projectManager := NewDefaultProjectManager(BuildScripts{URL: *buildScriptsRepo, Branch: *buildScriptsRepoBranch})
+	projectManager := projects.NewDefaultProjectManager(*buildScriptsRepo, *buildScriptsRepoBranch, Log)
 
 	buildManager := NewBuildManager(k8sClient, projectManager, lockService, deferralService, Log)
 
@@ -83,10 +84,10 @@ func main() {
 	router.GET("/api/v1/version", VersionHandler)
 
 	// Report managed projects
-	router.GET("/api/v1/projects", ProjectsHandler)
+	router.GET("/api/v1/projects", ProjectsHandler(projectManager))
 
 	// Report on branches of a given project
-	router.GET("/api/v1/projects/:team/:project/refs", ProjectRefsHandler(scmManagers))
+	router.GET("/api/v1/projects/:team/:project/refs", ProjectRefsHandler(projectManager, scmManagers))
 
 	// Report on historical builds for a given project
 	router.GET("/api/v1/builds/:team/:project", BuildsHandler(buildStore))
@@ -98,7 +99,7 @@ func main() {
 	router.POST("/api/v1/builds/:team/:project", ExecuteBuildHandler(buildManager, Log))
 
 	// Report on teams.  (I think this is a project - msp)
-	router.GET("/api/v1/teams", TeamsHandler)
+	router.GET("/api/v1/teams", TeamsHandler(projectManager))
 
 	// Report on currenly deferred builds.
 	router.GET("/api/v1/deferred", DeferredBuildsHandler(buildManager))
@@ -126,7 +127,7 @@ func main() {
 
 	// Misc preflight stuff
 
-	projects, err := projectManager.Assemble()
+	err = projectManager.Assemble()
 	if err != nil {
 		Log.Printf("Cannot clone build scripts repository: %v\n", err)
 	}
@@ -139,7 +140,6 @@ func main() {
 	}()
 
 	// Start various muxes
-	go projectMux(projects)
 	go logLevelMux(LogDefault)
 	go shutdownMux(BuildQueueOpen)
 

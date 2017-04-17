@@ -74,6 +74,10 @@ func (t *ProjectManagerBaseMock) Get(key string) *v1.Project {
 	return nil
 }
 
+func (t *ProjectManagerBaseMock) GetProjectByTeamName(team, projectName string) (v1.Project, bool) {
+	return v1.Project{}, true
+}
+
 func (t *ProjectManagerBaseMock) RepositoryURL() string {
 	return ""
 }

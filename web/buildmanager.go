@@ -14,13 +14,14 @@ import (
 	"github.com/ae6rt/decap/web/clusterutil"
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/lock"
+	"github.com/ae6rt/decap/web/projects"
 	"github.com/ae6rt/decap/web/uuid"
 )
 
 // NewBuildManager is the constructor for a new default Builder instance.
 func NewBuildManager(
 	kubernetesClient KubernetesClient,
-	projectManager ProjectManager,
+	projectManager projects.ProjectManager,
 	distributedLocker lock.LockService,
 	deferralService deferrals.DeferralService,
 	logger *log.Logger,

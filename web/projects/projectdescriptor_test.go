@@ -1,4 +1,4 @@
-package main
+package projects
 
 import (
 	"testing"
@@ -9,8 +9,9 @@ import (
 func TestDescriptorRegex(t *testing.T) {
 	var descriptor v1.ProjectDescriptor
 
+	projectManager := DefaultProjectManager{}
 	// regex matches all branches
-	descriptor, _ = descriptorForTeamProject([]byte(`{
+	descriptor, _ = projectManager.descriptorForTeamProject([]byte(`{
      "buildImage": "ae6rt/java7:latest",
      "managedRefRegex": ".*",
      "repoManager": "github",
@@ -22,7 +23,7 @@ func TestDescriptorRegex(t *testing.T) {
 	}
 
 	// no regex matches all branches
-	descriptor, _ = descriptorForTeamProject([]byte(`{
+	descriptor, _ = projectManager.descriptorForTeamProject([]byte(`{
      "buildImage": "ae6rt/java7:latest",
      "repoManager": "github",
      "repoUrl": "https://github.com/ae6rt/hello-world-java.git",
@@ -33,7 +34,7 @@ func TestDescriptorRegex(t *testing.T) {
 	}
 
 	// match only issue/.*
-	descriptor, _ = descriptorForTeamProject([]byte(`{
+	descriptor, _ = projectManager.descriptorForTeamProject([]byte(`{
      "buildImage": "ae6rt/java7:latest",
      "repoManager": "github",
      "managedRefRegex": "issue/.*",
@@ -45,7 +46,7 @@ func TestDescriptorRegex(t *testing.T) {
 	}
 
 	// match only feature/.*
-	descriptor, _ = descriptorForTeamProject([]byte(`{
+	descriptor, _ = projectManager.descriptorForTeamProject([]byte(`{
      "buildImage": "ae6rt/java7:latest",
      "repoManager": "github",
      "managedRefRegex": "feature/.*",
