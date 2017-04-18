@@ -53,9 +53,9 @@ func TeamsHandler(projectManager projects.ProjectManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		p := projectManager.GetProjects()
 
-		keys := make(map[string]string)
+		keys := make(map[string]struct{})
 		for _, v := range p {
-			keys[v.Team] = ""
+			keys[v.Team] = struct{}{}
 		}
 
 		var a []v1.Team
