@@ -1,4 +1,4 @@
-package main
+package projects
 
 import (
 	"io/ioutil"
@@ -6,30 +6,29 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/ziptools"
 )
 
 func TestAssembleProjects(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
-	proj, err := assembleProjects(BuildScripts{URL: "file://" + dir, Branch: "master"})
+
+	projectManager := NewDefaultProjectManager("file://"+dir, "master", log.New(ioutil.Discard, "", 0))
+	err = projectManager.Assemble()
 	_ = os.RemoveAll(dir)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if len(proj) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(proj))
+	if len(internalAssembly) != 1 {
+		t.Fatalf("Want 1 but got %d\n", len(internalAssembly))
 	}
 
 	foundIt := false
-	for _, v := range proj {
+	for _, v := range internalAssembly {
 		if v.Team == "ae6rt" && v.ProjectName == "dynamodb-lab" {
 			foundIt = true
 			if v.Descriptor.RepoManager != "github" {
@@ -47,35 +46,29 @@ func TestAssembleProjects(t *testing.T) {
 }
 
 func TestProject(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
 	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	projects, err := assembleProjects(BuildScripts{URL: "file://" + dir, Branch: "master"})
+	projectManager := NewDefaultProjectManager("file://"+dir, "master", log.New(ioutil.Discard, "", 0))
+	err = projectManager.Assemble()
 	_ = os.RemoveAll(dir)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	projectGetChan = make(chan map[string]v1.Project, 1)
-	projectGetChan <- projects
-	if _, present := projectByTeamName("ae6rt", "dynamodb-lab"); !present {
+	if _, present := projectManager.GetProjectByTeamName("ae6rt", "dynamodb-lab"); !present {
 		t.Fatalf("Expecting to find ae6rt/dynamodb-lab project but did not\n")
 	}
 
-	projectGetChan = make(chan map[string]v1.Project, 1)
-	projectGetChan <- projects
-	if _, present := projectByTeamName("nope", "nope"); present {
+	if _, present := projectManager.GetProjectByTeamName("nope", "nope"); present {
 		t.Fatalf("Not expecting to find nope/nope project but did \n")
 	}
 }
 
 func TestFindBuildScriptsByRegex(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
@@ -99,8 +92,6 @@ func TestFindBuildScriptsByRegex(t *testing.T) {
 }
 
 func TestFindProjectDescriptorsByRegex(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
@@ -124,8 +115,6 @@ func TestFindProjectDescriptorsByRegex(t *testing.T) {
 }
 
 func TestFindSidecarsByRegex(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
@@ -149,8 +138,6 @@ func TestFindSidecarsByRegex(t *testing.T) {
 }
 
 func TestReadSidecars(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	dir, err := ziptools.Unzip("testdata/buildscripts-repo.zip")
 	if err != nil {
 		t.Fatal(err)
@@ -166,7 +153,8 @@ func TestReadSidecars(t *testing.T) {
 		t.Fatalf("Want 3 but got %d\n", len(files))
 	}
 
-	arr := readSidecars(files)
+	projectManager := DefaultProjectManager{}
+	arr := projectManager.readSidecars(files)
 	if len(arr) != 3 {
 		_ = os.RemoveAll(dir)
 		t.Fatalf("Want 3 but got %d\n", len(files))
@@ -176,8 +164,6 @@ func TestReadSidecars(t *testing.T) {
 }
 
 func TestFindByRegexBadRoot(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	_, err := filesByRegex("x", "")
 	if err == nil {
 		t.Fatal("Expecting an error because root is not absolute\n")
@@ -185,8 +171,6 @@ func TestFindByRegexBadRoot(t *testing.T) {
 }
 
 func TestProjectKey(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	r := projectKey("a", "b")
 	if r != "a/b" {
 		t.Fatalf("Want a/b but got %s\n", r)
@@ -194,8 +178,6 @@ func TestProjectKey(t *testing.T) {
 }
 
 func TestTeamProjectFromFile(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	a, b, err := teamProject("/a/b/c/d/x.sh")
 	if err != nil {
 		t.Fatalf("Unexpected error:  %v\n", err)
@@ -211,15 +193,15 @@ func TestTeamProjectFromFile(t *testing.T) {
 }
 
 func TestIndexFilesByTeamProject(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	flist := []string{
 		"/a/b/c/d/build.sh",
 		"/1/2/3/4/build.sh",
 		"/5/6/7/8/build.sh",
 	}
 
-	m := indexFilesByTeamProject(flist)
+	projectManager := DefaultProjectManager{}
+	m := projectManager.indexFilesByTeamProject(flist)
+
 	if len(m) != 3 {
 		t.Fatalf("Want 3 but got %d\n", len(m))
 	}
@@ -241,15 +223,14 @@ func TestIndexFilesByTeamProject(t *testing.T) {
 }
 
 func TestIndexSidecarsByTeamProject(t *testing.T) {
-	Log = log.New(ioutil.Discard, "", log.Ldate|log.Ltime|log.Lshortfile)
-
 	flist := []string{
 		"/a/b/c/d/mysql-sidecar.json",
 		"/a/b/c/d/redis-sidecar.json",
 		"/e/f/g/h/redis-sidecar.json",
 	}
 
-	m := indexSidecarsByTeamProject(flist)
+	projectManager := DefaultProjectManager{}
+	m := projectManager.indexSidecarsByTeamProject(flist)
 	if len(m) != 2 {
 		t.Fatalf("Want 2 but got %d\n", len(m))
 	}

@@ -10,6 +10,7 @@ import (
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/ae6rt/decap/web/lock"
+	"github.com/ae6rt/decap/web/projects"
 )
 
 // DefaultBuildManager models the main interface between Decap and Kubernetes.  This is the location where creating and deleting pods
@@ -17,9 +18,9 @@ import (
 type DefaultBuildManager struct {
 	lockService      lock.LockService
 	deferralService  deferrals.DeferralService
-	maxPods          int
-	projectManager   ProjectManager
+	projectManager   projects.ProjectManager
 	kubernetesClient k8sv1.PodsGetter
+	maxPods          int
 	logger           *log.Logger
 }
 
@@ -46,6 +47,7 @@ type BuildManager interface {
 }
 
 // ClusterService models the Kubernetes client interface
+// todo is this used?
 type ClusterService interface {
 }
 
@@ -59,13 +61,4 @@ type BuildScripts struct {
 type KubernetesClient interface {
 	k8sv1.PodsGetter
 	k8sv1.SecretsGetter
-}
-
-// ProjectManager is the interface to the build scripts repository.
-type ProjectManager interface {
-	Assemble() (map[string]v1.Project, error)
-	Get(key string) *v1.Project
-	Set(map[string]v1.Project)
-	RepositoryURL() string
-	RepositoryBranch() string
 }

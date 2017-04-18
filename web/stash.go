@@ -44,7 +44,9 @@ func (stash StashEvent) Project() string {
 
 // Key returns the project key / slug tuple.  This defines the key in a Decap map of projects that holds this project's configuration.
 func (stash StashEvent) Key() string {
-	return projectKey(stash.Repository.Project.Key, stash.Repository.Slug)
+	// todo needs a rework
+	///	return projectKey(stash.Repository.Project.Key, stash.Repository.Slug)
+	return ""
 }
 
 // Refs returns the list of branches referenced in a Stash post commit hook payload.

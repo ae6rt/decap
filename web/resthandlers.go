@@ -13,6 +13,7 @@ import (
 	"strconv"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/projects"
 	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/ae6rt/decap/web/storage"
 	"github.com/julienschmidt/httprouter"
@@ -47,64 +48,71 @@ func VersionHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	_, _ = w.Write(data)
 }
 
-// TeamsHandler returns information about managed teams.
-func TeamsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	p := getProjects()
+// Teamster
+func TeamsHandler(projectManager projects.ProjectManager) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		p := projectManager.GetProjects()
 
-	keys := make(map[string]string)
-	for _, v := range p {
-		keys[v.Team] = ""
-	}
+		keys := make(map[string]struct{})
+		for _, v := range p {
+			keys[v.Team] = struct{}{}
+		}
 
-	var a []v1.Team
-	for k, _ := range keys {
-		a = append(a, v1.Team{Name: k})
-	}
+		var a []v1.Team
+		for k, _ := range keys {
+			a = append(a, v1.Team{Name: k})
+		}
 
-	w.Header().Set("Content-type", "application/json")
+		w.Header().Set("Content-type", "application/json")
 
-	teams := v1.Teams{Teams: a}
-	data, err := json.Marshal(&teams)
-	if err != nil {
-		teams := v1.Teams{Meta: v1.Meta{Error: err.Error()}}
-		data, _ := json.Marshal(&teams)
-		w.WriteHeader(500)
+		teams := v1.Teams{Teams: a}
+		data, err := json.Marshal(&teams)
+		if err != nil {
+			teams := v1.Teams{Meta: v1.Meta{Error: err.Error()}}
+			data, _ := json.Marshal(&teams)
+			w.WriteHeader(500)
+			_, _ = w.Write(data)
+			return
+		}
+
 		_, _ = w.Write(data)
-		return
 	}
-
-	_, _ = w.Write(data)
 }
 
 // ProjectsHandler returns informtion about managed projects.
-func ProjectsHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	team := r.URL.Query().Get("team")
-	var arr []v1.Project
-	if team != "" {
-		for _, v := range getProjects() {
-			if team == v.Team {
+func ProjectsHandler(projectManager projects.ProjectManager) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		w.Header().Set("Content-type", "application/json")
+
+		team := r.URL.Query().Get("team")
+
+		allProjects := projectManager.GetProjects()
+
+		var arr []v1.Project
+		if team != "" {
+			for _, v := range allProjects {
+				if team == v.Team {
+					arr = append(arr, v)
+				}
+			}
+		} else {
+			for _, v := range allProjects {
 				arr = append(arr, v)
 			}
 		}
-	} else {
-		for _, v := range getProjects() {
-			arr = append(arr, v)
+
+		p := v1.Projects{Projects: arr}
+		data, err := json.Marshal(&p)
+		if err != nil {
+			p := v1.Projects{Meta: v1.Meta{Error: err.Error()}}
+			data, _ := json.Marshal(&p)
+			w.WriteHeader(500)
+			_, _ = w.Write(data)
+			return
 		}
-	}
 
-	w.Header().Set("Content-type", "application/json")
-
-	p := v1.Projects{Projects: arr}
-	data, err := json.Marshal(&p)
-	if err != nil {
-		p := v1.Projects{Meta: v1.Meta{Error: err.Error()}}
-		data, _ := json.Marshal(&p)
-		w.WriteHeader(500)
 		_, _ = w.Write(data)
-		return
 	}
-
-	_, _ = w.Write(data)
 }
 
 // DeferredBuildsHandler returns information about deferred builds.
@@ -171,7 +179,7 @@ func ExecuteBuildHandler(buildManager BuildManager, logger *log.Logger) httprout
 }
 
 // HooksHandler handles externally originated SCM events that trigger builds or build-scripts repository refreshes.
-func HooksHandler(projectManager ProjectManager, buildManager BuildManager, logger *log.Logger) httprouter.Handle {
+func HooksHandler(projectManager projects.ProjectManager, buildManager BuildManager, logger *log.Logger) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
 
@@ -193,13 +201,12 @@ func HooksHandler(projectManager ProjectManager, buildManager BuildManager, logg
 
 		switch repoManager {
 		case "buildscripts":
-			p, err := projectManager.Assemble()
+			err := projectManager.Assemble()
 			if err != nil {
 				logger.Printf("Error refreshing build scripts: %v\n", err)
 				w.WriteHeader(500)
 				return
 			}
-			projectManager.Set(p)
 			logger.Println("Build scripts refreshed.")
 		case "github":
 			var event GithubEvent
@@ -253,27 +260,29 @@ func StopBuildHandler(buildManager BuildManager, logger *log.Logger) httprouter.
 }
 
 // ProjectRefsHandler handles informational requests for branches and tags on a project
-func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.Handle {
+func ProjectRefsHandler(projectManager projects.ProjectManager, repoClients map[string]scmclients.SCMClient, logger *log.Logger) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		w.Header().Set("Content-type", "application/json")
+
 		team := params.ByName("team")
 		projectName := params.ByName("project")
 
-		project, present := projectByTeamName(team, projectName)
+		project, present := projectManager.GetProjectByTeamName(team, projectName)
+
 		if !present {
-			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(404)
 			_, _ = w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, projectName)))
 			return
 		}
 
 		repositoryManager := project.Descriptor.RepoManager
+
 		switch repositoryManager {
 		case "github":
-			w.Header().Set("Content-type", "application/json")
 			repoClient := repoClients["github"]
 			nativeBranches, err := repoClient.GetRefs(project.Team, project.ProjectName)
 			if err != nil {
-				Log.Print(err)
+				logger.Printf("Error retrieving refs for %s/%s: %v\n", project.Team, project.ProjectName, err)
 				data, _ := json.Marshal(&v1.Refs{Meta: v1.Meta{Error: err.Error()}})
 				w.WriteHeader(500)
 				_, _ = w.Write(data)
@@ -283,19 +292,16 @@ func ProjectRefsHandler(repoClients map[string]scmclients.SCMClient) httprouter.
 			branches := v1.Refs{Refs: nativeBranches}
 			data, err := json.Marshal(&branches)
 			if err != nil {
-				Log.Print(err)
+				logger.Printf("Error serializing native branches for %s/%s: %v\n", project.Team, project.ProjectName, err)
 				data, _ := json.Marshal(&v1.Refs{Meta: v1.Meta{Error: err.Error()}})
 				w.WriteHeader(500)
 				_, _ = w.Write(data)
 				return
 			}
-
 			_, _ = w.Write(data)
-			return
 		default:
-			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(400)
-			_, _ = w.Write(simpleError(fmt.Errorf("repomanager not supported: %s", repositoryManager)))
+			_, _ = w.Write(simpleError(fmt.Errorf("repository manager for %s/%s not supported: %s", project.Team, project.ProjectName, repositoryManager)))
 		}
 	}
 }

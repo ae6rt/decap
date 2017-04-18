@@ -2,81 +2,97 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
-	"github.com/julienschmidt/httprouter"
 )
 
+type ProjectHandlerProjectManager struct {
+	ProjectManagerBaseMock
+	allProjects map[string]v1.Project
+}
+
+func (t *ProjectHandlerProjectManager) GetProjects() map[string]v1.Project {
+	return t.allProjects
+}
+
 func TestProjectsHandler(t *testing.T) {
-
-	req, err := http.NewRequest("GET", "http://example.com/teams", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	projectGetChan = make(chan map[string]v1.Project, 1)
-	projectGetChan <- map[string]v1.Project{
-		"ae6rt/p1": v1.Project{
-			Team: "ae6rt",
+	var tests = []struct {
+		projects     map[string]v1.Project
+		selectTeam   string
+		wantProjects []v1.Project
+	}{
+		{
+			projects: map[string]v1.Project{
+				"ae6rt/p1": v1.Project{
+					Team: "ae6rt",
+				},
+				"wn0owp/p2": v1.Project{
+					Team: "wn0owp",
+				},
+			},
+			selectTeam: "?team=",
+			wantProjects: []v1.Project{
+				v1.Project{
+					Team: "ae6rt",
+				},
+				v1.Project{
+					Team: "wn0owp",
+				},
+			},
 		},
-		"wn0owp/p2": v1.Project{
-			Team: "wn0owp",
+		{
+			projects: map[string]v1.Project{
+				"ae6rt/p1": v1.Project{
+					Team: "ae6rt",
+				},
+				"wn0owp/p2": v1.Project{
+					Team: "wn0owp",
+				},
+			},
+			selectTeam: "?team=ae6rt",
+			wantProjects: []v1.Project{
+				v1.Project{
+					Team: "ae6rt",
+				},
+			},
 		},
 	}
 
-	w := httptest.NewRecorder()
-	ProjectsHandler(w, req, httprouter.Params{})
+	for testNumber, test := range tests {
+		req, _ := http.NewRequest("GET", "http://example.com/"+test.selectTeam, nil)
 
-	var proj v1.Projects
-	err = json.Unmarshal(w.Body.Bytes(), &proj)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(proj.Projects) != 2 {
-		t.Fatalf("Want 2 but got %d\n", len(proj.Projects))
-	}
-	for _, v := range proj.Projects {
-		if !(v.Team == "ae6rt" || v.Team == "wn0owp") {
-			t.Fatalf("Want ae6rt or wn0owp but got %s\n", v.Team)
+		w := httptest.NewRecorder()
+
+		projectManager := &ProjectHandlerProjectManager{allProjects: test.projects}
+
+		ProjectsHandler(projectManager)(w, req, nil)
+
+		var got v1.Projects
+		err := json.Unmarshal(w.Body.Bytes(), &got)
+		if err != nil {
+			t.Errorf("Test %d: unexepcted error: %v\n", testNumber, err)
+		}
+
+		if len(got.Projects) != len(test.wantProjects) {
+			t.Errorf("Test %d: want %d, got %d\n", testNumber, len(test.projects), len(got.Projects))
+		}
+
+		for _, v := range got.Projects {
+			if !containsProject(v, test.wantProjects) {
+				t.Errorf("Test %d: should contain %v\n", testNumber, v)
+			}
 		}
 	}
 }
 
-func TestProjectsHandlerWithQuery(t *testing.T) {
-
-	req, err := http.NewRequest("GET", "http://example.com/teams?team=ae6rt", nil)
-	if err != nil {
-		log.Fatal(err)
+func containsProject(target v1.Project, expected []v1.Project) bool {
+	for _, v := range expected {
+		if target.Team == v.Team {
+			return true
+		}
 	}
-
-	projectGetChan = make(chan map[string]v1.Project, 1)
-	projectGetChan <- map[string]v1.Project{
-		"ae6rt/p1": v1.Project{
-			Team: "ae6rt",
-		},
-		"wn0owp/p2": v1.Project{
-			Team: "wn0owp",
-		},
-	}
-
-	w := httptest.NewRecorder()
-	ProjectsHandler(w, req, httprouter.Params{})
-
-	var proj v1.Projects
-	err = json.Unmarshal(w.Body.Bytes(), &proj)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(proj.Projects) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(proj.Projects))
-	}
-
-	expected := proj.Projects[0]
-	if expected.Team != "ae6rt" {
-		t.Fatalf("Want ae6rt but got %s\n", expected.Team)
-	}
+	return false
 }
