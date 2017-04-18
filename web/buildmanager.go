@@ -117,7 +117,11 @@ func (t DefaultBuildManager) PodWatcher() {
 		events := watched.ResultChan()
 
 		for event := range events {
-			pod := event.Object.(*k8sapi.Pod)
+			pod, ok := event.Object.(*k8sapi.Pod)
+			if !ok {
+				// we selected pods, so this will be a pod, but be conservative.
+				continue
+			}
 
 			deletePod := false
 			for _, v := range pod.Status.ContainerStatuses {
