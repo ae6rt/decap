@@ -87,7 +87,7 @@ func main() {
 	router.GET("/api/v1/projects", ProjectsHandler(projectManager))
 
 	// Report on branches of a given project
-	router.GET("/api/v1/projects/:team/:project/refs", ProjectRefsHandler(projectManager, scmManagers))
+	router.GET("/api/v1/projects/:team/:project/refs", ProjectRefsHandler(projectManager, scmManagers, Log))
 
 	// Report on historical builds for a given project
 	router.GET("/api/v1/builds/:team/:project", BuildsHandler(buildStore))

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -12,120 +12,78 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func TestProjectRefsNoSuchProject(t *testing.T) {
-
-	req, err := http.NewRequest("GET", "http://example.com", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	projectGetChan = make(chan map[string]v1.Project, 1)
-	projectGetChan <- map[string]v1.Project{
-		"ae6rt/p1": v1.Project{
-			Team:        "ae6rt",
-			ProjectName: "p1",
-			Descriptor:  v1.ProjectDescriptor{RepoManager: "github"},
-		},
-		"wn0owp/p2": v1.Project{
-			Team: "wn0owp",
-		},
-	}
-
-	scmClients := map[string]scmclients.SCMClient{"github": &scmclients.MockScmClient{}}
-
-	w := httptest.NewRecorder()
-	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
-		httprouter.Param{Key: "team", Value: "nope"},
-		httprouter.Param{Key: "project", Value: "p1"},
-	},
-	)
-
-	if w.Code != 404 {
-		t.Fatalf("Want 404 but got %d\n", w.Code)
-	}
+type RefsHandlerProjectManager struct {
+	ProjectManagerBaseMock
+	projects map[string]v1.Project
 }
 
-func TestProjectRefsNoRepManager(t *testing.T) {
-
-	req, err := http.NewRequest("GET", "http://example.com", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	projectGetChan = make(chan map[string]v1.Project, 1)
-	projectGetChan <- map[string]v1.Project{
-		"ae6rt/p1": v1.Project{
-			Team:        "ae6rt",
-			ProjectName: "p1",
-			Descriptor: v1.ProjectDescriptor{
-				RepoManager: "subversion",
-			},
-		},
-		"wn0owp/p2": v1.Project{
-			Team:        "wn0owp",
-			ProjectName: "p2",
-		},
-	}
-
-	githubClient := scmclients.MockScmClient{}
-	scmClients := map[string]scmclients.SCMClient{"github": &githubClient}
-	w := httptest.NewRecorder()
-	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
-		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "project", Value: "p1"},
-	},
-	)
-
-	if w.Code != 400 {
-		t.Fatalf("Want 400 but got %d\n", w.Code)
-	}
+func (t *RefsHandlerProjectManager) GetProjectByTeamName(team, projectName string) (v1.Project, bool) {
+	a, ok := t.projects[team+"/"+projectName]
+	return a, ok
 }
 
-func TestProjectRefsGithub(t *testing.T) {
-
-	req, err := http.NewRequest("GET", "http://example.com", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	projectGetChan = make(chan map[string]v1.Project, 1)
-	projectGetChan <- map[string]v1.Project{
-		"ae6rt/p1": v1.Project{
-			Team:        "ae6rt",
-			ProjectName: "p1",
-			Descriptor: v1.ProjectDescriptor{
-				RepoManager: "github",
+func TestProjectRefs(t *testing.T) {
+	var tests = []struct {
+		inTeam           string
+		inProject        string
+		projects         map[string]v1.Project
+		wantHTTPResponse int
+	}{
+		{
+			inTeam:    "nope",
+			inProject: "p1",
+			projects: map[string]v1.Project{
+				"ae6rt/p1": v1.Project{
+					Team:        "ae6rt",
+					ProjectName: "p1",
+					Descriptor:  v1.ProjectDescriptor{RepoManager: "github"},
+				},
 			},
+			wantHTTPResponse: 404,
 		},
-		"wn0owp/p2": v1.Project{
-			Team:        "wn0owp",
-			ProjectName: "p2",
+		{
+			inTeam:    "ae6rt",
+			inProject: "p1",
+			projects: map[string]v1.Project{
+				"ae6rt/p1": v1.Project{
+					Team:        "ae6rt",
+					ProjectName: "p1",
+					Descriptor: v1.ProjectDescriptor{
+						RepoManager: "subversion",
+					},
+				},
+			},
+			wantHTTPResponse: 400,
+		},
+		{
+			inTeam:    "ae6rt",
+			inProject: "p1",
+			projects: map[string]v1.Project{
+				"ae6rt/p1": v1.Project{
+					Team:        "ae6rt",
+					ProjectName: "p1",
+					Descriptor: v1.ProjectDescriptor{
+						RepoManager: "github",
+					},
+				},
+			},
+			wantHTTPResponse: 200,
 		},
 	}
 
-	githubClient := scmclients.MockScmClient{Branches: []v1.Ref{v1.Ref{RefID: "refs/heads/master"}}}
-	scmClients := map[string]scmclients.SCMClient{"github": &githubClient}
-	w := httptest.NewRecorder()
-	ProjectRefsHandler(scmClients)(w, req, []httprouter.Param{
-		httprouter.Param{Key: "team", Value: "ae6rt"},
-		httprouter.Param{Key: "project", Value: "p1"},
-	},
-	)
+	for testNumber, test := range tests {
+		req, _ := http.NewRequest("GET", "http://example.com", nil)
 
-	if w.Code != 200 {
-		t.Fatalf("Want 200 but got %d\n", w.Code)
-	}
+		projectManager := &RefsHandlerProjectManager{projects: test.projects}
 
-	data := w.Body.Bytes()
+		scmClients := map[string]scmclients.SCMClient{"github": &scmclients.MockScmClient{}}
 
-	var b v1.Refs
-	if err := json.Unmarshal(data, &b); err != nil {
-		t.Fatalf("Unexpected error: %v\n", err)
-	}
-	if len(b.Refs) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(b.Refs))
-	}
-	if b.Refs[0].RefID != "refs/heads/master" {
-		t.Fatalf("Want refs/heads/master but got %s\n", b.Refs[0].RefID)
+		w := httptest.NewRecorder()
+
+		ProjectRefsHandler(projectManager, scmClients, log.New(ioutil.Discard, "", 0))(w, req, []httprouter.Param{httprouter.Param{Key: "team", Value: test.inTeam}, httprouter.Param{Key: "project", Value: test.inProject}})
+
+		if w.Code != test.wantHTTPResponse {
+			t.Errorf("Test %d: want %d but got %d\n", testNumber, test.wantHTTPResponse, w.Code)
+		}
 	}
 }

@@ -14,14 +14,14 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type HooksManager struct {
+type HooksHandlerBuildManager struct {
 	BuildManagerBaseMock
 	wg           *sync.WaitGroup
 	captureEvent v1.UserBuildEvent
 	forceError   bool
 }
 
-func (t *HooksManager) LaunchBuild(event v1.UserBuildEvent) error {
+func (t *HooksHandlerBuildManager) LaunchBuild(event v1.UserBuildEvent) error {
 	defer t.wg.Done()
 
 	var err error
@@ -32,20 +32,15 @@ func (t *HooksManager) LaunchBuild(event v1.UserBuildEvent) error {
 	return err
 }
 
-type HooksProjects struct {
+type HooksHandlerProjectManager struct {
 	ProjectManagerBaseMock
 	assembled bool
-	set       bool
 	get       bool
 }
 
-func (t *HooksProjects) Assemble() (map[string]v1.Project, error) {
+func (t *HooksHandlerProjectManager) Assemble() error {
 	t.assembled = true
-	return nil, nil
-}
-
-func (t *HooksProjects) Set(map[string]v1.Project) {
-	t.set = true
+	return nil
 }
 
 func TestHooksHandler(t *testing.T) {
@@ -95,8 +90,8 @@ func TestHooksHandler(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		var wg sync.WaitGroup
-		launcher := &HooksManager{wg: &wg}
-		projectManager := &HooksProjects{}
+		launcher := &HooksHandlerBuildManager{wg: &wg}
+		projectManager := &HooksHandlerProjectManager{}
 
 		wg.Add(1)
 		HooksHandler(projectManager, launcher, Log)(w, req, []httprouter.Param{httprouter.Param{Key: "repomanager", Value: test.endpoint}})
@@ -113,9 +108,6 @@ func TestHooksHandler(t *testing.T) {
 		case "buildscripts":
 			if !projectManager.assembled {
 				t.Errorf("Test %d:  expecting projectManager.Assemble() to have been called.\n", testNumber)
-			}
-			if !projectManager.set {
-				t.Errorf("Test %d:  expecting projectManager.Set() to have been called.\n", testNumber)
 			}
 		default:
 			wg.Wait()

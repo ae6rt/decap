@@ -82,6 +82,8 @@ func TeamsHandler(projectManager projects.ProjectManager) httprouter.Handle {
 // ProjectsHandler returns informtion about managed projects.
 func ProjectsHandler(projectManager projects.ProjectManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		w.Header().Set("Content-type", "application/json")
+
 		team := r.URL.Query().Get("team")
 
 		allProjects := projectManager.GetProjects()
@@ -98,8 +100,6 @@ func ProjectsHandler(projectManager projects.ProjectManager) httprouter.Handle {
 				arr = append(arr, v)
 			}
 		}
-
-		w.Header().Set("Content-type", "application/json")
 
 		p := v1.Projects{Projects: arr}
 		data, err := json.Marshal(&p)
@@ -260,27 +260,29 @@ func StopBuildHandler(buildManager BuildManager, logger *log.Logger) httprouter.
 }
 
 // ProjectRefsHandler handles informational requests for branches and tags on a project
-func ProjectRefsHandler(projectManager projects.ProjectManager, repoClients map[string]scmclients.SCMClient) httprouter.Handle {
+func ProjectRefsHandler(projectManager projects.ProjectManager, repoClients map[string]scmclients.SCMClient, logger *log.Logger) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		w.Header().Set("Content-type", "application/json")
+
 		team := params.ByName("team")
 		projectName := params.ByName("project")
 
 		project, present := projectManager.GetProjectByTeamName(team, projectName)
+
 		if !present {
-			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(404)
 			_, _ = w.Write(simpleError(fmt.Errorf("Unknown project %s/%s", team, projectName)))
 			return
 		}
 
 		repositoryManager := project.Descriptor.RepoManager
+
 		switch repositoryManager {
 		case "github":
-			w.Header().Set("Content-type", "application/json")
 			repoClient := repoClients["github"]
 			nativeBranches, err := repoClient.GetRefs(project.Team, project.ProjectName)
 			if err != nil {
-				Log.Print(err)
+				logger.Printf("Error retrieving refs for %s/%s: %v\n", project.Team, project.ProjectName, err)
 				data, _ := json.Marshal(&v1.Refs{Meta: v1.Meta{Error: err.Error()}})
 				w.WriteHeader(500)
 				_, _ = w.Write(data)
@@ -290,19 +292,16 @@ func ProjectRefsHandler(projectManager projects.ProjectManager, repoClients map[
 			branches := v1.Refs{Refs: nativeBranches}
 			data, err := json.Marshal(&branches)
 			if err != nil {
-				Log.Print(err)
+				logger.Printf("Error serializing native branches for %s/%s: %v\n", project.Team, project.ProjectName, err)
 				data, _ := json.Marshal(&v1.Refs{Meta: v1.Meta{Error: err.Error()}})
 				w.WriteHeader(500)
 				_, _ = w.Write(data)
 				return
 			}
-
 			_, _ = w.Write(data)
-			return
 		default:
-			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(400)
-			_, _ = w.Write(simpleError(fmt.Errorf("repomanager not supported: %s", repositoryManager)))
+			_, _ = w.Write(simpleError(fmt.Errorf("repository manager for %s/%s not supported: %s", project.Team, project.ProjectName, repositoryManager)))
 		}
 	}
 }

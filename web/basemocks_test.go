@@ -63,14 +63,15 @@ func (d *BuildManagerBaseMock) CloseQueue() {
 type ProjectManagerBaseMock struct {
 }
 
-func (t *ProjectManagerBaseMock) Assemble() (map[string]v1.Project, error) {
-	return nil, nil
-}
-
-func (t *ProjectManagerBaseMock) Set(map[string]v1.Project) {
+func (t *ProjectManagerBaseMock) Assemble() error {
+	return nil
 }
 
 func (t *ProjectManagerBaseMock) Get(key string) *v1.Project {
+	return nil
+}
+
+func (t *ProjectManagerBaseMock) GetProjects() map[string]v1.Project {
 	return nil
 }
 
