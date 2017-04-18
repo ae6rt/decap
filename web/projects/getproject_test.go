@@ -1,13 +1,15 @@
 package projects
 
 import (
+	"io/ioutil"
+	"log"
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
 )
 
 func TestGetProjectMap(t *testing.T) {
-	internalAssembly = map[string]v1.Project{
+	projectsView = map[string]v1.Project{
 		"ae6rt/p1": v1.Project{
 			Team:        "ae6rt",
 			ProjectName: "p1",
@@ -18,17 +20,18 @@ func TestGetProjectMap(t *testing.T) {
 		},
 	}
 
-	dut := DefaultProjectManager{}.GetProjects()
+	projectManager := NewDefaultManager("", "", log.New(ioutil.Discard, "", 0))
+	dut := projectManager.GetProjects()
 
-	if &internalAssembly == &dut {
+	if &projectsView == &dut {
 		t.Fatal("dut is not a copy of reference")
 	}
-	if len(internalAssembly) != len(dut) {
-		t.Errorf("reference size %d and dut size %d projects are not the same size\n", len(internalAssembly), len(dut))
+	if len(projectsView) != len(dut) {
+		t.Errorf("reference size %d and dut size %d projects are not the same size\n", len(projectsView), len(dut))
 	}
 
 	// Spot check Project
-	for k, v := range internalAssembly {
+	for k, v := range projectsView {
 		if v.Team != dut[k].Team {
 			t.Errorf("reference item %s/%s and dut item %s/%s are not the same\n", k, v.Team, k, dut[k].Team)
 		}

@@ -15,7 +15,7 @@ func TestAssembleProjects(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projectManager := NewDefaultProjectManager("file://"+dir, "master", log.New(ioutil.Discard, "", 0))
+	projectManager := NewDefaultManager("file://"+dir, "master", log.New(ioutil.Discard, "", 0))
 	err = projectManager.Assemble()
 	_ = os.RemoveAll(dir)
 
@@ -23,12 +23,12 @@ func TestAssembleProjects(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(internalAssembly) != 1 {
-		t.Fatalf("Want 1 but got %d\n", len(internalAssembly))
+	if len(projectsView) != 1 {
+		t.Fatalf("Want 1 but got %d\n", len(projectsView))
 	}
 
 	foundIt := false
-	for _, v := range internalAssembly {
+	for _, v := range projectsView {
 		if v.Team == "ae6rt" && v.ProjectName == "dynamodb-lab" {
 			foundIt = true
 			if v.Descriptor.RepoManager != "github" {
@@ -51,7 +51,7 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projectManager := NewDefaultProjectManager("file://"+dir, "master", log.New(ioutil.Discard, "", 0))
+	projectManager := NewDefaultManager("file://"+dir, "master", log.New(ioutil.Discard, "", 0))
 	err = projectManager.Assemble()
 	_ = os.RemoveAll(dir)
 

@@ -60,7 +60,7 @@ func main() {
 
 	lockService := lock.NewDefault(k8sClient)
 
-	projectManager := projects.NewDefaultProjectManager(*buildScriptsRepo, *buildScriptsRepoBranch, Log)
+	projectManager := projects.NewDefaultManager(*buildScriptsRepo, *buildScriptsRepoBranch, Log)
 
 	buildManager := NewBuildManager(k8sClient, projectManager, lockService, deferralService, Log)
 
