@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ae6rt/decap/web/api/v1"
@@ -21,28 +22,28 @@ const buildScriptRegex = `build\.sh`
 const projectDescriptorRegex = `project\.json`
 const sideCarRegex = `^.+-sidecar\.json`
 
-var projectSetChan = make(chan map[string]v1.Project)
-var projectGetChan = make(chan map[string]v1.Project)
-
-var internalAssembly map[string]v1.Project
-
-// NewDefaultProjectManager returns the working project manager.
-func NewDefaultProjectManager(repo, branch string, logger *log.Logger) ProjectManager {
-	return DefaultProjectManager{repo: repo, branch: branch, logger: logger}
-}
+var projectsView map[string]v1.Project
 
 // DefaultProjectManager is the live, working projects manager that clones the build scripts repo and returns associated information.
 type DefaultProjectManager struct {
 	repo   string
 	branch string
+	rwLock *sync.RWMutex
 	logger *log.Logger
+}
+
+// NewDefaultManager returns the working project manager.
+func NewDefaultManager(repo, branch string, logger *log.Logger) ProjectManager {
+	return DefaultProjectManager{repo: repo, branch: branch, logger: logger, rwLock: &sync.RWMutex{}}
 }
 
 // Assemble assembles the build scripts repo into a manageable API.
 func (t DefaultProjectManager) Assemble() error {
-	// todo sync
+	t.rwLock.Lock()
+	defer t.rwLock.Unlock()
+
 	var err error
-	internalAssembly, err = t.assembleProjects()
+	projectsView, err = t.assembleProjects()
 	if err != nil {
 		return errors.Wrap(err, "Error assembling project")
 	}
@@ -51,9 +52,11 @@ func (t DefaultProjectManager) Assemble() error {
 
 // GetProjects returns current in-memory view of all projects.
 func (t DefaultProjectManager) GetProjects() map[string]v1.Project {
-	// todo synchronize
-	pm := make(map[string]v1.Project, len(internalAssembly))
-	for k, v := range internalAssembly {
+	t.rwLock.RLock()
+	defer t.rwLock.RUnlock()
+
+	pm := make(map[string]v1.Project, len(projectsView))
+	for k, v := range projectsView {
 		pm[k] = v
 	}
 	return pm
@@ -61,14 +64,26 @@ func (t DefaultProjectManager) GetProjects() map[string]v1.Project {
 
 // Get returns the project by key.
 func (t DefaultProjectManager) Get(projectKey string) *v1.Project {
-	// todo sync
-	p, ok := internalAssembly[projectKey]
+	t.rwLock.RLock()
+	defer t.rwLock.RUnlock()
+
+	p, ok := projectsView[projectKey]
 	if !ok {
 		return nil
 	}
 
 	// todo make a copy first
 	return &p
+}
+
+// GerProjectByTeamName retrieves a project indexed by Team and Project name.
+func (t DefaultProjectManager) GetProjectByTeamName(team, project string) (v1.Project, bool) {
+	t.rwLock.RLock()
+	defer t.rwLock.RUnlock()
+
+	key := projectKey(team, project)
+	p, ok := projectsView[key]
+	return p, ok
 }
 
 // RepositoryURL returns the URL of the underlying projects repository.
@@ -165,13 +180,6 @@ func (t DefaultProjectManager) assembleProjects() (map[string]v1.Project, error)
 		return nil, err
 	}
 	return projects, nil
-}
-
-func (t DefaultProjectManager) GetProjectByTeamName(team, project string) (v1.Project, bool) {
-	// todo sync
-	key := projectKey(team, project)
-	p, ok := internalAssembly[key]
-	return p, ok
 }
 
 func projectKey(team, project string) string {
