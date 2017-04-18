@@ -101,7 +101,7 @@ func (t DefaultBuildManager) DeletePod(podName string) error {
 // Podwatcher watches the k8s master API for pod events.
 func (t DefaultBuildManager) PodWatcher() {
 
-	Log.Printf("Starting pod watcher")
+	t.logger.Printf("Starting pod watcher")
 
 	deleted := make(map[string]struct{})
 
