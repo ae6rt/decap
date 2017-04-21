@@ -212,6 +212,16 @@ func fixPkgPathVendoring(pkgPath string) string {
 	return pkgPath
 }
 
+func fixAliasName(alias string) string {
+	alias = strings.Replace(
+		strings.Replace(alias, ".", "_", -1),
+		"-",
+		"_",
+		-1,
+	)
+	return alias
+}
+
 // pkgAlias creates and returns and import alias for a given package.
 func (g *Generator) pkgAlias(pkgPath string) string {
 	pkgPath = fixPkgPathVendoring(pkgPath)
@@ -220,7 +230,7 @@ func (g *Generator) pkgAlias(pkgPath string) string {
 	}
 
 	for i := 0; ; i++ {
-		alias := path.Base(pkgPath)
+		alias := fixAliasName(path.Base(pkgPath))
 		if i > 0 {
 			alias += fmt.Sprint(i)
 		}

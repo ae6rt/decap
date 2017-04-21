@@ -1,0 +1,20 @@
+
+[[dependencies]]
+  name = "github.com/ae6rt/ziptools"
+  version = "v1.0.0"
+
+[[dependencies]]
+  name = "github.com/aws/aws-sdk-go"
+  version = "v1.8.2"
+
+[[dependencies]]
+  name = "github.com/julienschmidt/httprouter"
+  version = "v1.1"
+
+[[dependencies]]
+  name = "github.com/pkg/errors"
+  version = "v0.8.0"
+
+[[dependencies]]
+  name = "k8s.io/client-go"
+  version = "v2.0.0"
