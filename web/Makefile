@@ -26,6 +26,10 @@ test: lint
 	@echo Running tests...
 	@go test ${SOURCES}
 
+coverage:
+	@mkdir -p reports/
+	gocov test ${SOURCES} | gocov-html  > reports/coverage.html
+
 binary-linux: test
 	@mkdir -p build/dist/linux
 	@echo Build binary
