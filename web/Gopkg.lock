@@ -1,4 +1,4 @@
-memo = "52ef7573d1e48c9e2fd33499e3f680ff7dc2eb07127cb1684afcbc4b394f16ce"
+memo = "acac2c9f4c4b5fd677685a593b5beaf3f2a19a7cab35fe4598d1fedbb4ba0d65"
 
 [[projects]]
   name = "cloud.google.com/go"
@@ -79,6 +79,18 @@ memo = "52ef7573d1e48c9e2fd33499e3f680ff7dc2eb07127cb1684afcbc4b394f16ce"
   version = "v1.27.0"
 
 [[projects]]
+  name = "github.com/go-kit/kit"
+  packages = ["endpoint","log","transport/http"]
+  revision = "fadad6fffe0466b19df9efd9acde5c9a52df5fa4"
+  version = "v0.4.0"
+
+[[projects]]
+  name = "github.com/go-logfmt/logfmt"
+  packages = ["."]
+  revision = "390ab7935ee28ec6b286364bba9b4dd6410cb3d5"
+  version = "v0.3.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/go-openapi/jsonpointer"
   packages = ["."]
@@ -101,6 +113,12 @@ memo = "52ef7573d1e48c9e2fd33499e3f680ff7dc2eb07127cb1684afcbc4b394f16ce"
   name = "github.com/go-openapi/swag"
   packages = ["."]
   revision = "aa30237cf993e01e1a1e467eead45d1ce5ad155e"
+
+[[projects]]
+  name = "github.com/go-stack/stack"
+  packages = ["."]
+  revision = "100eb0c0a9c5b306ca2fb4f165df21d80ada4b82"
+  version = "v1.5.2"
 
 [[projects]]
   name = "github.com/gogo/protobuf"
@@ -131,6 +149,18 @@ memo = "52ef7573d1e48c9e2fd33499e3f680ff7dc2eb07127cb1684afcbc4b394f16ce"
   name = "github.com/googleapis/gax-go"
   packages = ["."]
   revision = "9af46dd5a1713e8b5cd71106287eba3cefdde50b"
+
+[[projects]]
+  name = "github.com/gorilla/context"
+  packages = ["."]
+  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
+  version = "v1.1"
+
+[[projects]]
+  name = "github.com/gorilla/mux"
+  packages = ["."]
+  revision = "392c28fe23e1c45ddba891b0320b3b5df220beea"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -167,6 +197,12 @@ memo = "52ef7573d1e48c9e2fd33499e3f680ff7dc2eb07127cb1684afcbc4b394f16ce"
   packages = ["."]
   revision = "8c199fb6259ffc1af525cc3ad52ee60ba8359669"
   version = "v1.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/kr/logfmt"
+  packages = ["."]
+  revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 
 [[projects]]
   branch = "master"

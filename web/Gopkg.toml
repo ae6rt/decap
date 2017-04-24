@@ -8,6 +8,14 @@
   version = "v1.8.2"
 
 [[dependencies]]
+  name = "github.com/go-kit/kit"
+  version = "v0.4.0"
+
+[[dependencies]]
+  name = "github.com/gorilla/mux"
+  version = "v1.3.0"
+
+[[dependencies]]
   name = "github.com/julienschmidt/httprouter"
   version = "v1.1"
 
