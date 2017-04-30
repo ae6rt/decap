@@ -9,17 +9,18 @@ import (
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/deferrals"
 	"github.com/julienschmidt/httprouter"
 )
 
 type DeferredBuildManagerMock struct {
 	BuildManagerBaseMock
-	list       []v1.UserBuildEvent
+	list       []deferrals.Deferrable
 	captureKey string
 	forceError bool
 }
 
-func (t *DeferredBuildManagerMock) DeferredBuilds() ([]v1.UserBuildEvent, error) {
+func (t *DeferredBuildManagerMock) DeferredBuilds() ([]deferrals.Deferrable, error) {
 	var err error
 	if t.forceError {
 		err = errors.New("forced error")
@@ -38,12 +39,12 @@ func (t *DeferredBuildManagerMock) ClearDeferredBuild(key string) error {
 
 func TestGetDeferredBuilds(t *testing.T) {
 	var tests = []struct {
-		deferrals        []v1.UserBuildEvent
+		deferrals        []deferrals.Deferrable
 		forceError       bool
 		wantHTTPResponse int
 	}{
 		{
-			deferrals: []v1.UserBuildEvent{
+			deferrals: []deferrals.Deferrable{
 				v1.UserBuildEvent{Team: "t1", Project: "p1", Ref: "master"},
 				v1.UserBuildEvent{Team: "t2", Project: "p8", Ref: "master"},
 			},

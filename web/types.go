@@ -36,10 +36,10 @@ type BuildManager interface {
 	LaunchBuild(v1.UserBuildEvent) error
 	CreatePod(*k8sapi.Pod) error
 	DeletePod(podName string) error
-	DeferBuild(v1.UserBuildEvent) error
+	DeferBuild(deferrals.Deferrable) error
 	LaunchDeferred(ticker <-chan time.Time)
 	ClearDeferredBuild(key string) error
-	DeferredBuilds() ([]v1.UserBuildEvent, error)
+	DeferredBuilds() ([]deferrals.Deferrable, error)
 	QueueIsOpen() bool
 	CloseQueue()
 	OpenQueue()

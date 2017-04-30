@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/deferrals"
 	k8scorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 )
@@ -29,11 +30,11 @@ xx	DeferredBuilds() ([]v1.UserBuildEvent, error)
 
 type LaunchBuildDeferralService struct {
 	DeferralServiceBaseMock
-	captureDeferEvent v1.UserBuildEvent
+	captureDeferEvent deferrals.Deferrable
 	forceErrors       deferralServiceErrors
 }
 
-func (t *LaunchBuildDeferralService) Defer(e v1.UserBuildEvent) error {
+func (t *LaunchBuildDeferralService) Defer(e deferrals.Deferrable) error {
 	t.captureDeferEvent = e
 	var err error
 	if t.forceErrors.deferral {
@@ -156,14 +157,14 @@ func TestBuildManagerLaunchBuild(t *testing.T) {
 
 type GetDeferredBuildsDeferralService struct {
 	DeferralServiceBaseMock
-	list         []v1.UserBuildEvent
+	list         []deferrals.Deferrable
 	deferThis    v1.UserBuildEvent
 	captureKey   string
-	captureEvent v1.UserBuildEvent
+	captureEvent deferrals.Deferrable
 	forceError   bool
 }
 
-func (t *GetDeferredBuildsDeferralService) Defer(e v1.UserBuildEvent) error {
+func (t *GetDeferredBuildsDeferralService) Defer(e deferrals.Deferrable) error {
 	t.captureEvent = e
 	var err error
 	if t.forceError {
@@ -172,7 +173,7 @@ func (t *GetDeferredBuildsDeferralService) Defer(e v1.UserBuildEvent) error {
 	return err
 }
 
-func (t *GetDeferredBuildsDeferralService) List() ([]v1.UserBuildEvent, error) {
+func (t *GetDeferredBuildsDeferralService) List() ([]deferrals.Deferrable, error) {
 	var err error
 	if t.forceError {
 		err = errors.New("forced error")
@@ -192,11 +193,11 @@ func (t *GetDeferredBuildsDeferralService) Remove(key string) error {
 // Test the default build manager public API
 func TestBuildManagerGetDeferredBuilds(t *testing.T) {
 	var tests = []struct {
-		events     []v1.UserBuildEvent
+		events     []deferrals.Deferrable
 		forceError bool
 	}{
 		{
-			events: []v1.UserBuildEvent{
+			events: []deferrals.Deferrable{
 				v1.UserBuildEvent{},
 			},
 		},
@@ -259,8 +260,8 @@ func TestBuildManagerDeferBuild(t *testing.T) {
 			t.Errorf("Test %d: unexpected error: %v\n", testNumber, err)
 		}
 
-		if deferralService.captureEvent.ID != test.event.ID {
-			t.Errorf("Test %d: want %s, got %s\n", testNumber, test.event.ID, deferralService.captureEvent.ID)
+		if deferralService.captureEvent.GetID() != test.event.ID {
+			t.Errorf("Test %d: want %s, got %s\n", testNumber, test.event.ID, deferralService.captureEvent.GetID())
 		}
 	}
 }

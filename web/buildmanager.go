@@ -145,13 +145,13 @@ func (t DefaultBuildManager) PodWatcher() {
 }
 
 // DeferBuild puts the build event on the deferral queue.
-func (t DefaultBuildManager) DeferBuild(event v1.UserBuildEvent) error {
+func (t DefaultBuildManager) DeferBuild(event deferrals.Deferrable) error {
 	return t.deferralService.Defer(event)
 }
 
 // DeferredBuilds returns the current queue of deferred builds.  Deferred builds
 // are deduped, but preserve the time order of unique entries.
-func (t DefaultBuildManager) DeferredBuilds() ([]v1.UserBuildEvent, error) {
+func (t DefaultBuildManager) DeferredBuilds() ([]deferrals.Deferrable, error) {
 	return t.deferralService.List()
 }
 
@@ -172,11 +172,13 @@ func (t DefaultBuildManager) LaunchDeferred(ticker <-chan time.Time) {
 			t.logger.Printf("error retrieving deferred builds: %v\n", err)
 		}
 		for _, evt := range deferredBuilds {
-			err := t.LaunchBuild(evt)
-			if err != nil {
-				t.logger.Printf("Error launching deferred build: %+v\n", err)
-			} else {
-				t.logger.Printf("Launched deferred build: %+v\n", evt)
+			if ube, ok := evt.(v1.UserBuildEvent); ok {
+				err := t.LaunchBuild(ube)
+				if err != nil {
+					t.logger.Printf("Error launching deferred build: %+v\n", err)
+				} else {
+					t.logger.Printf("Launched deferred build: %+v\n", evt)
+				}
 			}
 		}
 	}

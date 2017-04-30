@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/pkg/watch"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/deferrals"
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 )
 
@@ -27,11 +28,11 @@ func (d *BuildManagerBaseMock) DeletePod(podName string) error {
 	return nil
 }
 
-func (d *BuildManagerBaseMock) DeferBuild(event v1.UserBuildEvent) error {
+func (d *BuildManagerBaseMock) DeferBuild(event deferrals.Deferrable) error {
 	return nil
 }
 
-func (d *BuildManagerBaseMock) DeferredBuilds() ([]v1.UserBuildEvent, error) {
+func (d *BuildManagerBaseMock) DeferredBuilds() ([]deferrals.Deferrable, error) {
 	return nil, nil
 }
 
@@ -92,15 +93,15 @@ func (t *ProjectManagerBaseMock) RepositoryBranch() string {
 type DeferralServiceBaseMock struct {
 }
 
-func (t DeferralServiceBaseMock) Defer(event v1.UserBuildEvent) error {
+func (t DeferralServiceBaseMock) Defer(event deferrals.Deferrable) error {
 	return nil
 }
 
-func (t DeferralServiceBaseMock) Poll() ([]v1.UserBuildEvent, error) {
+func (t DeferralServiceBaseMock) Poll() ([]deferrals.Deferrable, error) {
 	return nil, nil
 }
 
-func (t DeferralServiceBaseMock) List() ([]v1.UserBuildEvent, error) {
+func (t DeferralServiceBaseMock) List() ([]deferrals.Deferrable, error) {
 	return nil, nil
 }
 
