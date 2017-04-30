@@ -13,3 +13,8 @@ func (e UserBuildEvent) Lockname() string {
 func (e UserBuildEvent) ProjectKey() string {
 	return fmt.Sprintf("%s/%s", e.Team, e.Project)
 }
+
+// GetID returns this event's ID.
+func (e UserBuildEvent) GetID() string {
+	return e.ID
+}

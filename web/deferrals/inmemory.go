@@ -3,14 +3,12 @@ package deferrals
 import (
 	"log"
 	"sync"
-
-	"github.com/ae6rt/decap/web/api/v1"
 )
 
 // InMemoryDeferralService is the working network deferral service.
 type InMemoryDeferralService struct {
 	mutex     sync.Mutex
-	deferrals []v1.UserBuildEvent
+	deferrals []Deferrable
 
 	logger *log.Logger
 }
@@ -21,7 +19,7 @@ func NewDefault(log *log.Logger) DeferralService {
 }
 
 // Defer puts a build onto the deferred list.
-func (t *InMemoryDeferralService) Defer(event v1.UserBuildEvent) error {
+func (t *InMemoryDeferralService) Defer(event Deferrable) error {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
@@ -36,7 +34,7 @@ func (t *InMemoryDeferralService) Defer(event v1.UserBuildEvent) error {
 }
 
 // List lists and dedupes the deferred builds.  Used for presentation in a frontend UI.
-func (t *InMemoryDeferralService) List() ([]v1.UserBuildEvent, error) {
+func (t *InMemoryDeferralService) List() ([]Deferrable, error) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
@@ -45,7 +43,7 @@ func (t *InMemoryDeferralService) List() ([]v1.UserBuildEvent, error) {
 
 // Poll reads and dedups the list of deferred builds, clears the list from backing store and returns the list to the caller.  Called for
 // purposes of relaunching builds.
-func (t *InMemoryDeferralService) Poll() ([]v1.UserBuildEvent, error) {
+func (t *InMemoryDeferralService) Poll() ([]Deferrable, error) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
@@ -65,7 +63,7 @@ func (t *InMemoryDeferralService) Remove(id string) error {
 	var found bool
 
 	for j, k := range t.deferrals {
-		if k.ID == id {
+		if k.GetID() == id {
 			idx = j
 			found = true
 			break
@@ -80,8 +78,8 @@ func (t *InMemoryDeferralService) Remove(id string) error {
 }
 
 // Do not call this outside a mutex.
-func (t *InMemoryDeferralService) copy() []v1.UserBuildEvent {
-	c := make([]v1.UserBuildEvent, len(t.deferrals), len(t.deferrals))
+func (t *InMemoryDeferralService) copy() []Deferrable {
+	c := make([]Deferrable, len(t.deferrals), len(t.deferrals))
 	copy(c, t.deferrals)
 	return c
 }

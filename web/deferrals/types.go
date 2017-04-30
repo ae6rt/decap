@@ -1,7 +1,5 @@
 package deferrals
 
-import "github.com/ae6rt/decap/web/api/v1"
-
 /*
 A build is defined by a v1.UserBuildEvent type.  This type has a team, a project, a branch, and a unique runtime-assigned UUID.
 For Github codebases, the team is the Github account owner, the project is the repository basename, and the branch is the branch to
@@ -18,17 +16,22 @@ Builds can be manually removed from the deferred list by calling Remove() with t
 can manually remove a build from the deferred list.
 */
 
+type Deferrable interface {
+	GetID() string
+	Lockname() string
+}
+
 // DeferralService models how builds are deferred and relaunched later.
 type DeferralService interface {
 	// Defer puts a build onto the deferred list.
-	Defer(v1.UserBuildEvent) error
+	Defer(Deferrable) error
 
 	// List lists and dedupes the deferred builds.  Used for presentation in a frontend UI.
-	List() ([]v1.UserBuildEvent, error)
+	List() ([]Deferrable, error)
 
 	// Poll reads and dedups the list of deferred builds, clears the list from backing store and returns the list to the caller.  Called for
 	// purposes of relaunching builds.
-	Poll() ([]v1.UserBuildEvent, error)
+	Poll() ([]Deferrable, error)
 
 	// Remove removes a build by ID from the deferred list.
 	Remove(id string) error
