@@ -30,16 +30,16 @@ coverage:
 	@mkdir -p reports/
 	gocov test ${SOURCES} | gocov-html  > reports/coverage.html
 
-binary-linux: test
+binary-linux: 
 	@mkdir -p build/dist/linux
 	@echo Build binary
 	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o build/dist/linux/$(NAME)
 
-binary-darwin: test
+binary-darwin: 
 	@mkdir -p build/dist/darwin
 	GOOS=darwin CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
 
-binaries: binary-linux binary-darwin
+binaries: test binary-linux binary-darwin
 
 image: binary-linux
 	docker build -t $(IMAGE) .
