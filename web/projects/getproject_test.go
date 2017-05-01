@@ -1,11 +1,10 @@
 package projects
 
 import (
-	"io/ioutil"
-	"log"
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	kitlog "github.com/go-kit/kit/log"
 )
 
 func TestGetProjectMap(t *testing.T) {
@@ -20,7 +19,7 @@ func TestGetProjectMap(t *testing.T) {
 		},
 	}
 
-	projectManager := NewDefaultManager("", "", log.New(ioutil.Discard, "", 0))
+	projectManager := NewDefaultManager("", "", kitlog.NewNopLogger())
 	dut := projectManager.GetProjects()
 
 	if &projectsView == &dut {

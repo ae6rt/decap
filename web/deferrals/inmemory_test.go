@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/go-kit/kit/log"
 )
 
 func TestDefer(t *testing.T) {
@@ -27,7 +28,7 @@ func TestDefer(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		d := NewDefault(nil)
+		d := NewDefault(log.NewNopLogger())
 		for _, e := range test.events {
 			_ = d.Defer(e)
 		}
@@ -64,7 +65,7 @@ func TestRemove(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		d := NewDefault(nil)
+		d := NewDefault(log.NewNopLogger())
 		for _, e := range test.events {
 			_ = d.Defer(e)
 		}
@@ -102,7 +103,7 @@ func TestPoll(t *testing.T) {
 	}
 
 	for testNumber, test := range tests {
-		d := NewDefault(nil)
+		d := NewDefault(log.NewNopLogger())
 		for _, e := range test.events {
 			_ = d.Defer(e)
 		}

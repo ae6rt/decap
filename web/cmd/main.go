@@ -69,15 +69,12 @@ func main() {
 		logger = kitlog.With(logger, "ts", log.DefaultTimestampUTC)
 		logger = kitlog.With(logger, "caller", log.DefaultCaller)
 	}
-	stdlog.SetOutput(kitlog.NewStdlibAdapter(logger))
-	logme := stdlog.New(kitlog.NewStdlibAdapter(logger), "", stdlog.Ldate|stdlog.Ltime|stdlog.Lshortfile)
 
-	deferralService := deferrals.NewDefault(logme)
-	buildStore := storage.NewAWS(credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}, logme)
-	lockService := lock.NewDefault(k8sClient)
+	deferralService := deferrals.NewDefault(logger)
+	buildStore := storage.NewAWS(credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}, logger)
+	lockService := lock.NewDefault(k8sClient, logger)
 
-	projectManager := projects.NewDefaultManager(*buildScriptsRepo, *buildScriptsRepoBranch, logme)
-
+	projectManager := projects.NewDefaultManager(*buildScriptsRepo, *buildScriptsRepoBranch, logger)
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithub("https://api.github.com", *githubClientID, *githubClientSecret),
 	}

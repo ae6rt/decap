@@ -2,11 +2,11 @@ package projects
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"testing"
 
 	"github.com/ae6rt/ziptools"
+	kitlog "github.com/go-kit/kit/log"
 )
 
 func TestAssembleProjects(t *testing.T) {
@@ -15,7 +15,7 @@ func TestAssembleProjects(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projectManager := NewDefaultManager("file://"+dir, "master", log.New(ioutil.Discard, "", 0))
+	projectManager := NewDefaultManager("file://"+dir, "master", kitlog.NewNopLogger())
 	err = projectManager.Assemble()
 	_ = os.RemoveAll(dir)
 
@@ -51,7 +51,7 @@ func TestProject(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	projectManager := NewDefaultManager("file://"+dir, "master", log.New(ioutil.Discard, "", 0))
+	projectManager := NewDefaultManager("file://"+dir, "master", kitlog.NewNopLogger())
 	err = projectManager.Assemble()
 	_ = os.RemoveAll(dir)
 

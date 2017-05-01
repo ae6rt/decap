@@ -1,8 +1,9 @@
 package deferrals
 
 import (
-	"log"
 	"sync"
+
+	"github.com/go-kit/kit/log"
 )
 
 // InMemoryDeferralService is the working network deferral service.
@@ -10,11 +11,11 @@ type InMemoryDeferralService struct {
 	mutex     sync.Mutex
 	deferrals []Deferrable
 
-	logger *log.Logger
+	logger log.Logger
 }
 
 // NewDefault is the constructor for a DeferralService maintained in memory.
-func NewDefault(log *log.Logger) DeferralService {
+func NewDefault(log log.Logger) DeferralService {
 	return &InMemoryDeferralService{logger: log}
 }
 
