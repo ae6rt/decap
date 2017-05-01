@@ -12,6 +12,7 @@ import (
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/app"
+	"github.com/ae6rt/decap/web/buildmanager"
 	"github.com/ae6rt/decap/web/cluster"
 	"github.com/ae6rt/decap/web/credentials"
 	"github.com/ae6rt/decap/web/deferrals"
@@ -75,6 +76,10 @@ func main() {
 	lockService := lock.NewDefault(k8sClient, logger)
 
 	projectManager := projects.NewDefaultManager(*buildScriptsRepo, *buildScriptsRepoBranch, logger)
+
+	buildManager := buildmanager.NewBuildManager(k8sClient, projectManager, lockService, deferralService, logger)
+	fmt.Println(buildManager)
+
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithub("https://api.github.com", *githubClientID, *githubClientSecret),
 	}
