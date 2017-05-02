@@ -10,10 +10,12 @@ import (
 	"github.com/ae6rt/decap/web/projects"
 	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/ae6rt/decap/web/storage"
+
+	kitlog "github.com/go-kit/kit/log"
 )
 
 func New(version v1.Version, k8sClient cluster.KubernetesClient, deferralService deferrals.DeferralService, storageService storage.Service, lockService lock.LockService,
-	projectManager projects.ProjectManager, scmManagers map[string]scmclients.SCMClient) Service {
+	projectManager projects.ProjectManager, scmManagers map[string]scmclients.SCMClient, logger kitlog.Logger) Service {
 	return DefaultService{
 		version:         version,
 		k8sClient:       k8sClient,
@@ -22,6 +24,7 @@ func New(version v1.Version, k8sClient cluster.KubernetesClient, deferralService
 		lockService:     lockService,
 		projectManager:  projectManager,
 		scmManagers:     scmManagers,
+		logger:          logger,
 	}
 }
 

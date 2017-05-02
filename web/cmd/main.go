@@ -64,28 +64,25 @@ func main() {
 		stdlog.Fatalf("Cannot create Kubernetes client: %v\n", err)
 	}
 
-	logger := kitlog.NewJSONLogger(kitlog.NewSyncWriter(os.Stdout))
+	var logger log.Logger
 	{
-		logger = kitlog.NewLogfmtLogger(os.Stderr)
+		logger = kitlog.NewJSONLogger(kitlog.NewSyncWriter(os.Stdout))
 		logger = kitlog.With(logger, "ts", log.DefaultTimestampUTC)
 		logger = kitlog.With(logger, "caller", log.DefaultCaller)
 	}
 
-	deferralService := deferrals.NewDefault(logger)
+	deferralService := deferrals.NewDefault(kitlog.With(logger, "service", "deferral"))
 	buildStore := storage.NewAWS(credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}, logger)
-	lockService := lock.NewDefault(k8sClient, logger)
-
-	projectManager := projects.NewDefaultManager(*buildScriptsRepo, *buildScriptsRepoBranch, logger)
-
-	buildManager := buildmanager.NewBuildManager(k8sClient, projectManager, lockService, deferralService, logger)
-	fmt.Println(buildManager)
-
+	lockService := lock.NewDefault(k8sClient, kitlog.With(logger, "service", "lock"))
+	projectManager := projects.NewDefaultManager(*buildScriptsRepo, *buildScriptsRepoBranch, kitlog.With(logger, "service", "projectmanager"))
+	buildManager := buildmanager.NewBuildManager(k8sClient, projectManager, lockService, deferralService, kitlog.With(logger, "service", "buildmanager"))
+	fmt.Printf("@@@: %v\n", buildManager)
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithub("https://api.github.com", *githubClientID, *githubClientSecret),
 	}
 
-	s := app.New(v1.Version{}, k8sClient, deferralService, buildStore, lockService, projectManager, scmManagers)
-	fmt.Println(s)
+	s := app.New(v1.Version{}, k8sClient, deferralService, buildStore, lockService, projectManager, scmManagers, logger)
+	fmt.Printf("@@@: %v\n", s)
 
 	var h http.Handler
 	{

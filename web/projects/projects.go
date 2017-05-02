@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log"
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/retry"
@@ -100,11 +100,11 @@ func (t DefaultProjectManager) RepositoryBranch() string {
 func (t DefaultProjectManager) assembleProjects() (map[string]v1.Project, error) {
 	projects := make(map[string]v1.Project, 0)
 	work := func() error {
-		t.logger.Log("Clone build-scripts repository...\n")
+		_ = t.logger.Log("Clone build-scripts repository", t.repo+":"+t.branch)
 		cloneDirectory, err := ioutil.TempDir("", "repoclone-")
 		defer func() {
 			if err := os.RemoveAll(cloneDirectory); err != nil {
-				t.logger.Log("assembleProjects(%s,%s) error removing clone directory %s: %v\n", t.repo, t.branch, cloneDirectory, err)
+				_ = t.logger.Log("assembleProjects() error removing clone directory", cloneDirectory, "error", err)
 			}
 		}()
 
@@ -135,23 +135,23 @@ func (t DefaultProjectManager) assembleProjects() (map[string]v1.Project, error)
 
 		for k, _ := range buildScriptMap {
 			if _, present := descriptorMap[k]; !present {
-				t.logger.Log("Skipping project without a descriptor: %s\n", k)
+				_ = t.logger.Log("Skipping project without a descriptor", k)
 				continue
 			}
 
 			descriptorData, err := ioutil.ReadFile(descriptorMap[k])
 			if err != nil {
-				t.logger.Log(err)
+				_ = t.logger.Log(err)
 				continue
 			}
 
 			descriptor, err := t.descriptorForTeamProject(descriptorData)
 			if err != nil {
-				t.logger.Log(err)
+				_ = t.logger.Log("error building description for team/project", descriptorData, "error", err)
 				continue
 			}
 			if descriptor.Image == "" {
-				t.logger.Log("Skipping project %s without descriptor build image: %+v\n", k, descriptor)
+				_ = t.logger.Log("Skipping project without descriptor build image", k, "descriptor", descriptor)
 				continue
 			}
 
@@ -173,7 +173,7 @@ func (t DefaultProjectManager) assembleProjects() (map[string]v1.Project, error)
 		if attempts == 0 {
 			return
 		}
-		t.logger.Log("Wait for clone-repository with-backoff try %d\n", attempts+1)
+		_ = t.logger.Log("Wait for clone-repository with-backoff try", attempts+1)
 		time.Sleep((1 << uint(attempts)) * time.Second)
 	}).Try(work)
 
@@ -200,7 +200,7 @@ func (t DefaultProjectManager) indexFilesByTeamProject(files []string) map[strin
 	for _, file := range files {
 		team, project, err := teamProject(file)
 		if err != nil {
-			t.logger.Log(err)
+			_ = t.logger.Log(err)
 			continue
 		}
 		key := projectKey(team, project)
@@ -214,7 +214,7 @@ func (t DefaultProjectManager) indexSidecarsByTeamProject(files []string) map[st
 	for _, file := range files {
 		team, project, err := teamProject(file)
 		if err != nil {
-			t.logger.Log(err)
+			_ = t.logger.Log(err)
 			continue
 		}
 		key := projectKey(team, project)
@@ -233,7 +233,7 @@ func (t DefaultProjectManager) readSidecars(files []string) []string {
 	for i, v := range files {
 		data, err := ioutil.ReadFile(v)
 		if err != nil {
-			t.logger.Log(err)
+			_ = t.logger.Log("Error reading sidecars", err)
 			continue
 		}
 		arr[i] = string(data)
@@ -249,7 +249,7 @@ func (t DefaultProjectManager) descriptorForTeamProject(data []byte) (v1.Project
 
 	if descriptor.ManagedRefRegexStr != "" {
 		if re, err := regexp.Compile(descriptor.ManagedRefRegexStr); err != nil {
-			t.logger.Log("Error parsing managed-branch-regex %s for descriptor %+v: %v\n", descriptor.ManagedRefRegexStr, data, err)
+			_ = t.logger.Log("Error parsing managed-branch-regex", descriptor.ManagedRefRegexStr, "descriptor", data, "error", err)
 		} else {
 			descriptor.Regex = re
 		}
@@ -269,7 +269,7 @@ func (t DefaultProjectManager) clone(repositoryURL, branch, dir string, shallow 
 }
 
 func (t DefaultProjectManager) executeShellCommand(commandName string, args []string) error {
-	t.logger.Log("Executing %s %+v\n", commandName, args)
+	_ = t.logger.Log("Executing %s %+v\n", commandName, args)
 	command := exec.Command(commandName, args...)
 	var stdOutErr []byte
 	var err error
@@ -277,7 +277,7 @@ func (t DefaultProjectManager) executeShellCommand(commandName string, args []st
 	if err != nil {
 		return err
 	}
-	t.logger.Log("%v\n", string(stdOutErr))
+	_ = t.logger.Log("shell output", string(stdOutErr))
 
 	return nil
 }

@@ -6,7 +6,7 @@ import (
 
 	"github.com/ae6rt/decap/web/api/v1"
 	"github.com/ae6rt/decap/web/clusterutil"
-	log "github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log"
 	k8s2 "k8s.io/client-go/kubernetes/typed/core/v1"
 	k8sapi "k8s.io/client-go/pkg/api/v1"
 )

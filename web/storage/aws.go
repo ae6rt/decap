@@ -80,15 +80,15 @@ func (c DefaultStorageService) GetBuildsByProject(project v1.Project, since uint
 	for _, v := range resp.Items {
 		buildDuration, err := strconv.ParseUint(*v["build-duration"].N, 10, 64)
 		if err != nil {
-			c.logger.Log("Error converting build-duration to ordinal value: %v\n", err)
+			_ = c.logger.Log("Error converting build-duration to ordinal value", err)
 		}
 		buildResult, err := strconv.ParseInt(*v["build-result"].N, 10, 32)
 		if err != nil {
-			c.logger.Log("Error converting build-result to ordinal value: %v\n", err)
+			_ = c.logger.Log("Error converting build-result to ordinal value", err)
 		}
 		buildTime, err := strconv.ParseUint(*v["build-start-time"].N, 10, 64)
 		if err != nil {
-			c.logger.Log("Error converting build-start-time to ordinal value: %v\n", err)
+			_ = c.logger.Log("Error converting build-start-time to ordinal value", err)
 		}
 
 		build := v1.Build{

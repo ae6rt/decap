@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"time"
 
-	log "github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log"
 
 	"k8s.io/client-go/pkg/api/unversioned"
 	k8sapi "k8s.io/client-go/pkg/api/v1"
@@ -84,26 +84,26 @@ func (t DefaultBuildManager) LaunchBuild(buildEvent v1.UserBuildEvent) error {
 	if err := t.lockService.Acquire(buildEvent); err != nil {
 		t.logger.Log(fmt.Sprintf("Failed to acquire lock for project %s, branch %s: %v\n", projectKey, buildEvent.Ref, err))
 		if err := t.deferralService.Defer(buildEvent); err != nil {
-			t.logger.Log(fmt.Sprintf("Failed to defer build: %s/%s\n", projectKey, buildEvent.Ref))
+			_ = t.logger.Log("Failed to defer build", projectKey, buildEvent.Ref)
 		} else {
-			t.logger.Log(fmt.Sprintf("Deferred build: %s/%s\n", projectKey, buildEvent.Ref))
+			_ = t.logger.Log("Deferred build", projectKey, buildEvent.Ref)
 		}
 		return nil
 	}
 
-	t.logger.Log(fmt.Sprintf("Acquired lock on build %s for project %s, branch %s\n", buildEvent.ID, projectKey, buildEvent.Ref))
+	t.logger.Log("Acquired lock on build", buildEvent.ID, "for", projectKey, buildEvent.Ref)
 
 	containers := t.makeContainers(buildEvent)
 	pod := t.makePod(buildEvent, containers)
 
 	if err := t.CreatePod(pod); err != nil {
 		if err := t.lockService.Release(buildEvent); err != nil {
-			t.logger.Log(fmt.Sprintf("Failed to release lock on build %s, project %s, branch %s.  No deferral will be attempted.\n", buildEvent.ID, projectKey, buildEvent.Ref))
+			_ = t.logger.Log("Failed to release lock", "build", buildEvent.ID, "project", projectKey, "branch", buildEvent.Ref)
 			return nil
 		}
 	}
 
-	t.logger.Log(fmt.Sprintf("Created pod %s\n", buildEvent.ID))
+	t.logger.Log("Created pod", buildEvent.ID)
 
 	return nil
 }
@@ -124,7 +124,7 @@ func (t DefaultBuildManager) DeletePod(podName string) error {
 // Podwatcher watches the k8s master API for pod events.
 func (t DefaultBuildManager) PodWatcher() {
 
-	t.logger.Log("Starting pod watcher")
+	_ = t.logger.Log("starting pod watcher")
 
 	deleted := make(map[string]struct{})
 
@@ -133,7 +133,7 @@ func (t DefaultBuildManager) PodWatcher() {
 			LabelSelector: "type=decap-build",
 		})
 		if err != nil {
-			t.logger.Log(fmt.Sprintf("Error watching cluster: %v\n", err))
+			_ = t.logger.Log("Error watching cluster", err)
 			continue
 		}
 
@@ -157,9 +157,9 @@ func (t DefaultBuildManager) PodWatcher() {
 			// Try to elete the build pod if it has not already been deleted.
 			if _, present := deleted[pod.Name]; !present && deletePod {
 				if err := t.kubernetesClient.Pods("decap").Delete(pod.Name, nil); err != nil {
-					t.logger.Log(fmt.Sprintf("Error deleting build-server pod: %v\n", err))
+					_ = t.logger.Log("Error deleting build-server pod", err)
 				} else {
-					t.logger.Log(fmt.Sprintf("Deleted pod %s\n", pod.Name))
+					_ = t.logger.Log("Deleted pod", pod.Name)
 				}
 				deleted[pod.Name] = struct{}{}
 			}
@@ -192,15 +192,15 @@ func (t DefaultBuildManager) LaunchDeferred(ticker <-chan time.Time) {
 	for _ = range ticker {
 		deferredBuilds, err := t.deferralService.Poll()
 		if err != nil {
-			t.logger.Log(fmt.Sprintf("error retrieving deferred builds: %v\n", err))
+			_ = t.logger.Log("error retrieving deferred builds", err)
 		}
 		for _, evt := range deferredBuilds {
 			if ube, ok := evt.(v1.UserBuildEvent); ok {
 				err := t.LaunchBuild(ube)
 				if err != nil {
-					t.logger.Log(fmt.Sprintf("Error launching deferred build: %+v\n", err))
+					_ = t.logger.Log("Error launching deferred build", err)
 				} else {
-					t.logger.Log(fmt.Sprintf("Launched deferred build: %+v\n", evt))
+					_ = t.logger.Log("Launched deferred build", evt)
 				}
 			}
 		}

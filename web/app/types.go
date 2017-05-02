@@ -11,6 +11,7 @@ import (
 	"github.com/ae6rt/decap/web/projects"
 	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/ae6rt/decap/web/storage"
+	kitlog "github.com/go-kit/kit/log"
 )
 
 var (
@@ -31,4 +32,5 @@ type DefaultService struct {
 	lockService     lock.LockService
 	projectManager  projects.ProjectManager
 	scmManagers     map[string]scmclients.SCMClient
+	logger          kitlog.Logger
 }
