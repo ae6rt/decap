@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/buildmanager"
 )
 
 // See https://confluence.atlassian.com/stash/post-service-webhook-for-stash-393284006.html for payload information.
@@ -60,7 +61,7 @@ func (stash StashEvent) Refs() []string {
 
 // StashHandler handles launching a build for Stash post commit hook events.
 type StashHandler struct {
-	decap BuildManager
+	decap buildmanager.BuildManager
 }
 
 // The http handler for handling Stash post commit hook events.

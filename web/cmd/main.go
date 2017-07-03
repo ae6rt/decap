@@ -46,7 +46,8 @@ func main() {
 		versionFlag            = flag.Bool("version", false, "Print version info and exit.")
 	)
 	flag.Parse()
-	fmt.Println(noPodWatcher)
+	// discard for now
+	_ = noPodWatcher
 
 	fmt.Printf("Version: %s, Commit: %s, Date: %s, Go SDK: %s\n", buildVersion, buildCommit, buildDate, buildGoSDK)
 	if *versionFlag {
@@ -75,14 +76,12 @@ func main() {
 	buildStore := storage.NewAWS(credentials.AWSCredential{AccessKey: *awsKey, AccessSecret: *awsSecret, Region: *awsRegion}, logger)
 	lockService := lock.NewDefault(k8sClient, kitlog.With(logger, "service", "lock"))
 	projectManager := projects.NewDefaultManager(*buildScriptsRepo, *buildScriptsRepoBranch, kitlog.With(logger, "service", "projectmanager"))
-	buildManager := buildmanager.NewBuildManager(k8sClient, projectManager, lockService, deferralService, kitlog.With(logger, "service", "buildmanager"))
-	fmt.Printf("@@@: %v\n", buildManager)
+	_ = buildmanager.NewBuildManager(k8sClient, projectManager, lockService, deferralService, kitlog.With(logger, "service", "buildmanager"))
 	scmManagers := map[string]scmclients.SCMClient{
 		"github": scmclients.NewGithub("https://api.github.com", *githubClientID, *githubClientSecret),
 	}
 
-	s := app.New(v1.Version{}, k8sClient, deferralService, buildStore, lockService, projectManager, scmManagers, logger)
-	fmt.Printf("@@@: %v\n", s)
+	s := app.New(v1.Version{Version: buildVersion, Commit: buildCommit, Date: buildDate, SDK: buildGoSDK}, k8sClient, deferralService, buildStore, lockService, projectManager, scmManagers, logger)
 
 	var h http.Handler
 	{

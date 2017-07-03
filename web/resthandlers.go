@@ -13,6 +13,7 @@ import (
 	"strconv"
 
 	"github.com/ae6rt/decap/web/api/v1"
+	"github.com/ae6rt/decap/web/buildmanager"
 	"github.com/ae6rt/decap/web/projects"
 	"github.com/ae6rt/decap/web/scmclients"
 	"github.com/ae6rt/decap/web/storage"
@@ -116,7 +117,7 @@ func ProjectsHandler(projectManager projects.ProjectManager) httprouter.Handle {
 }
 
 // DeferredBuildsHandler returns information about deferred builds.
-func DeferredBuildsHandler(buildManager BuildManager) httprouter.Handle {
+func DeferredBuildsHandler(buildManager buildmanager.BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		w.Header().Set("Content-type", "application/json")
 
@@ -152,7 +153,7 @@ func DeferredBuildsHandler(buildManager BuildManager) httprouter.Handle {
 }
 
 // ExecuteBuildHandler handles user-requested build executions.
-func ExecuteBuildHandler(buildManager BuildManager, logger *log.Logger) httprouter.Handle {
+func ExecuteBuildHandler(buildManager buildmanager.BuildManager, logger *log.Logger) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		team := params.ByName("team")
 		project := params.ByName("project")
@@ -179,7 +180,7 @@ func ExecuteBuildHandler(buildManager BuildManager, logger *log.Logger) httprout
 }
 
 // HooksHandler handles externally originated SCM events that trigger builds or build-scripts repository refreshes.
-func HooksHandler(projectManager projects.ProjectManager, buildManager BuildManager, logger *log.Logger) httprouter.Handle {
+func HooksHandler(projectManager projects.ProjectManager, buildManager buildmanager.BuildManager, logger *log.Logger) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		repoManager := params.ByName("repomanager")
 
@@ -246,7 +247,7 @@ func HooksHandler(projectManager projects.ProjectManager, buildManager BuildMana
 
 // StopBuildHandler deletes the pod executing the specified build ID.
 // todo inject a logger
-func StopBuildHandler(buildManager BuildManager, logger *log.Logger) httprouter.Handle {
+func StopBuildHandler(buildManager buildmanager.BuildManager, logger *log.Logger) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		w.Header().Set("Content-type", "application/json")
 
@@ -449,7 +450,7 @@ func BuildsHandler(buildStore storage.Service) httprouter.Handle {
 }
 
 // ShutdownHandler
-func ShutdownHandler(buildManager BuildManager) httprouter.Handle {
+func ShutdownHandler(buildManager buildmanager.BuildManager) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		switch r.Method {
 		case "POST":

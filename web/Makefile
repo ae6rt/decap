@@ -35,6 +35,11 @@ binary-linux:
 	@echo Build binary
 	GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o build/dist/linux/$(NAME)
 
+app: 
+	@mkdir -p build/dist/linux
+	@echo Build binary
+	cd cmd && GOOS=linux GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o app && cd ..
+
 binary-darwin: 
 	@mkdir -p build/dist/darwin
 	GOOS=darwin CGO_ENABLED=0 go build -ldflags $(LD_FLAGS) -o $(NAME)-darwin-$(ARCH) 
@@ -50,4 +55,4 @@ push: image
 clean: 
 	@go clean
 
-.PHONY: all lint test osx binaries container push clean
+.PHONY: all lint test osx binaries container push clean app
